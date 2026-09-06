@@ -2,10 +2,12 @@
 # Плата:  Waveshare ESP32-S3-RGB-Matrix (SKU 34422)
 # Панель: Waveshare RGB-Matrix-P2-64x64-B (SKU 33838), одна штука
 #
-# ВНИМАНИЕ. Этот конфиг в сессии сборки базы знаний НЕ компилировался и НЕ заливался.
-# Распиновка взята из packages/controllers/waveshare-esp32-s3-rgb-matrix.yaml проекта
-# hub75-studio (MIT, (c) 2026 Wade Edwards), а не из официальной схемы Waveshare.
-# Сверить со схемами в hardware/schematics репозитория waveshareteam/ESP32-S3-RGB-Matrix.
+# Распиновка СВЕРЕНА 2026-09-06 с собственными исходниками Waveshare:
+#   example/idf_v5.5.2/sdkconfig.defaults
+#   example/arduino_v3.3.7/01_SimpleTestShapes/platforms/esp32s3/esp32s3-default-pins.hpp
+# Оба совпали с конфигом hub75-studio до единого пина.
+#
+# ВНИМАНИЕ: сам конфиг не компилировался и не заливался на железо.
 #
 # Требуется ESPHome 2025.12 или новее: компонент hub75 появился в ядре начиная с неё.
 # Фреймворк строго esp-idf.
@@ -56,7 +58,7 @@ display:
     panel_width: 64
     panel_height: 64
 
-    # Распиновка платы. НЕ ПРОВЕРЕНО по официальной схеме, см. шапку файла.
+    # Распиновка платы, сверена с исходниками Waveshare, см. шапку файла.
     r1_pin: GPIO4
     g1_pin: GPIO5
     b1_pin: GPIO6

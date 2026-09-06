@@ -35,9 +35,9 @@ Apollo Automation M-1, с которой мы сравнивали.
 | [configs/esphome/waveshare-matrix.yaml](configs/esphome/waveshare-matrix.yaml) | Минимальный рабочий конфиг ESPHome под нашу плату и одну панель |
 | [configs/arduino/smoke_test/smoke_test.ino](configs/arduino/smoke_test/smoke_test.ino) | Дымовой тест на Arduino: проверить, что панель вообще живая |
 
-Оба конфига **в этой сессии не компилировались**. Распиновка в них взята из рабочего
-конфига hub75-studio, а не из официальной схемы Waveshare. Перед первым запуском сверить
-со схемой из `hardware/schematics` в репозитории waveshareteam/ESP32-S3-RGB-Matrix.
+Распиновка в конфигах **сверена 2026-09-06** с собственными исходниками Waveshare
+(`sdkconfig.defaults` для ESP-IDF и `esp32s3-default-pins.hpp` для Arduino) и совпала
+полностью. Сами конфиги при этом **не компилировались и не заливались** на железо.
 
 ## Статус проверки фактов
 
