@@ -1,106 +1,108 @@
-# Панель Waveshare RGB-Matrix-P2-64x64-B
+# Panel: Waveshare RGB-Matrix-P2-64x64-B
 
-SKU 33838, part number `RGB-Matrix-P2-64x64-B`. Версия с покрытием GOB.
-Цена на waveshare.com $31.99 (обычная версия без GOB, SKU 23706, стоит $28.99).
+SKU 33838, part number `RGB-Matrix-P2-64x64-B`. The GOB-coated variant.
+$31.99 on waveshare.com. The uncoated version (SKU 23706) is $28.99.
 
-## Спецификация
+## Specifications
 
-| Параметр | Значение |
+| Parameter | Value |
 |---|---|
-| Разрешение | 64 x 64 = 4096 точек |
-| Шаг пикселя | 2 мм |
-| Габариты | 128 x 128 мм |
-| Состав пикселя | 1R1G1B |
-| Угол обзора | ≥140° |
-| Тип управления | синхронный |
-| Развёртка | **1/32 scan** |
-| Интерфейс | HUB75 |
-| Питание | 5 В / 3 А через разъём VH4 |
-| Потребление | ≤15 Вт |
-| Защита | покрытие GOB |
+| Resolution | 64 x 64 = 4096 dots |
+| Pixel pitch | 2 mm |
+| Dimensions | 128 x 128 mm |
+| Pixel composition | 1R1G1B |
+| Viewing angle | ≥140° |
+| Control method | synchronous |
+| Scan rate | **1/32 scan** |
+| Interface | HUB75 |
+| Supply | 5 V / 3 A via VH4 socket |
+| Power draw | ≤15 W |
+| Protection | GOB coating |
 
-Источник: docs.waveshare.com/RGB-Matrix-Px-64x64 и waveshare.com/wiki/RGB-Matrix-P2-64x64.
+Source: docs.waveshare.com/RGB-Matrix-Px-64x64 and waveshare.com/wiki/RGB-Matrix-P2-64x64.
 
-Отдельно, на странице товара: **рекомендуется блок питания 5 В 4 А**, хотя в
-характеристиках стоит 3 А. Берите по рекомендации, а не по таблице.
+Note the discrepancy: the spec table says 3 A, but the product page separately recommends
+**a 5 V 4 A supply**. Size the supply from the recommendation, not the table.
 
-## Что такое GOB и чего он не даёт
+## What GOB gives you — and what it does not
 
-Формулировка Waveshare дословно: покрытие GOB (Glue On Board) повышает ударопрочность
-экрана и снижает риск повреждения светодиодов при разборке, транспортировке и монтаже,
-и особенно полезно для панелей с мелким шагом.
+Waveshare's own wording: the GOB (Glue On Board) coating process improves the impact
+resistance of the LED screen and reduces the risk of LED damage during disassembly,
+transportation and installation, and is especially suited to fine-pitch displays.
 
-Физически это слой прозрачной эпоксидной смолы поверх напаянных светодиодов. Поверхность
-становится монолитной, отдельные светодиоды перестают торчать и работать рычагами при ударе.
+Physically it is a layer of transparent epoxy poured over the mounted LEDs. The surface
+becomes monolithic, and individual LEDs stop protruding and acting as levers under impact.
 
-**Чего Waveshare НЕ заявляет:** влагозащиты, класса IP, пригодности для улицы. В таблице
-характеристик только строка `Protection: GOB coating process`. Блоги производителей
-экранов пишут про IP65, но это про их продукцию, а не про эту панель. СПРАВОЧНО и не
-основание считать панель водостойкой.
+**What Waveshare does not claim:** water resistance, an IP rating, or outdoor suitability.
+The spec table carries exactly one line, `Protection: GOB coating process`. LED display
+manufacturers' blogs advertise IP65 for GOB products, but that is about their own products.
+FYI only, and not grounds to treat this panel as weatherproof.
 
-**Обратная сторона (СПРАВОЧНО, по отраслевым источникам):** отдельный сбойный светодиод
-под смолой не выпаять, ремонт превращается в замену панели.
+**The trade-off** (FYI, from industry sources rather than Waveshare): a single dead LED
+under the epoxy cannot be desoldered. Repair becomes panel replacement.
 
-Для шага 2 мм выбор GOB оправдан: чем мельче шаг, тем мельче и хрупче светодиоды.
+At a 2 mm pitch the coating earns its keep — the finer the pitch, the smaller and more
+fragile the individual LEDs.
 
-## Распиновка HUB75
+## HUB75 pinout
 
-| Пин | Назначение | Пин | Назначение |
+| Pin | Function | Pin | Function |
 |---|---|---|---|
-| +5V | вход питания 5 В | GND | земля |
-| R1 | красный, старшая половина | R2 | красный, младшая половина |
-| G1 | зелёный, старшая половина | G2 | зелёный, младшая половина |
-| B1 | синий, старшая половина | B2 | синий, младшая половина |
-| A | выбор строки, бит 0 | B | выбор строки, бит 1 |
-| C | выбор строки, бит 2 | D | выбор строки, бит 3 |
-| E | выбор строки, бит 4 | CLK | тактовый вход |
-| LAT/STB | защёлка | OE | разрешение выхода |
+| +5V | 5 V power input | GND | ground |
+| R1 | red, upper half | R2 | red, lower half |
+| G1 | green, upper half | G2 | green, lower half |
+| B1 | blue, upper half | B2 | blue, lower half |
+| A | row select bit 0 | B | row select bit 1 |
+| C | row select bit 2 | D | row select bit 3 |
+| E | row select bit 4 | CLK | clock input |
+| LAT/STB | latch | OE | output enable |
 
-Пин **E обязателен**: панель 64 строки, развёртка 1/32. Без него картинка развалится.
+**Pin E is mandatory here.** The panel has 64 rows and a 1/32 scan rate; without E the
+image falls apart.
 
-Предупреждение из вики Waveshare: шелкография и разводка платы **меняются от партии к
-партии**, программная совместимость при этом сохраняется. Ориентироваться на надписи на
-своей плате, а не на картинки из интернета.
+A warning straight from the Waveshare wiki: silkscreen and board layout **vary between
+production batches** while remaining software-compatible. Trust the markings on your own
+board, not photographs found online.
 
-## Разъёмы на панели
+## Connectors
 
-Два разъёма HUB75: один вход для контроллера, второй выход для следующей панели в цепочке.
-Питание отдельно, через разъём VH4.
+Two HUB75 headers: one input from the controller, one output to the next panel in a chain.
+Power arrives separately through a VH4 socket.
 
-## Что в коробке
+## Box contents
 
-| Позиция |
+| Item |
 |---|
-| Панель GOB |
-| Шлейф 2 x 8 pin, ~30 см |
-| Плоский шлейф 16 pin, ~200 мм |
-| Кабель VH4 2 pin, ~500 мм |
-| Переходник под клеммник питания |
-| Магнитные винты, 4 штуки |
+| GOB panel |
+| 2 x 8-pin cable, ~30 cm |
+| 16-pin flat ribbon cable, ~200 mm |
+| VH4 2-pin cable, ~500 mm |
+| Power terminal adapter |
+| Magnetic screws, 4 pcs |
 
-## Обязательная проверка перед первым включением
+## Mandatory check before first power-on
 
-Waveshare отдельным предупреждением требует **измерить напряжение на выходе клеммника
-до подключения панели**. Если тестер показывает минус пять вольт, полярность клеммника
-перепутана и его нужно менять через поддержку.
+Waveshare issues this as a standalone warning: **measure the voltage at the terminal
+adapter output before connecting the panel.** If the meter reads minus five volts, the
+terminal polarity is wrong and the part must be replaced through support.
 
-Панель питается строго от 5 В. Любое другое напряжение её сжигает.
+The panel runs on 5 V only. Any other voltage destroys it.
 
-## Совместимость платформ
+## Platform support
 
-Waveshare заявляет проверенную работу с Raspberry Pi, Raspberry Pi Pico, ESP32,
-Arduino Mega2560 и STM32F103RBT6. Для Raspberry Pi используется библиотека
-`hzeller/rpi-rgb-led-matrix`, до трёх панелей на одну малину.
+Waveshare documents tested operation with Raspberry Pi, Raspberry Pi Pico, ESP32,
+Arduino Mega2560 and STM32F103RBT6. The Raspberry Pi path uses
+`hzeller/rpi-rgb-led-matrix` and supports up to three panels per Pi.
 
-## Сравнение с панелью Apollo M-1
+## Versus the Apollo M-1 panel
 
-| | Waveshare P2-64x64-B | Apollo M-1 Panel |
+| | Waveshare P2-64x64-B | Apollo M-1 panel |
 |---|---|---|
-| Шаг | 2 мм | 2.5 мм |
-| Габарит | 128 x 128 мм | 160 x 160 мм |
-| Плотность | 25 точек/см² | 16 точек/см² |
-| Защита | GOB | нет |
-| Цена | $31.99 | $36.99 |
+| Pitch | 2 mm | 2.5 mm |
+| Dimensions | 128 x 128 mm | 160 x 160 mm |
+| Density | 25 dots/cm² | 16 dots/cm² |
+| Protection | GOB | none |
+| Price | $31.99 | $36.99 |
 
-Пикселей поровну, но у нас они плотнее и на площади вдвое меньше. Резче, но мельче.
-Подробности в [APOLLO-M1-DOSSIER.md](../APOLLO-M1-DOSSIER.md), раздел 15.
+Same pixel count, packed 1.6 times denser into half the area. Sharper, but physically
+smaller. Full comparison in [08-apollo-m1-comparison.md](08-apollo-m1-comparison.md).

@@ -1,154 +1,171 @@
-# Прошивки: что выбрать и как поставить
+# Firmware: what to choose and how to install
 
-Четыре пути. Первые два не требуют компилятора на старте.
+Four paths. The first two need no compiler to get started.
 
-| Путь | Сложность | Что получаем | Готовый бинарь |
+| Path | Difficulty | What you get | Prebuilt binary |
 |---|---|---|---|
-| **WLED 16.0.1** | низкая | 200+ эффектов, веб-интерфейс, JSON API, интеграция с HA | **да** |
-| **ESPHome / hub75-studio** | средняя | нативные сущности HA, LVGL-страницы, YAML под контролем | **нет**, собирать самому |
-| **ESP-IDF** | высокая | полный контроль, примеры Waveshare | исходники |
-| **Arduino** | средняя | быстрый прототип, огромная экосистема | исходники |
+| **WLED 16.0.1** | low | 200+ effects, web UI, JSON API, Home Assistant integration | **yes** |
+| **ESPHome / hub75-studio** | medium | native HA entities, LVGL pages, YAML you control | **no**, build it yourself |
+| **ESP-IDF** | high | full control, vendor examples, BSP | sources |
+| **Arduino** | medium | fast prototyping, huge ecosystem | sources |
 
-## Путь 1: WLED (рекомендуемый старт)
+## Path 1: WLED — the recommended start
 
-Плата официально поддержана апстримом. Сборка добавлена в WLED 16.0.1 автором netmindz,
-пинаут выбирается дефайном `WAVESHARE_S3_PINOUT`.
+The board is officially supported upstream. Support landed in WLED 16.0.1, contributed by
+netmindz; the pinout is selected at build time by the `WAVESHARE_S3_PINOUT` define.
 
-**Файл:** `WLED_16.0.1_ESP32-S3_Waveshare_HUB75.bin` из релиза
-[wled/WLED v16.0.1](https://github.com/wled/WLED/releases/tag/v16.0.1)
+**File:** `WLED_16.0.1_ESP32-S3_Waveshare_HUB75.bin` from the
+[WLED v16.0.1 release](https://github.com/wled/WLED/releases/tag/v16.0.1).
 
-В документации WLED плата описана так: octal PSRAM, выделенная плата драйвера HUB75
-с аудиокодеком на борту (два микрофона, звукореактивные эффекты) и слотом microSD.
+WLED's own documentation describes the board as: octal PSRAM, a dedicated HUB75 driver
+board with an onboard audio codec (dual mic, audioreactive) and a microSD slot.
 
-Что важно знать про WLED на HUB75:
+Things worth knowing about WLED on HUB75:
 
-- Пины HUB75 в настройках **не задаются**, они зашиты в сборку. Отсюда и отдельные бинари.
-- После смены настроек HUB75 экран **гаснет до перезагрузки**. Это норма, а не поломка.
-- Для сетки 128x128 из четырёх панелей документация WLED прямо требует ESP32-S3 с octal
-  PSRAM. У нас 16 МБ octal, требование выполнено с запасом.
-- На ESP32-S3 звукореактивность и HUB75 работают одновременно без известных ограничений.
-  На классическом ESP32 микрофоны вызывают падения, на S2 звук и HUB75 несовместимы.
+- HUB75 pins **cannot be set** in the UI; they are compiled in. That is why separate
+  per-board binaries exist.
+- After any HUB75 setting change the display **goes black until reboot**. Expected
+  behaviour, not a fault.
+- For a 128x128 grid of four panels, WLED's documentation explicitly requires an ESP32-S3
+  with octal PSRAM. This board has 16 MB octal, so the requirement is met comfortably.
+- On ESP32-S3, audioreactive and HUB75 coexist with no known restrictions. On classic
+  ESP32 microphones cause crashes; on S2 the two are mutually exclusive.
 
-## Путь 2: ESPHome
+## Path 2: ESPHome
 
-**Важно:** готового бинаря для нашей платы нет. В корне репозитория hub75-studio лежат
-только `apollo-automation-m1-rev4`, `apollo-automation-m1-rev6` и
-`adafruit-matrix-portal-s3`. Пакет контроллера Waveshare в
-`packages/controllers/waveshare-esp32-s3-rgb-matrix.yaml` есть, но собирать конфигурацию
-придётся самостоятельно.
+**Important:** there is no prebuilt binary for this board. The hub75-studio repository root
+ships factory configs only for `apollo-automation-m1-rev4`, `apollo-automation-m1-rev6` and
+`adafruit-matrix-portal-s3`. A Waveshare controller package exists at
+`packages/controllers/waveshare-esp32-s3-rgb-matrix.yaml`, but the top-level configuration
+is yours to write.
 
-Два варианта:
+**2a. Plain ESPHome.** The `hub75` component is built into the core as of ESPHome 2025.12.
+There is no board preset for this board, so all fourteen pins are declared by hand. A
+minimal working config is in
+[configs/esphome/waveshare-matrix.yaml](../configs/esphome/waveshare-matrix.yaml).
 
-**2а. Голый ESPHome.** Компонент `hub75` встроен в ядро начиная с ESPHome 2025.12.
-Пресета нашей платы в ядре нет, все 14 пинов задаются вручную. Готовый минимальный
-конфиг лежит в [configs/esphome/waveshare-matrix.yaml](../configs/esphome/waveshare-matrix.yaml).
+**2b. hub75-studio.** Gives you ready-made LVGL pages: clock, weather, album art, sports
+scoreboards, audio spectrum, Pong, effects, video streaming over DDP. You write a top-level
+YAML that pulls in their controller package. The project requires ESPHome on ESP-IDF;
+Arduino is not supported.
 
-**2б. hub75-studio.** Даёт готовые LVGL-страницы: часы, погода, обложки альбомов,
-спортивные табло, аудиоспектр, Pong, эффекты, стриминг видео через DDP. Нужно написать
-свой верхнеуровневый YAML, подключив их пакет контроллера. Проект требует ESPHome на
-ESP-IDF, Arduino не поддерживается.
+Key `hub75` component options:
 
-Ключевые параметры компонента `hub75`:
-
-| Параметр | Дефолт | Диапазон |
+| Option | Default | Range |
 |---|---|---|
 | `brightness` | 128 | 0–255 |
 | `bit_depth` | 8 | 4–12 |
-| `min_refresh_rate` | 60 | 40–200 Гц |
-| `clock_speed` | 20MHZ | 8/10/16/20 МГц |
-| `latch_blanking` | 1 | целое положительное |
+| `min_refresh_rate` | 60 | 40–200 Hz |
+| `clock_speed` | 20MHZ | 8/10/16/20 MHz |
+| `latch_blanking` | 1 | positive integer |
 | `shift_driver` | GENERIC | GENERIC/FM6124/FM6126A/ICN2038S/MBI5124/DP3246 |
-| `scan_wiring` | STANDARD_TWO_SCAN | + варианты 1/4 и 1/8 |
+| `scan_wiring` | STANDARD_TWO_SCAN | plus 1/4 and 1/8 variants |
 | `gamma_correct` | — | LINEAR / CIE1931 / GAMMA_2_2 |
-| `double_buffer` | false | при LVGL ставить false |
-| `update_interval` | 16 мс | при LVGL ставить never |
+| `double_buffer` | false | set false with LVGL |
+| `update_interval` | 16 ms | set `never` with LVGL |
 
-Многопанельные раскладки: `layout_rows`, `layout_cols` и `layout` со значениями
-HORIZONTAL, TOP_LEFT_DOWN, TOP_RIGHT_DOWN, BOTTOM_LEFT_UP, BOTTOM_RIGHT_UP и их
-ZIGZAG-вариантами.
+Multi-panel layouts use `layout_rows`, `layout_cols` and `layout`, the latter taking
+HORIZONTAL, TOP_LEFT_DOWN, TOP_RIGHT_DOWN, BOTTOM_LEFT_UP, BOTTOM_RIGHT_UP and their
+ZIGZAG variants.
 
-## Путь 3: ESP-IDF, примеры производителя
+## Path 3: ESP-IDF, vendor examples
 
-Репозиторий [waveshareteam/ESP32-S3-RGB-Matrix](https://github.com/waveshareteam/ESP32-S3-RGB-Matrix),
-лицензия Apache 2.0. Структура:
+Repository: [waveshareteam/ESP32-S3-RGB-Matrix](https://github.com/waveshareteam/ESP32-S3-RGB-Matrix),
+Apache 2.0.
 
-| Каталог | Содержимое |
+| Directory | Contents |
 |---|---|
-| `example/idf_v5.5.2` | примеры под ESP-IDF 5.5.2 |
-| `example/arduino_v3.3.7` | примеры под Arduino core 3.3.7 |
-| `firmware` | готовые бинари |
-| `hardware/schematics` | **схемы платы** |
-| `hardware/dimensions` | габаритные чертежи |
+| `example/idf_v5.5.2` | ESP-IDF 5.5.2 project, including the board support package |
+| `example/idf_v5.5.2/components/bsp/esp32_s3_matrix` | **the BSP — authoritative pin map in `include/bsp/config.h`** |
+| `example/arduino_v3.3.7` | ten Arduino examples |
+| `firmware` | prebuilt binaries |
+| `hardware/schematics` | board schematic, one-page PDF |
+| `hardware/dimensions` | mechanical drawings |
 
-Репозиторий свежий, создан 2026-04-23, три звезды, один основной контрибьютор.
-Ожидания по поддержке сообщества выставлять соответственно.
+**Notable finding.** Their ESP-IDF example is built on `esphome/esp-hub75` — the very
+library that backs the `hub75` component in ESPHome core. The BSP's `idf_component.yml`
+declares it as a dependency at version `^0.3.5`. The ESP-IDF path and the ESPHome path
+therefore lead to the same driver, and knowledge transfers directly between them.
 
-**Находка при сверке 2026-09-06:** их пример под ESP-IDF построен на библиотеке
-`esp-hub75` — той самой, что лежит под компонентом `hub75` в ядре ESPHome. Видно по
-именам параметров в `sdkconfig.defaults`: `CONFIG_HUB75_PIN_R1`, `CONFIG_HUB75_WIRING_STANDARD`
-и так далее. То есть путь через ESP-IDF и путь через ESPHome ведут к одному и тому же
-драйверу, и знания между ними переносятся напрямую.
+Full BSP dependency list, useful if you build on it:
 
-**Вторая находка:** раскладка в их примере по умолчанию рассчитана на **две** панели
-(`LAYOUT_ROWS=2`, `COLS=1`, зигзаг сверху слева вниз), то есть 64x128 вертикально.
-На одной панели поправить на 1 и 1.
+| Component | Version |
+|---|---|
+| `esphome/esp-hub75` | ^0.3.5 |
+| `lvgl/lvgl` | ^9.3 |
+| `waveshare/qmi8658` | ^1.0.1 |
+| `waveshare/pcf85063a` | * |
+| `pedrominatel/shtc3` | ^1.4.0 |
+| `esp_codec_dev` | ~1.3.1 |
+| `espressif/button` | ^4.1.3 |
+| `espressif/esp_lvgl_port` | ^2.0.0 |
 
-## Путь 4: Arduino
+**Second finding.** Their example's default layout targets **two** panels
+(`LAYOUT_ROWS=2`, `COLS=1`, top-left-down zigzag), i.e. 64x128 stacked vertically. On a
+single panel, change both to 1.
 
-Базовая библиотека — `mrcodetastic/ESP32-HUB75-MatrixPanel-DMA`, она же
-`ESP32 HUB75 LED MATRIX PANEL DMA Display` в менеджере библиотек. На ней построено
-большинство проектов из [06-projects.md](06-projects.md).
+The repository is young: created 2026-04-23, three stars, one main contributor. Calibrate
+your expectations of community support accordingly.
 
-Требования Waveshare: пакет плат `esp32 by Espressif Systems` версии **3.3.7**.
+## Path 4: Arduino
 
-**Приятная особенность платы.** Waveshare развела HUB75 под дефолтный пинаут ESP32-S3
-этой библиотеки, отличие ровно одно — пин E выведен на GPIO9, тогда как в апстриме он
-не назначен. Значит, любой скетч на этой библиотеке заводится без настройки пинов,
-достаточно одной строки `mxconfig.gpio.e = 9;`. Подробности в
+The base library is `mrcodetastic/ESP32-HUB75-MatrixPanel-DMA`, listed in the Library
+Manager as `ESP32 HUB75 LED MATRIX PANEL DMA Display`. Most projects in
+[06-projects.md](06-projects.md) are built on it.
+
+Waveshare requires board package `esp32 by Espressif Systems` version **3.3.7**.
+
+**The board's pleasant quirk.** Waveshare routed HUB75 to this library's default ESP32-S3
+pinout, differing in exactly one pin: E on GPIO9, unassigned upstream. Any sketch on this
+library therefore runs with no pin setup — one line, `mxconfig.gpio.e = 9;`. Details in
 [02-controller.md](02-controller.md).
 
-**Осторожно с их примером.** В `01_SimpleTestShapes` стоит
-`mxconfig.driver = HUB75_I2S_CFG::FM6126A;` и `PANEL_RES_Y 32`, хотя руководство самой
-Waveshare предписывает драйвер Generic, а панель у нас 64 строки. Похоже на
-неадаптированный апстрим-пример. Начинать с GENERIC и 64x64.
+Vendor examples:
 
-Примеры производителя:
+| Example | Panel height declared | Shift driver set | What it does |
+|---|---|---|---|
+| `01_SimpleTestShapes` | 32 | FM6126A | text, fills, basic sanity check |
+| `02_PatternPlasma` | — | commented out | plasma effect, draw-rate counter |
+| `03_DoubleBuffer` | 64 | none | double buffering against animation flicker |
+| `04_OtherShiftDriverPanel` | 64 | FM6126A | panels with other driver ICs |
+| `05_AnimatedGIFPanel_SD` | 32 | FM6126A | GIF playback from the TF card |
+| `06_BitmapIcons` | 64 | none | BMP output |
+| `07_Pixel_Mapping_Test` | 16 | none | raw HUB75 control logic |
+| `08_Sensor_Test` | 64 | FM6126A | SHTC3, QMI8658 over I2C |
+| `09_Music_Player` | 64 | FM6126A | ES8311 playback, buttons, TF card |
+| `10_Chinese_Font` | 64 | FM6126A | CJK font rendering |
 
-| Пример | Что делает |
-|---|---|
-| `01_SimpleTestShapes` | текст, заливки, проверка базовой работоспособности |
-| `02_PatternPlasma` | плазма, замер FPS отрисовки |
-| `03_DoubleBuffer` | двойная буферизация, борьба с мерцанием анимации |
-| `04_OtherShiftDriverPanel` | панели с другими драйверными чипами |
-| `05_AnimatedGIFPanel_SD` | проигрывание GIF с TF-карты |
-| `06_BitmapIcons` | вывод BMP |
-| `07_Pixel_Mapping_Test` | базовая логика управления HUB75 |
+**Watch the panel height.** Several examples declare 64x32 and need adjusting to 64x64.
 
-Дымовой тест лежит в
+**Watch the shift driver.** Seven of ten set `FM6126A`, contradicting Waveshare's own user
+guide and ESP-IDF configuration, which both indicate `GENERIC`. See contradiction #4 in
+[07-sources.md](07-sources.md).
+
+A smoke test is provided in
 [configs/arduino/smoke_test](../configs/arduino/smoke_test/smoke_test.ino).
 
-## Альтернативные библиотеки
+## Alternative libraries
 
-| Библиотека | Когда брать |
+| Library | When to use it |
 |---|---|
-| `esphome-libs/esp-hub75` | ESP-IDF компонент, лежит под компонентом ESPHome. Поддерживает ESP32/S2/S3/C6/P4, гамма-коррекция CIE 1931, двойная буферизация, борьба с гостингом через технику предыдущего адреса строки на младшем битовом плане |
-| `hzeller/rpi-rgb-led-matrix` | если панель поедет на Raspberry Pi |
-| `bitbank2/AnimatedGIF` | декодер GIF, используется всеми проектами с анимацией |
-| `mrcodetastic/GFX_Lite` | облегчённая замена Adafruit GFX |
+| `esphome-libs/esp-hub75` | ESP-IDF component underneath ESPHome's component, and the one Waveshare's own BSP depends on. Supports ESP32/S2/S3/C6/P4, CIE 1931 gamma, double buffering, ghosting mitigation via a previous-row-address technique on the LSB bit plane |
+| `hzeller/rpi-rgb-led-matrix` | if the panel moves to a Raspberry Pi |
+| `bitbank2/AnimatedGIF` | GIF decoder used by every animation project |
+| `mrcodetastic/GFX_Lite` | lighter replacement for Adafruit GFX |
 
-## Расход памяти на буфер DMA
+## DMA buffer memory
 
-Оценки из документации `esp-hub75` для панели 64x64 при 8 битах:
+Figures from the `esp-hub75` documentation for a 64x64 panel at 8-bit depth:
 
-| Платформа | Расход |
+| Platform | Usage |
 |---|---|
-| ESP32-S3 (GDMA), внутренняя SRAM | ~57 КБ на буфер, ~114 КБ при двойной буферизации |
-| ESP32-P4 (PARLIO), PSRAM | ~284 КБ на буфер |
+| ESP32-S3 (GDMA), internal SRAM | ~57 KB single buffer, ~114 KB double-buffered |
+| ESP32-P4 (PARLIO), PSRAM | ~284 KB single buffer |
 
-Оценка из документации компонента ESPHome: панель 64x32 при 8 битах примерно 24 КБ.
+The ESPHome component documentation quotes roughly 24 KB for a 64x32 panel at 8-bit.
 
-**Важное ограничение ESP32-S3 из документации библиотеки DMA:** при использовании PSRAM
-под буфер DMA полоса пропускания ограничивает выходную частоту примерно 13 МГц, что
-режет число панелей в цепочке без мерцания. Quad SPI PSRAM под буфер DMA использовать
-нельзя вообще, слишком медленно. У нас octal, так что путь открыт, но частоту 20 МГц
-при работе через PSRAM держать не получится.
+**Important ESP32-S3 constraint** from the DMA library documentation: when PSRAM backs the
+DMA buffer, bandwidth caps the output clock at roughly 13 MHz, which limits how many panels
+you can chain without flicker. Quad SPI PSRAM must never back the DMA buffer — too slow.
+This board has octal PSRAM, so the path is open, but 20 MHz is not achievable while running
+the buffer out of PSRAM.

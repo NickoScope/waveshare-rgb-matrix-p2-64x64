@@ -1,58 +1,62 @@
-# Контроллер Waveshare ESP32-S3-RGB-Matrix
+# Controller: Waveshare ESP32-S3-RGB-Matrix
 
-SKU 34422. Цена на waveshare.com $24.99. Габариты платы 50 x 42 мм.
+SKU 34422. $24.99 on waveshare.com. Board size 50 x 42 mm.
 
-## Ключевые характеристики
+## Key specifications
 
-| Параметр | Значение |
+| Parameter | Value |
 |---|---|
-| SoC | ESP32-S3-N32R16, Xtensa LX7, два ядра, до 240 МГц |
-| SRAM / ROM | 512 КБ / 384 КБ |
-| Flash | **32 МБ** |
-| PSRAM | **16 МБ, octal** |
-| Радио | Wi-Fi 2.4 ГГц 802.11 b/g/n, Bluetooth 5 LE |
-| Напряжение питания | 5 В |
-| **Максимальный ток** | **10 А** |
-| Входов питания | два |
-| Поддерживаемые разрешения | 64x64, 64x32, 80x40, 96x48 |
-| Максимум в каскаде | 6 x 64 x 64 |
-| Рабочая температура | -40 … +85 °C |
+| SoC | ESP32-S3-N32R16, Xtensa LX7 dual core, up to 240 MHz |
+| Module | ESP32-S3-WROOM-2-N32R16V (confirmed on the schematic) |
+| SRAM / ROM | 512 KB / 384 KB |
+| Flash | **32 MB** |
+| PSRAM | **16 MB, octal** |
+| Radio | Wi-Fi 2.4 GHz 802.11 b/g/n, Bluetooth 5 LE |
+| Supply voltage | 5 V |
+| **Maximum current rating** | **10 A** |
+| Power inputs | two |
+| Supported resolutions | 64x64, 64x32, 80x40, 96x48 |
+| Maximum cascade | 6 x 64 x 64 |
+| Operating temperature | -40 … +85 °C |
 
-Режим PSRAM подтверждается конфигом hub75-studio: `mode: octal`, `speed: 80MHz`.
+PSRAM mode is confirmed by the hub75-studio config: `mode: octal`, `speed: 80MHz`.
 
-## Периферия на плате
+## Onboard peripherals
 
-| Компонент | Назначение |
+| Component | Function |
 |---|---|
-| ES8311 | аудиокодек, малопотребляющий, моно |
-| ES7210 | аудио-АЦП с эхоподавлением |
-| Два микрофона | массив, шумоподавление и эхоподавление |
-| Разъём динамика | динамик 8 Ом 5 Вт идёт в комплекте |
-| QMI8658 | IMU, 3 оси акселерометра и 3 гироскопа |
-| SHTC3 | температура и влажность |
-| PCF85063 | часы реального времени, разъём батарейки SH1.0 |
-| Слот TF-карты | **только режим MMC** |
-| SN74HC245 | восьмиканальный буфер с тремя состояниями на выходы HUB75 |
-| USB Type-C | питание, прошивка, отладка |
-| Кнопки RST и BOOT | BOOT программируемая |
-| Гребёнка GPIO | расширение |
+| ES8311 | low-power mono audio codec |
+| ES7210 | audio ADC with echo cancellation |
+| Dual microphones | array for noise suppression and echo cancellation |
+| Speaker header | 8 Ω 5 W speaker included in the box |
+| QMI8658 | 6-axis IMU, 3-axis accelerometer + 3-axis gyroscope |
+| SHTC3 | temperature and humidity |
+| PCF85063 | real-time clock, SH1.0 battery connector |
+| TF card slot | **MMC mode only** |
+| SN74HC245 | octal bus transceiver with three-state outputs on the HUB75 lines |
+| USB Type-C | power, flashing, debugging |
+| RST and BOOT buttons | BOOT is user-programmable |
+| GPIO header | expansion |
 
-Наличие буфера SN74HC245 — важная деталь: он поднимает 3.3 В логику ESP32 до уровня,
-который панель ждёт. На голых ESP32 без буфера это типовой источник гостинга и мерцания
-на длинных шлейфах.
+The SN74HC245 buffer matters more than it looks. It lifts the ESP32's 3.3 V logic to what
+the panel expects. On a bare ESP32 without a buffer, that mismatch is a classic source of
+ghosting and flicker on longer ribbons — a whole class of problems this board removes.
 
-## Распиновка HUB75
+## Complete pin map
 
-**ПРОВЕРЕНО 2026-09-06 по трём независимым источникам, два из них — собственные
-исходники Waveshare. Все три совпадают до единого пина.**
+**VERIFIED 2026-09-06 against Waveshare's own firmware sources.** Three independent
+sources agree pin for pin.
 
-| Источник | Файл |
+| Source | File |
 |---|---|
-| Waveshare, пример ESP-IDF | `example/idf_v5.5.2/sdkconfig.defaults` |
-| Waveshare, пример Arduino | `example/arduino_v3.3.7/01_SimpleTestShapes/platforms/esp32s3/esp32s3-default-pins.hpp` |
-| hub75-studio, сообщество | `packages/controllers/waveshare-esp32-s3-rgb-matrix.yaml` |
+| Waveshare, ESP-IDF BSP | `example/idf_v5.5.2/components/bsp/esp32_s3_matrix/include/bsp/config.h` |
+| Waveshare, ESP-IDF example | `example/idf_v5.5.2/sdkconfig.defaults` |
+| Waveshare, Arduino examples | `platforms/esp32s3/esp32s3-default-pins.hpp`, `08_Sensor_Test.ino`, `09_Music_Player.ino` |
+| hub75-studio, community | `packages/controllers/waveshare-esp32-s3-rgb-matrix.yaml` |
 
-| Сигнал | GPIO | Сигнал | GPIO |
+### HUB75
+
+| Signal | GPIO | Signal | GPIO |
 |---|---|---|---|
 | R1 | 4 | A | 18 |
 | G1 | 5 | B | 8 |
@@ -62,99 +66,131 @@ SKU 34422. Цена на waveshare.com $24.99. Габариты платы 50 x 
 | B2 | 16 | LAT | 40 |
 | OE | 2 | CLK | 41 |
 
-### Почему именно эти пины
+### I2C — sensors and codecs
 
-Waveshare развела плату **под дефолтный пинаут ESP32-S3 библиотеки
-`mrcodetastic/ESP32-HUB75-MatrixPanel-DMA`**. Сверка с апстримом
-(`src/platforms/esp32s3/esp32s3-default-pins.hpp`) показывает полное совпадение
-тринадцати пинов из четырнадцати. Отличие ровно одно:
+| Signal | GPIO |
+|---|---|
+| SDA | 47 |
+| SCL | 48 |
 
-| Пин | Апстрим | Waveshare |
+Bus runs at 400 kHz on port 0. Device addresses: PCF85063 `0x51`, SHTC3 `0x70`.
+The QMI8658 address is probed at runtime, identified by a WHO_AM_I value of `0x05`.
+
+### I2S — audio
+
+| Signal | GPIO | Note |
 |---|---|---|
-| E | `-1` (не задан) | **9** |
+| SCLK / BCLK | 43 | bit clock |
+| MCLK | 12 | master clock |
+| LCLK / LRCLK / WS | 38 | word select |
+| DOUT | 21 | to speaker, ES8311 |
+| DSIN | **39** | **from microphones, ES7210** |
+| Power amp enable | 11 | `BSP_AUDIO_PA_REVERTED` is false |
 
-В апстриме E не назначен, потому что он нужен только панелям с развёрткой 1/32.
-Waveshare вывела его на GPIO9.
+I2S port 0.
 
-**Практическое следствие, экономящее время:** любой скетч на этой библиотеке заводится
-на нашей плате без настройки пинов вообще. Достаточно одной строки:
+### TF card — 1-bit MMC
+
+| Signal | GPIO |
+|---|---|
+| D0 | 17 |
+| CMD | 44 |
+| CLK | 1 |
+| D1, D2, D3 | not connected |
+| SPI CS (alternate path) | 14 |
+
+D1 through D3 being unconnected is why the documentation states MMC 1-bit mode only.
+
+### Button
+
+| Signal | GPIO |
+|---|---|
+| BOOT / main button | 0 |
+
+Used with `INPUT_PULLUP` in the Arduino examples.
+
+### Still unverified
+
+One pin from the hub75-studio config has no counterpart in Waveshare's BSP:
+`mic_power_rail` on **GPIO46**. It may be an ESPHome-specific addition. **UNVERIFIED.**
+Every other pin in that community config matched Waveshare's sources exactly, so it is
+probably right, but it has not been confirmed.
+
+## Why these pins
+
+Waveshare laid the board out on the **default ESP32-S3 pinout of the
+`mrcodetastic/ESP32-HUB75-MatrixPanel-DMA` library**. Comparing against upstream
+`src/platforms/esp32s3/esp32s3-default-pins.hpp` shows thirteen of fourteen pins identical.
+Exactly one differs:
+
+| Pin | Upstream | Waveshare |
+|---|---|---|
+| E | `-1` (unassigned) | **9** |
+
+Upstream leaves E unassigned because only 1/32-scan panels need it. Waveshare routed it
+to GPIO9.
+
+**The time-saving consequence:** any sketch built on that library runs here with no pin
+configuration whatsoever. One line covers it:
 
 ```cpp
 mxconfig.gpio.e = 9;
 ```
 
-Именно так и сделано в примере `01_SimpleTestShapes` самой Waveshare: все остальные
-тринадцать пинов подхватываются из дефолтов библиотеки.
+That is precisely what Waveshare does in `01_SimpleTestShapes` — the other thirteen pins
+come from the library defaults.
 
-## Распиновка остальной периферии
+## Recommended driver settings
 
-Из конфига hub75-studio. Отдельной сверки по исходникам Waveshare для этих пинов
-не проводилось: их примеры HUB75 периферию не трогают. **НЕ ПРОВЕРЕНО.**
+From Waveshare's own user guide:
 
-| Шина / сигнал | GPIO |
+| Setting | Value |
 |---|---|
-| I2C SDA | 47 |
-| I2C SCL | 48 |
-| I2S LRCLK | 38 |
-| I2S BCLK | 43 |
-| I2S MCLK | 12 |
-| Микрофон DIN | 39 |
-| Динамик DOUT | 21 |
-| Питание микрофона | 46 |
-| Управление усилителем | 11 |
+| Panel width / height | 64 / 64 |
+| Scan wiring pattern | Standard |
+| Shift driver IC | Generic |
+| Bit depth | 8 |
+| Output clock speed | 20 MHz |
+| Minimum refresh rate | 60 Hz |
+| Default brightness | 128 |
+| Display rotation | 0° |
 
-Адреса на шине I2C: PCF85063 `0x51`, SHTC3 `0x70`.
+**Caveat on the shift driver.** The user guide and the ESP-IDF configuration both point at
+`GENERIC`, but seven of Waveshare's ten Arduino examples explicitly set `FM6126A` — including
+four that are correctly configured for a 64x64 panel. Their own materials disagree with each
+other. See contradiction #4 in [07-sources.md](07-sources.md). Start with `GENERIC`;
+if the screen stays black on good power, switch to `FM6126A`.
 
-## Рекомендованные настройки драйвера
+## Flashing mode
 
-Waveshare задаёт их явно в своём руководстве, и они совпадают с конфигом hub75-studio.
-Это тот случай, когда два независимых источника сходятся, поэтому значениям можно верить.
+If the port is not detected:
 
-| Параметр | Значение |
-|---|---|
-| Panel Width / Height | 64 / 64 |
-| Scan Wiring Pattern | Standard |
-| Shift Driver IC | **Generic** |
-| Bit Depth | 8 бит |
-| Output Clock Speed | 20 МГц |
-| Minimum Refresh Rate | 60 Гц |
-| Default Brightness | 128 |
-| Display Rotation | 0° |
+1. Hold BOOT
+2. Plug in USB
+3. Release BOOT
 
-Главное здесь — `Generic`. Панель не требует инициализации FM6126A, что экономит время
-на отладке чёрного экрана.
+Press RESET after the upload finishes.
 
-## Режим прошивки
+## About the current headroom
 
-Если порт не определяется:
+The 10 A rating does not square with the claimed six-panel cascade: 6 x 3 A = 18 A. The
+manufacturer is evidently counting typical brightness rather than a full white field.
 
-1. Зажать кнопку BOOT
-2. Подключить USB к компьютеру
-3. Отпустить BOOT
+For a 2x2 build from these panels the worst case is 4 x 3 = 12 A, already above the board's
+rated 10 A. Either cap brightness, or feed the panels directly from the supply instead of
+routing all the current through the board.
 
-После заливки нажать RESET.
-
-## Про запас по току
-
-Паспортные 10 А против заявленных шести панелей в каскаде не сходятся:
-6 x 3 А = 18 А. Значит, производитель считает по типовой яркости, а не по белому полю
-на максимуме.
-
-Для сборки 2x2 из наших панелей предельный расчёт даёт 4 x 3 = 12 А, что уже выше
-паспортных 10 А платы. Практический вывод: либо ограничивать яркость, либо подавать
-питание в панели напрямую от блока, не пропуская весь ток через плату.
-
-## Сравнение с контроллером Apollo M-1 Rev6
+## Versus the Apollo M-1 Rev6 controller
 
 | | Apollo M-1 Rev6 | Waveshare |
 |---|---|---|
-| Flash | 16 МБ | 32 МБ |
-| PSRAM | 8 МБ octal | 16 МБ octal |
-| Ток по 5 В | ~3 А | 10 А |
-| Микрофон | аддон $6.99, один | два на плате |
-| Аудиовыход, IMU, RTC, климат, TF | нет | есть |
-| Панелей в каскаде | 4 | 6 |
-| Цена | $27.99 | $24.99 |
+| Flash | 16 MB | 32 MB |
+| PSRAM | 8 MB octal | 16 MB octal |
+| Current on 5 V | ~3 A | 10 A |
+| Microphone | $6.99 add-on, one | two onboard |
+| Audio out, IMU, RTC, climate, SD | none | all present |
+| Panels in cascade | 4 | 6 |
+| Price | $27.99 | $24.99 |
 
-Дешевле и мощнее по всем пунктам. Проигрывает только в готовности софта, см.
+Cheaper and better specified on every line. It loses only on software readiness, see
 [03-firmware.md](03-firmware.md).

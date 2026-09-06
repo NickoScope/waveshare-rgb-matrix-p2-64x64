@@ -1,97 +1,109 @@
-# Источники
+# Sources
 
-Правило проекта: у любого числа, порога и утверждения о чужом железе должен быть
-проверяемый источник. Ниже — что откуда взято и за что каждый источник отвечает.
-Всё проверено 2026-09-06, если не указано иное.
+Project rule: every number, threshold and claim about somebody else's hardware must have a
+verifiable source. Below is what came from where, and what each source is authoritative for.
+Everything checked 2026-09-06 unless noted.
 
-## Первоисточники производителя (высшая достоверность)
+## Vendor primary sources (highest confidence)
 
-| Источник | За что отвечает |
+| Source | Authoritative for |
 |---|---|
-| [docs.waveshare.com/RGB-Matrix-Px-64x64](https://docs.waveshare.com/RGB-Matrix-Px-64x64) | спецификация панели, определение GOB, предупреждение о полярности клеммника, таблица SKU |
-| [waveshare.com/wiki/RGB-Matrix-P2-64x64](https://www.waveshare.com/wiki/RGB-Matrix-P2-64x64) | распиновка HUB75, предупреждение о смене разводки между партиями, примеры для Raspberry Pi и Pico |
-| [waveshare.com/rgb-matrix-p2-64x64.htm](https://www.waveshare.com/rgb-matrix-p2-64x64.htm) | цены, состав комплекта, рекомендация блока 5 В 4 А |
-| [docs.waveshare.com/ESP32-S3-RGB-Matrix](https://docs.waveshare.com/ESP32-S3-RGB-Matrix) | характеристики платы, перечень периферии |
-| [docs.waveshare.com/ESP32-S3-RGB-Matrix/Instructions-For-Use](https://docs.waveshare.com/ESP32-S3-RGB-Matrix/Instructions-For-Use) | настройки menuconfig, режим загрузки, ограничение TF-карты режимом MMC |
-| [waveshare.com/esp32-s3-rgb-matrix.htm](https://www.waveshare.com/esp32-s3-rgb-matrix.htm) | цена, ток 10 А, каскад до шести панелей, состав комплекта |
-| [waveshareteam/ESP32-S3-RGB-Matrix](https://github.com/waveshareteam/ESP32-S3-RGB-Matrix) | Apache 2.0, примеры под IDF 5.5.2 и Arduino 3.3.7, схемы платы в `hardware/schematics` |
-| тот же репозиторий, `example/idf_v5.5.2/sdkconfig.defaults` | **распиновка HUB75**, размеры панели, раскладка по умолчанию на две панели |
-| тот же репозиторий, `example/arduino_v3.3.7/01_SimpleTestShapes/platforms/esp32s3/esp32s3-default-pins.hpp` | **распиновка HUB75**, независимое подтверждение |
-| тот же репозиторий, `example/arduino_v3.3.7/01_SimpleTestShapes/01_SimpleTestShapes.ino` | настройки примера, включая спорный FM6126A |
-| [mrcodetastic/ESP32-HUB75-MatrixPanel-DMA](https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA), `src/platforms/esp32s3/esp32s3-default-pins.hpp` | апстрим-дефолты ESP32-S3, доказательство того, что плата разведена под них |
+| [docs.waveshare.com/RGB-Matrix-Px-64x64](https://docs.waveshare.com/RGB-Matrix-Px-64x64) | panel specifications, GOB definition, terminal polarity warning, SKU table |
+| [waveshare.com/wiki/RGB-Matrix-P2-64x64](https://www.waveshare.com/wiki/RGB-Matrix-P2-64x64) | HUB75 pin definitions, batch-to-batch layout warning, Raspberry Pi and Pico examples |
+| [waveshare.com/rgb-matrix-p2-64x64.htm](https://www.waveshare.com/rgb-matrix-p2-64x64.htm) | pricing, box contents, the 5 V 4 A supply recommendation |
+| [docs.waveshare.com/ESP32-S3-RGB-Matrix](https://docs.waveshare.com/ESP32-S3-RGB-Matrix) | board specifications, peripheral inventory |
+| [.../Instructions-For-Use](https://docs.waveshare.com/ESP32-S3-RGB-Matrix/Instructions-For-Use) | menuconfig settings, download mode, TF card limited to MMC |
+| [waveshare.com/esp32-s3-rgb-matrix.htm](https://www.waveshare.com/esp32-s3-rgb-matrix.htm) | price, 10 A rating, six-panel cascade claim, box contents |
 
-## Исходный код (высшая достоверность для распиновок)
+## Vendor source code (highest confidence for pin maps)
 
-| Источник | За что отвечает |
+All from [waveshareteam/ESP32-S3-RGB-Matrix](https://github.com/waveshareteam/ESP32-S3-RGB-Matrix), Apache 2.0.
+
+| File | Authoritative for |
 |---|---|
-| [pavlov-net/hub75-studio](https://github.com/pavlov-net/hub75-studio), `packages/controllers/waveshare-esp32-s3-rgb-matrix.yaml` | распиновка HUB75 нашей платы, режим PSRAM, распиновка I2C, I2S, микрофона и динамика. MIT, © 2026 Wade Edwards |
-| [esphome/esphome](https://github.com/esphome/esphome), `components/hub75/boards/apollo.py` | распиновки Apollo M-1 rev4 и rev6 |
-| hub75-studio, корень репозитория | доказательство отсутствия готового бинаря под нашу плату |
+| `example/idf_v5.5.2/components/bsp/esp32_s3_matrix/include/bsp/config.h` | **the complete board pin map**: I2C, I2S including the microphone input, power amp, button, TF card |
+| `.../bsp/esp32_s3_matrix/idf_component.yml` | dependency list, proving the BSP is built on `esphome/esp-hub75` ^0.3.5 |
+| `example/idf_v5.5.2/sdkconfig.defaults` | **HUB75 pin map**, panel dimensions, default two-panel layout |
+| `example/arduino_v3.3.7/.../platforms/esp32s3/esp32s3-default-pins.hpp` | **HUB75 pin map**, independent confirmation |
+| `example/arduino_v3.3.7/08_Sensor_Test.ino` | I2C pins, sensor addresses, QMI8658 WHO_AM_I value |
+| `example/arduino_v3.3.7/09_Music_Player.ino` | I2S pins, speaker, power amp, button, TF card pins |
+| `hardware/schematics/ESP32-S3-RGB-Matrix-Schematics.pdf` | module part number and onboard chips |
 
-## Документация библиотек
+## Library documentation
 
-| Источник | За что отвечает |
+| Source | Authoritative for |
 |---|---|
-| [mrcodetastic/ESP32-HUB75-MatrixPanel-DMA](https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA) | latch blanking, clock phase, требования к питанию и конденсаторам, ограничение 13 МГц при PSRAM, запрет Quad SPI под буфер DMA, проблема наводок на Wi-Fi |
-| [issue #134 той же библиотеки](https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/issues/134) | официальный сборник типовых неисправностей, лёг в основу таблицы диагностики |
-| [esphome-libs/esp-hub75](https://github.com/esphome-libs/esp-hub75) | расход памяти по платформам, порядок отладки, соответствие высоты панели и развёртки |
-| [esphome.io/components/display/hub75](https://esphome.io/components/display/hub75/) | все параметры компонента с дефолтами, формула расчёта тока, стрэппинг-пины |
-| [kno.wled.ge/advanced/HUB75](https://kno.wled.ge/advanced/HUB75/) | таблица плат и бинарей, требование octal PSRAM для 128x128, ограничения по вариантам ESP32 |
-| [WLED v16.0.1](https://github.com/wled/WLED/releases/tag/v16.0.1) | наличие сборки `ESP32-S3_Waveshare_HUB75.bin`, список исправлений HUB75 |
+| [mrcodetastic/ESP32-HUB75-MatrixPanel-DMA](https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA) | latch blanking, clock phase, power and capacitor requirements, the ~13 MHz PSRAM ceiling, the Quad SPI prohibition, Wi-Fi interference |
+| `src/platforms/esp32s3/esp32s3-default-pins.hpp` of the same library | upstream ESP32-S3 defaults, proving the board was laid out on them |
+| [issue #134](https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/issues/134) | the maintainer's catalogue of common failures, basis of the troubleshooting table |
+| [esphome-libs/esp-hub75](https://github.com/esphome-libs/esp-hub75) | memory usage per platform, debug procedure, panel-height to scan-rate mapping |
+| [esphome.io/components/display/hub75](https://esphome.io/components/display/hub75/) | every component option with defaults, current formula, strapping pins |
+| [kno.wled.ge/advanced/HUB75](https://kno.wled.ge/advanced/HUB75/) | board and binary table, octal PSRAM requirement for 128x128, per-variant limits |
+| [WLED v16.0.1](https://github.com/wled/WLED/releases/tag/v16.0.1) | existence of `ESP32-S3_Waveshare_HUB75.bin`, HUB75 fixes |
 
-## Вторичные источники (помечены СПРАВОЧНО в тексте)
+## Secondary sources (marked FYI in the text)
 
-Используются только там, где первоисточника нет, и на решения влиять не должны.
+Used only where no primary source exists. They must not drive decisions.
 
-| Источник | Что взято | Оговорка |
+| Source | What was taken | Caveat |
 |---|---|---|
-| Блоги производителей LED-экранов (ivanled, ledwallscreen, viewsonic, partsled, canadian-led) | свойства технологии GOB в целом | это маркетинг производителей **другой** продукции. Заявления про IP65 к нашей панели **не относятся**: Waveshare влагозащиту не заявляет |
-| zbotic.in, обзорная статья | диапазон яркости 80–120 для повседневной работы, температура панели 50–60 °C в закрытом корпусе | пороги не проверены измерением и не подтверждены даташитом |
-| Отраслевое правило шаг-в-миллиметрах = дистанция-в-метрах | ориентир по дистанции просмотра | по стандарту не проверялось |
+| LED display vendor blogs | properties of GOB technology in general | marketing for **other** products. IP65 claims do **not** apply to this panel: Waveshare claims no water resistance |
+| zbotic.in review article | 80–120 brightness for daily use, 50–60 °C in a sealed enclosure | thresholds unverified by measurement or datasheet |
+| Industry rule of thumb, pitch in mm equals viewing distance in metres | rough viewing-distance guidance | never checked against a standard |
 
-## Что осталось непроверенным
+## Verification status
 
-| Утверждение | Статус | Как закрыть |
+| Claim | Status | How to close |
 |---|---|---|
-| ~~Распиновка HUB75 нашей платы~~ | **ЗАКРЫТО 2026-09-06.** Подтверждена тремя источниками, два из них — исходники Waveshare | — |
-| Распиновка периферии (I2C, I2S, микрофон, динамик) | **НЕ ПРОВЕРЕНО.** Только конфиг hub75-studio. Примеры Waveshare для HUB75 периферию не трогают | посмотреть примеры `08_Sensor_Test` и `09_Music_Player`, либо прочитать схему |
-| Какой драйверный чип на панели | **ПРОТИВОРЕЧИЕ**, см. ниже | подать GENERIC и посмотреть на экран |
-| Работоспособность конфигов из `configs/` | не компилировались и не заливались | собрать и залить на железо |
-| Реальный ток панели под нагрузкой | нет измерений | замерить токовыми клещами на белом поле при яркости 128 и 255 |
+| ~~HUB75 pin map~~ | **CLOSED.** Confirmed by three sources, two of them Waveshare's own | — |
+| ~~Peripheral pin map (I2C, I2S, mic, speaker)~~ | **CLOSED.** Confirmed by the vendor BSP `config.h` and two Arduino examples | — |
+| `mic_power_rail` on GPIO46 | **UNVERIFIED.** Present in hub75-studio, absent from the vendor BSP. Possibly an ESPHome-specific addition | read the schematic, or test on hardware |
+| Which shift driver the panel needs | **CONTRADICTION**, see #4 below | set GENERIC and look at the screen |
+| Whether the configs in `configs/` work | not compiled, not flashed | build and flash |
+| Real panel current under load | no measurements | clamp meter on a white field at brightness 128 and 255 |
 
-## Расхождения в источниках, найденные при сборке
+## Contradictions found while compiling this
 
-1. **Ток панели.** Паспорт Waveshare: 5 В / 3 А. Формула из документации ESPHome для
-   64x64 даёт около 1.9 А. Рекомендация на странице товара: блок 4 А. Проектировать
-   по паспорту.
-2. **Ток платы против каскада.** Плата рассчитана на 10 А, но заявлена поддержка шести
-   панелей, что в пределе даёт 18 А. Производитель считает по типовой яркости.
-3. **Цена панели.** waveshare.com $31.99 за версию GOB, при этом обычная версия
-   дешевле на три доллара.
+1. **Panel current.** Waveshare's datasheet says 5 V / 3 A. The ESPHome formula gives about
+   1.9 A for 64x64. The product page recommends a 4 A supply. Design to the datasheet.
 
-4. **Драйверный чип панели: Generic или FM6126A.** Три источника за GENERIC:
-   руководство пользователя Waveshare прямо пишет `Shift Driver IC = Generic`, их же
-   `sdkconfig.defaults` строку драйвера не задаёт вовсе (то есть остаётся дефолт GENERIC),
-   и конфиг hub75-studio её тоже не задаёт. Против — их собственный Arduino-пример
-   `01_SimpleTestShapes`, где стоит `mxconfig.driver = HUB75_I2S_CFG::FM6126A;`.
+2. **Board rating versus cascade claim.** The board is rated 10 A, yet six panels are claimed
+   supported, which is 18 A at worst case. The vendor is counting typical brightness.
 
-   Похоже на неадаптированный апстрим-пример: в шапке файла написано «on a 64x32 LED
-   matrix», и `PANEL_RES_Y` там равен 32, хотя плата продаётся под панели 64x64.
-   **Рабочая гипотеза: GENERIC верен, FM6126A в примере — наследство.** Проверяется
-   за минуту на живом железе.
+3. **Panel pricing.** $31.99 for the GOB version on waveshare.com, three dollars more than
+   the uncoated one.
 
-5. **Раскладка по умолчанию в примере ESP-IDF — две панели, а не одна.**
-   `CONFIG_HUB75_LAYOUT_ROWS=2`, `COLS=1`, `TOP_LEFT_DOWN_ZIGZAG`, то есть 64x128
-   вертикально. Если запускать их пример на одной панели, раскладку надо поправить.
+4. **Shift driver: GENERIC or FM6126A — unresolved.** Waveshare's own materials disagree
+   with each other.
 
-## Что дала схема платы
+   | Source | Says |
+   |---|---|
+   | Waveshare user guide (menuconfig) | `Shift Driver IC = Generic` |
+   | Waveshare `sdkconfig.defaults` | no driver line, so GENERIC by default |
+   | hub75-studio config | no driver line, so GENERIC by default |
+   | **7 of 10 Waveshare Arduino examples** | `mxconfig.driver = HUB75_I2S_CFG::FM6126A;` |
 
-PDF `hardware/schematics/ESP32-S3-RGB-Matrix-Schematics.pdf`, одна страница, скачан и
-разобран 2026-09-06. Текстовым слоем подтверждаются: модуль **ESP32-S3-WROOM-2-N32R16V**
-(то есть 32 МБ флеша и 16 МБ octal PSRAM), чипы **PCF85063** и **SHTC3**, наличие
-сигнальных цепей R1, G1, B1, R2, G2, B2, LAT, OE, CLK, E и разъёма J4.
+   An earlier working hypothesis held that FM6126A was leftover from an unadapted upstream
+   sample. That is now weak: `08_Sensor_Test`, `09_Music_Player` and `10_Chinese_Font` are
+   all properly configured for 64x64 and still set FM6126A. Only `03_DoubleBuffer`,
+   `06_BitmapIcons` and `07_Pixel_Mapping_Test` leave it alone.
 
-Связать цепи с номерами GPIO из плоского текстового слоя не удалось: координатная
-вёрстка схемы перемешивает подписи. Это не проблема, потому что подтверждение из
-исходников сильнее: две независимые кодовые базы производителя, которые реально
-собираются и работают на этом железе.
+   The honest reading: the ESP-IDF branch of Waveshare's materials uses GENERIC, the Arduino
+   branch uses FM6126A. **Unresolvable without hardware.** Start with GENERIC; if the screen
+   stays black on known-good power, switch to FM6126A.
+
+5. **Default layout in the ESP-IDF example targets two panels, not one.**
+   `CONFIG_HUB75_LAYOUT_ROWS=2`, `COLS=1`, `TOP_LEFT_DOWN_ZIGZAG`, i.e. 64x128 stacked
+   vertically. Running that example on a single panel requires fixing the layout.
+
+## What the schematic yielded
+
+`hardware/schematics/ESP32-S3-RGB-Matrix-Schematics.pdf`, one page, downloaded and parsed
+2026-09-06. Its text layer confirms the **ESP32-S3-WROOM-2-N32R16V** module (32 MB flash,
+16 MB octal PSRAM), the **PCF85063** and **SHTC3** chips, the HUB75 signal nets R1, G1, B1,
+R2, G2, B2, LAT, OE, CLK and E, and connector J4.
+
+Associating nets with GPIO numbers from the flat text layer was not possible — the
+schematic's coordinate typesetting scrambles label order. This does not matter, because the
+source-code evidence is stronger: two independent vendor codebases that actually build and
+run on this hardware, agreeing pin for pin.

@@ -4,3 +4,6 @@ secrets.yaml
 .esphome/
 build/
 *.bin
+
+# Russian working notes, superseded in-repo by docs/08-apollo-m1-comparison.md
+APOLLO-M1-DOSSIER.md

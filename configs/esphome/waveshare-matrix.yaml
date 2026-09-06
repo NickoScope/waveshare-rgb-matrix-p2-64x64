@@ -1,16 +1,17 @@
-# Минимальный рабочий конфиг ESPHome
-# Плата:  Waveshare ESP32-S3-RGB-Matrix (SKU 34422)
-# Панель: Waveshare RGB-Matrix-P2-64x64-B (SKU 33838), одна штука
+# Minimal ESPHome configuration
+# Board: Waveshare ESP32-S3-RGB-Matrix (SKU 34422)
+# Panel: Waveshare RGB-Matrix-P2-64x64-B (SKU 33838), one unit
 #
-# Распиновка СВЕРЕНА 2026-09-06 с собственными исходниками Waveshare:
+# Pin assignments VERIFIED 2026-09-06 against Waveshare's own firmware sources:
+#   example/idf_v5.5.2/components/bsp/esp32_s3_matrix/include/bsp/config.h
 #   example/idf_v5.5.2/sdkconfig.defaults
 #   example/arduino_v3.3.7/01_SimpleTestShapes/platforms/esp32s3/esp32s3-default-pins.hpp
-# Оба совпали с конфигом hub75-studio до единого пина.
+# All agree pin for pin.
 #
-# ВНИМАНИЕ: сам конфиг не компилировался и не заливался на железо.
+# NOTE: this config has not been compiled or flashed. Treat it as a reviewed draft.
 #
-# Требуется ESPHome 2025.12 или новее: компонент hub75 появился в ядре начиная с неё.
-# Фреймворк строго esp-idf.
+# Requires ESPHome 2025.12 or newer: the hub75 component landed in core with that release.
+# Framework must be esp-idf.
 
 substitutions:
   name: waveshare-matrix
@@ -27,7 +28,7 @@ esp32:
   framework:
     type: esp-idf
 
-# Плата несёт 16 МБ octal PSRAM. Без этого блока крупные буферы не поместятся.
+# The board carries 16 MB of octal PSRAM. Larger buffers will not fit without this.
 psram:
   mode: octal
   speed: 80MHz
@@ -49,16 +50,19 @@ font:
     id: font_main
     size: 12
 
-# ── Панель ──
-# Значения ниже соответствуют тому, что Waveshare задаёт в своём menuconfig:
-# Standard scan, драйвер Generic, 8 бит, 20 МГц, минимум 60 Гц, яркость 128.
+# ── Panel ──
+# Values below follow Waveshare's own menuconfig guidance:
+# standard scan wiring, Generic driver, 8-bit depth, 20 MHz, 60 Hz floor, brightness 128.
+#
+# On shift_driver: the user guide and the ESP-IDF config both indicate GENERIC, but seven
+# of Waveshare's ten Arduino examples set FM6126A. If the screen stays black on known-good
+# power, try FM6126A. See docs/07-sources.md, contradiction 4.
 display:
   - platform: hub75
     id: matrix
     panel_width: 64
     panel_height: 64
 
-    # Распиновка платы, сверена с исходниками Waveshare, см. шапку файла.
     r1_pin: GPIO4
     g1_pin: GPIO5
     b1_pin: GPIO6
@@ -69,7 +73,7 @@ display:
     b_pin: GPIO8
     c_pin: GPIO3
     d_pin: GPIO42
-    e_pin: GPIO9        # обязателен: панель 64 строки, развёртка 1/32
+    e_pin: GPIO9        # mandatory: 64 rows, 1/32 scan
     lat_pin: GPIO40
     oe_pin: GPIO2
     clk_pin: GPIO41
@@ -81,7 +85,7 @@ display:
     min_refresh_rate: 60
     latch_blanking: 1
     clock_phase: false
-    brightness: 128     # не поднимать выше без запаса по питанию
+    brightness: 128     # do not raise without power headroom
     gamma_correct: CIE1931
     double_buffer: false
     update_interval: 16ms
@@ -90,7 +94,7 @@ display:
       it.printf(2, 2, id(font_main), Color(0, 200, 255), "HELLO");
       it.rectangle(0, 0, 64, 64, Color(40, 40, 40));
 
-# ── Яркость из Home Assistant ──
+# ── Brightness entity for Home Assistant ──
 number:
   - platform: template
     name: "Brightness"
@@ -105,11 +109,12 @@ number:
           id: matrix
           brightness: !lambda return (int) x;
 
-# ── Датчики на плате ──
-# SHTC3 на 0x70, часы реального времени PCF85063 на 0x51.
+# ── Onboard sensors ──
+# I2C bus runs at 400 kHz. SHTC3 at 0x70, PCF85063 RTC at 0x51.
 i2c:
   sda: GPIO47
   scl: GPIO48
+  frequency: 400kHz
   id: bus_i2c
 
 sensor:
@@ -132,3 +137,22 @@ time:
     on_time_sync:
       then:
         - pcf85063.write_time:
+
+# ── BOOT button ──
+binary_sensor:
+  - platform: gpio
+    name: "Button"
+    pin:
+      number: GPIO0
+      inverted: true
+      mode:
+        input: true
+        pullup: true
+
+# ── Additional hardware available on this board, not configured here ──
+#   I2S audio:  BCLK GPIO43, MCLK GPIO12, LRCLK GPIO38
+#               speaker out GPIO21 (ES8311), microphone in GPIO39 (ES7210)
+#               power amp enable GPIO11
+#   TF card:    D0 GPIO17, CMD GPIO44, CLK GPIO1 (1-bit MMC mode only)
+#   IMU:        QMI8658 on the same I2C bus
+# See docs/02-controller.md for the complete pin map.

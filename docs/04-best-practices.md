@@ -1,118 +1,118 @@
-# Лучшие практики
+# Best practices
 
-Прочитать до первого включения. Большинство пунктов оплачено чужими сожжёнными панелями.
+Read before first power-on. Most of these were paid for with somebody else's burnt panel.
 
-## Питание — источник большинства проблем
+## Power — the source of most problems
 
-**Правило номер один: панель питается от отдельного блока, а не от пина 5 В платы ESP32.**
-Это повторяют и документация ESPHome, и README библиотеки DMA.
+**Rule one: the panel is fed from its own supply, never from the ESP32 board's 5 V pin.**
+Both the ESPHome documentation and the DMA library README say this outright.
 
-| Что | Значение |
+| Item | Value |
 |---|---|
-| Наша панель, паспорт | 5 В / 3 А, ≤15 Вт |
-| Наша панель, рекомендация Waveshare | блок 5 В **4 А** |
-| Формула из документации ESPHome | (ширина x высота / 2) x 0.06 А при белом на максимуме |
-| Для 64x64 по формуле | 2048 x 0.06 = **~1.9 А** |
+| Our panel, datasheet | 5 V / 3 A, ≤15 W |
+| Our panel, Waveshare's recommendation | a 5 V **4 A** supply |
+| Formula from the ESPHome docs | (width x height / 2) x 0.06 A at full white |
+| For 64x64 by that formula | 2048 x 0.06 = **~1.9 A** |
 
-Формула даёт вдвое меньше паспортного тока панели. Расхождение объясняется тем, что
-формула считает одновременно горящими только две строки при развёртке 1/32, а паспорт
-берёт худший случай. **Проектировать по паспорту, а не по формуле.**
+The formula lands at roughly half the datasheet figure. The gap makes sense: the formula
+assumes only two rows are lit at any instant at 1/32 scan, while the datasheet quotes the
+worst case. **Design to the datasheet, not the formula.**
 
-Обязательное к исполнению:
+Non-negotiables:
 
-- Земля блока питания и земля ESP32 **соединены**. Разные земли дают мерцание.
-- Никогда больше 5 В. Панель сгорит.
-- Перед первым подключением измерить напряжение на клеммнике. Минус пять вольт означает
-  перепутанную полярность разъёма, к панели такое не подключать.
-- Конденсатор 1000–2000 мкФ поперёк входа питания панели. Библиотека DMA формулирует это
-  как настоятельную рекомендацию: без него на резких сменах яркой картинки будут провалы
-  по питанию и «вспышки».
+- Supply ground and ESP32 ground **must be tied together**. Separate grounds produce flicker.
+- Never exceed 5 V. The panel will not survive it.
+- Measure the terminal adapter polarity before the first connection. Minus five volts means
+  a reversed connector — do not attach the panel.
+- Fit a 1000–2000 µF capacitor across the panel's power input. The DMA library states this
+  as a strong recommendation: without it, rapid changes in bright content cause supply
+  droop and visible flashing.
 
-## Яркость: не выкручивать
+## Brightness: do not max it out
 
-Дефолт всех библиотек — 128 из 255, то есть 50 процентов. Этого достаточно для
-большинства применений, и так задумано.
+Every library defaults to 128 of 255, i.e. 50 percent. That is deliberate and sufficient
+for most purposes.
 
-СПРАВОЧНО, из вторичных источников: для повседневной работы разумный диапазон 80–120,
-полная яркость сильно греет панель и сокращает срок службы светодиодов. Порог не
-проверен по даташиту светодиодов, на решения влиять не должен, но направление верное:
-тепло и деградация растут быстрее, чем воспринимаемая яркость.
+FYI, from secondary sources: a sensible everyday range is 80–120; full brightness heats the
+panel substantially and shortens LED life. These thresholds are not verified against an LED
+datasheet and must not drive decisions, but the direction is sound — heat and degradation
+climb faster than perceived brightness.
 
-Отдельно: в инструкциях Apollo для WLED автоматический ограничитель яркости снимается.
-Значит, программного потолка по току нет, и следить за питанием приходится самому.
+Separately: Apollo's WLED instructions disable the automatic brightness limiter. That means
+no software current ceiling, so the power budget is entirely on you.
 
-## Гостинг и мерцание
+## Ghosting and flicker
 
-Порядок действий при появлении дублей пикселей со сдвигом по горизонтали:
+Order of operations when duplicate pixels appear offset horizontally:
 
-1. **Увеличить latch blanking.** Управляет числом тактов, на которые выход панели гасится
-   через OE до и после переключения LAT. Дефолт 1, диапазон 1–4. Значения выше 4 смысла
-   не имеют, только режут яркость.
-2. **Снизить тактовую.** С 20 МГц до 10 или 8 МГц.
-3. **Снизить яркость** до 128 и ниже.
-4. **Укоротить шлейф.** Это не метафора: в issue #134 библиотеки DMA длинные провода
-   названы прямой причиной, с видео-демонстрацией.
+1. **Raise latch blanking.** It controls how many clock pulses the output is blanked via OE
+   before and after the LAT transition. Default 1, range 1–4. Above 4 there is no benefit,
+   only lost brightness.
+2. **Lower the clock.** From 20 MHz down to 10 or 8 MHz.
+3. **Lower brightness** to 128 or below.
+4. **Shorten the ribbon.** Not a figure of speech — issue #134 of the DMA library names long
+   wiring as a direct cause, with video evidence.
 
-Типовая пара настроек из документации библиотеки:
+The canonical pair from the library documentation:
 
 ```cpp
 mxconfig.latch_blanking = 4;
 mxconfig.i2sspeed = HUB75_I2S_CFG::HZ_10M;
 ```
 
-Если пиксели смещены ровно на один по координате или столбец с x=0 не виден — это фаза
-тактового сигнала, а не гостинг. Лечится `mxconfig.clkphase = false`. У части панелей
-данные защёлкиваются по отрицательному фронту, у части по положительному.
+If pixels are offset by exactly one coordinate, or the x=0 column is invisible, that is
+clock phase rather than ghosting. Fix with `mxconfig.clkphase = false`. Some panels latch
+data on the falling edge, others on the rising edge.
 
-## Уровни сигналов
+## Signal levels
 
-Панели HUB75 рассчитаны на 5 В логику, ESP32 выдаёт 3.3 В. Работает это, строго говоря,
-по случайности: пороги входов сдвиговых регистров обычно ниже 3.3 В.
+HUB75 panels are designed for 5 V logic; the ESP32 drives 3.3 V. Strictly speaking it works
+by luck — the shift registers' input thresholds usually sit below 3.3 V.
 
-**Нашей плате повезло:** на ней стоит буфер SN74HC245, то есть проблема уровней уже решена
-аппаратно. На голом ESP32 с длинным шлейфом это одна из основных причин мерцания, и там
-ставят внешний 74AHCT245.
+**This board is fortunate:** it carries an SN74HC245 buffer, so the level problem is solved
+in hardware. On a bare ESP32 with a long ribbon this is a leading cause of flicker, and
+people add an external 74AHCT245 there.
 
-Если строки не отображаются без видимой причины, документация советует проверить
-тестером, что GPIO в состоянии HIGH действительно выдаёт 3.3 В. Меньше — дефектный ESP32.
+If rows fail to light for no apparent reason, the documentation suggests metering a GPIO in
+its HIGH state — it should read 3.3 V. Less than that means a defective ESP32.
 
-## Wi-Fi и электромагнитные помехи
+## Wi-Fi and electromagnetic interference
 
-Известная проблема ESP32-S3: высокочастотный вывод DMA влияет на чувствительный
-радиотракт, если разводка платы не минимизирует наводки. В README библиотеки DMA прямо
-названа Adafruit MatrixPortal S3 как плохо работающая в связке с Wi-Fi.
+A known ESP32-S3 issue: the high-frequency DMA output couples into the sensitive radio when
+the PCB is not laid out to minimise EMF. The DMA library README names the Adafruit
+MatrixPortal S3 specifically as problematic with Wi-Fi.
 
-Про нашу плату таких сообщений не находил, но если Wi-Fi начнёт отваливаться при активной
-панели — причина, скорее всего, здесь, а не в роутере.
+No such reports were found for this board, but if Wi-Fi starts dropping while the panel is
+active, this is the likely cause rather than your router.
 
-## Память и битность
+## Memory and bit depth
 
-- Больше бит на цвет — лучше цвет, ниже частота обновления. Дефолт 8 разумен.
-- Двойная буферизация убирает разрывы кадра, но удваивает расход памяти под буфер DMA.
-  В связке с LVGL её выключают.
-- Библиотека сама поднимает `lsbMsbTransitionBit`, если не выходит на заданную
-  `min_refresh_rate`, и это снижает воспринимаемую глубину цвета. То есть требовать
-  120 Гц на длинной цепочке — значит молча потерять цвет.
+- More bits per colour means better colour and a lower refresh rate. The default of 8 is a
+  reasonable balance.
+- Double buffering removes tearing but doubles DMA buffer memory. Disable it when using LVGL.
+- The library raises `lsbMsbTransitionBit` on its own if it cannot hit the configured
+  `min_refresh_rate`, and that silently reduces perceived colour depth. Demanding 120 Hz on
+  a long chain therefore costs colour without telling you.
 
-## Тепловой режим
+## Thermal
 
-СПРАВОЧНО: панель в закрытом корпусе на полной яркости выходит на 50–60 °C. Если
-собираете корпус, предусмотрите вентиляционные отверстия. Порог не проверен
-измерением, но само требование вентиляции для закрытого корпуса бесспорно.
+FYI: a panel in a sealed enclosure at full brightness reaches 50–60 °C. If you build a case,
+provide ventilation. The specific numbers are not verified by measurement, but the
+requirement itself is not in doubt.
 
-## Стрэппинг-пины
+## Strapping pins
 
-К нашей плате прямого отношения не имеет, разводка уже сделана за нас. Пригодится, если
-будете вешать что-то своё на гребёнку GPIO. Проблемные на ESP32: GPIO0 (выбор режима
-загрузки), GPIO2, GPIO5, GPIO12 (напряжение флеша), GPIO15.
+Not directly relevant here — the routing is already done for us. It matters if you hang
+something off the GPIO header. The awkward ones on ESP32: GPIO0 (boot mode select), GPIO2,
+GPIO5, GPIO12 (flash voltage), GPIO15.
 
-## Порядок ввода в эксплуатацию
+## Commissioning order
 
-1. Измерить полярность клеммника питания.
-2. Собрать на столе, короткий шлейф, панель лицом вверх.
-3. Залить дымовой тест или WLED, яркость не выше 128.
-4. Убедиться, что все 64 x 64 пикселя живые, цвета на месте.
-5. Только потом собирать в корпус и вешать на стену.
+1. Meter the power terminal polarity.
+2. Assemble on the bench, short ribbon, panel face up.
+3. Flash the smoke test or WLED, brightness no higher than 128.
+4. Confirm all 64 x 64 pixels light and the colours are correct.
+5. Only then build the enclosure and hang it on a wall.
 
-Диагностический приём из README библиотеки: пример `PIO_TestPatterns` рисует простые
-цвета, линии и градиенты на весь экран, и на нём удобно ловить гостинг и мерцание.
+A diagnostic tip from the library README: the `PIO_TestPatterns` example draws plain colours,
+lines and gradients across the whole matrix, which makes ghosting and flicker easy to spot.
