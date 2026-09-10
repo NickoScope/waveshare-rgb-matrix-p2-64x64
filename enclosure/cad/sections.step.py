@@ -6,6 +6,7 @@
 именно в том, чтобы видеть, как детали садятся друг к другу и хватает ли
 зазоров. Каждый разрез — пересечение сборки с полупространством.
 
+    E  узел притяжки    — плоскость XZ через бобышку: как держится крышка
     A  полоса и энкодер — плоскость YZ через ось энкодера
     B  верхняя кромка   — плоскость YZ по центру: фаска, матрица, прилив
     C  стык матриц      — плоскость XZ по оси: между матрицами ничего нет
@@ -24,6 +25,10 @@ from build123d import Box, Compound, Pos, export_stl
 from case_c_lib import CASE_H, CASE_W, DEPTH, ENC_X, FIELD_CY
 
 BIG = 900.0
+
+# Крайняя бобышка притяжки в среднем ряду — на ней и режем узел.
+from case_c_lib import cover_points as _cp
+_JOIN_X, _JOIN_Y = max(_cp(), key=lambda p: (abs(p[0]), -abs(p[1])))
 
 
 def _load(name):
@@ -73,6 +78,8 @@ SECTIONS = {
     "B_top": ("x", 0.0, True, (-BIG, BIG, 45.0, 95.0)),
     "C_seam": ("y", 0.0, False, (-26.0, 26.0, -BIG, BIG)),
     "D_edge": ("y", 0.0, False, (110.0, 150.0, -BIG, BIG)),
+    # Узел притяжки: секущая по Y через ряд бобышек, окно вокруг крайней.
+    "E_join": ("y", _JOIN_Y, False, (_JOIN_X - 16.0, _JOIN_X + 16.0, -BIG, BIG)),
 }
 
 
@@ -83,7 +90,7 @@ def _window(box):
 
 
 def build():
-    shells = [_load("front_frame"), _load("back_shell")]
+    shells = [_load("case_body"), _load("back_cover")]
     mocks = [_load("mockups")]
     out = {}
     for name, (axis, at, pos, box) in SECTIONS.items():

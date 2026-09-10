@@ -5,8 +5,8 @@ Run anything here from a venv that has `build123d` and `trimesh`.
 
 ```bash
 python case_c_lib.py     # the parameter base, prints what is still unmeasured
-python front_frame.step.py
-python back_shell.step.py
+python case_body.step.py
+python back_cover.step.py
 python mockups.step.py   # the bought hardware, for clearance checks only
 python verify.py         # every check; exits non-zero on a violation
 python render.py         # PNG views, no OpenGL needed
@@ -16,8 +16,8 @@ python sheet.py          # one sheet: all parts and all sections
 | File | What it is |
 |---|---|
 | `case_c_lib.py` | every dimension, each tagged with where it came from |
-| `front_frame.step.py` | face plate, window with the bevel, seal groove, encoder hole |
-| `back_shell.step.py` | the part that carries everything: bosses, posts, relief, cable entry |
+| `case_body.step.py` | the case: face plate, window, walls, 12 bosses, encoder seat |
+| `back_cover.step.py` | the removable cover: matrix posts, controller pad, relief |
 | `mockups.step.py` | panels, controller, encoder — **not printed parts** |
 | `verify.py` | fit, clearance, single-solid and watertight checks |
 | `render.py` | a small z-buffer rasteriser, since pyglet isn't available here |
@@ -31,6 +31,26 @@ python sheet.py          # one sheet: all parts and all sections
 `verify.py` prints the `ОБМЕР` list on every run, and nothing on that list may
 be frozen into a printable file. Six values are on it today; the one that
 matters most is `CONN_STACK` — the HUB75 shell **with the ribbon plugged in**.
+
+## The back comes off, not the front
+
+The face is the case — plate, window and walls in one part. What unscrews is the
+**back cover**, from behind, twelve M3 into brass inserts in the body's bosses, heads
+countersunk flush because the panel hangs on a wall. Nothing is visible from the front,
+and servicing never disturbs the bevel, the light seal, or how the matrices sit against
+the face — the three things the looks depend on.
+
+The cover also carries the matrices, and that is forced: all six M3 points sit *inside*
+the panel outline, reachable only from behind, so no post can reach them from the face
+side. Pull the cover and the matrix block comes with it. What presses the matrices
+against the face plate is the cover being drawn down at its perimeter, through the light
+seal cord — which is also what takes up the tolerance on post length.
+
+The fixing bosses are placed off the window edge, not off the plate edge. In the plane
+of the face there is only 7.1 mm of flat land; but the bevel lives entirely in the 2.5 mm
+of plate, and deeper down the window is already narrow, leaving about 12 mm between its
+edge and the wall. The bosses grow from the back of the plate into exactly that band —
+2.3 mm clear of the window and 2.3 mm clear of the wall, which `verify.py` checks.
 
 ## Two places where the model does not follow the brief literally
 

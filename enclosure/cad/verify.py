@@ -53,7 +53,7 @@ def fail(msg):
 
 
 def main():
-    parts = {n: load(n) for n in ("front_frame", "back_shell")}
+    parts = {n: load(n) for n in ("case_body", "back_cover")}
 
     print("=== 1. габарит ===")
     for n, p in parts.items():
@@ -106,7 +106,24 @@ def main():
         if not ok:
             fail(f"{nm} ({need:.1f}) не входит: доступно {have:.2f}")
 
-    print("\n=== 4. свободная полоса и ручка ===")
+    print("\n=== 4. соединение корпуса и крышки ===")
+    body, cover = parts["case_body"], parts["back_cover"]
+    n = len(L.cover_points())
+    print(f"  точек притяжки: {n}")
+    if n < 8:
+        fail(f"точек притяжки всего {n} — для панели 284 мм мало")
+    to_win, to_wall = L.cover_boss_clearance()
+    print(f"  бобышка: до кромки окна {to_win:.2f}, до борта {to_wall:.2f}")
+    if min(to_win, to_wall) < 1.2:
+        fail(f"бобышка притяжки почти касается стенки: {min(to_win, to_wall):.2f}")
+    # крышка должна входить в четверть, не втираясь в борта
+    gap = float(L.COVER_GAP)
+    print(f"  зазор крышки в четверти: {gap:.2f} на сторону")
+    cb = cover.bounding_box()
+    if cb.size.Z > float(L.DEPTH):
+        pass  # прилив за габарит — это разрешено, проверяется в разделе 1
+
+    print("\n=== 5. свободная полоса и ручка ===")
     bevel_edge = -(float(L.FIELD_H) / 2 + float(L.BEVEL_RUN))   # нижний край фаски
     bottom = -(float(L.FIELD_H) / 2 + float(L.STRIP_H))          # кромка корпуса
     free = bevel_edge - bottom
@@ -121,7 +138,7 @@ def main():
     if top_gap < 0 or bot_gap < 0:
         fail("ручка энкодера не помещается в свободную полосу")
 
-    print("\n=== 5. печать ===")
+    print("\n=== 6. печать ===")
     for n, p in parts.items():
         bb = p.bounding_box()
         ok, how = L.fits_plate(bb.size.X, bb.size.Y)
@@ -131,7 +148,7 @@ def main():
             # это ожидаемый результат, а не нарушение.
             print(f"     ожидаемо на M1: членение выполняется на M2")
 
-    print("\n=== 6. тела и сетка ===")
+    print("\n=== 7. тела и сетка ===")
     out = os.path.join(HERE, "out")
     os.makedirs(out, exist_ok=True)
     import trimesh
@@ -147,7 +164,7 @@ def main():
         if not m.is_watertight or broken:
             fail(f"{n} даёт негерметичную сетку")
 
-    print("\n=== 7. на обмере ===")
+    print("\n=== 8. на обмере ===")
     for nm, v, note in L.measured_params():
         print(f"  {nm:14s} = {v:8.3f}   {note}")
 

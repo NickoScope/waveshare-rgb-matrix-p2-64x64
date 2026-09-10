@@ -102,8 +102,8 @@ def render(meshes, elev, azim, size=(1500, 1000), pad=0.06, mirror=False):
 def main():
     # Z смотрит от лица назад, поэтому камера по +Z видит ЗАДНЮЮ сторону,
     # а лицо показывает поворот на 180°.
-    front = trimesh.load(os.path.join(OUT, "front_frame.stl"))
-    back = trimesh.load(os.path.join(OUT, "back_shell.stl"))
+    front = trimesh.load(os.path.join(OUT, "case_body.stl"))
+    back = trimesh.load(os.path.join(OUT, "back_cover.stl"))
     shell = [(front, (236, 239, 242)), (back, (176, 196, 210))]
 
     mock_f = os.path.join(OUT, "mockups.stl")
