@@ -56,6 +56,13 @@ at all. One line is enough.
 mxconfig.gpio.e = 9;
 ```
 
+## Enclosure
+
+An open design for a 128 x 64 wall panel built from two of these matrices lives in
+[enclosure/](enclosure/): the design brief, three front-composition options and the split
+scheme. The mechanical constraints behind it come out of the factory drawing —
+[docs/10-mechanical.md](docs/10-mechanical.md).
+
 ## Fact-checking convention
 
 | Marker | Meaning |
