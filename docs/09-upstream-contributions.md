@@ -240,8 +240,22 @@ and off the API budget.
 ### Open questions
 
 1. ~~Passive subscriber or own selector~~ — **decided: own selector, per-key topics**
-2. ~~Physical airport selector on the panel~~ — **decided: yes.** It lands in the 20 mm
-   bottom strip of the enclosure; the enclosure spec has been notified
+2. ~~Physical airport selector on the panel~~ — **decided: yes, and specified.** An EC11
+   rotary encoder with push, mounted at the right-hand end of the 20 mm bottom strip, on the
+   swappable insert. Fits with room to spare: the enclosure's working depth went to 30 mm,
+   leaving a 26.5 mm cavity against the encoder body's 13.2 x 12.4 mm footprint
+
+   Interaction model this enables, and it maps cleanly onto the protocol:
+
+   | Gesture | Action |
+   |---|---|
+   | Rotate | step through the six whitelisted airports |
+   | Short press | toggle arrivals / departures |
+   | Long press | force a refresh, i.e. publish a request even if the retained payload looks fresh |
+
+   Note this refines "almost entirely passive" above: the panel publishes a request **on user
+   action**, not on a timer. Rotating through airports could fire several requests in a row,
+   so debounce the selector and only publish once the selection settles
 3. Split-flap character animation or plain redraw on change: the flip is the signature look,
    but it costs a per-glyph animation state machine
 4. Behaviour when the retained payload is stale — the `upd` field carries the HA-side time,

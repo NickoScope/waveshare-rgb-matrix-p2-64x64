@@ -95,6 +95,19 @@ Distributor listings give 14.5 mm. Treat thickness as 14.5–15 and measure your
 before committing a mechanical design; the GOB resin layer is exactly the sort of thing
 that varies.
 
+**Corroboration, and its limit.** The enclosure work reports confirming 15.000 from the side
+view's geometry. Two independent attempts here failed to reproduce that specific rectangle:
+a coarse per-view bounding box and a targeted search for a 127.797 by 15.000 pair sharing an
+endpoint both came up empty, finding only a single stray 15.019 segment in the section zone.
+The `15` dimension **text** is definitely on the sheet, and 15 is consistent with the
+distributor's 14.5, so the conclusion is very likely right — but it stays FYI here rather
+than being promoted, because it was not independently reproduced.
+
+**What is settled** is that the panel is a **single module of roughly 15 mm**, not a stack of
+board plus connectors plus GOB layer counted separately. An earlier enclosure draft reached
+59 mm that way; that figure is wrong and was withdrawn. Nothing in this knowledge base ever
+used it.
+
 ## What the drawing does not contain
 
 **No dimensions for the HUB75 or VH4 connectors** — neither footprint nor height above the
