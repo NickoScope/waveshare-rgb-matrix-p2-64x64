@@ -28,13 +28,36 @@ Refresh with `tools/fetch-vendor-drawings.sh`.
 
 | File | What it is |
 |---|---|
-| `RGB-Matrix-P2-64x64.dwg` | factory 2D drawing |
+| `RGB-Matrix-P2-64x64.dwg` | factory 2D drawing, the only hardware document that exists |
 | `panel-2d.zip` | the archive it came in |
 
-Source: `files.waveshare.com/wiki/RGB-Matrix-P2-64x64/`. Mechanical only —
-Waveshare publishes **no schematic** for the panel itself, which is normal: the
-panel is a commodity HUB75 module and its interface is the connector pinout,
-already recorded in [docs/01](../docs/01-panel.md).
+Source: `files.waveshare.com/wiki/RGB-Matrix-P2-64x64/RGB-Matrix-P2-64x64.zip`.
+
+### Waveshare publishes no schematic for the panel
+
+Searched 2026-09-10, so that nobody repeats it:
+
+| Where | Result |
+|---|---|
+| Wiki page `RGB-Matrix-P2-64x64` | four downloads, none a schematic |
+| Wiki page `RGB-Matrix-P2-64x64-B` | does not exist |
+| `files.waveshare.com/wiki/RGB-Matrix-P2-64x64/` | seven likely filenames probed, all 404 |
+| Product page | no resources block |
+| `Packages.rar` (122 MB) | the Arduino ESP32 core 1.0.6 cache. Nothing to do with the panel |
+| `English_Character_Display_Principle.pdf` | a generic font-rendering tutorial for e-Paper. Boilerplate |
+| `RGB-Matrix-P2-64x64-Demo.zip` (20 MB) | example code for ESP32, Pico, RPi and STM32. Code, not hardware |
+
+This is normal and not a gap. The panel is a commodity HUB75 module: its entire
+interface is the connector pinout, which is in [docs/01](../docs/01-panel.md),
+and its scan behaviour, which is 1/32 with E mandatory. There is no board for a
+schematic to describe beyond the LED array and its shift drivers — and which
+shift driver it carries is exactly the thing a schematic would have settled and
+does not exist to settle. Phase 2 of the [bring-up](../docs/12-bringup.md)
+answers it empirically instead.
+
+The demo archive is worth knowing about even though it is not kept here: it is
+a fifth independent statement of the panel's interface, across four platforms,
+should the pinout ever need re-checking.
 
 ## Why this matters for the software
 
