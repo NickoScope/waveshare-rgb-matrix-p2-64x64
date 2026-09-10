@@ -69,6 +69,12 @@ scheme. The mechanical constraints behind it come out of the factory drawing —
 network stack and compile-time guards, checked line by line against NickoScope32 V1b.
 Most of it turned out to be already there; the two genuine gaps are named.
 
+## Lua scripting
+
+[13-lua.md](docs/13-lua.md) — what our three existing Lua implementations (H743,
+Main-S3, Watch) teach about putting an interpreter on this panel, the safety
+architecture worth copying verbatim, and the one risk that is ours alone.
+
 ## Bring-up
 
 [12-bringup.md](docs/12-bringup.md) — the gated sequence from the box to a working
