@@ -63,6 +63,12 @@ An open design for a 128 x 64 wall panel built from two of these matrices lives 
 scheme. The mechanical constraints behind it come out of the factory drawing —
 [docs/10-mechanical.md](docs/10-mechanical.md).
 
+## Code practices
+
+[13-code-practices.md](docs/13-code-practices.md) — a read of AnimatedPixelClock's
+network stack and compile-time guards, checked line by line against NickoScope32 V1b.
+Most of it turned out to be already there; the two genuine gaps are named.
+
 ## Bring-up
 
 [12-bringup.md](docs/12-bringup.md) — the gated sequence from the box to a working
