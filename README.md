@@ -63,6 +63,12 @@ An open design for a 128 x 64 wall panel built from two of these matrices lives 
 scheme. The mechanical constraints behind it come out of the factory drawing —
 [docs/10-mechanical.md](docs/10-mechanical.md).
 
+## Bring-up
+
+[12-bringup.md](docs/12-bringup.md) — the gated sequence from the box to a working
+panel, and which of the eight open questions each phase settles. Read it before
+the panels are unpacked.
+
 ## Physical control
 
 [11-control-and-pins.md](docs/11-control-and-pins.md) — the GPIO budget (two clean
