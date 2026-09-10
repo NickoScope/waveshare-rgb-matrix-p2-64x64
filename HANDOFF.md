@@ -60,6 +60,16 @@ clears and rebuilds itself, a snake clock whose digits crawl away and back.
 Previews committed beside the scripts, because a Lua effect has no other record
 of how it reads.
 
+### Closed late in the day
+
+**The fork's public history no longer carries a personal address.** Five
+commits still had `nickol@me.com`; rewriting them changed the SHA of all
+twenty-three of ours, so the branch was force-pushed. Four things were checked
+before and after: the tree hash is identical, so no content moved; the merge
+base with `upstream/main` is still `74f964b`, so it is still a fork and a pull
+request upstream is still possible; no document referenced any of the old SHAs;
+and it still builds. A backup tag `backup/pre-email-rewrite` is kept locally.
+
 ### Open
 
 - **Nothing is hardware-verified.** The panels have not arrived. Ten open
@@ -70,9 +80,6 @@ of how it reads.
   caps the driver at ~13 MHz. Phase 6b.
 - The two watchdog fixes have never run on hardware. Phase 6 exercises them.
 - The pages are reachable only through the knob; no HTTP route, no button.
-- Older commits in the fork carry `nickol@me.com` in public history. Local
-  config is fixed and the last few were rewritten before pushing; the rest need
-  a force-push and the owner's decision.
 - NickoScope-Watch still listens on the legacy `.../state` topic; the keyed
   topic is published in parallel until it migrates.
 - `mic_power_rail` GPIO46 — and note GPIO46 is now the encoder's B line, so
