@@ -34,28 +34,48 @@ The frame therefore becomes four whole rails plus corner pieces, all seams land 
 corners and on the back, and the face stays unbroken. A seam down the middle was rejected
 on purpose: it would fall exactly on the panel joint the whole design is trying to hide.
 
-## How deep it has to be
+## How deep it has to be: 20 mm at the edge
 
-The layout sheet stacks it up: 3 mm face frame, a 4 mm bevel opening outward, 2 mm of GOB
-and pixels, the matrix board, the HUB75 and VH4 connectors standing off it, the controller
-and its loom, a 3 mm back wall, and a gap to the wall for the hanger — about 59 mm in all.
+**The panel is one 15 mm module, not a stack of layers.** It is worth stating plainly
+because it is easy to get wrong: the pixels, the GOB resin and all the electronics are
+already inside the moulded case, and the side view on the factory drawing measures
+15.000 × 127.797 in drawing units. The distributor's 14.5 for the whole module and this
+15.0 for the case agree with each other. Add up "board + connectors + GOB" as separate
+layers and you triple-count the same part and land near 60 mm, which is what the first
+version of this sheet did.
 
-**37 of those 59 mm are not yet a measured fact** — the board, the connectors standing off
-it, and the controller with its loom. The board thickness is 14.5–15 depending on which
-source you read, and the factory drawing dimensions neither connector. So the depth stack
-is written as named parameters, not numbers, and those three are drawn dashed on the sheet.
-The 10 mm gap behind the back wall is dashed too, but it is a choice, not an unknown.
+The brief caps the panel at 20 mm at the edge, so the stack is:
+
+| | mm |
+|---|---|
+| face frame, overlapping the field by ≤ 0.5 | 1.5 |
+| the matrix module, whole | 15 |
+| ribbon lying flat | 1.5 |
+| back wall | 2.0 |
+| **total** | **20.0** |
+
+That leaves 3.5 mm behind the panel. A flat ribbon fits in it; nothing else does. The
+HUB75 and VH4 shells almost certainly do not, so each gets a local pocket in the back
+wall with the cable bent right at the shell — the trick the MatrixPortal enclosures use,
+where the ribbon is folded into a Z with a sharp bend at each end.
+
+**The controller cannot live behind the panel.** A 50 × 42 board has nowhere to go in
+3.5 mm. It sits in a local boss in the back wall: the edge stays 20 mm, the boss runs
+30–32 mm deep, and it hides in the gap the wall hanger already leaves. The alternative
+found in the field — MatrixPortal-style cases and the Adafruit-derived ones — is a flat
+28–35 mm back over the whole area, which is simpler to print but abandons the 20 mm edge.
 
 Power is split from the matrices' point of view: the 5 V adapter feeds a distribution
-point, and each matrix takes its own VH4 lead from there. Matrix current never crosses the
-controller board. HUB75 enters the near panel and a short jumper carries it to the far one,
-so the only cable crossing the seam is one ribbon behind the boards.
+point, and each matrix takes its own VH4 lead from there. Matrix current never crosses
+the controller board. HUB75 enters the near panel and a short jumper carries it to the
+far one, so the only cable crossing the seam is one ribbon behind the boards.
 
 ## Status
 
 M0 — composition options and layout, both sheets done. Not yet designed: the controller
-bay, the wall mount, the light-leak contour and the swappable 20 mm bottom strip. M2 does
-not close until the panels arrive and the open dimensions are measured.
+boss, the wall mount, the light-leak contour and the swappable 20 mm bottom strip. M2 does
+not close until the panels arrive and the module thickness and connector standoff are
+measured on the real hardware.
 
 ## Licence
 
