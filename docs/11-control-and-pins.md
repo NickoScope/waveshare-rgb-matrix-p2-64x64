@@ -2,47 +2,57 @@
 
 ## The budget
 
-Of the 45 GPIOs on an ESP32-S3, this board and this chip variant leave **two**
-that are free without a caveat.
+**Corrected 2026-09-10 from the vendor schematic.** The first version of this
+page counted pins the firmware did not use and called the leftovers free. That
+was wrong in the way counting always is when the drawing is available and you
+did not open it.
+
+The expansion header **U8 is four pins: IO45, IO46, GND, 3V3.** That is the
+entire budget for anything added to this board.
 
 | | Count | Which |
 |---|---|---|
-| Taken by the board | 27 | HUB75 (14), I2S (6), I2C (2), TF slot (4), BOOT button (1) |
-| Blocked by the chip | 14 | GPIO26–32 SPI0/1 flash & PSRAM; GPIO33–37 octal PSRAM; GPIO19–20 USB |
-| Free, with a caveat | 2 | GPIO45, GPIO46 — strapping pins |
-| **Free and clean** | **2** | **GPIO10, GPIO13** |
+| Taken by the board | 29 | HUB75 (14), I2S (6), I2C (2), SD (4), BOOT (1), RTC_INT (1), IMU_INT (1) |
+| Blocked by the chip | 14 | GPIO26–32 flash/PSRAM; GPIO33–37 octal PSRAM; GPIO19–20 USB |
+| **On the header** | **2** | **GPIO45, GPIO46** |
 
-Sources: the board pin map in [02-controller.md](02-controller.md), verified
-against Waveshare's own firmware; GPIO restrictions from the *ESP32-S3
-Datasheet* §2.3.4 and §2.3.5 and the ESP-IDF GPIO reference for esp32s3.
+Two pins that a firmware grep reports as free are not: the vendor pin table
+assigns **IO10 to RTC_INT** and **IO13 to IMU_INT**, for the PCF85063 alarm and
+the QMI8658 interrupt. Neither reaches the header. Using them means giving up
+those interrupts and soldering to the module.
 
-Two points from those that bite here:
+Both header pins are strapping pins, and both are survivable:
 
-- **GPIO33–37 are gone because the PSRAM is octal.** The module is
-  ESP32-S3-WROOM-2-N32R16V, and the datasheet is explicit: with octal flash or
-  PSRAM those five pins carry DQ4–DQ7 and DQS.
-- **GPIO19/20 are gone because there is no UART bridge on this board.** Native
-  USB is the only way to flash it, so USB_D± cannot be repurposed.
+- **GPIO45** selects VDD_SPI voltage. This module has in-package flash and PSRAM
+  with VDD_SPI fixed at 1.8 V by the `VDD_SPI_FORCE` eFuse, and the ESP32-S3
+  hardware design guidelines state that the strap then no longer affects it.
+  **UNVERIFIED** — read the eFuse with `esptool.py summary` before trusting it.
+- **GPIO46** gates ROM message printing at boot. Cosmetic; it does not stop a
+  boot.
 
-**FYI, needs checking against the WROOM-2 datasheet specifically:** the
-ESP32-S3-WROOM-1 datasheet notes that on R16V parts VDD_SPI is 1.8 V, and
-therefore **GPIO47 and GPIO48 run at 1.8 V**, not 3.3 V. Those two are this
-board's I2C bus. If that carries over to WROOM-2, anything added to that bus
-must tolerate 1.8 V logic — which would rule out casually hanging a 3.3 V I2C
-part off it. Read before designing anything onto I2C.
+That Waveshare chose exactly these two for the header is itself evidence: they
+are the pins the board has left.
 
-## The encoder needs three pins and there are two
+Sources: `reference-drawings/controller/ESP32-S3-RGB-Matrix-Schematics.pdf` —
+its pin-assignment table and the U8 connector — plus the *ESP32-S3 Datasheet*
+§2.3.4–2.3.5 for the chip-level restrictions.
 
-An EC11 with a push switch needs A, B and SW. Three ways out:
+**FYI, still to check:** the WROOM-1 datasheet notes that on R16V parts VDD_SPI
+is 1.8 V and **GPIO47/48 run at 1.8 V** with it. Those two are this board's I2C
+bus. Confirm against the WROOM-2 datasheet before hanging a 3.3 V part on it.
+
+## The encoder needs three pins and the header has two
 
 | | How | Cost |
 |---|---|---|
-| **Share GPIO0** (chosen) | A=10, B=13, SW parallel with the BOOT button on GPIO0 | A knob held through reset enters download mode. Recovers on the next reset — and flashes the board without opening the case |
-| I2C expander | A PCF8574 or similar on the existing bus | An extra part, and the 1.8 V question above must be settled first |
-| Strapping pin | SW on GPIO45 with a pull-down | GPIO45 sets VDD_SPI voltage at boot. Held high at power-up, the board does not come up at all. Worse failure than download mode |
+| **A=45, B=46, SW on GPIO0** (chosen) | both header pins for the quadrature, the switch wired to the BOOT button pad | The switch is a solder joint, not a header pin. A knob held through reset enters download mode and recovers on the next one — and flashes the board without opening the case |
+| Give up an interrupt | SW on IO10 or IO13 | Costs the RTC alarm or the IMU interrupt, and still needs soldering to the module |
+| I2C expander | on the existing bus | An extra part, and the 1.8 V question above must be settled first |
 
-GPIO0 is chosen because its failure mode is recoverable and its side effect is
-useful. Both alternatives stay open if the hardware says otherwise.
+Pressing BOOT during normal operation now registers as a short press, so it
+changes the clock style, the board direction or the sort order depending on the
+page — and queues a deferred NVS write. That is a consequence of sharing, not a
+bug, but it is worth knowing before someone pokes the button to see what it does.
 
 ## Gestures
 

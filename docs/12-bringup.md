@@ -18,7 +18,7 @@ Eight questions are open. The phase that answers each is in the last column.
 | 1 | `FM6126A` or `GENERIC` shift driver | Sources disagree; the balance moved to FM6126A but it is not proof. Contradiction #4 in [07](07-sources.md) | 2 |
 | 2 | `clkphase = false`? | Fixes a dropped rightmost column on some batches | 2 |
 | 3 | Does USB-CDC enumerate? | No UART bridge on this board; marked UNVERIFIED in `platformio.ini` | 1 |
-| 4 | Are GPIO10 and GPIO13 on the expansion header? | The encoder needs them. Only these two are free — see [11](11-control-and-pins.md) | 5 |
+| 4 | ~~Are GPIO10/13 on the header?~~ **Answered from the schematic: no.** Header U8 is IO45, IO46, GND, 3V3 | IO10 is RTC_INT, IO13 is IMU_INT. Encoder moved to 45/46 — see [11](11-control-and-pins.md) | — |
 | 5 | `mic_power_rail` on GPIO46 | In hub75-studio, absent from the vendor BSP | 1 |
 | 6 | Do GPIO47/48 run at 1.8 V? | R16V parts set VDD_SPI to 1.8 V. That is this board's I2C bus | 1 |
 | 7 | TLS session heap for the AIS websocket | Allocated at runtime, never measured | 6 |
@@ -172,12 +172,20 @@ fixed two such paths, but this is where a third would show.
 
 **Goal:** question 4, and the gesture map.
 
-Before wiring anything: **confirm GPIO10 and GPIO13 are actually brought out to
-the expansion header.** The whole control design rests on it and it has never
-been checked against a physical board. If they are not there, the fallbacks are
-in [11](11-control-and-pins.md).
+Wire A → **GPIO45** (header U8 pin 1), B → **GPIO46** (pin 2), common → GND
+(pin 3). The switch has no header pin: solder it to the **BOOT button pad**,
+in parallel with the button.
 
-Wire A → GPIO10, B → GPIO13, SW → GPIO0 (parallel with BOOT), common → GND.
+Before that, one measurement decides whether GPIO45 is safe to drive at all:
+
+```bash
+esptool.py --port <port> summary | grep -i vdd_spi
+```
+
+If `VDD_SPI_FORCE` is burned, the GPIO45 strap no longer selects the flash
+voltage and the pin is free. If it is not burned, do **not** put an encoder on
+it — a knob left in the wrong position at power-up would set VDD_SPI wrongly
+and the board would not come up.
 
 | Test | Pass |
 |---|---|
