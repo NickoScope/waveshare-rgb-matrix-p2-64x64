@@ -36,12 +36,19 @@ on purpose: it would fall exactly on the panel joint the whole design is trying 
 
 ## How deep it has to be
 
-**The panel is one 15 mm module, not a stack of layers.** Worth stating plainly because it
-is easy to get wrong: the pixels, the GOB resin and all the electronics are already inside
-the moulded case, and the side view on the factory drawing measures 15.000 × 127.797 in
-drawing units. The distributor's 14.5 for the whole module and this 15.0 for the case agree
-with each other. Add up "board + connectors + GOB" as separate layers and you triple-count
-the same part and land near 60 mm.
+**The panel is one module, not a stack of layers.** Worth stating plainly because it is
+easy to get wrong: the pixels, the GOB resin and all the electronics are already inside the
+moulded case. Add up "board + connectors + GOB" as separate layers and you triple-count the
+same part and land near 60 mm.
+
+How thick that module is, is still **not a confirmed fact**. The drawing's side view of the
+case is 138 separate `LINE` entities on layer `2` whose overall extent is 14.9996 × 127.7968
+— but there is no closed outline, no segment of either length, and the sheet's own `15.0`
+dimension does not attach to that view (its witness points land at X 379.741 / 394.741,
+where no geometry lives — possibly an artefact of the DWG → DXF conversion). What *is*
+firmly attached to that view are `12.0` and `4.4775`, both measured from its front edge.
+So: **treat the thickness as 14.5–15 and measure your own panel.** The extent and the
+distributor figure agree with each other, and neither is a dimensioned value.
 
 The working depth is 30 mm until the hardware is in hand and can be measured:
 
