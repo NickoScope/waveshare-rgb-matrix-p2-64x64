@@ -24,7 +24,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from build123d import Box, Cylinder, Pos, export_stl
 
-from case_c_lib import (CASE_H, CASE_W, COVER_GAP, COVER_HEAD_D, COVER_HEAD_H,
+from case_c_lib import (CASE_H, CASE_W, CLAMP_PRELOAD, CLAMP_T, CLAMP_TOOTH,
+                        CLAMP_W, COVER_GAP, COVER_HEAD_D, COVER_HEAD_H,
+                        PANEL_BOARD, clamp_positions, seat_bounds,
                         COVER_LIP, COVER_SCREW_D, CTRL_H, CTRL_T, CTRL_W,
                         DEPTH, FIELD_CY, INSERT_M25_D, INSERT_M25_L, M3_POINTS,
                         PANEL_FRAME, PANEL_T, RELIEF_BAND_H, RELIEF_BAND_Y,
@@ -61,8 +63,49 @@ def _relief():
     return outer, inner
 
 
+def _clamps():
+    """Прижимные языки: гонят матрицы к центру, с четырёх сторон.
+
+    Зуб стоит там, где торец матрицы окажется в САМОМ дальнем от края случае
+    (узкий кандидат, 127.8), плюс натяг. При широком кандидате язык отжимается
+    сильнее — на то он и пружина. Так стык закрыт при любом исходе обмера.
+    """
+    x0, x1, y0, y1 = seat_bounds()
+    big = float(PANEL_BOARD)
+    narrow_x = 2 * min(float(PANEL_BOARD), float(PANEL_FRAME)) / 2
+    narrow_y = min(float(PANEL_BOARD), float(PANEL_FRAME)) / 2
+    t, w = float(CLAMP_T), float(CLAMP_W)
+    tooth, pre = float(CLAMP_TOOTH), float(CLAMP_PRELOAD)
+    z0, z1 = TF + 1.0, Z_PANEL_BACK - 1.0        # зуб работает по торцу матрицы
+    L = Z_LIP - z0
+    out = []
+
+    def leg(cx, cy, horizontal, sign):
+        """Ножка от крышки вперёд плюс зуб, выступающий к центру."""
+        if horizontal:
+            body = Pos(cx + sign * (t / 2), cy, z0 + L / 2) * Box(t, w, L)
+            face = narrow_x - pre                 # куда достаёт зуб
+            depth = abs(cx) - face
+            th = Pos(cx - sign * depth / 2, cy, (z0 + z1) / 2) * Box(
+                depth, w, z1 - z0)
+        else:
+            body = Pos(cx, cy + sign * (t / 2), z0 + L / 2) * Box(w, t, L)
+            face = narrow_y - pre
+            depth = abs(cy) - face
+            th = Pos(cx, cy - sign * depth / 2, (z0 + z1) / 2) * Box(
+                w, depth, z1 - z0)
+        return [body, th]
+
+    for cx, cy, horizontal, sign in clamp_positions():
+        out += leg(cx, cy, horizontal, sign)
+    return out
+
+
 def build():
     part = Pos(0, -CY, (Z_LIP + D) / 2) * Box(PLATE_W, PLATE_H, D - Z_LIP)
+
+    for piece in _clamps():
+        part += piece
 
     relief_out, relief_in = _relief()
     if relief_out is not None:

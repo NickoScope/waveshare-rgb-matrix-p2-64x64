@@ -136,7 +136,27 @@ def main():
     if cb.size.Z > float(L.DEPTH):
         pass  # прилив за габарит — это разрешено, проверяется в разделе 1
 
-    print("\n=== 5. свободная полоса и ручка ===")
+    print("\n=== 5. посадка матриц ===")
+    x0, x1, y0, y1 = L.seat_bounds()
+    print(f"  гнездо: {x1 - x0:.2f} x {y1 - y0:.2f}")
+    for w, ov in sorted(L.overlap_after_centering().items()):
+        slack = (x1 - x0) - w
+        print(f"  полотно {w:6.1f}: люфт в гнезде {slack:.2f}, "
+              f"перекрытие безелем {ov:+.2f} на сторону")
+        if ov <= 0:
+            fail(f"при полотне {w:.1f} безель не перекрывает поле: {ov:+.2f}")
+        if slack < 0:
+            fail(f"полотно {w:.1f} не входит в гнездо")
+    # прижим языками: зуб обязан доставать до торца в узком случае
+    narrow = min(float(L.PANEL_BOARD), float(L.PANEL_FRAME))
+    tooth_face = narrow - float(L.CLAMP_PRELOAD)
+    for cand in (float(L.PANEL_BOARD), float(L.PANEL_FRAME)):
+        grip = cand - tooth_face
+        print(f"  язык против торца {cand:.1f}: перекрытие {grip:+.2f}")
+        if grip <= 0:
+            fail(f"язык не достаёт до торца при {cand:.1f}")
+
+    print("\n=== 6. свободная полоса и ручка ===")
     bevel_edge = -(float(L.FIELD_H) / 2 + float(L.BEVEL_RUN))   # нижний край фаски
     bottom = -(float(L.FIELD_H) / 2 + float(L.STRIP_H))          # кромка корпуса
     free = bevel_edge - bottom
@@ -151,7 +171,7 @@ def main():
     if top_gap < 0 or bot_gap < 0:
         fail("ручка энкодера не помещается в свободную полосу")
 
-    print("\n=== 6. печать ===")
+    print("\n=== 7. печать ===")
     for n, p in parts.items():
         bb = p.bounding_box()
         ok, how = L.fits_plate(bb.size.X, bb.size.Y)
@@ -161,7 +181,7 @@ def main():
             # это ожидаемый результат, а не нарушение.
             print(f"     ожидаемо на M1: членение выполняется на M2")
 
-    print("\n=== 7. тела и сетка ===")
+    print("\n=== 8. тела и сетка ===")
     out = os.path.join(HERE, "out")
     os.makedirs(out, exist_ok=True)
     import trimesh
@@ -177,7 +197,7 @@ def main():
         if not m.is_watertight or broken:
             fail(f"{n} даёт негерметичную сетку")
 
-    print("\n=== 8. на обмере ===")
+    print("\n=== 9. на обмере ===")
     for nm, v, note in L.measured_params():
         print(f"  {nm:14s} = {v:8.3f}   {note}")
 

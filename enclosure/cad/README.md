@@ -11,6 +11,7 @@ python mockups.step.py   # the bought hardware, for clearance checks only
 python verify.py         # every check; exits non-zero on a violation
 python render.py         # PNG views, no OpenGL needed
 python sheet.py          # one sheet: all parts and all sections
+python full_section.py   # the full vertical section through the controller
 ```
 
 | File | What it is |
@@ -23,6 +24,7 @@ python sheet.py          # one sheet: all parts and all sections
 | `render.py` | a small z-buffer rasteriser, since pyglet isn't available here |
 | `sections.step.py` | four cut fragments through the assembly |
 | `sheet.py` | contact sheet: every part on its own, then the sections |
+| `full_section.py` | the full vertical section, on its own sheet with a legend |
 
 ## Every dimension says where it came from
 
@@ -55,6 +57,28 @@ of the face there is only 7.1 mm of flat land; but the bevel lives entirely in t
 of plate, and deeper down the window is already narrow, leaving about 12 mm between its
 edge and the wall. The bosses grow from the back of the plate into exactly that band —
 2.3 mm clear of the window and 2.3 mm clear of the wall, which `verify.py` checks.
+
+## How the panels are located
+
+Screws through the M3 grid hold the panels *down*; they do not decide *where* the panels
+are. That is what the seat does — ribs standing 3 mm proud of the back of the face plate.
+
+The seat cannot simply be a pocket cut to size, because the outermost surface may be the
+board (128.0) or the moulded frame (127.8) and nobody knows which yet. A pocket at 255.6
+would not accept boards; one at 256.0 would leave 0.4 mm of slop with frames, and the seam
+would drift open. Referencing off one edge is worse still — I built that first and it
+fails: with frames the whole slack lands on the far edge, the panel stops short of the
+window, and a slit opens in the corner.
+
+So the seat is cut to the **larger** candidate and the panels are pushed **towards the
+centre** by sprung tongues on the cover, two per side. The seam then closes whatever the
+measurement turns out to be, the slack splits evenly between the outer edges, and the
+bezel overlap stays positive both ways — 0.5 mm with boards, 0.3 mm with frames.
+`verify.py` computes both cases and fails if either goes to zero.
+
+The tongues pass *through* gaps in the seat ribs rather than around them; both parts read
+the same `clamp_positions()`, so a tongue cannot end up butted against a rib. That is a
+mistake the intersection check caught, not one I foresaw.
 
 ## Two places where the model does not follow the brief literally
 

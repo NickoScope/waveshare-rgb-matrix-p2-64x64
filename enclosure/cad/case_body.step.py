@@ -24,6 +24,8 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build123d import Box, Cylinder, Plane, Pos, Rectangle, export_stl, loft
 
 from case_c_lib import (BEVEL_RUN, CASE_H, CASE_W, COVER_BOSS_D, COVER_GAP,
+                        CLAMP_T, CLAMP_W, SEAT_RIB_H, SEAT_RIB_W,
+                        clamp_positions, seat_bounds,
                         COVER_LIP, DEPTH, ENC_BODY_T, ENC_BODY_W, ENC_HOLE_D,
                         ENC_X, ENC_Y, FIELD_CY, FIELD_H, FIELD_W, INSERT_M25_D,
                         INSERT_M25_L, INSERT_M3_D, INSERT_M3_L, OVERLAP,
@@ -75,6 +77,30 @@ def build():
     for x, y in cover_points():
         part -= Pos(x, y, Z_LIP - float(INSERT_M3_L) / 2) * Cylinder(
             float(INSERT_M3_D) / 2, float(INSERT_M3_L) + 0.1)
+
+    # Рёбра посадочного гнезда. Они не обжимают матрицу в размер — гнездо
+    # сделано по большему кандидату, а к центру матрицы прижимают языки
+    # крышки. Рёбра задают плоскость и не дают блоку разъехаться при сборке.
+    x0, x1, y0, y1 = seat_bounds()
+    rw, rh = float(SEAT_RIB_W), float(SEAT_RIB_H)
+    outer = Pos((x0 + x1) / 2, (y0 + y1) / 2, T + rh / 2) * Box(
+        x1 - x0 + 2 * rw, y1 - y0 + 2 * rw, rh)
+    inner = Pos((x0 + x1) / 2, (y0 + y1) / 2, T + rh / 2) * Box(
+        x1 - x0, y1 - y0, rh)
+    ribs = outer - inner
+    # Проёмы под языки крышки: язык проходит сквозь ребро, а не мимо него,
+    # иначе он упёрся бы в ребро снаружи и до торца матрицы не достал.
+    slot_t = float(CLAMP_T) + 0.6
+    slot_w = float(CLAMP_W) + 1.2
+    for cx, cy, horizontal, sign in clamp_positions():
+        if horizontal:
+            box = Pos(cx + sign * (slot_t / 2), cy, T + rh / 2) * Box(
+                slot_t + 2 * rw, slot_w, rh + 0.1)
+        else:
+            box = Pos(cx, cy + sign * (slot_t / 2), T + rh / 2) * Box(
+                slot_w, slot_t + 2 * rw, rh + 0.1)
+        ribs -= box
+    part += ribs
 
     # энкодер: отверстие втулки и стойки его платы
     part -= Pos(float(ENC_X), float(ENC_Y), T / 2) * Cylinder(
