@@ -54,9 +54,35 @@ useful. Both alternatives stay open if the hardware says otherwise.
 
 | Page | Rotate | Short press |
 |---|---|---|
-| Clock | — | — |
+| Clock | step through all 15 styles | Custom rotation ⇄ the style you were on |
 | Flight board | step through the six whitelisted airports | arrivals ⇄ departures |
 | Yacht radar | scroll the vessel table | sort by range ⇄ by size |
+
+### The clock styles are a generated list, not a range
+
+`settings.clockStyle` runs 0–16 but the valid set is neither contiguous nor in
+numeric order: **4** is a legacy alias of 3 and is not offered, **13** was
+retired (Missile Command), and **9**, Custom rotation, sits last in the UI
+rather than between 8 and 10.
+
+So the knob does not iterate a range. `tools/clock_styles_gen.py` reads the
+`<option>` block out of the firmware's own web page and generates the table,
+which makes the browser and the knob incapable of disagreeing. A pre-commit
+check regenerates and refuses the commit if it went stale.
+
+Order as generated: Mario, Standard, Large, Space Invaders, Arkanoid, Pac-Man,
+Snake, Tetris, Asteroids, Dino, Matrix Rain, Weather, Bomberman, TRON, Custom
+rotation.
+
+### Two things the clock page needs to be usable
+
+**The name is shown.** A band across the bottom for 1.6 s after a change.
+Snake and Pac-Man are a couple of seconds of animation apart, so without it the
+knob gives no feedback until the clock happens to do something recognisable.
+
+**The save is deferred.** `saveSettings()` rewrites the whole settings blob in
+NVS. Spinning through fifteen styles would be fifteen writes for fourteen
+choices nobody made, so the write waits 2.5 s for the knob to stop.
 
 Long press carries page switching, not the "force refresh" the flight board
 note in [09](09-upstream-contributions.md) originally gave it. That note
@@ -80,7 +106,12 @@ knob that drops detents feels broken.
 
 ## Cost
 
-Measured, module linked: **1048 bytes flash, 40 bytes RAM.**
+Measured, modules linked:
+
+| | Flash | RAM |
+|---|---|---|
+| Encoder driver + page dispatch | 1048 B | 40 B |
+| Clock style control | 2304 B | — |
 
 ## Not verified
 
