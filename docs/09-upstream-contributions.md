@@ -273,7 +273,45 @@ layout; these are the findings against it, with sources.
 | Passengers named tight line spacing as why they had to reread | same | **not applied** — 6 rows at 8 px pitch leaves 1 px between rows |
 | Limit the number of colours; yellow/orange and orange/red are not separable at a glance | Mijksenaar's Schiphol system, the reference case for airport wayfinding | **not applied** — the palette carries six statuses, and amber, yellow and red do sit close |
 | Character width matters more than serif vs sans; condensed faces test poorly | Waller, comparing typefaces for Heathrow signage | already respected — 5x7 chosen over a condensed 4x6 |
-| Passengers scan for destination **names** before flight numbers | DFW gate display redesign case study | blocked — the payload carries 3-letter IATA codes. Would need the HA template to send city names instead |
+| Passengers scan for destination **names** before flight numbers | DFW gate display redesign case study | **done 2026-09-10** — the HA template now sends a `cy` city field; the panel shows the IATA code and the name together |
+
+### Column budget, measured on live data (2026-09-10)
+
+Referenced from `statusWord()` in `flightboard.cpp`. The destination column shows
+the IATA code **and** the city name, because AeroAPI's "city" is the commune —
+`BLAGNAC` for Toulouse, `EUROAIRPORT` for Basel, `ORLY` for Paris — so the code is
+the only part that is never wrong. Buying room for it was measured against 30 live
+Nice rows rather than estimated.
+
+| Layout | Rows showing code + full city |
+|---|---|
+| columns unchanged, `ENROUTE` / `DELAYED` | 23 / 30 |
+| `FB_X_FLIGHT` 24→22, `FB_X_DEST` 54→50, `FB_GAP` 3→2 | 27 / 30 |
+
+The residual pressure was entirely the two widest status words. Coverage against
+the widest status word is flat from 20 px to 28 px and collapses past 28, so only
+`ENROUTE` (29 px) and `DELAYED` (28 px) were shortened, to `IN AIR` and `DELAY`.
+`ON TIME`, `LANDED`, `DEPART` and `GATE` keep their spelling: cutting them buys
+nothing measurable and costs legibility. The three rows that still show the code
+alone are `EUROAIRPORT`, `LUXEMBOURG` and `FRANKFURT AM MAIN`.
+
+Two defects only live data exposed, both fixed:
+
+- character-by-character trimming produced `EUROAIRPOR`, which reads as a typo.
+  Fitting now drops whole trailing words, then a dangling connector, and stops at
+  the code rather than showing a fragment.
+- Picopixel's `U` is `V` with one extra row — both end in a single centred pixel —
+  so `ZURICH` read `ZVRICH`. `src/flightboard/picopixel_fb.h` gives it a flat
+  bottom, the form Org_01 uses. One bit changed; verified that exactly one glyph
+  renders differently.
+
+### Keeping the two repositories in step
+
+The layout constants are written by hand **only** in `flightboard.cpp`. The host
+renderer imports them; this repo's simulation carries a generated copy stamped
+with a digest. `tools/fb_check.py` in the firmware repo fails if any consumer has
+gone stale, and a `.githooks/pre-commit` hook runs it automatically. See
+[sim/README.md](../sim/README.md).
 
 `tools/fb_variants.py` renders the current layout beside a revision applying the
 spacing, palette and column findings, so the comparison can be re-made in seconds
