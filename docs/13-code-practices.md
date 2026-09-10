@@ -243,6 +243,52 @@ heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT)   // low-water mark since boot
 The low-water mark matters as much as the instantaneous value: it survives the
 dip that any poll will miss.
 
+## Verdict: do one of the four
+
+Weighed against the cost of touching a working multi-MCU system.
+
+| Gap | Do it? | Why |
+|---|---|---|
+| Heap fragmentation metric | **Yes** | Two read-only calls into an existing publish. No behaviour change, no risk, and it maps to a documented incident class |
+| Silence-driven probe | No, not now | The v33.21.0 incident is already patched. The residual case is a caller that does not exist yet |
+| Association check | No | Only useful if the answer changes something, and the only thing it would change is contraindicated below |
+| Restart the radio before rebooting | **No — actively wrong here** | See below |
+
+### Why the radio restart must not be copied
+
+AnimatedPixelClock restarts Wi-Fi after two failed probes, six minutes before
+it will consider a reboot. On that device the radio does nothing else. On the
+S3 it does, and the cost is already measured and written down:
+
+```c
+// Плановый sync (24h NTP / 15min weather) при ЖИВОМ WiFi не должен
+// рвать радио: WiFi.disconnect(true) гасит RF целиком → ESP-NOW
+// (M5Dial) мёртв до ~15 c. Полный цикл подключения — только когда
+// линка реально нет.
+```
+
+Adopting the pattern would kill the M5Dial link for fifteen seconds every time
+the internet hiccuped. The existing design already reached the opposite
+conclusion deliberately, and the backstop it chose instead is sound: a loop
+watchdog with a cause recorded into an RTC ring that survives the reboot, and
+an audit note about not flushing LittleFS from core 0 during recovery because
+`scene_lib` shares it and `open()` could deadlock the recovery itself.
+
+That is a more careful piece of engineering than the thing it would be replaced
+by.
+
+### The one to do
+
+```c
+heap_caps_get_largest_free_block(MALLOC_CAP_8BIT)
+heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT)
+```
+
+Added to whatever the device already publishes. Both are reads; neither changes
+behaviour; the second is a low-water mark that survives the dip any poll would
+miss. `esp_reset_reason()` and `set_reboot_cause()` already exist, so this is
+the missing third of a diagnostic set rather than a new idea.
+
 ## What should not be copied
 
 `NSP_FX_COUNT` consistency is currently held by a grep in the ship-check and by
