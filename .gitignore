@@ -1,9 +1,12 @@
-.DS_Store
-.claude/settings.local.json
-secrets.yaml
-.esphome/
-build/
-*.bin
 
 # Russian working notes, superseded in-repo by docs/08-apollo-m1-comparison.md
+*.bin
+*.pyc
+.DS_Store
+.claude/settings.local.json
+.esphome/
 APOLLO-M1-DOSSIER.md
+__pycache__/
+build/
+enclosure/cad/out/*.stl
+secrets.yaml
