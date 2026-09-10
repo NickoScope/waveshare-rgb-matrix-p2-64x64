@@ -86,27 +86,37 @@ not marked on the sheet.
 | 2 | 5.97 | 4 |
 | 1 | 3.00 | 2 |
 
+## The sheet never dimensions overall thickness
+
+Four dimensions sit near the side view: **15**, **120**, **4.48**, **12**. The obvious reading
+is that 15 is the panel's thickness. **It is not.** Checked against the dimensions' own
+definition points, 2026-09-10:
+
+| Text | Measures from | to | Anchored to the side view? |
+|---|---|---|---|
+| `12` | X 395.030 | X 407.030 | **yes**, both at the view's front edge |
+| `4.48` | X 395.030 | X 399.508 | **yes**, same front edge |
+| `15` | X 379.741 | X 394.741 | **no** |
+
+The `15` misses in both axes. Its definition points sit at Y 52–86, while the side-view
+geometry occupies Y 191–320, and the X range it spans holds only 17 non-dimension lines with
+the nearest real geometry starting 0.29 further right. It measures nothing on this view.
+Most likely an artefact of the DWG to DXF conversion, or a leftover from another sheet
+region.
+
+So the drawing dimensions a **12.0 mm step from the front face** to the main rear plane, plus
+a 4.4775 offset, and leaves the overall thickness undimensioned. The side view's geometry
+happens to span about 15 mm end to end, but that is the extent of a scatter of separate line
+segments, not a dimensioned value.
+
+**Practical position:** treat thickness as **14.5–15 mm and measure your own panel.** That is
+where this started, and the drawing does not improve on it. What the drawing does give you,
+and usefully, is the 12.0 step: the main rear plane sits 12 mm behind the face, and only
+short bosses reach further back.
+
 ## Section A-A
 
-Four dimensions appear in the section zone: **15**, **120**, **4.48**, **12**.
-
-**FYI — 15 is most likely the overall thickness, but the sheet does not label it as such.**
-Distributor listings give 14.5 mm. Treat thickness as 14.5–15 and measure your own panel
-before committing a mechanical design; the GOB resin layer is exactly the sort of thing
-that varies.
-
-**Corroboration, and its limit.** The enclosure work reports confirming 15.000 from the side
-view's geometry. Two independent attempts here failed to reproduce that specific rectangle:
-a coarse per-view bounding box and a targeted search for a 127.797 by 15.000 pair sharing an
-endpoint both came up empty, finding only a single stray 15.019 segment in the section zone.
-The `15` dimension **text** is definitely on the sheet, and 15 is consistent with the
-distributor's 14.5, so the conclusion is very likely right — but it stays FYI here rather
-than being promoted, because it was not independently reproduced.
-
-**What is settled** is that the panel is a **single module of roughly 15 mm**, not a stack of
-board plus connectors plus GOB layer counted separately. An earlier enclosure draft reached
-59 mm that way; that figure is wrong and was withdrawn. Nothing in this knowledge base ever
-used it.
+The `120` dimension is the remaining one in that zone.
 
 ## What the drawing does not contain
 
@@ -127,6 +137,7 @@ route, from the same file. Both hold.
 | No 128.0 anywhere on the sheet | **confirmed.** 31 dimensions read, none is 128.0 |
 | Six ⌀2.5 holes on layer SCREW | **confirmed.** Coordinates match to the hundredth; span 113.70 on both axes |
 | Circle diameter census | **confirmed**, including ⌀4.0 × 28 and ⌀2.5 × 6 |
+| `15` is the panel thickness | **refuted**, see the section above — the dimension is not anchored to the side view |
 
 **One trap worth recording.** Reading the DIMENSION measurement out of group code 42
 returns `-1.0` for every dimension in this file — a not-computed sentinel left by the DWG
@@ -154,3 +165,8 @@ the six-M3 view below it, section A-A on the right.
 
 `dwg2dxf` prints warnings about unstable MATERIAL and MLEADERSTYLE classes on this file.
 They do not affect the geometry.
+
+Entity census of the converted model, useful for knowing what a parser must handle:
+LINE 46051, ELLIPSE 7948, ARC 273, SPLINE 204, CIRCLE 168, **INSERT 56, BLOCK 34**,
+MTEXT 42, DIMENSION 31, HATCH 2. Note the blocks: a reader that ignores `INSERT` will miss
+whatever they contain, so do not assume flat geometry.
