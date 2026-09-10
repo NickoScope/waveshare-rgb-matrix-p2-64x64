@@ -30,6 +30,7 @@ If the hardware has not been powered up yet, read in this order:
 | [06-projects.md](docs/06-projects.md) | Community projects worth building on |
 | [07-sources.md](docs/07-sources.md) | Every source, every contradiction found, what is still unverified |
 | [08-apollo-m1-comparison.md](docs/08-apollo-m1-comparison.md) | How this hardware compares to the Apollo Automation M-1 |
+| [09-upstream-contributions.md](docs/09-upstream-contributions.md) | Roadmap for contributing this board back to the AnimatedPixelClock project |
 
 ## Ready-to-use configs
 
