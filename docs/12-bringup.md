@@ -7,6 +7,33 @@ has four possible causes and no way to tell them apart.
 Everything below is **untested** — it is a plan written from the datasheets and
 the vendor sources, not a log of what happened. Fill in results as you go.
 
+## What is on the board by now
+
+Built and pushed, none of it hardware-verified. Flash 1 753 541 of 6 553 600 —
+**26.8 %**, so nothing here is constrained by space.
+
+| | Flag | Cost |
+|---|---|---|
+| Flight board, fed over MQTT | `FLIGHTBOARD_ENABLED` `FB_MQTT_ENABLED` | 7.4 KB |
+| Yacht radar, AIS over TLS | `YACHTRADAR_ENABLED` | 31.1 KB |
+| Encoder and page dispatch | `CONTROL_ENCODER_ENABLED` | 3.4 KB |
+| Lua 5.4.8, boot self-test only | `NSLUA_ENABLED` | 91 KB |
+
+Two things are **not** built and will not be tested: the pages have no HTTP
+route or button, only the knob; and the Lua runtime is not connected to the
+display at all — it runs one self-test at boot and nothing else.
+
+## Before the boxes are opened
+
+Have these to hand, because stopping mid-phase to find one is how a bring-up
+turns into an evening:
+
+- a 5 V supply rated from the **recommendation**: 8 A for two panels
+- a multimeter — three separate measurements below need one
+- an EC11 encoder, and something to solder with, for the BOOT pad
+- the MQTT broker's host, user and password, and the AIS key, for `provision`
+- a USB-C cable that carries data, not only power
+
 ## Open these first
 
 Both live in [`reference-drawings/controller/`](../reference-drawings/):
@@ -49,6 +76,8 @@ Eight questions are open. The phase that answers each is in the last column.
 | 5 | `mic_power_rail` on GPIO46 | In hub75-studio, absent from the vendor BSP | 1 |
 | 6 | Do GPIO47/48 run at 1.8 V? | R16V parts set VDD_SPI to 1.8 V. That is this board's I2C bus | 1 |
 | 7 | TLS session heap for the AIS websocket | Allocated at runtime, never measured | 6 |
+| 9 | **Can a Lua heap share PSRAM with the HUB75 DMA?** | Both want the same bandwidth-limited memory. Never measured | 6b |
+| 10 | Do the two watchdog fixes hold? | Written by hand after an audit, never run on hardware | 6 |
 | 8 | The two enclosure measurements | The 3D session is waiting on them | 7 |
 
 ---
@@ -203,7 +232,20 @@ canvas in use. No tearing on the animated styles.
 blocked `loop()` takes — the DMA keeps scanning the last buffer. Today's audit
 fixed two such paths, but this is where a third would show.
 
-**Gate:** a stable clock for ten minutes with no reboot.
+**The serial log carries the first Lua evidence.** At boot the runtime runs a
+self-test and prints one line:
+
+```
+[nslua] self-test PASSED
+```
+
+`FAILED` with a message means the interpreter is wrong. **`runtime unavailable
+(no PSRAM?)`** means `psramFound()` returned false — which would also mean the
+HUB75 driver has no PSRAM to put a framebuffer in, so that message is a much
+bigger problem than Lua.
+
+**Gate:** a stable clock for ten minutes with no reboot, and the self-test
+passing.
 
 ---
 
@@ -263,15 +305,61 @@ wrong, not the transport.
 several times. This is question 7: the TLS session is the largest unmeasured
 allocation in the firmware. Heap that does not return on leaving is a leak.
 
-**Test the ugly cases deliberately**, because they are what the audit was about:
+**Test the ugly cases deliberately.** These are not hypothetical: an audit on
+2026-09-10 found two paths that blocked `loop()` past the 15 s watchdog, which
+`panic=true` turns into a reboot loop rather than a slow page. Both were fixed
+by hand and **neither fix has ever run on hardware.** This is the phase that
+proves them.
 
-- broker unreachable → the page should say so and the board must **not** reboot
-- Wi-Fi dropped mid-session → recovery without a reset
-- wrong AIS key → must not become a five-second reconnect loop
+| Do this | Must happen |
+|---|---|
+| Point the broker at an address that accepts TCP and never answers | `CONNECTING`, then a retry. **No reboot** — this is the `PubSubClient` busy-wait fix |
+| Open the radar with the network unplugged | `NO WIFI`, no reboot — this is the TLS-handshake fix |
+| Store a wrong AIS key, open the radar, wait a minute | Must not settle into a five-second reconnect loop |
+| Pull Wi-Fi mid-session, restore it | Both pages recover without a reset |
+| Broker unreachable | The page names the reason rather than saying `NO DATA` |
 
-**Gate:** both pages populated, and no reboot in any of the three failure tests.
+Watch the reset reason across all of it: `GET /api/diagnostics` reports it, and
+a `TG0WDT` or `TG1WDT` there means a watchdog fired and one of the fixes did
+not hold.
+
+**Gate:** both pages populated, and **no reboot in any of the five tests**.
 
 ---
+
+## Phase 6b — the Lua bench
+
+**Goal:** the one question that decides whether an interpreter belongs on this
+board at all, and the reason nothing was built on top of it yet.
+
+The Lua heap allocates from **PSRAM**, and on this board the HUB75 DMA
+framebuffer may live there too. PSRAM bandwidth is already the binding
+constraint — the driver caps at ~13 MHz because GDMA gets half of it, sharing
+round-robin with the CPUs. A script allocating during a frame competes with the
+refresh that is lighting the panel.
+
+Nobody has measured this. It is the first thing to measure, before a single
+effect is wired to the display.
+
+| Measure | How |
+|---|---|
+| Baseline refresh | the driver reports its calculated rate at init — write it down |
+| Free PSRAM before and after | `ESP.getFreePsram()` around `nslua_run` |
+| Flicker under load | run a script that allocates hard — build a large table in a loop — while the clock renders, and **look at the panel** |
+| Frame time | how long the clock's render takes with and without a script running |
+
+**If the panel flickers under script load**, in order of preference:
+
+1. Move the Lua heap to internal SRAM. We use 25 % of 320 KB, and the
+   allocator is one line in `nslua.cpp` — `MALLOC_CAP_SPIRAM` becomes
+   `MALLOC_CAP_INTERNAL`.
+2. Or keep the framebuffer in internal SRAM. At 128 × 64 it fits, and PSRAM
+   then belongs to Lua alone.
+
+Both cannot have it. Which one wins is a measurement, not an opinion.
+
+**Gate:** a number for each row above, written into `docs/13-lua.md`. A
+flickering panel is not a failure of this phase — it is its result.
 
 ## Phase 7 — the measurements the enclosure is waiting for
 
@@ -319,4 +407,6 @@ Every answer above belongs back in this repository, not in a chat log:
 | GPIO46, GPIO47/48, header pins | [02](02-controller.md), [11](11-control-and-pins.md) |
 | TLS heap | `src/yachtradar/README.md` in the firmware repo |
 | Depth and seam | the enclosure's measurement protocol |
+| PSRAM contention, refresh rates | [13](13-lua.md), and the allocator decision into the firmware |
+| Watchdog behaviour under the five failure tests | [05](05-troubleshooting.md) |
 | Anything surprising | [05](05-troubleshooting.md) |
