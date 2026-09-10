@@ -25,6 +25,7 @@ python full_section.py   # the full vertical section through the controller
 | `sections.step.py` | four cut fragments through the assembly |
 | `sheet.py` | contact sheet: every part on its own, then the sections |
 | `full_section.py` | the full vertical section, on its own sheet with a legend |
+| [`MEASURE.md`](MEASURE.md) | what to measure when the panels arrive, in what order |
 
 ## Every dimension says where it came from
 
