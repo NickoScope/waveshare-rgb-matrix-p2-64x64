@@ -10,6 +10,7 @@ python back_shell.step.py
 python mockups.step.py   # the bought hardware, for clearance checks only
 python verify.py         # every check; exits non-zero on a violation
 python render.py         # PNG views, no OpenGL needed
+python sheet.py          # one sheet: all parts and all sections
 ```
 
 | File | What it is |
@@ -20,6 +21,8 @@ python render.py         # PNG views, no OpenGL needed
 | `mockups.step.py` | panels, controller, encoder — **not printed parts** |
 | `verify.py` | fit, clearance, single-solid and watertight checks |
 | `render.py` | a small z-buffer rasteriser, since pyglet isn't available here |
+| `sections.step.py` | four cut fragments through the assembly |
+| `sheet.py` | contact sheet: every part on its own, then the sections |
 
 ## Every dimension says where it came from
 
