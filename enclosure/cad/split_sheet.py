@@ -18,14 +18,19 @@ OUT = os.path.join(HERE, "out")
 FONT = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf"
 INK, MUTE, OK, WARN = (22, 33, 44), (92, 108, 122), (47, 107, 58), (168, 53, 31)
 
-PARTS = [
-    ("body_top", "Планка верхняя", "шов лёг на верхнюю кромку поля"),
-    ("body_bottom", "Планка нижняя", "шов на границе поля и полосы; здесь энкодер"),
-    ("body_side_L", "Борт левый", "ложится плашмя"),
-    ("body_side_R", "Борт правый", "ложится плашмя"),
-    ("cover_L", "Крышка, часть левая", "шов мимо ребра стыка"),
-    ("cover_R", "Крышка, часть правая", "здесь площадка контроллера"),
+WHOLE = [
+    ("case_body", "Корпус", "лицевая плита, окно, борта, гнездо, посадка энкодера"),
+    ("back_cover", "Задняя крышка", "рёбра прижима панелей, площадка контроллера"),
 ]
+SPLIT = [
+    ("split_body_top", "Планка верхняя", "шов лёг на верхнюю кромку поля"),
+    ("split_body_bottom", "Планка нижняя", "шов на границе поля и полосы"),
+    ("split_body_side_L", "Борт левый", "ложится плашмя"),
+    ("split_body_side_R", "Борт правый", "ложится плашмя"),
+    ("split_cover_L", "Крышка, часть левая", "шов мимо ребра стыка"),
+    ("split_cover_R", "Крышка, часть правая", "здесь площадка контроллера"),
+]
+PARTS = SPLIT if L.split_needed() else WHOLE
 
 
 def font(sz):
@@ -41,7 +46,7 @@ def main():
 
     tiles = []
     for key, title, note in PARTS:
-        f = os.path.join(OUT, f"split_{key}.stl")
+        f = os.path.join(OUT, f"{key}.stl")
         m = trimesh.load(f)
         img = render([(m, (186, 202, 214))], 20.0, 208.0, size=(720, 460),
                      mirror=True)
@@ -50,19 +55,25 @@ def main():
         ok, how = L.fits_plate(size[0], size[1])
         tiles.append((title, note, img, size, how, ok))
 
-    cols, tw, th = 3, 720, 460
+    cols, tw, th = min(3, len(tiles)), 720, 460
     pad, head, cap = 18, 84, 62
     rows = (len(tiles) + cols - 1) // cols
     W = cols * tw + (cols + 1) * pad
     H = head + rows * (th + cap) + (rows + 1) * pad
     sheet = Image.new("RGB", (W, H), (251, 252, 253))
     d = ImageDraw.Draw(sheet)
-    d.text((pad + 4, 20), "Корпус C — членение под печать", font=font(30), fill=INK)
-    d.text((pad + 4, 56),
-           f"Стол {float(L.PLATE):.0f} × {float(L.PLATE):.0f}; деталь ложится по "
-           f"диагонали, если L + W ≤ {float(L.DIAG):.0f}. "
-           "Швы лежат на границах изображения, поперёк поля не идёт ни один.",
-           font=font(16), fill=MUTE)
+    if L.split_needed():
+        title = "Корпус C — членение под печать"
+        sub = (f"Стол {float(L.PLATE):.0f} × {float(L.PLATE):.0f}; деталь ложится "
+               f"по диагонали, если L + W ≤ {float(L.DIAG):.0f}. "
+               "Швы лежат на границах изображения, поперёк поля не идёт ни один.")
+    else:
+        title = "Корпус C — печатные детали"
+        sub = (f"Стол {float(L.PLATE):.0f} × {float(L.PLATE):.0f}. Обе детали "
+               "ложатся плашмя целиком, поэтому членения нет: ни швов на лице, "
+               "ни угловых стяжек, ни склейки.")
+    d.text((pad + 4, 20), title, font=font(30), fill=INK)
+    d.text((pad + 4, 56), sub, font=font(16), fill=MUTE)
 
     for i, (title, note, img, size, how, ok) in enumerate(tiles):
         r, c = divmod(i, cols)
@@ -76,7 +87,7 @@ def main():
                font=font(15), fill=OK if ok else WARN)
         d.text((x + 2, y + th + 48), note, font=font(14), fill=MUTE)
 
-    f = os.path.join(OUT, "M2_chlenenie.png")
+    f = os.path.join(OUT, "M2_pechatnye_detali.png")
     sheet.save(f)
     print("записан", f, sheet.size)
 

@@ -140,41 +140,29 @@ strip. The bevel opens downward too and eats its 6.87 mm out of the strip, so
 the structural height is the free height plus that. `verify.py` measures what is
 actually free and fails if it drops below 20.
 
-## Splitting for the print bed
+## Two printed parts, no splitting
 
-284 × 168.9 does not go on a 250 bed, flat or diagonally, so both parts are cut. Where a
-seam may **not** go: across the active field, where it would sit on the picture, and down
-the vertical axis, where the panel joint is — the thing the whole design hides.
+The printer's bed is 350 × 350, and both parts fit on it flat and whole: the case is
+284 × 169 × 30, the cover 281 × 166 × 26. So there is no splitting — no seams on the face,
+no corner ties, nothing to glue or align. The best split is the one you do not make.
 
-Where they do go: on the boundaries of the image. The top edge of the field and the line
-where the field meets the bottom strip are already visible as lines on the face, so a seam
-laid on them reads as intended rather than forced. That gives four rails — top, bottom and
-two sides. The cover is cut in two with the seam off-centre, clear of the rib that runs
-along the panel joint and clear of the controller pad.
+That was not a given. At 250 the case would have to be cut, because the active field alone
+is 256 mm: `split.py` still holds the whole scheme for that case — four rails with seams
+laid on the boundaries of the image, and a cover in two halves — and decides for itself by
+comparing the case against `PLATE`. The corner-tie bosses in `case_body` are built only
+when `split_needed()` says so, so today they are simply absent.
 
-| part | mm | on the plate |
-|---|---|---|
-| top rail | 284 × 14 × 30 | diagonally |
-| bottom rail | 284 × 27 × 30 | diagonally |
-| side rails ×2 | 14 × 128 × 30 | flat |
-| cover left | 80 × 166 × 26 | flat |
-| cover right | 200 × 166 × 26 | flat |
-
-Rails are drawn together at the corners by bosses either side of each seam, with the screw
-going in **from inside the cavity** — nothing shows outside, not even on the edges. The
-box is also closed by the cover itself: it lands on a rebate in all four rails and its
-eight screws pull the frame square.
-
-`split.py` checks each piece for plate fit, single body and watertightness, and then adds
-the volumes back up: they must come to the whole minus what the seam gaps ate. Today that
-is 0.1 %.
+If the printer ever changes, set `PLATE` and everything downstream follows: `split.py`
+either says "not required" or cuts and checks the pieces, and `split_sheet.py` draws
+whichever case applies.
 
 ### Two mesh traps worth remembering
 
-Both cost time here, and both looked like nothing on screen. If a boolean's boundary
-coincides exactly with a surface that already exists, OCC leaves a face of zero thickness:
-no volume, invisible in a render, but it travels into the STL and inflates the bounding box
-of whatever gets cut off — a side rail measured 142 mm wide instead of 14.
+Both were found while splitting, both looked like nothing on screen, and both survive as
+comments in the source because they will happen again. If a boolean's boundary coincides
+exactly with a surface that already exists, OCC leaves a face of zero thickness: no volume,
+invisible in a render, but it travels into the STL and inflates the bounding box of
+whatever gets cut off — a side rail measured 142 mm wide instead of 14.
 
 Worse is the opposite reflex: offsetting a cut by "a micron for safety" leaves a film that
 thin across the whole cut. Give the cut a real overshoot into empty space instead, as the

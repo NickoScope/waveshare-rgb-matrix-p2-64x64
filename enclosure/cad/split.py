@@ -114,6 +114,20 @@ def split_cover(cover):
 
 def main():
     body, cover = load("case_body"), load("back_cover")
+
+    # Резать или нет — решает поле принтера, а не привычка. При 350 обе
+    # детали ложатся целиком, и тогда лучший вариант членения — никакого.
+    if not L.split_needed():
+        print(f"поле печати {float(L.PLATE):.0f} × {float(L.PLATE):.0f} — "
+              f"членение не требуется:")
+        for name, part in (("case_body", body), ("back_cover", cover)):
+            bb = part.bounding_box()
+            ok, how = L.fits_plate(bb.size.X, bb.size.Y)
+            print(f"  {name:12s} {bb.size.X:7.1f} × {bb.size.Y:7.1f} × "
+                  f"{bb.size.Z:6.1f}  {how}")
+        print("\nДве детали, обе печатаются целиком.")
+        return 0
+
     parts = {}
     parts.update(split_body(body))
     parts.update(split_cover(cover))
