@@ -99,7 +99,7 @@ Arduino Mega2560 and STM32F103RBT6. The Raspberry Pi path uses
 | | Waveshare P2-64x64-B | Apollo M-1 panel |
 |---|---|---|
 | Pitch | 2 mm | 2.5 mm |
-| Dimensions | 128 x 128 mm | 160 x 160 mm |
+| Dimensions | 128 x 128 mm (frame dimensioned 127.8, see [10-mechanical.md](10-mechanical.md)) | 160 x 160 mm |
 | Density | 25 dots/cm² | 16 dots/cm² |
 | Protection | GOB | none |
 | Price | $31.99 | $36.99 |

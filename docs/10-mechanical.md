@@ -103,6 +103,29 @@ connector clearance, measure it.
 
 ---
 
+## Independently re-extracted, 2026-09-10
+
+The two claims that carry mechanical consequences were pulled a second time, by a different
+route, from the same file. Both hold.
+
+| Claim | Result |
+|---|---|
+| Frame dimensioned 127.8 | **confirmed.** Two DIMENSION entities carry the text `127.8`; their definition points measure 127.800, one on dx, one on dy |
+| No 128.0 anywhere on the sheet | **confirmed.** 31 dimensions read, none is 128.0 |
+| Six ⌀2.5 holes on layer SCREW | **confirmed.** Coordinates match to the hundredth; span 113.70 on both axes |
+| Circle diameter census | **confirmed**, including ⌀4.0 × 28 and ⌀2.5 × 6 |
+
+**One trap worth recording.** Reading the DIMENSION measurement out of group code 42
+returns `-1.0` for every dimension in this file — a not-computed sentinel left by the DWG
+to DXF conversion. Read the definition points instead (codes 13/23 and 14/24) and take the
+distance, or use a library that computes rather than reads. The dimension **text**
+(code 1) is present and correct throughout.
+
+Other dimensions on the sheet, with their measured def-point spans: 8, 12, 28, 48, 55.99,
+56.85, 80, 112, 120, and 4.48 in the section zone.
+
+---
+
 ## Reproducing this
 
 ```bash

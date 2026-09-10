@@ -32,7 +32,7 @@ while Waveshare uses GPIO41 and GPIO40. Two independent designs.
 |---|---|---|
 | Resolution | 64 x 64 = 4096 | 64 x 64 = 4096 |
 | Pitch | **2 mm** | 2.5 mm |
-| Dimensions | **128 x 128 mm** | 160 x 160 mm |
+| Dimensions | **128 x 128 mm** ¹ | 160 x 160 mm |
 | Diagonal | 181 mm | 226 mm |
 | Screen area | 164 cm² | 256 cm² |
 | Density | **25 dots/cm²** | 16 dots/cm² |
@@ -44,6 +44,10 @@ while Waveshare uses GPIO41 and GPIO40. Two independent designs.
 
 Same pixel count, packed 1.6 times denser into half the area. Sharper image, physically
 smaller, shorter comfortable viewing distance.
+
+¹ The spec table says 128 x 128, but the factory drawing dimensions the moulded frame at
+**127.8**. It matters only when tiling panels, and it is covered in
+[10-mechanical.md](10-mechanical.md).
 
 ## Controller comparison
 
