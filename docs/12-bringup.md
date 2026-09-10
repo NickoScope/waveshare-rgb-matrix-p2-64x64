@@ -7,6 +7,33 @@ has four possible causes and no way to tell them apart.
 Everything below is **untested** — it is a plan written from the datasheets and
 the vendor sources, not a log of what happened. Fill in results as you go.
 
+## Open these first
+
+Both live in [`reference-drawings/controller/`](../reference-drawings/):
+
+| Drawing | What you will need it for |
+|---|---|
+| `ESP32-S3-RGB-Matrix-Schematics.pdf` | the pin-assignment table (top right), connector J1, the two buffers, the power path |
+| `ESP32-S3-RGB-Matrix-2D.pdf` | board outline and mounting, for phase 7 |
+
+There is **no schematic for the panel** and that is not an oversight — see the
+[drawings README](../reference-drawings/README.md) for where that was searched.
+
+What the schematic already settles, so you do not measure it:
+
+- **Header U8 is `1 = IO45, 2 = IO46, 3 = GND, 4 = 3V3`.** Four pins, and that is
+  the entire expansion budget.
+- **J1, the HUB75 output, is a keyed 2×8 header at 2.54 mm.** Keyed, so it only
+  goes in one way — but the ribbon can still be reversed end for end.
+- **The signals are level-shifted by two SN74HC245DBR** (U11, U12), and those
+  buffers run from **USB_5V**. The HUB75 logic level therefore follows the
+  board's own 5 V rail, not its 3.3 V one. This matters in phase 2.
+- **The board's 5 V has two entrances that are the same net:** the USB-C
+  connector and the M3 screw posts H2/H3 in `Screen_Power`. Nothing on the
+  drawing ORs or diode-isolates them, so feeding both at once back-feeds one
+  into the other. Pick one.
+- 3V3 comes from an **MP1605GTF-Z** buck; C27 is a convenient place to measure it.
+
 ---
 
 ## What this is meant to settle
@@ -38,7 +65,10 @@ Eight questions are open. The phase that answers each is in the last column.
 - Size the supply from the **recommendation, not the table**: Waveshare states
   3 A in the specs and 4 A in the supply advice. Two panels = 5 V 8 A.
   Power reaches each panel through its own VH4 socket; it does **not** chain.
-- Check the ribbon orientation against the keying before pushing it home.
+- Check the ribbon orientation against the keying before pushing it home. J1 is
+  keyed, but a 16-way ribbon reversed end for end still seats.
+- Decide **now** which 5 V entrance you will use — USB-C or the M3 screw posts.
+  They are the same net on the schematic. Not both.
 
 **Gate:** connectors identified, supply rated, batches recorded.
 
@@ -70,6 +100,10 @@ While here, with no panel connected and nothing to damage:
 - **Question 6**, the 1.8 V I2C: measure the idle voltage on GPIO47/48 with a
   meter. 3.3 V or 1.8 V is a five-second measurement that decides whether
   anything can ever be added to that bus.
+- **The two rails**, while a meter is already out: 3V3 at C27 (buck output) and
+  5 V at the buffer supply pin of U11 or U12. The second one is the number that
+  decides the HUB75 signal level, so it is worth knowing before a panel is
+  attached rather than after a bad picture.
 
 **Gate:** the board flashes and re-flashes reliably. Do not proceed otherwise —
 every later step assumes you can iterate.
@@ -118,8 +152,13 @@ In this order, one change at a time:
 2. Ribbon reversed or in JOUT rather than JIN.
 3. Toggle `USE_FM6126A`.
 4. Brightness — start low, but not zero.
-5. Only then suspect the pin map. It was verified against three independent
-   vendor sources ([02](02-controller.md)), so it is the least likely cause.
+5. **The buffer supply.** U11 and U12 run from USB_5V, so if that rail is low —
+   a thin cable, a shared supply sagging under the panels — the HUB75 signals
+   are low with it, and the symptom is a dim, unstable or dead panel that looks
+   like a driver or wiring fault. Measure at the buffer, not at the supply.
+6. Only then suspect the pin map. It was verified against three independent
+   vendor code sources **and** the schematic's own pin table
+   ([02](02-controller.md)), so it is the least likely cause.
 
 **Gate:** one panel showing correct colours, full geometry and all 64 rows.
 Record the driver and clkphase answers in [07](07-sources.md) — contradiction #4
@@ -173,8 +212,13 @@ fixed two such paths, but this is where a third would show.
 **Goal:** question 4, and the gesture map.
 
 Wire A → **GPIO45** (header U8 pin 1), B → **GPIO46** (pin 2), common → GND
-(pin 3). The switch has no header pin: solder it to the **BOOT button pad**,
-in parallel with the button.
+(pin 3). Pin 4 is 3V3 if the encoder needs it; ours does not, the internal
+pull-ups are enough. The switch has no header pin: solder it to the **BOOT
+button pad**, in parallel with the button.
+
+The header's four-pin order is on the schematic in the `GPIO` block, connector
+U8 — worth a glance before soldering, because the drawing is the only place it
+is written down.
 
 Before that, one measurement decides whether GPIO45 is safe to drive at all:
 
@@ -235,9 +279,21 @@ The 3D session has a measurement protocol and cannot finalise depth without
 real numbers. Do this **before** anything goes into a case, with the panels
 still accessible.
 
-Measure and report: the assembled panel-plus-controller depth stack, and the
-actual seam gap between two mounted panels. The enclosure is currently working
-to 30 mm and will freeze only once these land.
+**The controller half is already known** — from `ESP32-S3-RGB-Matrix-2D.pdf`,
+and it does not need the hardware in hand:
+
+| | |
+|---|---|
+| Board | 50.01 × 42 mm, corner radius R2 |
+| PCB | 1.6 mm |
+| Tallest side | 8.5 mm |
+| Opposite side | 5.6 mm |
+| Mounting | 2 × M2.5, centres 42.54 mm apart |
+
+So what still has to be measured is only what the drawing cannot say: **the
+assembled panel-plus-controller depth stack** once the ribbon and its bend are
+real, and **the actual seam gap** between two mounted panels. The enclosure is
+working to 30 mm and freezes only once those two land.
 
 ---
 
