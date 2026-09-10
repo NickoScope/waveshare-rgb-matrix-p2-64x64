@@ -6,117 +6,77 @@ Rolling record of where the work stands. Newest first.
 
 ## 2026-09-10
 
-### Done
+Twenty-three commits to the firmware, twenty-five here, plus sixteen on the
+enclosure from the neighbouring session. Nothing has met hardware.
 
-**Flight board reached live data.** The Home Assistant automation now sends a
-cleaned city name (`cy`) alongside the IATA code, and the panel shows both.
-Thirty real Nice flights broke three things that invented data never would
-have, all fixed:
+### The panel firmware went from nothing to three working pages
 
-- character-by-character trimming produced `EUROAIRPOR`; fitting now drops
-  whole words, then a dangling connector, and stops at the code
-- Picopixel's `U` is `V` with one extra row — `ZURICH` read `ZVRICH` on a
-  quarter of the destination column. `src/fonts/picopixel_fb.h` gives it a flat
-  bottom; one bit changed, verified that exactly one glyph differs
-- AeroAPI's "city" is the commune (`BLAGNAC` for Toulouse), which is why the
-  code is now drawn unconditionally
+**Flight board**, fed over MQTT from Home Assistant. Live data broke three
+things invented data never would have: character-by-character trimming turned
+`EUROAIRPORT` into `EUROAIRPOR`; Picopixel's `U` is `V` with one extra row, so
+`ZURICH` read `ZVRICH` across a quarter of the column; and AeroAPI's "city" is
+the commune, `BLAGNAC` for Toulouse. All three fixed, the last by drawing the
+IATA code unconditionally and the name as context.
 
-Buying column width for the code was measured, not guessed: 23/30 rows could
-show code and full name before, 27/30 after moving three constants and
-shortening the two widest status words. Coverage is flat between 20 and 28 px
-of status width, so nothing else was cut. Recorded in `docs/09`.
+**Yacht radar**, ported from NickoScope32. The first port drew fx34's
+wireframe, which reads as noise on a raster panel. Rebuilt as a real chart:
+land filled by scanline-filling the mainland ring, sea coloured by measured
+GEBCO depth, land by measured EU-DEM elevation with a hillshade, baked at build
+time into 8 KB of RGB565.
 
-**Layout became a generated dependency.** The constants were hand-typed in
-three places across two repos. `flightboard.cpp` is now the only hand-written
-copy; `tools/fb_layout.py` extracts them, `fb_check.py` fails on drift and a
-pre-commit hook runs it. Verified by breaking a constant and watching the
-commit get blocked.
+**Clock**, upstream's own, now driven by the knob.
 
-**Repository structure settled.** One working repo: the fork
-`NickoScope/AnimatedPixelClock`, branch `board/waveshare-esp32-s3-rgb-matrix`.
-The simulation moved there from here, which removed the cross-repo machinery
-entirely. This repo is hardware documentation and the enclosure only.
+**One encoder drives all three.** Rotate changes what the page is about, a
+short press toggles its second axis, a long press leaves for the next page.
 
-**Yacht radar ported from NickoScope32.** Left 64x64 is a chart of the Bay of
-Cannes, right 64x64 a table of vessels by range. AIS client from Main-S3
-`iot/yacht_radar.cpp` (same silicon), visual design and coastline from H743
-`fx34_yacht_radar.cpp`.
+### Two corrections that cost a day between them
 
-The first port drew fx34's wireframe, which reads as coarse on a raster panel.
-Rebuilt as a real chart: land filled by scanline-filling the mainland ring
-(the three "bridge" segments in the fx34 data exist to stitch it), sea coloured
-by GEBCO 2020 depth, land by EU-DEM 25 m elevation with a north-west hillshade,
-shoreline anti-aliased on top. All baked at build time into 8 KB of RGB565.
-Terrain is committed so the map rebuilds offline.
+**The pin budget was counted, not read.** Free pins were derived from what the
+firmware did not reference. The vendor schematic — downloaded on 2026-09-06,
+read once, and **not kept** — says the expansion header is four pins, `IO45`,
+`IO46`, `GND`, `3V3`, and that `IO10` is `RTC_INT` and `IO13` is `IMU_INT`. The
+encoder designed that morning used exactly those two and could not have been
+wired to a board at all. Drawings are now kept in `reference-drawings/` with a
+fetch script and hashes.
 
-Two resolution decisions worth keeping: the coastline is stored in DAC units,
-not rounded to pixels, and vessels blend against the baked map rather than over
-it — on a 64 px chart, sub-pixel position carried into brightness is the only
-resolution left.
+**The audit ran after the pushes, not before.** One CRITICAL and three HIGH,
+all of which would have shown on first power-on: a TLS handshake that can block
+`loop()` for 120 s against a 15 s watchdog with `panic=true`; the same shape in
+`PubSubClient::connect()`, and on every page rather than its own; and
+`setTextSize` left at 3 by the animated clocks, which neither the style toast
+nor the radar reset. All fixed.
 
-Cost measured with the module actually linked: flash +31.1 KB, static RAM
-+1.1 KB.
+### Lua, as preparatory work
 
-### Also done, after this record was first written
+The Watch's vendored Lua 5.4.8 came across as it stands — already the S3
+adaptation, and deliberately without `io`, `os` or `package`. Phase 1 `nslua`
+with it: stateless, PSRAM allocator, sandbox, two-million instruction budget.
+**+91 KB flash, +80 bytes RAM**, measured with the self-test actually calling
+it.
 
-**The encoder, and a correction it took the schematic to find.** A physical
-control layer went in — one EC11, three pages, gestures identical everywhere:
-rotate changes what the page is about, a short press toggles its second axis, a
-long press leaves for the next page. The clock page walks all 15 styles from a
-table generated out of the web UI's own option list, so the browser and the
-knob cannot disagree.
-
-Its first pin map was wrong, and wrong in an instructive way. GPIO10 and GPIO13
-were chosen by counting which pins the firmware did not reference. The vendor
-schematic — which had been read once in September and not kept — says IO10 is
-RTC_INT and IO13 is IMU_INT, and that the expansion header U8 is four pins:
-IO45, IO46, GND, 3V3. The encoder as designed could not have been wired at all.
-Fixed, and the drawings are now in the repository with a fetch script and
-hashes.
-
-**The flight board got a transport.** It could draw but nothing fed it —
-`flightboardIngest()` had no caller. `src/flightboard/fb_mqtt.cpp` subscribes to
-the retained topic for the current selection and asks only when nothing arrives.
-Three things decided whether it would work at all: PubSubClient's 256-byte
-default buffer silently drops an oversized PUBLISH and a live board measures
-1060 bytes; subscriptions do not survive a reconnect; and a retained payload
-lands in milliseconds, so a request costs an AeroAPI fetch only when there is
-genuinely nothing there. Verified against the live broker.
-
-**A senior code audit ran, late.** It should have run before the pushes rather
-than after. It returned CHANGES-REQUIRED with one CRITICAL and three HIGH, all
-of which would have appeared on the first power-on: the AIS TLS handshake could
-block `loop()` for up to 120 s against a 15 s watchdog with panic enabled;
-PubSubClient's connect busy-waits without yielding, on every page; and two
-pages never reset `setTextSize`, which the animated clocks leave at 3. All
-fixed, along with eight MEDIUM findings.
-
-**Two analysis documents.** [12](docs/12-bringup.md) is the gated bring-up
-programme. [13](docs/13-code-practices.md) compares AnimatedPixelClock's
-engineering against NickoScope32 V1b at code level — the conclusion is that
-almost nothing transfers, and the one thing that does (a heap fragmentation
-metric) has been sent to the phase-planning session.
+`tools/luasim` runs that same runtime on the host against a `px.*` raster API,
+so effects can be written now: a Minecraft day/night cycle, a Tetris clock that
+clears and rebuilds itself, a snake clock whose digits crawl away and back.
+Previews committed beside the scripts, because a Lua effect has no other record
+of how it reads.
 
 ### Open
 
-- **Nothing is hardware-verified.** The panels have not arrived. The sequence is
-  now written down: [docs/12](docs/12-bringup.md), eight gated phases.
-- **Before wiring the encoder:** read the eFuse with `esptool.py summary`. The
-  header pins are strapping pins, and GPIO45's VDD_SPI role should be void on
-  this module because in-package flash and PSRAM fix that voltage — but that is
-  UNVERIFIED, and if the eFuse is not burned a knob left in the wrong position
-  at power-up stops the board booting.
-- TLS session heap for the AIS websocket is not measured — runtime only.
-- The yacht radar page is reachable only via the `httpForceYachtRadar` flag; no
-  HTTP route or button yet.
+- **Nothing is hardware-verified.** The panels have not arrived. Ten open
+  questions and the gated sequence to settle them are in
+  [12-bringup.md](docs/12-bringup.md).
+- **The Lua bench is the gate that blocks everything built on the interpreter**
+  — the heap and the HUB75 framebuffer both want PSRAM, whose bandwidth already
+  caps the driver at ~13 MHz. Phase 6b.
+- The two watchdog fixes have never run on hardware. Phase 6 exercises them.
+- The pages are reachable only through the knob; no HTTP route, no button.
 - Older commits in the fork carry `nickol@me.com` in public history. Local
-  config is fixed and the commits since have been clean; the rest need a
-  force-push and the owner's decision.
-- The panel schematic does not exist — searched and recorded in the
-  [drawings README](reference-drawings/README.md), so nobody repeats it. The one
-  thing it would have settled, the shift driver, is settled empirically in
-  phase 2 instead.
+  config is fixed and the last few were rewritten before pushing; the rest need
+  a force-push and the owner's decision.
 - NickoScope-Watch still listens on the legacy `.../state` topic; the keyed
-  `(apt, dir)` topic is published in parallel and the legacy publish can go once
-  the watch migrates.
-- `mic_power_rail` GPIO46 remains UNVERIFIED.
+  topic is published in parallel until it migrates.
+- `mic_power_rail` GPIO46 — and note GPIO46 is now the encoder's B line, so
+  this matters more than it did.
+- **FYI, unconfirmed:** on R16V parts VDD_SPI is 1.8 V and GPIO47/48 run at
+  1.8 V with it. Those two are this board's I2C bus. Read in the WROOM-1
+  datasheet; confirm against WROOM-2 before designing anything onto it.
