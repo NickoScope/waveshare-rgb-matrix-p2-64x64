@@ -176,3 +176,9 @@ plain primitives — LINE, ELLIPSE, ARC, SPLINE, CIRCLE, DIMENSION, MTEXT, HATCH
 *this* sheet a parser that ignores `INSERT` still sees every bit of drawing geometry. Do
 not generalise either way: the file does have blocks, and another vendor sheet may well
 put geometry in them.
+
+Counted per DXF section, so it can be checked rather than taken on trust: `INSERT` is 0 in
+`ENTITIES` and 56 in `BLOCKS`; `MTEXT` splits 11 and 31 the same way. The 34 block
+definitions are 33 anonymous `*D..` plus one named `_FILLED`, and between them they hold
+124 `LINE` and a single `SOLID` — arrowheads and ticks. That is the entire cost of ignoring
+them here.
