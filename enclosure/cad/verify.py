@@ -92,11 +92,14 @@ def main():
 
     print("\n=== 3. полость за матрицей ===")
     cav = float(L.CAVITY_BEHIND)
-    cav_relief = cav + L.relief_depth()
-    print(f"  полость ровная: {cav:.2f}   в полосе прилива: {cav_relief:.2f}")
+    dz = L.relief_depth()
+    cav_relief = cav + dz
+    print(f"  полость за модулем: {cav:.2f}"
+          + (f"   в полосе прилива: {cav_relief:.2f}" if dz > 0
+             else "   прилив не нужен, крышка ровная"))
     for nm, need, in_relief in (
-            ("колодка HUB75 с надетым шлейфом", float(L.CONN_STACK), True),
-            ("колодка питания с разъёмом", float(L.VH4_STACK), True),
+            ("выступ шлейфа HUB75 за модуль", float(L.CONN_PROUD), True),
+            ("выступ разъёма питания", float(L.VH4_PROUD), True),
             ("плата контроллера", float(L.CTRL_T), False)):
         have = cav_relief if in_relief else cav
         ok = need <= have

@@ -58,6 +58,23 @@ of plate, and deeper down the window is already narrow, leaving about 12 mm betw
 edge and the wall. The bosses grow from the back of the plate into exactly that band —
 2.3 mm clear of the window and 2.3 mm clear of the wall, which `verify.py` checks.
 
+## The back is flat — no relief
+
+An earlier version put a raised band across the back wall for the connectors. It came out
+of a mistake: I added 15 mm of module to a 9 mm connector height, as if the shells stood
+on top of a finished module. They stand *inside* it. The moulded frame on the factory
+drawing **is** the housing over the electronics, and the soldered shells are already
+within its 15 mm — the profile shows the bulk of that frame at 12 mm, with only a single
+feature reaching 15.
+
+So the number to measure is not connector height, it is **how far the mated ribbon stands
+proud of the module**, and only that has to fit the 10.5 mm cavity. At the working figure
+it fits with room to spare, `relief_depth()` returns zero, and the cover is flat.
+
+The function stays in place. If the measurement comes back larger than the cavity, the
+relief reappears on its own and shows up on the sheets — that is the point of keeping the
+depth a computed value rather than a drawn feature.
+
 ## How the panels are located
 
 Screws through the M3 grid hold the panels *down*; they do not decide *where* the panels
