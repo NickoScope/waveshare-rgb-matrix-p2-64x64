@@ -35,8 +35,12 @@ matters most is `CONN_STACK` — the HUB75 shell **with the ribbon plugged in**.
 ## The back comes off, not the front
 
 The face is the case — plate, window and walls in one part. What unscrews is the
-**back cover**, from behind, twelve M3 into brass inserts in the body's bosses, heads
-countersunk flush because the panel hangs on a wall. Nothing is visible from the front,
+**back cover**, from behind, eight M3 into brass inserts in the body's bosses, heads
+countersunk flush because the panel hangs on a wall. Eight, not twelve: four corners
+plus the middle of each side, so every side gets three screws because the corners serve
+two sides at once. The widest gap between neighbours is 134 mm, along the top and bottom
+— that is the number to watch on the first print, since it is the seal cord that has to
+stay evenly squeezed across it. Nothing is visible from the front,
 and servicing never disturbs the bevel, the light seal, or how the matrices sit against
 the face — the three things the looks depend on.
 

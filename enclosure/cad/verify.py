@@ -108,10 +108,23 @@ def main():
 
     print("\n=== 4. соединение корпуса и крышки ===")
     body, cover = parts["case_body"], parts["back_cover"]
-    n = len(L.cover_points())
-    print(f"  точек притяжки: {n}")
-    if n < 8:
-        fail(f"точек притяжки всего {n} — для панели 284 мм мало")
+    pts = L.cover_points()
+    n = len(pts)
+    # По три винта на сторону: углы работают на две стороны сразу.
+    xs = sorted({round(x, 2) for x, _ in pts})
+    ys = sorted({round(y, 2) for _, y in pts})
+    per_side = {
+        "верх": sum(1 for _, y in pts if round(y, 2) == ys[-1]),
+        "низ": sum(1 for _, y in pts if round(y, 2) == ys[0]),
+        "левый борт": sum(1 for x, _ in pts if round(x, 2) == xs[0]),
+        "правый борт": sum(1 for x, _ in pts if round(x, 2) == xs[-1]),
+    }
+    print(f"  винтов: {n}  " + ", ".join(f"{k} {v}" for k, v in per_side.items()))
+    if min(per_side.values()) < 3:
+        fail("на какой-то стороне меньше трёх винтов: "
+             + ", ".join(f"{k} {v}" for k, v in per_side.items() if v < 3))
+    step = max(xs[-1] - xs[len(xs) // 2], ys[-1] - ys[len(ys) // 2])
+    print(f"  наибольший шаг между винтами: {step:.1f} мм")
     to_win, to_wall = L.cover_boss_clearance()
     print(f"  бобышка: до кромки окна {to_win:.2f}, до борта {to_wall:.2f}")
     if min(to_win, to_wall) < 1.2:

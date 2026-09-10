@@ -200,9 +200,12 @@ def cover_points():
     hx = (ap_x + in_x) / 2
     hy_top = (ap_y + in_y_top) / 2
     hy_bot = in_y_bot + float(COVER_BOSS_D) / 2 + 1.0
-    xs = [-hx, -hx / 2, 0.0, hx / 2, hx]
-    return ([(x, hy_top) for x in xs] + [(x, hy_bot) for x in xs]
-            + [(-hx, 0.0), (hx, 0.0)])
+    hy_mid = (hy_top + hy_bot) / 2
+    # Восемь точек: четыре угла плюс середина каждой стороны. Углы работают
+    # на две стороны сразу, поэтому на каждую сторону приходится по три винта.
+    return [(-hx, hy_top), (0.0, hy_top), (hx, hy_top),
+            (-hx, hy_mid), (hx, hy_mid),
+            (-hx, hy_bot), (0.0, hy_bot), (hx, hy_bot)]
 
 
 def cover_boss_clearance():
