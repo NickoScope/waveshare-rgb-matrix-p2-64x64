@@ -144,3 +144,10 @@ Associating nets with GPIO numbers from the flat text layer was not possible —
 schematic's coordinate typesetting scrambles label order. This does not matter, because the
 source-code evidence is stronger: two independent vendor codebases that actually build and
 run on this hardware, agreeing pin for pin.
+
+## Factory 2D drawing
+
+`files.waveshare.com/wiki/RGB-Matrix-P2-64x64/RGB-Matrix-P2-64x64.zip` →
+`RGB-Matrix-P2-64x64.dwg` (AutoCAD 2018, AC1032). Primary source for mounting geometry:
+hole patterns, the moulded-frame outline and section A-A. Read out in
+[10-mechanical.md](10-mechanical.md), with reproduction commands.

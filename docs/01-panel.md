@@ -9,7 +9,7 @@ $31.99 on waveshare.com. The uncoated version (SKU 23706) is $28.99.
 |---|---|
 | Resolution | 64 x 64 = 4096 dots |
 | Pixel pitch | 2 mm |
-| Dimensions | 128 x 128 mm |
+| Dimensions | 128 x 128 mm — but see [10-mechanical.md](10-mechanical.md): the factory drawing dimensions the moulded frame at **127.8** |
 | Pixel composition | 1R1G1B |
 | Viewing angle | ≥140° |
 | Control method | synchronous |
