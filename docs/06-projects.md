@@ -63,6 +63,35 @@ work to core 1 through a command queue rather than touching the panel directly.
 
 A good model to copy if we write our own.
 
+### AnimatedPixelClock
+[Keralots/AnimatedPixelClock](https://github.com/Keralots/AnimatedPixelClock) · MIT · 61 stars ·
+v2.3.0 released 2026-09-09
+
+The most directly relevant project here: it drives **two Waveshare 64x64 panels** chained into
+128x64 from an ESP32-S3, on the same `ESP32-HUB75-MatrixPanel-DMA` library this hardware uses.
+
+Fifteen animated clock styles, a PC performance monitor fed by a desktop companion app, a web
+configuration portal with per-element sprite colours and scheduled night dimming, OTA updates,
+an ambient screensaver, user GIFs converted to a `.pca` format, a 32-band audio spectrum
+analyser, plus HTTP control and notification APIs. There is a browser-based web flasher at
+[pixelclock.stolaris.dev](https://pixelclock.stolaris.dev/).
+
+**Why it matters beyond the features:** its author documented the panel bring-up honestly,
+flagging the driver IC as a KNOWN UNKNOWN before testing and marking it verified afterwards.
+That is the source behind the FM6126A conclusion in
+[07-sources.md](07-sources.md), contradiction #4.
+
+**Porting notes for this board.** The pin map is selected in `makeMatrixConfig()` in
+`src/display/matrix_display.h` and does not match this board — the author's GPIO 1, 2, 4-14
+and 38 collide with the SD card and I2S lines here. The prebuilt images from the web flasher
+therefore cannot work on this board; it has to be built from source. A branch adding this
+board behind a `BOARD_WAVESHARE_RGB_MATRIX` build flag lives at
+[NickoScope/AnimatedPixelClock](https://github.com/NickoScope/AnimatedPixelClock/tree/board/waveshare-esp32-s3-rgb-matrix).
+
+Note also that the author's build runs the panels straight off 3.3V GPIO and warns about
+adding buffers if flicker appears. This board has an SN74HC245 already, so that warning does
+not apply.
+
 ### esp32-morphing-clock
 [bogd/esp32-morphing-clock](https://github.com/bogd/esp32-morphing-clock) · GPL-3.0
 

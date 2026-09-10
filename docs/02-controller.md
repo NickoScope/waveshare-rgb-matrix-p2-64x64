@@ -157,9 +157,17 @@ From Waveshare's own user guide:
 
 **Caveat on the shift driver.** The user guide and the ESP-IDF configuration both point at
 `GENERIC`, but seven of Waveshare's ten Arduino examples explicitly set `FM6126A` — including
-four that are correctly configured for a 64x64 panel. Their own materials disagree with each
-other. See contradiction #4 in [07-sources.md](07-sources.md). Start with `GENERIC`;
-if the screen stays black on good power, switch to `FM6126A`.
+four correctly configured for a 64x64 panel. Their own materials disagree with each other.
+
+Since 2026-09-10 there is outside evidence: the AnimatedPixelClock project runs two Waveshare
+P2.5 64x64 panels on this same DMA library and marks `FM6126A` as verified on real hardware,
+alongside `clkphase = false` to stop the rightmost column dropping. Those are P2.5 panels and
+ours is the P2 GOB, so it is not proof, but the balance has moved. See contradiction #4 in
+[07-sources.md](07-sources.md).
+
+Start with `GENERIC` anyway — one reflash settles it, and a wrong init sequence is
+indistinguishable from a wiring fault. If the screen stays black on good power, `FM6126A` is
+the first thing to change.
 
 ## Flashing mode
 

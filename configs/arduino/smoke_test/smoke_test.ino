@@ -49,8 +49,9 @@ void setup() {
   HUB75_I2S_CFG mxconfig(PANEL_W, PANEL_H, PANEL_CHAIN, pins);
 
   // Shift driver: Waveshare's user guide and ESP-IDF config indicate Generic (the
-  // default), but 7 of their 10 Arduino examples set FM6126A. Their own materials
-  // disagree. If the screen stays black on known-good power, uncomment this.
+  // default), but 7 of their 10 Arduino examples set FM6126A, and the AnimatedPixelClock
+  // author verified FM6126A on real Waveshare P2.5 64x64 panels. Ours is the P2 GOB, so
+  // start on Generic. If the screen stays black on known-good power, uncomment this.
   // mxconfig.driver = HUB75_I2S_CFG::FM6126A;
 
   mxconfig.clkphase = false;   // if pixels are offset by one, flip this to true

@@ -7,10 +7,11 @@ common failures), the esp-hub75 troubleshooting guide, and the ESPHome component
 
 | Symptom | Likely cause | What to do |
 |---|---|---|
-| Black screen | wrong shift driver | Check power and ribbon first. Then try `FM6126A`: Waveshare's guide says GENERIC, but seven of their ten Arduino examples set FM6126A — see contradiction #4 in [07-sources.md](07-sources.md) |
+| Black screen | wrong shift driver | Check power and ribbon first. Then try `FM6126A`: it is verified working on Waveshare P2.5 64x64 panels by a third party, and seven of Waveshare's ten Arduino examples set it, against a user guide that says GENERIC — see contradiction #4 in [07-sources.md](07-sources.md) |
 | Black screen on a 64-row panel | pin E not configured | 1/32 scan requires E; on this board it is GPIO9 |
 | Ghosting, duplicates offset horizontally | panel cannot keep up with the library's speed | `latch_blanking` up to 4, clock down to 10 or 8 MHz, brightness down to 128, shorter ribbon |
 | Pixels off by one, x=0 column missing | clock phase | `clkphase = false` (`clock_phase` in ESPHome) |
+| **Rightmost column or right-edge corner missing** | clock phase, the specific symptom on Waveshare FM6126A panels | `clkphase = false`. Verified on Waveshare P2.5 64x64 by the AnimatedPixelClock author. If instead the **first** column doubles or the image shifts, set it back to true |
 | Blurred image | clock phase, the other way | `clkphase = true` |
 | Flicker, garbage on screen | weak or unstable supply | adequate supply, exactly 5 V, 1000 µF across the panel's power input |
 | Flicker with a good supply | separate grounds | tie supply ground to board ground |
@@ -36,7 +37,16 @@ From the esp-hub75 guide, work the list:
 6. The serial monitor shows successful driver initialisation
 
 Recommended strategy: start with `GENERIC` and `STANDARD`, get *any* image even with wrong
-colours, and only then start changing driver and scan settings.
+colours, and only then start changing driver and scan settings. On Waveshare 64x64 panels
+specifically, `FM6126A` is the likelier setting, so if GENERIC gives nothing at all, change
+that before suspecting the wiring.
+
+**Isolate the chain before blaming the driver.** With two panels a blank screen is
+undiagnosable: it could be either panel, the ribbon, the driver init, or the wiring. Set the
+chain length to 1, reflash, and drive only the panel wired to the controller. Once that
+single panel lights, restore the chain and use a seam test (left half red, right half blue)
+to validate the JOUT to JIN order. This is the recovery procedure from the AnimatedPixelClock
+bring-up sketch, and it is the fastest way out of a dead-black screen.
 
 ## Panel height versus scan rate
 

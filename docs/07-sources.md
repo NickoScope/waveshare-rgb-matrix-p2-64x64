@@ -40,6 +40,7 @@ All from [waveshareteam/ESP32-S3-RGB-Matrix](https://github.com/waveshareteam/ES
 | [esphome.io/components/display/hub75](https://esphome.io/components/display/hub75/) | every component option with defaults, current formula, strapping pins |
 | [kno.wled.ge/advanced/HUB75](https://kno.wled.ge/advanced/HUB75/) | board and binary table, octal PSRAM requirement for 128x128, per-variant limits |
 | [WLED v16.0.1](https://github.com/wled/WLED/releases/tag/v16.0.1) | existence of `ESP32-S3_Waveshare_HUB75.bin`, HUB75 fixes |
+| [Keralots/AnimatedPixelClock](https://github.com/Keralots/AnimatedPixelClock) commit `74f964b`, `src/display/matrix_display.h` and `bringup/hello_matrix.cpp` | FM6126A and `clkphase = false` verified on real Waveshare P2.5 64x64 panels; the dropped-rightmost-column symptom |
 
 ## Secondary sources (marked FYI in the text)
 
@@ -58,7 +59,7 @@ Used only where no primary source exists. They must not drive decisions.
 | ~~HUB75 pin map~~ | **CLOSED.** Confirmed by three sources, two of them Waveshare's own | — |
 | ~~Peripheral pin map (I2C, I2S, mic, speaker)~~ | **CLOSED.** Confirmed by the vendor BSP `config.h` and two Arduino examples | — |
 | `mic_power_rail` on GPIO46 | **UNVERIFIED.** Present in hub75-studio, absent from the vendor BSP. Possibly an ESPHome-specific addition | read the schematic, or test on hardware |
-| Which shift driver the panel needs | **CONTRADICTION**, see #4 below | set GENERIC and look at the screen |
+| Which shift driver the panel needs | **LIKELY FM6126A**, see #4 below. Verified by a third party on Waveshare P2.5 64x64, not yet on our P2 GOB | flash and look at the screen |
 | Whether the configs in `configs/` work | not compiled, not flashed | build and flash |
 | Real panel current under load | no measurements | clamp meter on a white field at brightness 128 and 255 |
 
@@ -73,8 +74,8 @@ Used only where no primary source exists. They must not drive decisions.
 3. **Panel pricing.** $31.99 for the GOB version on waveshare.com, three dollars more than
    the uncoated one.
 
-4. **Shift driver: GENERIC or FM6126A — unresolved.** Waveshare's own materials disagree
-   with each other.
+4. **Shift driver: GENERIC or FM6126A — the evidence now favours FM6126A.** Waveshare's own
+   materials disagree with each other, but a third party has since settled it on real panels.
 
    | Source | Says |
    |---|---|
@@ -88,9 +89,45 @@ Used only where no primary source exists. They must not drive decisions.
    all properly configured for 64x64 and still set FM6126A. Only `03_DoubleBuffer`,
    `06_BitmapIcons` and `07_Pixel_Mapping_Test` leave it alone.
 
-   The honest reading: the ESP-IDF branch of Waveshare's materials uses GENERIC, the Arduino
-   branch uses FM6126A. **Unresolvable without hardware.** Start with GENERIC; if the screen
-   stays black on known-good power, switch to FM6126A.
+   **New evidence, 2026-09-10: independently verified on real Waveshare 64x64 panels.**
+   The [AnimatedPixelClock](https://github.com/Keralots/AnimatedPixelClock) project drives two
+   Waveshare P2.5 64x64 HUB75E panels from an ESP32-S3 using this same DMA library, and its
+   author held the question open before testing, then closed it afterwards. That sequence is
+   what makes it worth citing.
+
+   Before bring-up, in `bringup/hello_matrix.cpp` (commit `74f964b`):
+
+   > Waveshare 64x64 units commonly use FM6126A, which needs an init sequence.
+   > KNOWN UNKNOWN until verified against the panel's IC markings
+
+   After bring-up, in `src/display/matrix_display.h` of the same commit, the file header reads
+   `Verified hardware config baked in (Phase 1, real panels)` and the code carries:
+
+   ```cpp
+   cfg.driver = HUB75_I2S_CFG::FM6126A;  // verified Phase 1
+   cfg.clkphase = false;                 // verified: fixes dropped rightmost column
+   ```
+
+   Their README hardware table states the same: `1/32 scan, FM6126A driver (init handled by
+   the firmware)`.
+
+   **Caveat that keeps this open rather than closed.** Those are **P2.5** panels (SKU 23708).
+   Ours is the **P2 GOB** panel (SKU 33838). Same vendor, same 64x64 geometry, same 1/32 scan,
+   but a different pitch and possibly a different driver IC. Strong evidence for Waveshare
+   64x64 panels as a family, not proof for our exact part.
+
+   **Practical reading now:** expect FM6126A to be the one that works, but start with GENERIC
+   anyway, because it costs one reflash to find out and a wrong init sequence looks identical
+   to a wiring fault. If the screen stays black on known-good power, FM6126A is the first
+   thing to change.
+
+   **Second finding from the same source, and it is a symptom worth memorising.** On these
+   panels the library's default clock phase drops the **rightmost column**. Their bring-up
+   sketch comments it precisely:
+
+   > Default-true drops the RIGHTMOST column on some panels (esp. FM6126A Waveshare) - the
+   > missing right-edge column / corner. Set false to fix. If instead the FIRST column doubles
+   > or the image shifts, set this back to true.
 
 5. **Default layout in the ESP-IDF example targets two panels, not one.**
    `CONFIG_HUB75_LAYOUT_ROWS=2`, `COLS=1`, `TOP_LEFT_DOWN_ZIGZAG`, i.e. 64x128 stacked

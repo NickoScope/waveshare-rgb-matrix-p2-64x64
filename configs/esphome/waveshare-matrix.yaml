@@ -54,9 +54,12 @@ font:
 # Values below follow Waveshare's own menuconfig guidance:
 # standard scan wiring, Generic driver, 8-bit depth, 20 MHz, 60 Hz floor, brightness 128.
 #
-# On shift_driver: the user guide and the ESP-IDF config both indicate GENERIC, but seven
-# of Waveshare's ten Arduino examples set FM6126A. If the screen stays black on known-good
-# power, try FM6126A. See docs/07-sources.md, contradiction 4.
+# On shift_driver: the user guide and the ESP-IDF config indicate GENERIC, but seven of
+# Waveshare's ten Arduino examples set FM6126A, and a third party has verified FM6126A on
+# real Waveshare P2.5 64x64 panels. Ours is the P2 GOB, so it is left at GENERIC here.
+# If the screen stays black on known-good power, FM6126A is the first thing to change.
+# If the rightmost column goes missing, that is clock_phase, not the driver.
+# See docs/07-sources.md, contradiction 4.
 display:
   - platform: hub75
     id: matrix
