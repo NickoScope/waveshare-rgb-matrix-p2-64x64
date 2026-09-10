@@ -115,6 +115,131 @@ Structurally it is additive: a second source feeding the existing band data, sel
 runtime, with the UDP path untouched. Whether the author sees that as a welcome option or as
 a fork's business is exactly what the issue is for.
 
+## 6. Airport flight board page
+
+**Effort:** medium, but far less than it looks. **PR readiness:** low — this is fork
+territory, and deliberately so. It is the most valuable item here for us, and the least
+likely to belong upstream.
+
+### Why it is cheap: the whole pipeline already exists
+
+This is not a new feature to design. It is a **second renderer for a contract that is
+already deployed and debugged** in this household. Home Assistant already serves an
+airport board over MQTT for a NickoScope32 device; the matrix becomes another subscriber.
+
+**Request:** publish to `nickoscope_watch/flightboard/req`
+
+```json
+{"apt": "LFMN", "dir": "arr"}
+```
+
+`apt` is validated against a six-airport whitelist (LFMD, LFMN, LFPG, EGLL, EDDF, EHAM),
+`dir` against `dep` / `arr`. Anything else is ignored.
+
+**Response:** retained on `nickoscope_watch/flightboard/state`
+
+```json
+{"apt":"LFMN","dir":"arr","n":15,"upd":"08:18","now_idx":7,
+ "f":[{"fn":"LH1064","tm":"18:07","st":"land","ct":"FRA"}, …]}
+```
+
+Four fields per flight: flight number, local time, status, city code. The HA side already
+merges past and scheduled flights, de-duplicates on `fa_flight_id`, clips to a ±2 h window,
+sorts by time, and returns 15 rows with `now_idx` pointing at the first flight still in the
+future. Throttle is 90 s per (airport, direction) pair, and the automation's own notes put
+the API cost at roughly one cent per fetch.
+
+Closed status vocabulary, which is what makes colour coding safe:
+
+| `st` | Meaning | Suggested colour |
+|---|---|---|
+| `sched` | scheduled | white |
+| `board` | boarding | cyan |
+| `dep` | departed | blue |
+| `land` | landed | green |
+| `delay` | delayed over 15 min | amber |
+| `canc` | cancelled | red |
+
+**The device does no API work, holds no credentials, and parses a few hundred bytes.**
+Contrast that with the raw sensor attributes, which carry up to 50 flights with ~20 fields
+each and are heavy enough that the integration's own docs tell you to exclude them from
+the HA recorder.
+
+### Layout, borrowed from the existing Lua scene
+
+A split-flap board for this data already exists as `airport.lua` on the NickoScope32
+vector display. Its layout decisions transfer directly and were made against real data:
+
+- four columns: flight, city, time, status
+- city truncated to 10 characters
+- arrivals and departures alternate automatically on wall-clock seconds, on a **20 s
+  period** — chosen because 60 is divisible by it, so the switch never jitters at the
+  minute boundary
+- when the list is longer than the visible band it scrolls continuously and wraps, about
+  1.6 s per row, driven by milliseconds so the motion stays smooth
+
+On 128 x 64 with a 4x6 font you get 25 characters per line and 8 rows at 8 px, or 6 rows at
+10 px. `LH1064 FRANKFURT 18:07` is 22 characters, so a header plus six flight rows fits
+with the status carried by **row colour instead of a text column**. That is both narrower
+and more readable across a room than the `ST` column the vector version needs.
+
+Highlight the row at `now_idx`: it is the whole point of the ±2 h window.
+
+### What the matrix gains over the existing implementation
+
+The Lua scene carries an honest limitation in its own header comment: the `beam` module
+exposes only `scene`, `now` and `t`, so the flight list is a **snapshot frozen at upload
+time**. Making it live requires a bridge process to re-render and re-upload the scene, and
+that bridge is currently blocked by macOS withholding local-network access from launchd
+agents.
+
+**None of that applies here.** The ESP32-S3 subscribes to MQTT directly: data is live, no
+bridge, no re-upload, no permission grant, no LittleFS wear from rewriting a scene every
+time the board changes. Plus colour, which a vector CRT does not have.
+
+So this page closes, on different hardware, a debt recorded as unsolvable in NickoScope32
+without firmware changes on both of its controllers.
+
+### The one real design problem: a single shared topic
+
+`nickoscope_watch/flightboard/state` is **one retained topic serving all consumers**. The
+request carries the airport and direction, and the response overwrites whatever was there.
+
+If the watch asks for LFMD departures while the matrix wants LFMN arrivals, the two devices
+fight over the same retained value, and each re-request flips it back. Left unaddressed this
+degrades into a request war that also burns the API budget.
+
+Three ways out, in order of preference:
+
+1. **Matrix subscribes passively.** It renders whatever the household last asked for and
+   never publishes a request. Zero HA changes, zero conflict, but no independent airport
+   choice on the panel.
+2. **Per-consumer response topic.** Request grows a `client` field, the automation publishes
+   to `.../state/<client>`. Small HA-side change, keeps the throttle and the budget logic
+   intact, gives every device its own selection.
+3. Separate automations per device. Duplicates logic; rejected.
+
+Option 2 is the right answer if the panel needs its own airport selector. Decide before
+writing the page, because it changes the subscribe path.
+
+### Open questions
+
+1. Passive subscriber or own selector, i.e. option 1 or option 2 above
+2. Whether the panel gets a physical airport selector, which would land in the 20 mm bottom
+   strip of the enclosure and change that spec
+3. Split-flap character animation or plain redraw on change: the flip is the signature look,
+   but it costs a per-glyph animation state machine
+4. Behaviour when the retained payload is stale — the `upd` field carries the HA-side time,
+   so the page can grey out or show an age indicator rather than lying
+
+### Sequencing
+
+Independent of items 1 to 4: it needs no upstream change and no MQTT work in the firmware
+beyond a client, since the transport already exists. It can be built in the fork as soon as
+the panels arrive and the display is proven.
+
+---
+
 ## 5. Single 64x64 panel layouts
 
 **Effort:** large. **PR readiness:** low, probably fork territory.
@@ -135,6 +260,10 @@ means two full 128x64 builds.
 2. Open an issue proposing #1, referencing the branch as a worked example.
 3. Land #1 and #2 together or back to back.
 4. Only then raise #3 and #4, one issue each.
+
+Item 6 sits outside that chain. It is fork work, gated only on hardware, and it is the
+fastest thing here to get running because the protocol, the data and the layout all exist
+already.
 
 Sending a large feature before the small structural one has landed is the usual way these
 contributions stall.
