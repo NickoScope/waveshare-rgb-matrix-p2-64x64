@@ -200,33 +200,48 @@ time the board changes. Plus colour, which a vector CRT does not have.
 So this page closes, on different hardware, a debt recorded as unsolvable in NickoScope32
 without firmware changes on both of its controllers.
 
-### The one real design problem: a single shared topic
+### Design decision: per-key response topics
 
-`nickoscope_watch/flightboard/state` is **one retained topic serving all consumers**. The
-request carries the airport and direction, and the response overwrites whatever was there.
+`nickoscope_watch/flightboard/state` was a single retained topic serving every consumer, so
+two devices wanting different airports overwrote each other. **Decided 2026-09-10: the panel
+gets its own airport selector, and the response topic is keyed by the data rather than by
+the client.**
 
-If the watch asks for LFMD departures while the matrix wants LFMN arrivals, the two devices
-fight over the same retained value, and each re-request flips it back. Left unaddressed this
-degrades into a request war that also burns the API budget.
+```
+nickoscope_watch/flightboard/state/<apt>/<dir>     e.g. .../state/LFMN/arr
+```
 
-Three ways out, in order of preference:
+Keying on the client was considered first and rejected. It fixes the *display* conflict but
+not the *fetch* conflict: Home Assistant has one pair of AeroAPI sensors and one
+`input_select.flight_board_airport` shared by everything, and the existing throttle only
+short-circuits when `age < 90 s` **and** the currently selected airport matches the request.
+Two clients on different airports never satisfy that, so each request flips the input_select
+and pays for a fresh fetch. Per-client topics would have doubled the API spend while looking
+like they solved the problem.
 
-1. **Matrix subscribes passively.** It renders whatever the household last asked for and
-   never publishes a request. Zero HA changes, zero conflict, but no independent airport
-   choice on the panel.
-2. **Per-consumer response topic.** Request grows a `client` field, the automation publishes
-   to `.../state/<client>`. Small HA-side change, keeps the throttle and the budget logic
-   intact, gives every device its own selection.
-3. Separate automations per device. Duplicates logic; rejected.
+Keying on `(apt, dir)` instead gives four properties at once:
 
-Option 2 is the right answer if the panel needs its own airport selector. Decide before
-writing the page, because it changes the subscribe path.
+| Property | Result |
+|---|---|
+| Display conflict | gone, each airport has its own topic |
+| Cache | the retained value *is* the cache, no extra store needed |
+| Throttle | works again, the topic key matches the throttle key |
+| Two devices, same airport | share one fetch instead of paying twice |
+
+Backward compatibility is one extra publish action: keep writing the legacy `.../state` as
+well until the watch is moved over.
+
+**Device behaviour.** Subscribe to the topic for the selected airport and direction. On a
+selector change, subscribe to the new topic — the retained value arrives immediately, so the
+board is populated before any request goes out. Only publish a request when the retained
+payload is missing or its `upd` field is stale. That keeps the panel almost entirely passive
+and off the API budget.
 
 ### Open questions
 
-1. Passive subscriber or own selector, i.e. option 1 or option 2 above
-2. Whether the panel gets a physical airport selector, which would land in the 20 mm bottom
-   strip of the enclosure and change that spec
+1. ~~Passive subscriber or own selector~~ — **decided: own selector, per-key topics**
+2. ~~Physical airport selector on the panel~~ — **decided: yes.** It lands in the 20 mm
+   bottom strip of the enclosure; the enclosure spec has been notified
 3. Split-flap character animation or plain redraw on change: the flip is the signature look,
    but it costs a per-glyph animation state machine
 4. Behaviour when the retained payload is stale — the `upd` field carries the HA-side time,
