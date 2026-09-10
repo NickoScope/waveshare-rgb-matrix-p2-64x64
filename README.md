@@ -63,6 +63,11 @@ An open design for a 128 x 64 wall panel built from two of these matrices lives 
 scheme. The mechanical constraints behind it come out of the factory drawing —
 [docs/10-mechanical.md](docs/10-mechanical.md).
 
+## Physical control
+
+[11-control-and-pins.md](docs/11-control-and-pins.md) — the GPIO budget (two clean
+pins left), why the encoder switch shares the BOOT button, and the gesture map.
+
 ## Flight board simulation
 
 Lives with the firmware, not here:
