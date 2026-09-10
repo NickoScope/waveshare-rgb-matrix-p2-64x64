@@ -20,6 +20,13 @@ firmware, which lives in a different repository:
 Both carry a `digest` of the layout. If it stops matching the firmware,
 `tools/fb_check.py` in the firmware repo says so and names what is stale.
 
+`flightboard-layout.json` also records the firmware repo, branch and **commit**
+it was generated from. That is what answers "which firmware state do these docs
+describe" months later: this repo's git history holds the pointer, so the two
+repositories stay tied together without a submodule. The provenance is
+deliberately outside the digest — otherwise every firmware commit would look
+like drift.
+
 ## Do not hand-edit
 
 - the `BEGIN GENERATED LAYOUT ... END GENERATED LAYOUT` block in the HTML
