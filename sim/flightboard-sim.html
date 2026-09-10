@@ -93,8 +93,9 @@ canvas{margin-inline:auto}
   <h1>The flight board, pixel for pixel</h1>
   <p class="lede">Live arrivals and departures from Home Assistant, drawn exactly as the panel
   will draw them &mdash; same Picopixel glyphs, same column positions, same rule for fitting a
-  city name into whatever room the status word leaves. Thirty real flights turned out to be
-  enough to break two things that thirty invented ones never would have.</p>
+  city name into whatever room the status word leaves. Every row carries the IATA code and,
+  where it fits, the city name. Thirty real flights turned out to be enough to break three
+  things that thirty invented ones never would have.</p>
   <div class="meta">
     <span id="m-src"></span><span id="m-upd"></span><span id="m-n"></span>
   </div>
@@ -124,8 +125,15 @@ the second line: one behind for context, the rest ahead. The marker down the lef
   <div><h4>A half word is worse than a code</h4>
   <p>The old rule shaved a character at a time until the name fitted, which turned Basel's
   <b>EUROAIRPORT</b> into <code>EUROAIRPOR</code> &mdash; a typo, not an abbreviation. It now drops
-  whole trailing words first, so <b>FRANKFURT AM MAIN</b> becomes <b>FRANKFURT</b>, and if even the
-  first word is too wide it shows the IATA code instead. Basel now reads <code>BSL</code>.</p></div>
+  whole trailing words, then any dangling connector, and stops at the code if the first word
+  still will not fit. Basel reads <code>BSL</code>.</p></div>
+  <div><h4>The code earns its place</h4>
+  <p>AeroAPI's &ldquo;city&rdquo; is the commune: <b>BLAGNAC</b> for Toulouse,
+  <b>EUROAIRPORT</b> for Basel, <b>ORLY</b> for Paris. The code is the part that is never wrong,
+  so it is drawn first and unconditionally, with the name as context on top. Paying for it cost
+  four pixels of column and two status words: <code>ENROUTE</code> and <code>DELAYED</code> were
+  the widest on the board, and shortening just those two bought back four destinations their
+  full name. 27 of 30 live rows now show code and city together.</p></div>
   <div><h4>Picopixel's U was a V</h4>
   <p>Stock Picopixel draws <b>U</b> as <b>V</b> with one extra row: both end in a single centred
   pixel. <code>ZURICH</code> read <code>ZVRICH</code>, <code>EDINBURGH</code> read
@@ -146,7 +154,7 @@ const FONTS={"Picopixel":{"yAdvance":7,"asc":4,"glyphs":{" ":{"w":0,"h":0,"adv":
 <script>
 /* Mirrors src/flightboard/flightboard.cpp constant for constant. */
 const W=128,H=64;
-const FB_X_TIME=2, FB_X_FLIGHT=24, FB_X_DEST=54, FB_X_RIGHT=126, FB_GAP=3;
+const FB_X_TIME=2, FB_X_FLIGHT=22, FB_X_DEST=50, FB_X_RIGHT=126, FB_GAP=2, FB_CODE_GAP=2;
 const FB_Y_HEADER=1, FB_Y_RULE=8, FB_Y_ROW0=11, FB_ROW_H=7, FB_VISIBLE=7;
 const FONT="Picopixel";
 
@@ -155,7 +163,7 @@ const COL={sched:[210,210,210],board:[0,220,220],dep:[70,140,255],
 const SIG=[255,180,0],DIM=[120,132,138],RULE=[52,60,64],WHITE=[255,255,255];
 const APT={LFMD:"CANNES",LFMN:"NICE",LFPG:"PARIS CDG",EGLL:"LONDON",
            EDDF:"FRANKFURT",EHAM:"AMSTERDAM"};
-const ARR={sched:"EXPECT",board:"BOARD",dep:"ENROUTE",land:"LANDED",delay:"DELAYED",canc:"CANCEL"};
+const ARR={sched:"DUE",board:"GATE",dep:"IN AIR",land:"LANDED",delay:"DELAY",canc:"CANX"};
 const DEP=Object.assign({},ARR,{sched:"ON TIME",dep:"DEPART"});
 
 let dir="arr", zoom=7, grid=true;
@@ -197,13 +205,17 @@ function render(){
     text(buf,FB_X_FLIGHT,y,r.fn,col);
     const word=ST[r.st]||"", wordW=tw(word);
     if(word) text(buf,FB_X_RIGHT-wordW,y,word,col);
-    let city=r.cy||r.ct;
-    const room=(FB_X_RIGHT-wordW-FB_GAP)-FB_X_DEST;
-    while(city.length&&tw(city)>room){        /* drop whole trailing words first */
-      if(!city.includes(" ")){city=r.ct;break;}  /* never show a half word */
+    text(buf,FB_X_DEST,y,r.ct,col);              /* the code, always */
+    const xCity=FB_X_DEST+tw(r.ct)+FB_CODE_GAP;
+    let city=r.cy||"";
+    const room=(FB_X_RIGHT-wordW-FB_GAP)-xCity;
+    while(city.length&&tw(city)>room){           /* drop whole trailing words */
+      if(!city.includes(" ")){city="";break;}    /* code alone says it already */
       city=city.slice(0,city.lastIndexOf(" "));
     }
-    text(buf,FB_X_DEST,y,city,col);
+    if(city.includes(" ")&&city.split(" ").pop().length<=2)   /* dangling AM/DE/SUR */
+      city=city.slice(0,city.lastIndexOf(" "));
+    if(city) text(buf,xCity,y,city,col);
   }
   return buf;
 }
