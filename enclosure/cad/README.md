@@ -58,6 +58,33 @@ of plate, and deeper down the window is already narrow, leaving about 12 mm betw
 edge and the wall. The bosses grow from the back of the plate into exactly that band —
 2.3 mm clear of the window and 2.3 mm clear of the wall, which `verify.py` checks.
 
+## The drawing is of an accessory, not of the panel
+
+Worth saying plainly, because it invalidates two things I had leaned on. The whole factory
+sheet is the **mounting frame** — `JXS-P2-128*128 bottom case` — which ships as an
+accessory. The panel can be installed without it, and this design does exactly that.
+
+So: the six M3 points belong to *the frame*, not to the panel. On a bare panel they may
+not exist at all. `USE_FRAME_M3` is therefore `False`, and the panels are held by pressure
+instead — the seat locates them, the tongues push them together in plane, and ribs on the
+cover press them against the face plate, including one rib along the seam itself.
+`verify.py` fails outright if that flag is turned back on without the frame being confirmed.
+
+The 127.8 outline is the frame's too. What the frame *does* tell us is worth keeping: it
+closes over the panel and all its electronics, so **the panel with everything soldered to
+it fits within 15 mm**. That is a ceiling, and a useful one.
+
+## What sets the depth — and it is not the panel
+
+Face plate, panel and cover come to 2.5 + 15 + 2.0 = **19.5 mm**. So a 20 mm case would
+be enough — for the panel. The controller is what sets the depth: a 50 × 42 board about
+9 mm tall behind the panel puts the minimum at **28.5 mm**, and 30 is that with a little
+air. `verify.py` prints all three numbers on every run.
+
+Twenty is reachable, but only by moving the controller out of the panel — into a separate
+box on a cable, or a stand. That is a decision about the product, not about the shell, so
+the model keeps `DEPTH` as one parameter and will rebuild at any value.
+
 ## The back is flat — no relief
 
 An earlier version put a raised band across the back wall for the connectors. It came out

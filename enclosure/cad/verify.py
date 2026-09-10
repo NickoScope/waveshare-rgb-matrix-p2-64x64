@@ -109,6 +109,18 @@ def main():
         if not ok:
             fail(f"{nm} ({need:.1f}) не входит: доступно {have:.2f}")
 
+    print("\n=== 3.1 что определяет глубину ===")
+    need_with = L.min_depth(True)
+    need_without = L.min_depth(False)
+    print(f"  на панель уходит: {float(L.WALL_FRONT):.1f} + {float(L.PANEL_T):.1f}"
+          f" + {float(L.WALL_BACK):.1f} = "
+          f"{float(L.WALL_FRONT) + float(L.PANEL_T) + float(L.WALL_BACK):.1f}")
+    print(f"  минимум с контроллером внутри: {need_with:.1f}")
+    print(f"  минимум без контроллера:       {need_without:.1f}")
+    print(f"  назначено: {float(L.DEPTH):.1f}")
+    if float(L.DEPTH) < need_with:
+        fail(f"глубина {float(L.DEPTH):.1f} меньше необходимой {need_with:.1f}")
+
     print("\n=== 4. соединение корпуса и крышки ===")
     body, cover = parts["case_body"], parts["back_cover"]
     pts = L.cover_points()
@@ -159,7 +171,18 @@ def main():
         if grip <= 0:
             fail(f"язык не достаёт до торца при {cand:.1f}")
 
-    print("\n=== 6. свободная полоса и ручка ===")
+    print("\n=== 6. на что опирается конструкция ===")
+    if L.USE_FRAME_M3:
+        print("  панели держатся винтами по сетке M3 монтажной рамки")
+        fail("конструкция опирается на сетку M3, которая принадлежит рамке; "
+             "рамка — принадлежность, на голой панели точек может не быть")
+    else:
+        print("  панели держатся прижимом: гнездо, языки в плоскости, "
+              "рёбра крышки по тыльной стороне")
+        print("  сетка M3 монтажной рамки не используется — и правильно: "
+              "рамку мы не ставим")
+
+    print("\n=== 7. свободная полоса и ручка ===")
     bevel_edge = -(float(L.FIELD_H) / 2 + float(L.BEVEL_RUN))   # нижний край фаски
     bottom = -(float(L.FIELD_H) / 2 + float(L.STRIP_H))          # кромка корпуса
     free = bevel_edge - bottom
@@ -174,7 +197,7 @@ def main():
     if top_gap < 0 or bot_gap < 0:
         fail("ручка энкодера не помещается в свободную полосу")
 
-    print("\n=== 7. печать ===")
+    print("\n=== 8. печать ===")
     for n, p in parts.items():
         bb = p.bounding_box()
         ok, how = L.fits_plate(bb.size.X, bb.size.Y)
@@ -184,7 +207,7 @@ def main():
             # это ожидаемый результат, а не нарушение.
             print(f"     ожидаемо на M1: членение выполняется на M2")
 
-    print("\n=== 8. тела и сетка ===")
+    print("\n=== 9. тела и сетка ===")
     out = os.path.join(HERE, "out")
     os.makedirs(out, exist_ok=True)
     import trimesh
@@ -200,7 +223,7 @@ def main():
         if not m.is_watertight or broken:
             fail(f"{n} даёт негерметичную сетку")
 
-    print("\n=== 9. на обмере ===")
+    print("\n=== 10. на обмере ===")
     for nm, v, note in L.measured_params():
         print(f"  {nm:14s} = {v:8.3f}   {note}")
 

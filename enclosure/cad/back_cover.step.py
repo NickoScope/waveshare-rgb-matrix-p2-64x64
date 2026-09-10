@@ -26,7 +26,8 @@ from build123d import Box, Cylinder, Pos, export_stl
 
 from case_c_lib import (CASE_H, CASE_W, CLAMP_PRELOAD, CLAMP_T, CLAMP_TOOTH,
                         CLAMP_W, COVER_GAP, COVER_HEAD_D, COVER_HEAD_H,
-                        PANEL_BOARD, clamp_positions, seat_bounds,
+                        PANEL_BOARD, PAD_INSET, PAD_W, USE_FRAME_M3,
+                        clamp_positions, seat_bounds,
                         COVER_LIP, COVER_SCREW_D, CTRL_H, CTRL_T, CTRL_W,
                         DEPTH, FIELD_CY, INSERT_M25_D, INSERT_M25_L, M3_POINTS,
                         PANEL_FRAME, PANEL_T, RELIEF_BAND_H, RELIEF_BAND_Y,
@@ -112,14 +113,34 @@ def build():
         part += relief_out
         part -= relief_in
 
-    # стойки матриц: от крышки вперёд, до задней плоскости матрицы
+    # Прижим панелей. Винты по сетке M3 не используются: сетка принадлежит
+    # монтажной рамке, которую мы не ставим, и на голой панели её может не
+    # быть. Панели прижимаются рёбрами крышки к лицевой плите — по периметру
+    # каждой панели и вдоль стыка, где прижим особенно важен.
     L = Z_LIP - Z_PANEL_BACK
-    for cx in PANEL_CX:
-        for mx, my in M3_POINTS:
-            part += Pos(cx + mx, my, Z_PANEL_BACK + L / 2) * Cylinder(BOSS_D / 2, L)
-    for cx in PANEL_CX:
-        for mx, my in M3_POINTS:
-            part -= Pos(cx + mx, my, D / 2) * Cylinder(BOSS_HOLE / 2, 3 * D)
+    pw, ins = float(PAD_W), float(PAD_INSET)
+    x0, x1, y0, y1 = seat_bounds()
+    ring_x0, ring_x1 = x0 + ins, x1 - ins
+    ring_y0, ring_y1 = y0 + ins, y1 - ins
+    frame = (Pos((ring_x0 + ring_x1) / 2, (ring_y0 + ring_y1) / 2,
+                 Z_PANEL_BACK + L / 2)
+             * Box(ring_x1 - ring_x0 + pw, ring_y1 - ring_y0 + pw, L)
+             - Pos((ring_x0 + ring_x1) / 2, (ring_y0 + ring_y1) / 2,
+                   Z_PANEL_BACK + L / 2)
+             * Box(ring_x1 - ring_x0 - pw, ring_y1 - ring_y0 - pw, L))
+    part += frame
+    # ребро по стыку: держит обе панели вровень именно там, где это видно
+    part += Pos(0.0, (ring_y0 + ring_y1) / 2, Z_PANEL_BACK + L / 2) * Box(
+        pw, ring_y1 - ring_y0, L)
+
+    if USE_FRAME_M3:
+        for cx in PANEL_CX:
+            for mx, my in M3_POINTS:
+                part += Pos(cx + mx, my, Z_PANEL_BACK + L / 2) * Cylinder(
+                    BOSS_D / 2, L)
+        for cx in PANEL_CX:
+            for mx, my in M3_POINTS:
+                part -= Pos(cx + mx, my, D / 2) * Cylinder(BOSS_HOLE / 2, 3 * D)
 
     # контроллер
     lc = Z_LIP - (Z_PANEL_BACK + 1.0)
@@ -153,7 +174,8 @@ if __name__ == "__main__":
     bb = part.bounding_box()
     print(f"габарит: {bb.size.X:.2f} x {bb.size.Y:.2f} x {bb.size.Z:.2f}")
     print(f"объём: {part.volume / 1000:.1f} см3, тел: {len(part.solids())}")
-    print(f"стоек матриц: {2 * len(M3_POINTS)}, точек притяжки: {len(cover_points())}")
+    print(f"прижим панелей: {'винты M3' if USE_FRAME_M3 else 'рёбра'}, "
+          f"точек притяжки крышки: {len(cover_points())}")
     out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "out")
     os.makedirs(out, exist_ok=True)
     export_stl(part, os.path.join(out, "back_cover.stl"))
