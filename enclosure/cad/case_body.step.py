@@ -21,10 +21,14 @@ from math import radians, tan
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from build123d import Box, Cylinder, Plane, Pos, Rectangle, export_stl, loft
+from build123d import (Box, Cylinder, Plane, Pos, Rectangle, Rotation,
+                       export_stl, loft)
 
 from case_c_lib import (BEVEL_RUN, CASE_H, CASE_W, COVER_BOSS_D, COVER_GAP,
-                        CLAMP_T, CLAMP_W, SEAT_RIB_H, SEAT_RIB_W,
+                        CLAMP_T, CLAMP_W, JOINT_ARM, JOINT_BOSS,
+                        JOINT_HEAD_D, JOINT_HEAD_H, JOINT_SCREW_D,
+                        SEAT_RIB_H, SEAT_RIB_W, SPLIT_BOT, SPLIT_TOP,
+                        corner_joints,
                         clamp_positions, seat_bounds,
                         COVER_LIP, DEPTH, ENC_BODY_T, ENC_BODY_W, ENC_HOLE_D,
                         ENC_X, ENC_Y, FIELD_CY, FIELD_H, FIELD_W, INSERT_M25_D,
@@ -66,9 +70,21 @@ def build():
 
     part -= _window()
 
-    groove = (Pos(0, 0, T - SEAL_D / 2) * Box(AP_W + 2 * SEAL_W, AP_H + 2 * SEAL_W, SEAL_D)
-              - Pos(0, 0, T - SEAL_D / 2) * Box(AP_W, AP_H, SEAL_D))
-    part -= groove
+    # Внутренняя граница канавки НАМЕРЕННО меньше кромки окна на SEAL_BITE.
+    # Если сделать её ровно по кромке, две поверхности совпадут, и булева
+    # операция оставит в теле грань нулевой толщины: объёма у неё нет, но
+    # она тянется на всё окно, раздувает габарит отрезанной детали и уезжает
+    # в STL. Лишнее вычитание попадает в пустоту окна и ничего не портит.
+    # Канавка вычитается С ЗАПАСОМ в обе стороны: внутрь — за кромку окна,
+    # назад — за тыльную поверхность плиты. Если её границы совпадут с уже
+    # существующими поверхностями, булева операция оставит грани нулевой
+    # толщины; объёма у них нет, но они уезжают в STL и раздувают габарит
+    # отрезанных деталей. Запас уходит в пустоту и ничего не меняет.
+    SEAL_BITE, SEAL_OVER = 1.0, 0.5
+    outer = Box(AP_W + 2 * SEAL_W, AP_H + 2 * SEAL_W, SEAL_D + SEAL_OVER)
+    inner = Box(AP_W - 2 * SEAL_BITE, AP_H - 2 * SEAL_BITE, SEAL_D + SEAL_OVER)
+    zc = T - SEAL_D / 2 + SEAL_OVER / 2
+    part -= (Pos(0, 0, zc) * outer - Pos(0, 0, zc) * inner)
 
     # бобышки под втулки M3: растут от тыльной стороны плиты до полки крышки
     L = Z_LIP - T
@@ -112,6 +128,24 @@ def build():
             STAND_D / 2, z_board - T)
         part -= Pos(x, float(ENC_Y), z_board - float(INSERT_M25_L) / 2) * Cylinder(
             float(INSERT_M25_D) / 2, float(INSERT_M25_L) + 0.1)
+
+    # Угловые стяжки: приливы по обе стороны шва членения и винт вдоль шва,
+    # ставящийся изнутри полости. Снаружи, включая торцы, крепежа не видно.
+    b, arm = float(JOINT_BOSS), float(JOINT_ARM)
+    z_lo, z_hi = T, Z_LIP                      # прилив живёт в толще борта
+    for x, sy in corner_joints():
+        y_seam = float(SPLIT_TOP) if sy > 0 else float(SPLIT_BOT)
+        part += Pos(x, y_seam, (z_lo + z_hi) / 2) * Box(b, 2 * arm, z_hi - z_lo)
+    for x, sy in corner_joints():
+        y_seam = float(SPLIT_TOP) if sy > 0 else float(SPLIT_BOT)
+        zc = (z_lo + z_hi) / 2
+        # проход винта вдоль Y, через оба прилива
+        part -= Pos(x, y_seam, zc) * Rotation(90, 0, 0) * Cylinder(
+            float(JOINT_SCREW_D) / 2, 4 * arm)
+        # гнездо головки — со стороны полости, то есть с внутренней планки
+        y_head = y_seam - sy * (arm - float(JOINT_HEAD_H) / 2)
+        part -= Pos(x, y_head, zc) * Rotation(90, 0, 0) * Cylinder(
+            float(JOINT_HEAD_D) / 2, float(JOINT_HEAD_H))
 
     part.label = "case_body"
     return part
