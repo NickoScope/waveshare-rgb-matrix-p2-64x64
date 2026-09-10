@@ -305,18 +305,6 @@ Two defects only live data exposed, both fixed:
   bottom, the form Org_01 uses. One bit changed; verified that exactly one glyph
   renders differently.
 
-### Keeping the two repositories in step
-
-The layout constants are written by hand **only** in `flightboard.cpp`. The host
-renderer imports them; this repo's simulation carries a generated copy stamped
-with a digest. `tools/fb_check.py` in the firmware repo fails if any consumer has
-gone stale, and a `.githooks/pre-commit` hook runs it automatically. See
-[sim/README.md](../sim/README.md).
-
-`tools/fb_variants.py` renders the current layout beside a revision applying the
-spacing, palette and column findings, so the comparison can be re-made in seconds
-rather than re-argued.
-
 ### Sequencing
 
 Independent of items 1 to 4: it needs no upstream change and no MQTT work in the firmware

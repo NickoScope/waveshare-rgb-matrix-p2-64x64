@@ -65,13 +65,9 @@ scheme. The mechanical constraints behind it come out of the factory drawing —
 
 ## Flight board simulation
 
-[`sim/flightboard-sim.html`](sim/flightboard-sim.html) draws the 128x64 flight board
-pixel for pixel on live Home Assistant data. Its layout constants are **generated from
-the firmware**, which lives in a separate repository
-([NickoScope/AnimatedPixelClock](https://github.com/NickoScope/AnimatedPixelClock),
-branch `board/waveshare-esp32-s3-rgb-matrix`). Do not edit them here — see
-[sim/README.md](sim/README.md) for the direction of the dependency and the one command
-that refreshes it.
+Lives with the firmware, not here:
+[NickoScope/AnimatedPixelClock](https://github.com/NickoScope/AnimatedPixelClock/tree/board/waveshare-esp32-s3-rgb-matrix/sim),
+branch `board/waveshare-esp32-s3-rgb-matrix`, directory `sim/`.
 
 ## Fact-checking convention
 
