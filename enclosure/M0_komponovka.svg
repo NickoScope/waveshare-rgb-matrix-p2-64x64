@@ -1,11 +1,11 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1960" height="856" viewBox="0 0 980 428">
-<rect width="980" height="428" fill="#fbfcfd"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="1960" height="940" viewBox="0 0 980 470">
+<rect width="980" height="470" fill="#fbfcfd"/>
 <text x="26.00" y="28.00" font-size="11.00" fill="#16212c" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">Корпус C «LED MATRIX» — M0, компоновка</text>
-<text x="26.00" y="38.00" font-size="4.20" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Две матрицы HUB75, контроллер ESP32-S3, питание 5 В до 35 Вт. Предел по толщине — 20 мм по кромке.</text>
+<text x="26.00" y="38.00" font-size="4.20" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Две матрицы HUB75, контроллер ESP32-S3, питание 5 В до 35 Вт. Габарит по толщине 30 мм — рабочий, до обмера железа.</text>
 <line x1="26.00" y1="44.00" x2="954.00" y2="44.00" stroke="#c8d0d8" stroke-width="0.60"/>
 <text x="26.00" y="65.00" font-size="6.20" fill="#16212c" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">ВИД СЗАДИ · что где стоит</text>
 <text x="26.00" y="71.50" font-size="3.40" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Задняя крышка снята. Матрицы прижаты с торцов внутрь, между ними ничего нет.</text>
-<text x="26.00" y="76.09" font-size="3.40" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Пунктиром — местные приливы задней стенки: только там корпус глубже 20.</text>
+<text x="26.00" y="76.09" font-size="3.40" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Пунктиром — то, что зависит от железа и подлежит обмеру.</text>
 <rect x="26.00" y="82.00" width="284.00" height="184.00" rx="3.0" fill="#f4f6f8" stroke="#16212c" stroke-width="0.90"/>
 <rect x="40.00" y="104.00" width="128.00" height="128.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.70"/>
 <circle cx="104.00" cy="224.85" r="1.70" fill="none" stroke="#7a8791" stroke-width="0.50"/>
@@ -39,9 +39,8 @@
 <rect x="230.00" y="176.00" width="50.00" height="42.00" rx="0.0" fill="#dcebf2" stroke="#2f6b8a" stroke-width="0.90"/>
 <text x="255.00" y="188.00" font-size="4.20" fill="#2f6b8a" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">ESP32-S3</text>
 <text x="255.00" y="194.00" font-size="3.20" fill="#2f6b8a" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">50 × 42</text>
-<text x="255.00" y="202.00" font-size="3.00" fill="#2f6b8a" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">в приливе задней</text>
-<text x="255.00" y="206.50" font-size="3.00" fill="#2f6b8a" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">стенки, +12 назад</text>
-<text x="255.00" y="213.00" font-size="3.00" fill="#2f6b8a" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">USB-C наружу вниз</text>
+<text x="255.00" y="203.00" font-size="3.00" fill="#2f6b8a" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">в полости за полотном</text>
+<text x="255.00" y="210.00" font-size="3.00" fill="#2f6b8a" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">USB-C наружу вниз</text>
 <line x1="255.00" y1="218.00" x2="255.00" y2="263.00" stroke="#2f6b8a" stroke-width="0.50"/>
 <line x1="255.00" y1="263.00" x2="256.11" y2="260.21" stroke="#2f6b8a" stroke-width="0.50"/>
 <line x1="255.00" y1="263.00" x2="253.89" y2="260.21" stroke="#2f6b8a" stroke-width="0.50"/>
@@ -64,81 +63,97 @@
 <circle cx="262.00" cy="257.00" r="2.60" fill="none" stroke="#5a4f80" stroke-width="0.70"/>
 <text x="80.00" y="258.50" font-size="3.20" fill="#5a4f80" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">две опоры с регулировкой по горизонту</text>
 <rect x="40.00" y="232.00" width="256.00" height="20.00" rx="0.0" fill="#eceff2" stroke="#16212c" stroke-width="0.50" stroke-dasharray="3 2"/>
-<text x="45.00" y="244.00" font-size="3.20" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">сменная вставка 20 мм — ставится изнутри, до четырёх ⌀12 и окно датчика</text>
+<circle cx="270.00" cy="242.00" r="6.60" fill="#dfe9ef" stroke="#8a3f8a" stroke-width="0.90"/>
+<circle cx="270.00" cy="242.00" r="3.20" fill="none" stroke="#8a3f8a" stroke-width="0.60"/>
+<text x="259.00" y="243.20" font-size="3.20" fill="#8a3f8a" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">энкодер</text>
+<text x="259.00" y="247.40" font-size="2.90" fill="#8a3f8a" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">выбор аэропорта</text>
+<text x="45.00" y="244.00" font-size="3.20" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">сменная вставка 20 мм — ставится изнутри: энкодер выбора аэропорта, окно датчика</text>
 <text x="402.00" y="65.00" font-size="6.20" fill="#16212c" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">РАЗРЕЗ · стек спереди назад</text>
-<text x="402.00" y="71.50" font-size="3.40" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Предел 20 мм по кромке. Матрица съедает 15 из них.</text>
-<rect x="402.00" y="82.00" width="78.00" height="8.40" rx="0.0" fill="#f2f4f6" stroke="#16212c" stroke-width="0.70"/>
-<text x="399.00" y="87.40" font-size="3.60" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">1.5</text>
-<line x1="480.00" y1="86.20" x2="486.00" y2="86.20" stroke="#c0c8cf" stroke-width="0.35"/>
-<text x="488.00" y="87.40" font-size="3.40" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">лицевая рамка, перекрытие ≤ 0,5</text>
-<rect x="402.00" y="90.40" width="78.00" height="84.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.70" stroke-dasharray="3 2"/>
-<text x="399.00" y="133.60" font-size="3.60" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">15</text>
-<line x1="480.00" y1="132.40" x2="486.00" y2="132.40" stroke="#c0c8cf" stroke-width="0.35"/>
-<text x="488.00" y="133.60" font-size="3.40" fill="#a8351f" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">матрица целиком  · обмер</text>
-<rect x="402.00" y="174.40" width="78.00" height="8.40" rx="0.0" fill="#eef2f5" stroke="#8e9aa4" stroke-width="0.70"/>
-<text x="399.00" y="179.80" font-size="3.60" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">1.5</text>
-<line x1="480.00" y1="178.60" x2="486.00" y2="178.60" stroke="#c0c8cf" stroke-width="0.35"/>
-<text x="488.00" y="179.80" font-size="3.40" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">шлейф плашмя</text>
-<rect x="402.00" y="182.80" width="78.00" height="11.20" rx="0.0" fill="#f2f4f6" stroke="#16212c" stroke-width="0.70"/>
-<text x="399.00" y="189.60" font-size="3.60" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">2</text>
-<line x1="480.00" y1="188.40" x2="486.00" y2="188.40" stroke="#c0c8cf" stroke-width="0.35"/>
-<text x="488.00" y="189.60" font-size="3.40" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">задняя стенка</text>
-<line x1="389.00" y1="82.00" x2="389.00" y2="194.00" stroke="#7a8791" stroke-width="0.40"/>
-<text x="386.00" y="138.00" font-size="5.40" fill="#16212c" text-anchor="end" font-weight="bold" font-family="Helvetica,Arial,sans-serif">20</text>
-<text x="386.00" y="144.00" font-size="3.10" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">по кромке</text>
-<text x="386.00" y="148.19" font-size="3.10" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">предел 20</text>
-<text x="386.00" y="207.00" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Матрица — единый модуль 15 мм: полотно, GOB и вся электроника уже внутри</text>
-<text x="386.00" y="211.72" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">её литого корпуса. Раскладывать её на слои и складывать их — ошибка;</text>
-<text x="386.00" y="216.45" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">измерять надо один размер, полную толщину модуля с надетым шлейфом.</text>
-<text x="386.00" y="221.18" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif"></text>
-<text x="386.00" y="225.90" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">За полотном остаётся 3,5 мм. Этого хватает на плоский шлейф и ни на что</text>
-<text x="386.00" y="230.62" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">больше. Колодки HUB75 и VH4 в эти 3,5 мм, скорее всего, не уложатся:</text>
-<text x="386.00" y="235.35" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">под каждую в задней стенке местный карман, кабель загибается у колодки.</text>
-<text x="640.00" y="65.00" font-size="6.20" fill="#16212c" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">КУДА ДЕВАТЬ КОНТРОЛЛЕР</text>
-<text x="640.00" y="71.50" font-size="3.40" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Плата 50 × 42 в 3,5 мм за полотном не помещается. Три выхода.</text>
-<rect x="640.00" y="82.00" width="250.00" height="30.00" rx="2.0" fill="#f7f9fa" stroke="#2f6b3a" stroke-width="0.70"/>
-<text x="645.00" y="89.50" font-size="4.00" fill="#2f6b3a" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">A · прилив сзади</text>
-<text x="840.00" y="89.50" font-size="3.30" fill="#2f6b3a" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">принято</text>
-<text x="645.00" y="95.50" font-size="3.30" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Местный карман в задней стенке под платой: по кромке</text>
-<text x="645.00" y="99.95" font-size="3.30" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">панель остаётся 20, в зоне прилива 32. Прилив уходит</text>
-<text x="645.00" y="104.41" font-size="3.30" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">в зазор подвеса, с фронта и сбоку не виден.</text>
-<rect x="640.00" y="118.00" width="250.00" height="30.00" rx="2.0" fill="#f7f9fa" stroke="#4a5a68" stroke-width="0.70"/>
-<text x="645.00" y="125.50" font-size="4.00" fill="#4a5a68" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">B · вынести на кабель</text>
-<text x="840.00" y="125.50" font-size="3.30" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">запасной</text>
-<text x="645.00" y="131.50" font-size="3.30" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Контроллер в отдельной коробке у розетки, к панели</text>
-<text x="645.00" y="135.96" font-size="3.30" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">идёт шлейф. Панель ровно 20 везде, но появляется</text>
-<text x="645.00" y="140.41" font-size="3.30" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">вторая коробка и внешний шлейф.</text>
-<rect x="640.00" y="154.00" width="250.00" height="30.00" rx="2.0" fill="#f7f9fa" stroke="#a8351f" stroke-width="0.70"/>
-<text x="645.00" y="161.50" font-size="4.00" fill="#a8351f" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">C · растить корпус</text>
-<text x="840.00" y="161.50" font-size="3.30" fill="#a8351f" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">отклонено</text>
-<text x="645.00" y="167.50" font-size="3.30" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Ровная задняя плоскость на 32-35 мм. Просто в печати,</text>
-<text x="645.00" y="171.96" font-size="3.30" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">но нарушает поставленный предел 20.</text>
-<text x="640.00" y="194.00" font-size="3.40" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Толщина у прецедентов: корпуса под MatrixPortal и клоны корпуса Adafruit</text>
-<text x="640.00" y="198.59" font-size="3.40" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">кладут плату контроллера прямо за панелью и выходят на 28-35 мм по всей</text>
-<text x="640.00" y="203.18" font-size="3.40" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">площади. Двадцать по кромке держится только приливом.</text>
-<text x="640.00" y="241.00" font-size="6.20" fill="#16212c" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">УЗЕЛ СТЫКА</text>
-<text x="640.00" y="247.50" font-size="3.40" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Почему прижим ведём по плате, а не по литой рамке.</text>
-<text x="640.00" y="258.00" font-size="3.70" fill="#2f6b3a" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">если наружу выходит ПЛАТА 128,0</text>
-<rect x="640.00" y="263.00" width="96.00" height="15.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.60"/>
-<rect x="642.00" y="278.00" width="92.00" height="5.00" rx="0.0" fill="#dde3e8" stroke="#8e9aa4" stroke-width="0.50"/>
-<rect x="736.00" y="263.00" width="96.00" height="15.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.60"/>
-<rect x="738.00" y="278.00" width="92.00" height="5.00" rx="0.0" fill="#dde3e8" stroke="#8e9aa4" stroke-width="0.50"/>
-<line x1="736.00" y1="260.00" x2="736.00" y2="286.00" stroke="#2f6b3a" stroke-width="1.00"/>
-<text x="836.00" y="272.00" font-size="3.00" fill="#8e9aa4" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">плата</text>
-<text x="836.00" y="282.00" font-size="3.00" fill="#8e9aa4" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">литая рамка</text>
-<text x="640.00" y="293.00" font-size="3.50" fill="#2f6b3a" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">полотно 256.0 · шаг через стык 2,0 ✓</text>
-<text x="640.00" y="312.00" font-size="3.70" fill="#a8351f" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">если наружу выходит РАМКА 127,8</text>
-<rect x="640.00" y="317.00" width="95.85" height="15.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.60"/>
-<rect x="642.00" y="332.00" width="91.85" height="5.00" rx="0.0" fill="#dde3e8" stroke="#8e9aa4" stroke-width="0.50"/>
-<rect x="735.85" y="317.00" width="95.85" height="15.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.60"/>
-<rect x="737.85" y="332.00" width="91.85" height="5.00" rx="0.0" fill="#dde3e8" stroke="#8e9aa4" stroke-width="0.50"/>
-<line x1="735.85" y1="314.00" x2="735.85" y2="340.00" stroke="#a8351f" stroke-width="1.00"/>
-<text x="835.70" y="326.00" font-size="3.00" fill="#8e9aa4" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">плата</text>
-<text x="835.70" y="336.00" font-size="3.00" fill="#8e9aa4" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">литая рамка</text>
-<text x="640.00" y="347.00" font-size="3.50" fill="#a8351f" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">полотно 255.6 · шаг через стык 1,8 ✗</text>
-<rect x="636.00" y="370.00" width="300.00" height="26.00" rx="0.0" fill="none" stroke="#16212c" stroke-width="0.45" stroke-dasharray="3 2"/>
-<text x="640.00" y="378.00" font-size="3.50" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Чертёж размеряет рамку 127,8 и не размеряет кромку платы. Какой из двух</text>
-<text x="640.00" y="382.73" font-size="3.50" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">случаев верен, решает обмер. Конструкция обязана работать в обоих:</text>
-<text x="640.00" y="387.45" font-size="3.50" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">прижим ведём ПЛАТА К ПЛАТЕ и на соприкосновение рамок не опираемся.</text>
-<text x="26.00" y="416.00" font-size="3.50" fill="#7a8791" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Поле 256 × 128, полоса 20 мм и требования к безелю — из ТЗ v1.1. Сетка M3 и контур 127,8 — из заводского чертежа Waveshare.</text>
+<text x="402.00" y="71.50" font-size="3.40" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Габарит 30 мм — рабочий, до обмера железа.</text>
+<rect x="402.00" y="82.00" width="78.00" height="5.85" rx="0.0" fill="#f2f4f6" stroke="#16212c" stroke-width="0.70"/>
+<text x="399.00" y="86.12" font-size="3.60" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">1.5</text>
+<line x1="480.00" y1="84.92" x2="486.00" y2="84.92" stroke="#c0c8cf" stroke-width="0.35"/>
+<text x="488.00" y="86.12" font-size="3.40" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">лицевая рамка, перекрытие ≤ 0,5</text>
+<rect x="402.00" y="87.85" width="78.00" height="58.50" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.70" stroke-dasharray="3 2"/>
+<text x="399.00" y="118.30" font-size="3.60" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">15</text>
+<line x1="480.00" y1="117.10" x2="486.00" y2="117.10" stroke="#c0c8cf" stroke-width="0.35"/>
+<text x="488.00" y="118.30" font-size="3.40" fill="#a8351f" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">матрица целиком  · обмер</text>
+<rect x="402.00" y="146.35" width="78.00" height="44.85" rx="0.0" fill="#dcebf2" stroke="#2f6b8a" stroke-width="0.70" stroke-dasharray="3 2"/>
+<text x="399.00" y="169.97" font-size="3.60" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">11.5</text>
+<line x1="480.00" y1="168.78" x2="486.00" y2="168.78" stroke="#c0c8cf" stroke-width="0.35"/>
+<text x="488.00" y="169.97" font-size="3.40" fill="#a8351f" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">полость: колодки, шлейф, плата  · обмер</text>
+<rect x="402.00" y="191.20" width="78.00" height="7.80" rx="0.0" fill="#f2f4f6" stroke="#16212c" stroke-width="0.70"/>
+<text x="399.00" y="196.30" font-size="3.60" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">2</text>
+<line x1="480.00" y1="195.10" x2="486.00" y2="195.10" stroke="#c0c8cf" stroke-width="0.35"/>
+<text x="488.00" y="196.30" font-size="3.40" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">задняя стенка</text>
+<line x1="389.00" y1="82.00" x2="389.00" y2="199.00" stroke="#7a8791" stroke-width="0.40"/>
+<text x="386.00" y="140.50" font-size="5.40" fill="#16212c" text-anchor="end" font-weight="bold" font-family="Helvetica,Arial,sans-serif">30</text>
+<text x="386.00" y="146.50" font-size="3.10" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">по кромке</text>
+<text x="386.00" y="212.00" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Матрица — единый модуль 15 мм: полотно, GOB и вся электроника уже внутри</text>
+<text x="386.00" y="216.72" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">её литого корпуса. Раскладывать её на слои и складывать их — ошибка;</text>
+<text x="386.00" y="221.45" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">мерить надо один размер, полную толщину модуля с надетым шлейфом.</text>
+<text x="386.00" y="226.18" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif"></text>
+<text x="386.00" y="230.90" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Полость 11,5 мм принимает колодки HUB75 и VH4, шлейф и плату контроллера.</text>
+<text x="386.00" y="235.62" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Цифра рабочая: закрывается обмером высоты колодок над задней плоскостью</text>
+<text x="386.00" y="240.35" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">матрицы и высоты платы с надетыми разъёмами. Пока железа нет, 30 держим</text>
+<text x="386.00" y="245.07" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">с запасом; после обмера ужимаем, вплоть до 20, если колодки утоплены.</text>
+<text x="640.00" y="65.00" font-size="6.20" fill="#16212c" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">ПОЛОСА 20 мм · энкодер справа</text>
+<text x="640.00" y="71.50" font-size="3.40" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Выбор аэропорта переключается с самого прибора, а не только из дашборда.</text>
+<rect x="640.00" y="88.00" width="5.85" height="58.00" rx="0.0" fill="#f2f4f6" stroke="#16212c" stroke-width="0.70"/>
+<rect x="749.20" y="88.00" width="7.80" height="58.00" rx="0.0" fill="#f2f4f6" stroke="#16212c" stroke-width="0.70"/>
+<rect x="645.85" y="88.00" width="103.35" height="58.00" rx="0.0" fill="none" stroke="#8e9aa4" stroke-width="0.50" stroke-dasharray="3 2"/>
+<text x="649.85" y="141.00" font-size="3.30" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">полость полосы 26,5</text>
+<rect x="645.85" y="108.00" width="19.50" height="12.00" rx="0.0" fill="#eceff2" stroke="#4a5a68" stroke-width="0.60"/>
+<text x="655.60" y="105.00" font-size="3.00" fill="#4a5a68" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">втулка M7</text>
+<rect x="665.35" y="100.00" width="51.48" height="28.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.80"/>
+<text x="691.09" y="116.00" font-size="4.00" fill="#16212c" text-anchor="middle" font-weight="bold" font-family="Helvetica,Arial,sans-serif">EC11</text>
+<text x="691.09" y="121.00" font-size="3.10" fill="#4a5a68" text-anchor="middle" font-weight="normal" font-family="Helvetica,Arial,sans-serif">13,2 × 12,4</text>
+<rect x="716.83" y="96.00" width="6.24" height="36.00" rx="0.0" fill="#dcebf2" stroke="#2f6b8a" stroke-width="0.80"/>
+<text x="719.83" y="138.00" font-size="3.10" fill="#2f6b8a" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">плата</text>
+<line x1="610.00" y1="114.00" x2="640.00" y2="114.00" stroke="#4a5a68" stroke-width="0.90"/>
+<text x="608.00" y="110.00" font-size="3.10" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">вал наружу,</text>
+<text x="608.00" y="115.00" font-size="3.10" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">укоротить до 8–10</text>
+<text x="608.00" y="122.00" font-size="3.10" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">ручка ⌀ 12–14</text>
+<text x="643.85" y="85.00" font-size="3.00" fill="#4a5a68" text-anchor="end" font-weight="normal" font-family="Helvetica,Arial,sans-serif">лицевая стенка</text>
+<text x="751.20" y="85.00" font-size="3.00" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">задняя</text>
+<text x="640.00" y="160.00" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Место справа в полосе, у нижнего правого угла — рука ложится туда, и орган</text>
+<text x="640.00" y="164.72" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">не спорит с окном датчика слева.</text>
+<text x="640.00" y="169.45" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif"></text>
+<text x="640.00" y="174.18" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">По каталогу Alps тело EC11 — 13,2 × 12,4 в плане: по высоте полосы 20 мм оно</text>
+<text x="640.00" y="178.90" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">проходит с зазором почти 4 мм на сторону. Критична была глубина, и при 30 мм</text>
+<text x="640.00" y="183.62" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">её 26,5 — вопрос закрыт с запасом; закрылся бы и при 20.</text>
+<text x="640.00" y="188.35" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif"></text>
+<text x="640.00" y="193.07" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Вал по каталогу 20 мм — цифра подтверждённая, и она длинная: под тонкую</text>
+<text x="640.00" y="197.80" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">панель вал укорачивается до 8–10 либо берётся короткое исполнение. Ручку</text>
+<text x="640.00" y="202.53" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">брать ⌀ 12–14: при ⌀ 16 в полосе 20 остаётся по 2 мм на сторону, и полоса</text>
+<text x="640.00" y="207.25" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">перестаёт читаться как полоса.</text>
+<text x="640.00" y="211.97" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif"></text>
+<text x="640.00" y="216.70" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Крепление — на стойки к лицевой стенке, гайку втулки наружу не выводить.</text>
+<text x="640.00" y="221.43" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Всё сидит на сменной вставке: сменится набор органов — печатается одна</text>
+<text x="640.00" y="226.15" font-size="3.50" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">вставка, оболочка остаётся.</text>
+<text x="402.00" y="283.00" font-size="6.20" fill="#16212c" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">УЗЕЛ СТЫКА</text>
+<text x="402.00" y="289.50" font-size="3.40" fill="#4a5a68" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Почему прижим ведём по плате, а не по литой рамке.</text>
+<text x="402.00" y="300.00" font-size="3.70" fill="#2f6b3a" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">если наружу выходит ПЛАТА 128,0</text>
+<rect x="402.00" y="305.00" width="96.00" height="15.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.60"/>
+<rect x="404.00" y="320.00" width="92.00" height="5.00" rx="0.0" fill="#dde3e8" stroke="#8e9aa4" stroke-width="0.50"/>
+<rect x="498.00" y="305.00" width="96.00" height="15.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.60"/>
+<rect x="500.00" y="320.00" width="92.00" height="5.00" rx="0.0" fill="#dde3e8" stroke="#8e9aa4" stroke-width="0.50"/>
+<line x1="498.00" y1="302.00" x2="498.00" y2="328.00" stroke="#2f6b3a" stroke-width="1.00"/>
+<text x="598.00" y="314.00" font-size="3.00" fill="#8e9aa4" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">плата</text>
+<text x="598.00" y="324.00" font-size="3.00" fill="#8e9aa4" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">литая рамка</text>
+<text x="402.00" y="335.00" font-size="3.50" fill="#2f6b3a" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">полотно 256.0 · шаг через стык 2,0 ✓</text>
+<text x="402.00" y="354.00" font-size="3.70" fill="#a8351f" text-anchor="start" font-weight="bold" font-family="Helvetica,Arial,sans-serif">если наружу выходит РАМКА 127,8</text>
+<rect x="402.00" y="359.00" width="95.85" height="15.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.60"/>
+<rect x="404.00" y="374.00" width="91.85" height="5.00" rx="0.0" fill="#dde3e8" stroke="#8e9aa4" stroke-width="0.50"/>
+<rect x="497.85" y="359.00" width="95.85" height="15.00" rx="0.0" fill="#e7ecf0" stroke="#16212c" stroke-width="0.60"/>
+<rect x="499.85" y="374.00" width="91.85" height="5.00" rx="0.0" fill="#dde3e8" stroke="#8e9aa4" stroke-width="0.50"/>
+<line x1="497.85" y1="356.00" x2="497.85" y2="382.00" stroke="#a8351f" stroke-width="1.00"/>
+<text x="597.70" y="368.00" font-size="3.00" fill="#8e9aa4" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">плата</text>
+<text x="597.70" y="378.00" font-size="3.00" fill="#8e9aa4" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">литая рамка</text>
+<text x="402.00" y="389.00" font-size="3.50" fill="#a8351f" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">полотно 255.6 · шаг через стык 1,8 ✗</text>
+<rect x="398.00" y="412.00" width="300.00" height="26.00" rx="0.0" fill="none" stroke="#16212c" stroke-width="0.45" stroke-dasharray="3 2"/>
+<text x="402.00" y="420.00" font-size="3.50" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Чертёж размеряет рамку 127,8 и не размеряет кромку платы. Какой из двух</text>
+<text x="402.00" y="424.73" font-size="3.50" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">случаев верен, решает обмер. Конструкция обязана работать в обоих:</text>
+<text x="402.00" y="429.45" font-size="3.50" fill="#16212c" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">прижим ведём ПЛАТА К ПЛАТЕ и на соприкосновение рамок не опираемся.</text>
+<text x="26.00" y="458.00" font-size="3.50" fill="#7a8791" text-anchor="start" font-weight="normal" font-family="Helvetica,Arial,sans-serif">Поле 256 × 128, полоса 20 мм и требования к безелю — из ТЗ v1.1. Сетка M3 и контур 127,8 — из заводского чертежа Waveshare.</text>
 </svg>

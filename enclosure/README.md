@@ -34,48 +34,53 @@ The frame therefore becomes four whole rails plus corner pieces, all seams land 
 corners and on the back, and the face stays unbroken. A seam down the middle was rejected
 on purpose: it would fall exactly on the panel joint the whole design is trying to hide.
 
-## How deep it has to be: 20 mm at the edge
+## How deep it has to be
 
-**The panel is one 15 mm module, not a stack of layers.** It is worth stating plainly
-because it is easy to get wrong: the pixels, the GOB resin and all the electronics are
-already inside the moulded case, and the side view on the factory drawing measures
-15.000 × 127.797 in drawing units. The distributor's 14.5 for the whole module and this
-15.0 for the case agree with each other. Add up "board + connectors + GOB" as separate
-layers and you triple-count the same part and land near 60 mm, which is what the first
-version of this sheet did.
+**The panel is one 15 mm module, not a stack of layers.** Worth stating plainly because it
+is easy to get wrong: the pixels, the GOB resin and all the electronics are already inside
+the moulded case, and the side view on the factory drawing measures 15.000 × 127.797 in
+drawing units. The distributor's 14.5 for the whole module and this 15.0 for the case agree
+with each other. Add up "board + connectors + GOB" as separate layers and you triple-count
+the same part and land near 60 mm.
 
-The brief caps the panel at 20 mm at the edge, so the stack is:
+The working depth is 30 mm until the hardware is in hand and can be measured:
 
 | | mm |
 |---|---|
 | face frame, overlapping the field by ≤ 0.5 | 1.5 |
 | the matrix module, whole | 15 |
-| ribbon lying flat | 1.5 |
+| cavity: connector shells, ribbon, controller board | 11.5 |
 | back wall | 2.0 |
-| **total** | **20.0** |
+| **total** | **30.0** |
 
-That leaves 3.5 mm behind the panel. A flat ribbon fits in it; nothing else does. The
-HUB75 and VH4 shells almost certainly do not, so each gets a local pocket in the back
-wall with the cable bent right at the shell — the trick the MatrixPortal enclosures use,
-where the ribbon is folded into a Z with a sharp bend at each end.
+If the connector shells turn out to sit flush inside the module, the same stack closes at
+**20 mm** (1.5 + 15 + 1.5 + 2.0), so the design is kept so that shrinking it later changes
+only the depth of the back — not the principle. For comparison, MatrixPortal-style cases and
+the Adafruit-derived ones run 28–35 mm flat across the whole back.
 
-**The controller cannot live behind the panel.** A 50 × 42 board has nowhere to go in
-3.5 mm. It sits in a local boss in the back wall: the edge stays 20 mm, the boss runs
-30–32 mm deep, and it hides in the gap the wall hanger already leaves. The alternative
-found in the field — MatrixPortal-style cases and the Adafruit-derived ones — is a flat
-28–35 mm back over the whole area, which is simpler to print but abandons the 20 mm edge.
+Power is split from the matrices' point of view: the 5 V adapter feeds a distribution point,
+and each matrix takes its own VH4 lead from there. Matrix current never crosses the
+controller board. HUB75 enters the near panel and a short jumper carries it to the far one,
+so the only cable crossing the seam is one ribbon behind the boards.
 
-Power is split from the matrices' point of view: the 5 V adapter feeds a distribution
-point, and each matrix takes its own VH4 lead from there. Matrix current never crosses
-the controller board. HUB75 enters the near panel and a short jumper carries it to the
-far one, so the only cable crossing the seam is one ribbon behind the boards.
+## The knob
+
+The panel picks its own airport for the flight-board page, so it needs a control of its
+own rather than only a dashboard. An EC11-size encoder with a push switch sits at the right
+end of the 20 mm bottom strip. Its body is 13.2 × 12.4 in plan, which clears the 20 mm strip
+by nearly 4 mm a side; depth was the real question and the strip cavity is 26.5 mm. The
+catalogue shaft is 20 mm, which is long for a thin panel — shorten it to 8–10 mm, and keep
+the knob at ⌀12–14 so the strip still reads as a strip.
+
+It all rides on the swappable insert, so a different set of controls means reprinting one
+insert rather than the shell.
 
 ## Status
 
-M0 — composition options and layout, both sheets done. Not yet designed: the controller
-boss, the wall mount, the light-leak contour and the swappable 20 mm bottom strip. M2 does
-not close until the panels arrive and the module thickness and connector standoff are
-measured on the real hardware.
+M0 — composition options and layout, both sheets done. Not yet designed: the wall mount,
+the light-leak contour and the swappable bottom strip itself. M2 does not close until the
+panels arrive and the module thickness and connector standoff are measured on the real
+hardware.
 
 ## Licence
 
