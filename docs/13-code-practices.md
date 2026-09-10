@@ -10,60 +10,97 @@ transferable list at the end is short on purpose.
 
 ---
 
-## 1. The network stack — their strongest work
+## 1. The two network stacks, side by side
 
-`src/network/network.cpp`, 860 lines. The premise is stated in the header:
+Read from the sources, not summarised from memory:
+`AnimatedPixelClock/src/network/network.cpp` (860 lines) against
+`NickoScope32-v1B-Main-S3-v33.58.0/src/netgate.{h,cpp}` (139 + 437) plus
+`src/net/`.
 
-```c
-// WiFi.status() stays WL_CONNECTED even when the stack moves no traffic at all,
-// so the association record and a gateway ping decide instead.
-```
+| | AnimatedPixelClock | NickoScope32 NetGate (ADD-62) |
+|---|---|---|
+| Where network calls run | in `loop()`; only the probe is async | **one `netTask` on core 0**; `loop()` never blocks |
+| Concurrency limit | none | **one in-flight per owner** — the STORM rule made structural |
+| TLS heap | unbounded | **one TLS at a time firmware-wide → deterministic heap peak** |
+| What triggers a health check | **silence** — 120 s with no traffic | **failure** — 2 consecutive connect/DNS errors, or an explicit report |
+| What the probe is | ICMP to the gateway, `esp_ping`, asynchronous | DNS resolve, `WiFi.hostByName`, blocking — but inside `netTask`, so nothing stalls |
+| Probe period | 60 s | 30 s |
+| Association checked | `esp_wifi_sta_get_ap_info()` | not checked |
+| Escalation | WiFi restart → cooling → `ESP.restart()` after 6 min | latch OFFLINE, rehabilitate by probe; a separate **loop watchdog** restarts on a stalled loop |
+| Failure reason kept | `netLastRecoveryReason()` + count, in diagnostics | logged, and `who` passed to `note_external_fail()` |
+| Sockets rebuilt on recovery | UDP fd, mDNS, SNTP — explicitly | not applicable: no long-lived fds in the gateway |
 
-Three levels of evidence rather than one:
+### Where NetGate is plainly stronger
 
-| Level | How |
-|---|---|
-| Stack flag | `WiFi.status()` — **not trusted** |
-| Association | `esp_wifi_sta_get_ap_info()` |
-| Actual traffic | ICMP to the gateway |
-
-**Traffic is counted, not assumed.** `netMarkInbound()` from the UDP handler,
-`netMarkOutboundOk()` on a successful send, `netMarkHttp()` on a served
-request. The probe fires **only after 120 s of silence**, so a working link
-costs nothing to monitor.
-
-**Escalation has hysteresis and a ceiling:**
-
-```
-120 s silent          -> async gateway ping (3 packets, 1 s timeout)
-2 consecutive fails   -> restart WiFi, NOT a reboot
-60 s cooling          -> do not hammer recovery
-6 min still bad       -> ESP.restart(), last resort
-```
-
-Note the order: **a reboot is the fourth answer, not the first.** And plain
-Wi-Fi loss triggers none of it — `NOTE: Auto-reboot removed - device continues
-as clock-only`. The device degrades rather than dies.
-
-**The probe is asynchronous.** `esp_ping` with callbacks, `volatile` flags, the
-result collected on a later tick. `loop()` never blocks — which is worth noting
-against the fact that today's audit found two blocking network calls in code
-written for this project, either of which would have tripped the watchdog.
-
-**Recovery rebuilds everything holding a descriptor:**
+The header states the contract, and it is a stronger one than the other project
+has anywhere:
 
 ```c
-udp.stop(); udp.begin(UDP_PORT);    // old fd is stale
-initMDNS();                          // re-register
-ntpSynced = false; applyTimezone();  // restart SNTP
+// ВСЕ request/response HTTP(S)-обмены S3 идут через ОДНУ задачу netTask
+// (core 0). Модули в loop() (core 1) кладут заявку в очередь и читают
+// результат из своего mailbox'а. loop() НИКОГДА не блокируется сетью.
+//
+// ИНВАРИАНТЫ (§3.3):
+//   1. Один in-flight на owner (submit → false, если уже занят) —
+//      STORM RULE встроен архитектурно.
+//   2. Один TLS на всю прошивку единовременно → heap peak детерминирован.
 ```
 
-with a neat trick: `netRecover()` sets `wifiDisconnectTime = now` so the
-*reconnect* branch performs all of it. One copy of the rebuild logic, not two.
+Invariant 2 deserves emphasis, because it is the problem this project's own
+yacht radar has unsolved: a TLS session's heap cost is the largest unmeasured
+allocation in that firmware, and it is unmeasured because nothing bounds how
+many can exist at once. NetGate bounds it by construction.
 
-**The failure reason survives.** `netLastRecoveryReason()` and
-`netRecoveryCount()` reach the diagnostics endpoint, so afterwards you read
-"gateway unreachable, 4 recoveries" rather than "the link was flaky".
+Invariant 1 is the same story for concurrency. AnimatedPixelClock has no
+equivalent because it makes few enough outbound requests not to need one.
+
+And the exception list is reasoned rather than convenient:
+
+```c
+//   * ha_mqtt (ADD-68): свой сокет к ЛОКАЛЬНОМУ брокеру, отдельная задача
+//     на ядре 0. netgate_note_external_fail() для него НЕ вызывается
+//     намеренно: падение локального брокера иначе залатчило бы весь шлюз
+//     в OFFLINE и убило Telegram с оракулом, syncTask NTP/погода, urri-сервер.
+```
+
+A local broker outage must not be evidence about the internet. That distinction
+is absent from the other project entirely, which has only one notion of "up".
+
+### Where AnimatedPixelClock's shape is different, and why it matters
+
+**Health is failure-driven here, silence-driven there.** NetGate learns the link
+is down when something asks and fails. AnimatedPixelClock learns it from 120 s
+of quiet, before anyone asks.
+
+This is not a hypothetical difference — the closed loop it creates has already
+been paid for, and the fix is recorded in place:
+
+```c
+// v33.21.0 (инцидент 21:03): health питался ТОЛЬКО фейлами NetGate. При
+// outage с полным AQ-кэшем и радаром вне fx31 заявок нет — OFFLINE не
+// латчится, а tg/oracle (loop-сайд исключения §10.1) проверяют флаг, но не
+// кормят его, и блокируют loop на DNS по 14 c КАЖДЫЙ полл. Замкнутый круг.
+```
+
+The repair — requiring the loop-side exceptions to report their own failures —
+closes it for the paths that exist today. A silence-driven probe would close it
+by construction instead, for paths that do not exist yet. That is the whole of
+what the other design offers here, and it is a real difference in kind: one
+approach needs every new caller to remember something, the other does not.
+
+**The probe conflates three failures into one.** `WiFi.hostByName` returning 0
+can mean no association, no DHCP, no DNS server, or no internet. Checking
+`esp_wifi_sta_get_ap_info()` first separates "not on the network at all" from
+"on it but nothing answers", and those want different responses: the first is
+worth restarting the radio for, the second is not.
+
+**Nothing restarts the radio on a link fault.** `ESP.restart()` exists on the S3
+but is reached through the loop watchdog — a stalled loop — not through link
+health. A zombie association (`WL_CONNECTED`, no traffic) therefore probes DNS
+every 30 s indefinitely without ever resetting the stack that is stuck. The
+other project restarts the radio after two failed probes and reboots only after
+six further minutes; the ordering — radio before reboot — is the part worth
+taking.
 
 ## 2. Compile-time guards on index arithmetic
 
@@ -171,34 +208,40 @@ the subtlety that it describes the *start*, not the present moment.
 **NetGate (ADD-62)** — a single serialised network gateway on core 0 through
 which all HTTP must pass — has no counterpart in AnimatedPixelClock at all.
 
-## The two gaps that are real
+## The gaps that survived a code-level read
 
-**1. No heap fragmentation signal.** Searched across the S3 firmware:
+**1. Health is driven by failure, not by silence.** Section 1 above, with the
+v33.21.0 incident that already demonstrated the failure mode. The repair works
+for today's callers; a probe fired by quiet would work for tomorrow's too.
+
+**2. Association is never checked.** `esp_wifi_sta_get_ap_info` appears in zero
+files across 100 in the S3 firmware; `WiFi.status()` in eleven. A DNS probe
+cannot tell "we are not associated" from "DNS is down", and only the first is
+worth restarting the radio for.
+
+**3. Nothing restarts the radio on a link fault.** Verified: `WiFi.disconnect`
+appears once in `main.cpp`, guarded by a comment about not killing ESP-NOW, and
+`ESP.restart()` is reached from the loop watchdog. A stuck association is
+therefore probed forever and never reset.
+
+**4. No heap fragmentation signal.** Searched across the same 100 files:
 
 | Symbol | Files |
 |---|---|
 | `heap_caps_get_largest_free_block` | **0** |
-| `minimum_free` / `heap_caps_get_minimum_free_size` | 0 / 1 |
+| `heap_caps_get_minimum_free_size` | **0** |
 
-Free heap alone cannot distinguish "memory is tight" from "memory is
-fragmented", and the second is the documented STORM heap-exhaustion class in
-the debug ladder. Two extra fields in whatever the device already publishes:
+Free heap alone cannot separate "tight" from "fragmented", and the second is
+the documented STORM exhaustion class in the debug ladder. Two fields added to
+whatever the device already publishes:
 
 ```c
 heap_caps_get_largest_free_block(MALLOC_CAP_8BIT)
-heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT)   // the low-water mark since boot
+heap_caps_get_minimum_free_size(MALLOC_CAP_8BIT)   // low-water mark since boot
 ```
 
-The low-water mark matters as much as the current value: it survives the dip
-that a poll will always miss.
-
-**2. Wi-Fi liveness on the S3 is still the flag.** `WiFi.status()` appears in
-11 files; `esp_ping` and `esp_wifi_sta_get_ap_info` in none. The NSP link is
-measured properly and the Wi-Fi link is not — the same zombie-connection the
-bridge already defends against, undefended one layer up.
-
-The idle-then-probe shape transfers directly, and the "probe only after
-silence" rule means it costs nothing while traffic flows.
+The low-water mark matters as much as the instantaneous value: it survives the
+dip that any poll will miss.
 
 ## What should not be copied
 
