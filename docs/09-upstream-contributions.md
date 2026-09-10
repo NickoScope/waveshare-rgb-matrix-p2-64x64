@@ -261,6 +261,24 @@ and off the API budget.
 4. Behaviour when the retained payload is stale — the `upd` field carries the HA-side time,
    so the page can grey out or show an age indicator rather than lying
 
+### Layout research, gathered but not applied
+
+Recorded so it is not re-gathered later. The page as built keeps its original
+layout; these are the findings against it, with sources.
+
+| Finding | Source | Status in the build |
+|---|---|---|
+| Dark background, light text searches fastest | Melissa & Theopilus 2020, eye-tracking study of airport FIDS, IOP Conf. Ser. 1003:012083 | already done |
+| Column order Flight-Time-Destination beat the alternatives tested | same | **not applied** — the studies measure "find my flight in a list of 50"; an ambient wall panel sorted by time reads better with time leading |
+| Passengers named tight line spacing as why they had to reread | same | **not applied** — 6 rows at 8 px pitch leaves 1 px between rows |
+| Limit the number of colours; yellow/orange and orange/red are not separable at a glance | Mijksenaar's Schiphol system, the reference case for airport wayfinding | **not applied** — the palette carries six statuses, and amber, yellow and red do sit close |
+| Character width matters more than serif vs sans; condensed faces test poorly | Waller, comparing typefaces for Heathrow signage | already respected — 5x7 chosen over a condensed 4x6 |
+| Passengers scan for destination **names** before flight numbers | DFW gate display redesign case study | blocked — the payload carries 3-letter IATA codes. Would need the HA template to send city names instead |
+
+`tools/fb_variants.py` renders the current layout beside a revision applying the
+spacing, palette and column findings, so the comparison can be re-made in seconds
+rather than re-argued.
+
 ### Sequencing
 
 Independent of items 1 to 4: it needs no upstream change and no MQTT work in the firmware
