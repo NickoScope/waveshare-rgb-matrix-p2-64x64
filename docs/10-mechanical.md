@@ -168,5 +168,11 @@ They do not affect the geometry.
 
 Entity census of the converted model, useful for knowing what a parser must handle:
 LINE 46051, ELLIPSE 7948, ARC 273, SPLINE 204, CIRCLE 168, **INSERT 56, BLOCK 34**,
-MTEXT 42, DIMENSION 31, HATCH 2. Note the blocks: a reader that ignores `INSERT` will miss
-whatever they contain, so do not assume flat geometry.
+MTEXT 42, DIMENSION 31, HATCH 2.
+
+Where those blocks are matters, though: **all 56 `INSERT` entities sit inside dimension
+blocks** (the arrowheads, `_FILLED`), and model space itself holds none. Model space is
+plain primitives — LINE, ELLIPSE, ARC, SPLINE, CIRCLE, DIMENSION, MTEXT, HATCH — so on
+*this* sheet a parser that ignores `INSERT` still sees every bit of drawing geometry. Do
+not generalise either way: the file does have blocks, and another vendor sheet may well
+put geometry in them.
