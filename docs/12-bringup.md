@@ -358,7 +358,7 @@ effect is wired to the display.
 
 Both cannot have it. Which one wins is a measurement, not an opinion.
 
-**Gate:** a number for each row above, written into `docs/13-lua.md`. A
+**Gate:** a number for each row above, written into `docs/14-lua.md`. A
 flickering panel is not a failure of this phase — it is its result.
 
 ## Phase 7 — the measurements the enclosure is waiting for
@@ -407,6 +407,6 @@ Every answer above belongs back in this repository, not in a chat log:
 | GPIO46, GPIO47/48, header pins | [02](02-controller.md), [11](11-control-and-pins.md) |
 | TLS heap | `src/yachtradar/README.md` in the firmware repo |
 | Depth and seam | the enclosure's measurement protocol |
-| PSRAM contention, refresh rates | [13](13-lua.md), and the allocator decision into the firmware |
+| PSRAM contention, refresh rates | [14](14-lua.md), and the allocator decision into the firmware |
 | Watchdog behaviour under the five failure tests | [05](05-troubleshooting.md) |
 | Anything surprising | [05](05-troubleshooting.md) |

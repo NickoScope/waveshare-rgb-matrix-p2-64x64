@@ -4,10 +4,101 @@ Knowledge base for the Waveshare **RGB-Matrix-P2-64x64-B** LED panel (SKU 33838,
 version) driven by the Waveshare **ESP32-S3-RGB-Matrix** controller board (SKU 34422).
 
 Everything here is traced to a primary source. The complete board pinout was verified
-against Waveshare's own firmware sources, not copied from a forum post.
+against Waveshare's own firmware sources and the board schematic, not copied from a forum
+post.
 See [docs/07-sources.md](docs/07-sources.md) for the full audit trail.
 
 Compiled 2026-09-06.
+
+## The story so far
+
+It started with the Apollo M-1, a ready-made LED display for Home Assistant. It looks
+great, but it isn't cheap, so I wanted to know what's inside. The panel turned out to be a
+stock Chinese 64×64 HUB75 panel that dozens of brands resell, and Waveshare sells the same
+one for noticeably less. The controllers are a different story: Apollo's and Waveshare's
+are two independent designs ([full comparison](docs/08-apollo-m1-comparison.md)).
+
+So I ordered four 64×64 panels and two of Waveshare's own ESP32-S3-RGB-Matrix controllers.
+I went denser than Apollo: 2 mm pitch, 128×128 mm per panel, and the LEDs are sealed under
+clear resin (GOB), so bumping them isn't a disaster. Two panels side by side make a 128×64
+screen, so I'll end up with two independent displays.
+
+While the parcel is in the post, I've been digging through the documentation. Here's what
+I found and what I'm going to do with it.
+
+### The hardware
+
+The Waveshare controller is packed: ESP32-S3, 32 MB of flash, 16 MB of fast PSRAM,
+microphones, a speaker output, a real-time clock, a temperature and humidity sensor, an
+accelerometer and an SD slot. The most important part is a buffer chip that lifts the
+signals from 3.3 V to the 5 V the panel expects. On a bare ESP32 without one, panels often
+flicker and ghost; here that whole class of problems is solved before you start.
+
+I checked the pinout against three different Waveshare sources and they all agreed. I still
+nearly got it wrong. I worked out which pins the firmware didn't use and assumed they were
+free. Then I opened the board schematic: the expansion header has just four pins — two
+GPIOs, ground and 3.3 V — and the pins I'd counted as free are actually the interrupt lines
+for the clock and the accelerometer. Lesson learned: code tells you what the firmware does,
+only the schematic tells you what the board is. The schematics now live
+[in this repo](reference-drawings/) ([pin budget](docs/11-control-and-pins.md)).
+
+Worth knowing up front:
+
+- Power doesn't pass along the chain. Each panel has its own socket, and Waveshare's advice
+  is 4 A per panel even though the spec table says 3 A. Two panels need an 8 A supply.
+- The driver library officially goes up to 128×64. You can do 128×128 with four panels,
+  but that's past the official line and you lose colour depth.
+- A Raspberry Pi is out: the main library for these panels doesn't run on the Pi 5,
+  because the way its GPIOs work changed. For this job the ESP32-S3 is the best choice
+  right now, and it's what the library's author recommends too.
+- One question the documentation can't settle: which driver chip the panel uses. The
+  sources disagree, so I'll find out with firmware once the panels arrive.
+
+And one funny find. For small text I picked the tiny Picopixel font, and in it the letter U
+differs from V by a single pixel. On the airport board, ZURICH read as ZVRICH. One dot in
+the font fixed it.
+
+### What I'm building: a fork of AnimatedPixelClock
+
+The base is [AnimatedPixelClock](https://github.com/Keralots/AnimatedPixelClock) by
+Keralots: an open clock for exactly this kind of 128×64 ESP32-S3 screen, with about fifteen
+animated styles — Mario, Tetris, Snake, Pac-Man and more. It's MIT-licensed, so I can build
+on it freely. [My fork](https://github.com/NickoScope/AnimatedPixelClock/tree/board/waveshare-esp32-s3-rgb-matrix)
+adds:
+
+- **An airport board.** Arrivals and departures at Nice: Home Assistant fetches the data and
+  sends it to the screen over MQTT. Each line has the time, flight, airport code, city and
+  status in words — "landed", "delayed". I tested it with live data and it immediately broke
+  a couple of things made-up data never would. For example, the API gives Blagnac as
+  Toulouse's "city", which is the suburb the airport is in.
+- **A yacht radar for the Bay of Cannes.** I brought the idea over from my oscilloscope
+  project. The left half is a map of the bay, the right a list of the nearest yachts from
+  AIS data. The map isn't hand-drawn: depths and terrain come from open datasets, the sea is
+  coloured by depth and the Esterel hills are shaded. It's all baked into an image in
+  advance, so the controller has nothing to calculate.
+- **One knob for everything.** A rotary encoder at the bottom of the case. Turn it to change
+  the clock style or the airport, or to scroll the yachts; a short press switches mode
+  within a page, a long press moves to the next page.
+- **Lua for my own effects.** A Lua interpreter already lives in my other projects, and
+  that's where I write effects and games. I brought it over and built a simulator so I can
+  write effects on the computer without flashing the board. To try it out there's a
+  Minecraft-style scene with a full day and night in one minute, a Tetris clock (at each new
+  minute the digits burn away like completed lines and are rebuilt by falling pieces) and a
+  snake clock whose digits crawl off the bottom and back in from the top
+  ([why and how](docs/14-lua.md)).
+- **An enclosure.** A white wall-mounted case for 3D printing, with a strip at the bottom
+  for the knob, is being designed alongside ([enclosure/](enclosure/)).
+
+### Where things stand
+
+The code is written, it compiles and it runs in the simulator, but nothing has been tested
+on hardware yet — the panels are still on their way. The [bring-up plan](docs/12-bringup.md)
+goes step by step: the controller with no panels first, then one panel to settle the driver
+question, then two, and only then the features one at a time. The big open question is
+whether there's enough fast memory for both the picture and Lua. Only a real board will
+tell.
+
+When they arrive, I'll write up what worked first time and what didn't.
 
 ## Quick start
 
@@ -31,6 +122,11 @@ If the hardware has not been powered up yet, read in this order:
 | [07-sources.md](docs/07-sources.md) | Every source, every contradiction found, what is still unverified |
 | [08-apollo-m1-comparison.md](docs/08-apollo-m1-comparison.md) | How this hardware compares to the Apollo Automation M-1 |
 | [09-upstream-contributions.md](docs/09-upstream-contributions.md) | Roadmap for contributing this board back to the AnimatedPixelClock project |
+| [10-mechanical.md](docs/10-mechanical.md) | Mechanical facts read out of the factory drawing |
+| [11-control-and-pins.md](docs/11-control-and-pins.md) | The GPIO budget from the schematic, the encoder and its gestures |
+| [12-bringup.md](docs/12-bringup.md) | Gated bring-up: from the box to a working panel |
+| [13-code-practices.md](docs/13-code-practices.md) | AnimatedPixelClock's network stack and guards, read against NickoScope32 |
+| [14-lua.md](docs/14-lua.md) | Putting a Lua interpreter on this panel, from our three existing ones |
 
 ## Ready-to-use configs
 
@@ -71,20 +167,21 @@ Most of it turned out to be already there; the two genuine gaps are named.
 
 ## Lua scripting
 
-[13-lua.md](docs/13-lua.md) — what our three existing Lua implementations (H743,
+[14-lua.md](docs/14-lua.md) — what our three existing Lua implementations (H743,
 Main-S3, Watch) teach about putting an interpreter on this panel, the safety
 architecture worth copying verbatim, and the one risk that is ours alone.
 
 ## Bring-up
 
 [12-bringup.md](docs/12-bringup.md) — the gated sequence from the box to a working
-panel, and which of the eight open questions each phase settles. Read it before
+panel, and which of the ten open questions each phase settles. Read it before
 the panels are unpacked.
 
 ## Physical control
 
-[11-control-and-pins.md](docs/11-control-and-pins.md) — the GPIO budget (two clean
-pins left), why the encoder switch shares the BOOT button, and the gesture map.
+[11-control-and-pins.md](docs/11-control-and-pins.md) — the GPIO budget from the
+schematic (the header has two GPIOs, and that is all), why the encoder switch shares the
+BOOT button, and the gesture map.
 
 ## Flight board simulation
 
