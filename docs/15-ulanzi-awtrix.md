@@ -114,15 +114,22 @@ effects and games we write ourselves.
 In rough order of value for effort. All of it reuses what already exists here —
 the MQTT client, the LittleFS store, the page dispatch.
 
-1. **Generic MQTT pages.** One page type that renders a JSON payload, created
-   and named by whoever publishes it. This is the single biggest idea on this
-   page, and the smallest change: our MQTT client already runs on every page.
-2. **`lifetime`.** A page whose data stopped arriving should remove itself.
-3. **Notifications.** A temporary overlay with hold and duration.
+1. ~~**Generic MQTT pages.**~~ **Built 2026-09-12**, `src/cards/` in the fork:
+   `nickoscope_matrix/card/<name>`, retained, empty payload deletes. Cards join
+   the knob's page walk as they arrive.
+2. ~~**`lifetime`.**~~ **Built.** A card removes itself if not updated in time.
+3. ~~**Notifications.**~~ **Built.** `nickoscope_matrix/notify`, with `hold` so a
+   doorbell waits for a press instead of timing out.
 4. **Per-page duration and a carousel.** Upstream already has a custom rotation
    for clock styles; extending it to data pages is the same mechanism.
 5. **An icon store on LittleFS.** The custom-animation store is already there
    and is the pattern to copy.
+
+The first three cost 6.2 KB of flash and 1.4 KB of RAM together, including a
+refactor that moved the MQTT connection into a shared bus — a second client
+would have opened a second socket to the same broker. The protocol was
+exercised against the live broker; the rendering has not met hardware, like
+everything else here.
 
 Items 1, 3 and 4 would suit upstream as well as us — they are generic, and they
 do not depend on anything about this house. Items in
