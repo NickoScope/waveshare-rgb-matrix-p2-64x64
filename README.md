@@ -127,6 +127,7 @@ If the hardware has not been powered up yet, read in this order:
 | [12-bringup.md](docs/12-bringup.md) | Gated bring-up: from the box to a working panel |
 | [13-code-practices.md](docs/13-code-practices.md) | AnimatedPixelClock's network stack and guards, read against NickoScope32 |
 | [14-lua.md](docs/14-lua.md) | Putting a Lua interpreter on this panel, from our three existing ones |
+| [15-ulanzi-awtrix.md](docs/15-ulanzi-awtrix.md) | What the Ulanzi pixel clocks and the AWTRIX firmware got right, and what to borrow |
 
 ## Ready-to-use configs
 
