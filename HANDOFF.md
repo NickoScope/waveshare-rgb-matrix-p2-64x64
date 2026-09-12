@@ -2,6 +2,82 @@
 
 Rolling record of where the work stands. Newest first.
 
+## Open, across everything
+
+- **Nothing is hardware-verified.** The panels have not arrived. Twelve open
+  questions and the gated sequence that settles them are in
+  [12-bringup.md](docs/12-bringup.md).
+- **Phase 6b is the gate that blocks everything built on Lua** — the heap and
+  the HUB75 framebuffer both want PSRAM, whose bandwidth already caps the
+  driver at ~13 MHz, and nobody has measured what happens when they share.
+- The two watchdog fixes have never run on hardware. Phase 6 exercises them.
+- Cards, icons and the carousel are proven on the wire and drawn only on the
+  host. Phase 6c.
+- The pages are reachable only through the knob; no HTTP route, no button.
+- NickoScope-Watch still listens on the legacy `.../state` topic; the keyed
+  topic is published in parallel until it migrates.
+- `mic_power_rail` GPIO46 — and GPIO46 is now the encoder's B line, so this
+  matters more than it did.
+- **FYI, unconfirmed:** on R16V parts VDD_SPI is 1.8 V and GPIO47/48 run at
+  1.8 V with it. Those two are this board's I2C bus. Read in the WROOM-1
+  datasheet; confirm against WROOM-2 before designing anything onto it.
+
+---
+
+## 2026-09-12
+
+Read the Ulanzi TC001/TC002 and the AWTRIX firmware that made the first one
+worth owning, then built the five ideas worth taking. None of it runs on our
+hardware — AWTRIX is nailed to a 32 × 8 WS2812 matrix — so this was an ideas
+read. Notes in [15-ulanzi-awtrix.md](docs/15-ulanzi-awtrix.md).
+
+### What went in
+
+**Cards.** Home Assistant publishes to `nickoscope_matrix/card/<name>` and a
+page appears; an empty payload removes it. Title, text, colour, a progress bar,
+an icon, and `lifetime` so a page whose source died takes itself away rather
+than lying about last Tuesday. Cards join the knob's page walk as they arrive.
+
+**Notifications.** `nickoscope_matrix/notify` takes the whole screen, with
+`hold` so a doorbell waits for a press.
+
+**Icons.** 16 × 16 rather than AWTRIX's 8 × 8 — theirs is sized for a 32 × 8
+display. 512 bytes of raw RGB565 in one retained message, written atomically
+through a temp file and a rename.
+
+**A carousel.** The pages advance after a minute of no knob activity; touching
+the knob puts you back in charge. No new gesture, no setting.
+
+**A shared MQTT bus.** `src/mqtt/mqtt_bus` owns the one connection. A second
+client would have opened a second socket to the same broker, and the bus also
+fixes a bug the flight board had alone: subscriptions do not survive a
+reconnect, so the bus remembers the set and re-applies it. `fb_mqtt` went from
+160 lines to 84.
+
+All five cost **8.4 KB of flash and 2.1 KB of RAM**. Cards and icons were
+round-tripped against the live broker; the drawing has been done only on the
+host.
+
+### The lesson of the day, and it is an uncomfortable one
+
+**Every flag-combination check run on 2026-09-10 was worthless.** The command
+used, `platformio run --project-option=...`, is not an option in this
+PlatformIO: it exited with "Error: No such option", and the grep for `error:`
+did not match that capital E, so it printed OK for builds that never happened.
+The claim in `d44bb3b` that six combinations still compiled had never been
+tested.
+
+`tools/flag_matrix.py` now does it by writing a scratch env and checking the
+return code, which cannot be fooled. It found three real breaks the moment it
+ran, and it also asserts that three dependency guards *refuse* to build — a
+guard that silently passes is worse than no guard. Twelve combinations.
+
+Two smaller ones the same day: a size claimed in a commit message without being
+computed (7.6 KB against a real 2 240 bytes, corrected), and a host renderer
+that used top-of-line coordinates while the firmware used baselines, which drew
+a rule straight through a title. The renderer caught the second before hardware
+could.
+
 ---
 
 ## 2026-09-10
@@ -70,20 +146,3 @@ base with `upstream/main` is still `74f964b`, so it is still a fork and a pull
 request upstream is still possible; no document referenced any of the old SHAs;
 and it still builds. A backup tag `backup/pre-email-rewrite` is kept locally.
 
-### Open
-
-- **Nothing is hardware-verified.** The panels have not arrived. Ten open
-  questions and the gated sequence to settle them are in
-  [12-bringup.md](docs/12-bringup.md).
-- **The Lua bench is the gate that blocks everything built on the interpreter**
-  — the heap and the HUB75 framebuffer both want PSRAM, whose bandwidth already
-  caps the driver at ~13 MHz. Phase 6b.
-- The two watchdog fixes have never run on hardware. Phase 6 exercises them.
-- The pages are reachable only through the knob; no HTTP route, no button.
-- NickoScope-Watch still listens on the legacy `.../state` topic; the keyed
-  topic is published in parallel until it migrates.
-- `mic_power_rail` GPIO46 — and note GPIO46 is now the encoder's B line, so
-  this matters more than it did.
-- **FYI, unconfirmed:** on R16V parts VDD_SPI is 1.8 V and GPIO47/48 run at
-  1.8 V with it. Those two are this board's I2C bus. Read in the WROOM-1
-  datasheet; confirm against WROOM-2 before designing anything onto it.

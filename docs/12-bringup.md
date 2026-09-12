@@ -18,10 +18,16 @@ Built and pushed, none of it hardware-verified. Flash 1 753 541 of 6 553 600 —
 | Yacht radar, AIS over TLS | `YACHTRADAR_ENABLED` | 31.1 KB |
 | Encoder and page dispatch | `CONTROL_ENCODER_ENABLED` | 3.4 KB |
 | Lua 5.4.8, boot self-test only | `NSLUA_ENABLED` | 91 KB |
+| Cards, notifications, icons, carousel | `MQTT_BUS_ENABLED` `CARDS_ENABLED` `CAROUSEL_ENABLED` | 8.4 KB |
 
 Two things are **not** built and will not be tested: the pages have no HTTP
 route or button, only the knob; and the Lua runtime is not connected to the
 display at all — it runs one self-test at boot and nothing else.
+
+Before flashing anything, run `python3 tools/flag_matrix.py` in the firmware
+repo. It builds twelve flag combinations and asserts that three of them are
+*refused* by the dependency guards. It exists because the obvious way to check
+this silently reported success for builds that never ran.
 
 ## Before the boxes are opened
 
@@ -79,6 +85,8 @@ Eight questions are open. The phase that answers each is in the last column.
 | 9 | **Can a Lua heap share PSRAM with the HUB75 DMA?** | Both want the same bandwidth-limited memory. Never measured | 6b |
 | 10 | Do the two watchdog fixes hold? | Written by hand after an audit, never run on hardware | 6 |
 | 8 | The two enclosure measurements | The 3D session is waiting on them | 7 |
+| 11 | Do cards and notifications render as drawn? | The protocol round-trips on the live broker; the layout has only been drawn on the host | 6c |
+| 12 | Does the icon store survive a power cut? | Atomic write and rename, never tested against a real yank of the cable | 6c |
 
 ---
 
@@ -360,6 +368,32 @@ Both cannot have it. Which one wins is a measurement, not an opinion.
 
 **Gate:** a number for each row above, written into `docs/14-lua.md`. A
 flickering panel is not a failure of this phase — it is its result.
+
+## Phase 6c — cards, notifications and icons
+
+**Goal:** questions 11 and 12. The wire protocol is already proven against the
+live broker; what has never happened is a panel drawing one.
+
+Publish from the Mac with the tools in the firmware repo, or from Home
+Assistant — the payloads are the same either way.
+
+| Do this | Expect |
+|---|---|
+| Publish a card with `title`, `text` and `color` | it appears in the knob's page walk, after the fixed pages |
+| Publish one with `progress` | a bar along the bottom, filled to that fraction |
+| Publish text far too long for one line | two centred lines, broken at a space — not a clipped line |
+| `python3 tools/icon_tool.py publish drop.i16 drop`, then a card with `icon: "drop"` | 16 × 16 picture on the left, text centred in what is left |
+| Publish an empty payload to the card topic | the page disappears, and the knob's page count shrinks under you without a crash |
+| Publish a card with `lifetime: 30` and then stop | it removes itself half a minute later |
+| Publish to `.../notify` with `hold: true` | it takes the whole screen and waits for a press |
+| **Pull the power while an icon is being written** | the icon is either the old one or the new one, never half of one. This is what the temp-file-and-rename is for, and it has never been tested |
+| Leave the panel alone for a minute | the pages start advancing by themselves; touch the knob and they stop |
+
+**Watch the free heap** across a few dozen card updates. Cards are a fixed
+array and icons are one cached buffer, so nothing should grow — if it does, the
+JSON parser is holding something.
+
+**Gate:** every row above behaves, and the heap is flat after fifty updates.
 
 ## Phase 7 — the measurements the enclosure is waiting for
 
