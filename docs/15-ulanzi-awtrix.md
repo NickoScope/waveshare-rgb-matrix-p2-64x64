@@ -120,16 +120,19 @@ the MQTT client, the LittleFS store, the page dispatch.
 2. ~~**`lifetime`.**~~ **Built.** A card removes itself if not updated in time.
 3. ~~**Notifications.**~~ **Built.** `nickoscope_matrix/notify`, with `hold` so a
    doorbell waits for a press instead of timing out.
-4. **Per-page duration and a carousel.** Upstream already has a custom rotation
-   for clock styles; extending it to data pages is the same mechanism.
-5. **An icon store on LittleFS.** The custom-animation store is already there
-   and is the pattern to copy.
+4. ~~**Per-page duration and a carousel.**~~ **Built.** The pages advance
+   themselves after a minute of no knob activity, and any use of the knob puts
+   you back in charge. A card can ask for its own duration.
+5. ~~**An icon store on LittleFS.**~~ **Built.** 16 × 16 rather than their
+   8 × 8 — theirs is sized for a 32 × 8 display — published as 512 raw bytes to
+   `nickoscope_matrix/icon/<name>`.
 
-The first three cost 6.2 KB of flash and 1.4 KB of RAM together, including a
-refactor that moved the MQTT connection into a shared bus — a second client
+All five together cost **8.4 KB of flash and 2.1 KB of RAM**, including a
+refactor that moved the MQTT connection into a shared bus: a second client
 would have opened a second socket to the same broker. The protocol was
-exercised against the live broker; the rendering has not met hardware, like
-everything else here.
+exercised against the live broker — cards and icons both round-trip on exactly
+the wildcards the firmware subscribes to. The rendering has not met hardware,
+like everything else here.
 
 Items 1, 3 and 4 would suit upstream as well as us — they are generic, and they
 do not depend on anything about this house. Items in
