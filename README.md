@@ -128,6 +128,7 @@ If the hardware has not been powered up yet, read in this order:
 | [13-code-practices.md](docs/13-code-practices.md) | AnimatedPixelClock's network stack and guards, read against NickoScope32 |
 | [14-lua.md](docs/14-lua.md) | Putting a Lua interpreter on this panel, from our three existing ones |
 | [15-ulanzi-awtrix.md](docs/15-ulanzi-awtrix.md) | What the Ulanzi pixel clocks and the AWTRIX firmware got right, and what to borrow |
+| [16-presence-radar.md](docs/16-presence-radar.md) | A 24 GHz presence radar, so effects wake when someone walks in — an idea, not built |
 
 ## Ready-to-use configs
 

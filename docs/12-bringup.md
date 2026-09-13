@@ -71,7 +71,7 @@ What the schematic already settles, so you do not measure it:
 
 ## What this is meant to settle
 
-Eight questions are open. The phase that answers each is in the last column.
+Twelve questions are open (number 4 is answered). The phase that answers each is in the last column.
 
 | # | Question | Why it is still open | Phase |
 |---|---|---|---|
@@ -87,6 +87,7 @@ Eight questions are open. The phase that answers each is in the last column.
 | 8 | The two enclosure measurements | The 3D session is waiting on them | 7 |
 | 11 | Do cards and notifications render as drawn? | The protocol round-trips on the live broker; the layout has only been drawn on the host | 6c |
 | 12 | Does the icon store survive a power cut? | Atomic write and rename, never tested against a real yank of the cable | 6c |
+| 13 | Does the world clock's night line match the real sky? | The C module matches the Lua prototype pixel for pixel on the host; neither has seen NTP time on the board | 6d |
 
 ---
 
@@ -394,6 +395,21 @@ array and icons are one cached buffer, so nothing should grow — if it does, th
 JSON parser is holding something.
 
 **Gate:** every row above behaves, and the heap is flat after fifty updates.
+
+## Phase 6d — the world clock
+
+**Goal:** question 13. Needs Wi-Fi for NTP; nothing else.
+
+| Do this | Expect |
+|---|---|
+| Boot with Wi-Fi off, long press to the page after the clock | an all-night map and `--:--`, not a confident 01:00 in 1970 |
+| Let NTP sync | the time appears and the lit half jumps into place within a minute |
+| Compare with any live day/night map (timeanddate.com has one) | the night line within one dot, 5.6°, of the reference |
+| Watch the six cities | Cannes breathes; Moscow, New York, London, Dubai and Almaty are steady orange 2×2 dots |
+| Watch for flicker | none: the page drops to 10 fps, and only the home dot moves between minutes |
+
+**Gate:** the line agrees with the reference at two times of day at least six
+hours apart.
 
 ## Phase 7 — the measurements the enclosure is waiting for
 

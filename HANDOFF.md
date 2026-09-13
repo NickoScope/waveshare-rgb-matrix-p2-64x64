@@ -13,6 +13,8 @@ Rolling record of where the work stands. Newest first.
 - The two watchdog fixes have never run on hardware. Phase 6 exercises them.
 - Cards, icons and the carousel are proven on the wire and drawn only on the
   host. Phase 6c.
+- The world clock matches its Lua prototype pixel for pixel on the host and
+  has never seen NTP time on the board. Phase 6d.
 - The pages are reachable only through the knob; no HTTP route, no button.
 - NickoScope-Watch still listens on the legacy `.../state` topic; the keyed
   topic is published in parallel until it migrates.
@@ -21,6 +23,29 @@ Rolling record of where the work stands. Newest first.
 - **FYI, unconfirmed:** on R16V parts VDD_SPI is 1.8 V and GPIO47/48 run at
   1.8 V with it. Those two are this board's I2C bus. Read in the WROOM-1
   datasheet; confirm against WROOM-2 before designing anything onto it.
+
+---
+
+## 2026-09-13, late
+
+The dotted world map clock went from a simulator script to a firmware page.
+
+- `src/worldclock/` in the fork: the page after the clock on a long press, 20 s
+  in the carousel, 10 fps. Cities: Cannes (home, breathes), Moscow, New York,
+  London, Dubai, Almaty.
+- One source: `tools/luasim/gen_world.py` writes the land mask and cities into
+  the Lua script and the firmware header; `--check` compares them offline and
+  the pre-commit hook runs it. Shown to fail on a one-digit change.
+- Checked: C module on the host vs the Lua frame, 0 of 8 192 pixels differ.
+  Flag matrix 14/14. +2 284 B flash, +4 096 B RAM against the same build
+  without the flag.
+- New bring-up phase 6d and question 13.
+- Idea written down, not built: a 24 GHz presence radar so effects wake when
+  someone walks in — [16](docs/16-presence-radar.md). The model the owner
+  remembers as "2050" was not found; LD2450 or LD2410C, told apart by size.
+
+**Next:** panels. Then measure the radar board, and try option A (through Home
+Assistant) before soldering anything.
 
 ---
 
