@@ -96,7 +96,8 @@ on hardware yet — the panels are still on their way. The [bring-up plan](docs/
 goes step by step: the controller with no panels first, then one panel to settle the driver
 question, then two, and only then the features one at a time. The big open question is
 whether there's enough fast memory for both the picture and Lua. Only a real board will
-tell.
+tell. An Apollo MTR-1 radar has been bought as well, so the panel can wake when someone
+walks in and one day show who is in the room ([how](docs/16-presence-radar.md)).
 
 When they arrive, I'll write up what worked first time and what didn't.
 
@@ -176,7 +177,7 @@ architecture worth copying verbatim, and the one risk that is ours alone.
 ## Bring-up
 
 [12-bringup.md](docs/12-bringup.md) — the gated sequence from the box to a working
-panel, and which of the ten open questions each phase settles. Read it before
+panel, and which of the sixteen open questions each phase settles. Read it before
 the panels are unpacked.
 
 ## Physical control

@@ -9,8 +9,8 @@ the vendor sources, not a log of what happened. Fill in results as you go.
 
 ## What is on the board by now
 
-Built and pushed, none of it hardware-verified. Flash 1 753 541 of 6 553 600 —
-**26.8 %**, so nothing here is constrained by space.
+Built and pushed, none of it hardware-verified. Flash 1 764 213 of 6 553 600 —
+**26.9 %**, so nothing here is constrained by space.
 
 | | Flag | Cost |
 |---|---|---|
@@ -19,13 +19,17 @@ Built and pushed, none of it hardware-verified. Flash 1 753 541 of 6 553 600 —
 | Encoder and page dispatch | `CONTROL_ENCODER_ENABLED` | 3.4 KB |
 | Lua 5.4.8, boot self-test only | `NSLUA_ENABLED` | 91 KB |
 | Cards, notifications, icons, carousel | `MQTT_BUS_ENABLED` `CARDS_ENABLED` `CAROUSEL_ENABLED` | 8.4 KB |
+| World clock, the page after the clock | `WORLDCLOCK_ENABLED` | 2.3 KB flash, 4.1 KB RAM |
 
-Two things are **not** built and will not be tested: the pages have no HTTP
-route or button, only the knob; and the Lua runtime is not connected to the
-display at all — it runs one self-test at boot and nothing else.
+Three things are **not** built and will not be tested: the pages have no HTTP
+route or button, only the knob; the Lua runtime is not connected to the
+display at all — it runs one self-test at boot and nothing else, so the
+simulator's effects (Tetris and snake clocks, Minecraft, the room radar) are
+not on the panel; and presence from the Apollo MTR-1 has no firmware yet —
+phase 6e says what to do before it does.
 
 Before flashing anything, run `python3 tools/flag_matrix.py` in the firmware
-repo. It builds twelve flag combinations and asserts that three of them are
+repo. It builds fourteen flag combinations and asserts that four of them are
 *refused* by the dependency guards. It exists because the obvious way to check
 this silently reported success for builds that never ran.
 
@@ -39,6 +43,10 @@ turns into an evening:
 - an EC11 encoder, and something to solder with, for the BOOT pad
 - the MQTT broker's host, user and password, and the AIS key, for `provision`
 - a USB-C cable that carries data, not only power
+- `espefuse.py`, for one read in phase 5. It ships with PlatformIO's esptool
+  package (`~/.platformio/packages/tool-esptoolpy/`), and Homebrew has it too
+- for phase 6e: the **Apollo MTR-1**, admin access to Home Assistant, and
+  `mosquitto_sub` on the Mac
 
 ## Open these first
 
@@ -71,7 +79,7 @@ What the schematic already settles, so you do not measure it:
 
 ## What this is meant to settle
 
-Twelve questions are open (number 4 is answered). The phase that answers each is in the last column.
+Sixteen questions are open; 4 and 4b are answered. The phase that answers each is in the last column.
 
 | # | Question | Why it is still open | Phase |
 |---|---|---|---|
@@ -79,8 +87,9 @@ Twelve questions are open (number 4 is answered). The phase that answers each is
 | 2 | `clkphase = false`? | Fixes a dropped rightmost column on some batches | 2 |
 | 3 | Does USB-CDC enumerate? | No UART bridge on this board; marked UNVERIFIED in `platformio.ini` | 1 |
 | 4 | ~~Are GPIO10/13 on the header?~~ **Answered from the schematic: no.** Header U8 is IO45, IO46, GND, 3V3 | IO10 is RTC_INT, IO13 is IMU_INT. Encoder moved to 45/46 — see [11](11-control-and-pins.md) | — |
+| 4b | ~~Does the GPIO45 strap matter?~~ **Answered from the WROOM-2 datasheet: no.** VDD_SPI on the S3R16V is fixed at 1.8 V by eFuse | One read-only `espefuse.py summary` confirms it — see [11](11-control-and-pins.md) | 5 |
 | 5 | `mic_power_rail` on GPIO46 | In hub75-studio, absent from the vendor BSP | 1 |
-| 6 | Do GPIO47/48 run at 1.8 V? | R16V parts set VDD_SPI to 1.8 V. That is this board's I2C bus | 1 |
+| 6 | Do GPIO47/48 run at 1.8 V? | VDD_SPI is 1.8 V on this module (WROOM-2 datasheet §8); whether 47/48 follow it is what is open. That is this board's I2C bus | 1 |
 | 7 | TLS session heap for the AIS websocket | Allocated at runtime, never measured | 6 |
 | 9 | **Can a Lua heap share PSRAM with the HUB75 DMA?** | Both want the same bandwidth-limited memory. Never measured | 6b |
 | 10 | Do the two watchdog fixes hold? | Written by hand after an audit, never run on hardware | 6 |
@@ -88,6 +97,10 @@ Twelve questions are open (number 4 is answered). The phase that answers each is
 | 11 | Do cards and notifications render as drawn? | The protocol round-trips on the live broker; the layout has only been drawn on the host | 6c |
 | 12 | Does the icon store survive a power cut? | Atomic write and rename, never tested against a real yank of the cable | 6c |
 | 13 | Does the world clock's night line match the real sky? | The C module matches the Lua prototype pixel for pixel on the host; neither has seen NTP time on the board | 6d |
+| 14 | Does presence reach the panel and put it to sleep and wake it correctly? | Nothing written yet: neither the Home Assistant automation nor `src/presence/` | 6e |
+| 15 | Does the LD2450 keep a person who sits perfectly still? | Not in any source read; the radar reports still targets, but for how long is unknown | 6e |
+| 16 | Does the running panel disturb the radar? | A HUB75 panel is a large, fast-switching load next to a 24 GHz sensor. Never tried | 6e |
+| 17 | Can the MTR-1 send its targets ten times a second over MQTT? | Stock firmware throttles to once a second and has no `mqtt:`; the override syntax is not verified | 6e |
 
 ---
 
@@ -225,14 +238,16 @@ session needs to know whether the gap is optical or physical.
 
 ## Phase 4 — our firmware, offline
 
-**Goal:** see the three pages before adding the network.
+**Goal:** prove the render path before adding the network.
 
 ```bash
 pio run -e matrix-waveshare-rgb -t upload
 ```
 
 The pages are reachable only through the encoder, so without Phase 5 you will
-land on the clock. That is fine — the clock is what proves the render path.
+land on the clock. That is fine — the clock is what proves the render path. The
+world clock, flight board and yacht radar all need the network for anything
+beyond their empty state.
 
 **Expect:** the clock in whatever style the settings hold. Both halves of the
 canvas in use. No tearing on the animated styles.
@@ -293,8 +308,10 @@ anything to the header. (Earlier versions of this page gave the command as
 | Long press, 700 ms | moves to the next page, **while still held** |
 | Press BOOT deliberately | should behave as a short press - it shares the pin |
 | Hold the knob through a reset | expect download mode. Confirm it recovers |
+| Long press through every page | clock → world clock → flight board → yacht radar → any cards → clock |
+| Rotate or press on the world clock | nothing happens — the page takes no input, by design |
 
-**Gate:** all three pages reachable and the knob does not drop detents.
+**Gate:** every page reachable and the knob does not drop detents.
 
 ---
 
@@ -414,6 +431,63 @@ JSON parser is holding something.
 **Gate:** the line agrees with the reference at two times of day at least six
 hours apart.
 
+## Phase 6e — presence: the Apollo MTR-1
+
+**Goal:** questions 14–17. The MTR-1 is its own box on Wi-Fi — an LD2450
+radar on an ESP32-C3 with ESPHome, plus light, CO2 and pressure sensors — and
+it needs nothing from the panel's header, so the encoder keeps IO45/IO46. The
+plan and its sources are in [16](16-presence-radar.md).
+
+**The firmware for this phase is not written.** The first part needs none, and
+it is the part that decides whether the rest is worth writing.
+
+### The MTR-1 alone, in Home Assistant
+
+| Do this | Expect |
+|---|---|
+| Add it through the ESPHome integration | `LD2450 Presence`, `Presence Target Count`, `Target-1 X`/`Y`, `CO2` and `LTR390 Light` appear |
+| Set the `LTR390 Update Interval` number | `LTR390 Light` starts reporting. Its polling is off in the stock config |
+| Walk in and out of the fan | presence follows within about a second — the stock throttle is one update a second |
+| **Sit perfectly still for five minutes** (Q15) | presence stays on. If it drops, sleep needs a longer hold-off, or the idea needs rethinking |
+| Stand behind the MTR-1, then in the next room | how much it sees behind itself and through the wall. Hi-Link warns it does. This decides where it may hang |
+| Hang it where it will live, next to the running panel; compare the panel on full white with the panel off (Q16) | no ghost targets, and presence does not flap when the panel changes |
+
+### Stage 1 — presence drives the panel (Q14)
+
+Needs two things that do not exist yet: a Home Assistant automation that
+republishes presence, target count, motion and lux to `nickoscope_matrix/presence`
+(retained), and `src/presence/` in the firmware.
+
+| Do this | Expect |
+|---|---|
+| `mosquitto_sub -v -t 'nickoscope_matrix/presence'`, then walk in | a retained message with present, count, moving and lux |
+| Leave the room | the panel dims after the hold-off — not the moment the radar loses you |
+| Walk back in | full brightness again within a couple of seconds |
+| Stay out while the carousel is running | it stops advancing |
+| Darken the room, then light it | brightness follows the light sensor without visible steps |
+| **Stop Home Assistant** | the panel stays awake. No data must mean awake, never asleep |
+| Optional: publish a card to `nickoscope_matrix/card/air` from an automation on `CO2` | the card appears — this needs no new firmware, cards already work |
+
+**Gate for stage 1:** a whole day with the panel sleeping and waking on its own,
+and not one false sleep while somebody is in the room.
+
+### Stage 2 — the live room radar (Q17)
+
+Needs the MTR-1 adopted in the ESPHome dashboard with an `mqtt:` package that
+publishes the three targets, the throttle lifted on those sensors, and the room
+radar reaching the panel. That last part is a Lua script today, so it waits on
+phase 6b and on the runtime being connected to the display — or on a C port,
+as the world clock got.
+
+| Measure | Pass |
+|---|---|
+| Messages a second on the targets topic | about ten, the radar's own rate |
+| Home Assistant after the `mqtt:` package goes in | every entity still there; the native API is untouched |
+| MTR-1 uptime across a day | no reboot every fifteen minutes. ESPHome's docs warn of exactly that when MQTT runs **without** the native API |
+| Walk a line across the fan | the blip on the panel follows you, and its trail is where you walked |
+
+**Gate for stage 2:** set when it is built.
+
 ## Phase 7 — the measurements the enclosure is waiting for
 
 The 3D session has a measurement protocol and cannot finalise depth without
@@ -441,7 +515,9 @@ working to 30 mm and freezes only once those two land.
 ## Phase 8 — soak
 
 Twenty-four hours on the clock page, then twenty-four with the encoder cycling
-pages. Record: reboots, heap at start and end, and whether the image degrades.
+pages, then — once stage 1 of phase 6e exists — twenty-four with presence
+putting the panel to sleep and waking it. Record: reboots, heap at start and
+end, whether the image degrades, and every false sleep.
 
 The library silently trades colour depth for refresh rate; if the picture looks
 poorer than on day one, that is where to look first.
@@ -462,4 +538,6 @@ Every answer above belongs back in this repository, not in a chat log:
 | Depth and seam | the enclosure's measurement protocol |
 | PSRAM contention, refresh rates | [14](14-lua.md), and the allocator decision into the firmware |
 | Watchdog behaviour under the five failure tests | [05](05-troubleshooting.md) |
+| `VDD_SPI_FORCE` as read off the board | [11](11-control-and-pins.md) |
+| Still person, behind the wall, next to the panel, 10 Hz over MQTT | [16](16-presence-radar.md) |
 | Anything surprising | [05](05-troubleshooting.md) |
