@@ -40,8 +40,13 @@ Rolling record of where the work stands. Newest first.
   the owner caught that. `esptool.py summary` in the bring-up was not a real
   command — it is `espefuse.py summary`.
 
-**Next:** when the MTR-1 arrives, stage 1: an HA automation to
-`nickoscope_matrix/presence`, and `src/presence/` on the panel.
+- Bring-up plan updated: questions 4b answered and 14–17 added, new phase 6e
+  for the MTR-1 (the radar alone in HA first, then presence driving sleep and
+  wake, then the live room radar), flash figure and flag matrix brought current.
+
+**Next:** when the MTR-1 arrives, phase 6e from the top: the radar alone in
+Home Assistant, then an HA automation to `nickoscope_matrix/presence` and
+`src/presence/` on the panel. When the panels arrive, phase 0.
 
 ---
 
