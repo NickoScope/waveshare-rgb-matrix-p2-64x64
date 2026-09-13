@@ -1,6 +1,8 @@
 # A presence radar: effects that wake up when someone walks in
 
-An idea, not built. Written 2026-09-14 so it is not lost.
+An idea, not built. Started 2026-09-14 so it is not lost. The room radar page
+already exists in the simulator: `tools/luasim/scripts/room_radar.lua` in the
+firmware repo.
 
 ## Which sensor
 
@@ -34,36 +36,113 @@ Ordered from cheapest to most ambitious.
    close, the flight board's small text is worth showing.
 4. **Effects that look at you.** With X and Y: the snake heads toward the
    person, a pair of eyes follows them, particles lean their way.
-5. **A room radar page.** The yacht radar already draws blips with trails on a
-   map; the room is a smaller map, and three people are three blips.
+5. **A room radar page** — drawn in the simulator already: the sensor's own
+   fan, people as blips with trails, a ring around whoever sits still.
 
 The carousel should stop when the room is empty: nobody is there to see it.
 
 ## How to connect it
 
-The header U8 has two signal pins, IO45 and IO46, and the encoder uses both
-([11](11-control-and-pins.md)). So:
+### Option 1 — straight onto the header, control moves to Home Assistant
 
-| Option | Pins on the matrix | Good for | Cost |
+The header U8 has two signal pins, IO45 and IO46 ([11](11-control-and-pins.md)).
+Today the encoder has both. Give them to the radar instead, and the knob's job
+goes to Home Assistant over the MQTT bus we already have.
+
+| Radar pin | Goes to | Why |
+|---|---|---|
+| 5V | an M3 power post H2/H3 (the panel's 5 V) | the header has only 3V3, and the radar wants 5 V [3] |
+| GND | header GND | |
+| TX | **IO46**, as UART RX | see the strapping note below |
+| RX | leave unconnected at first; later IO45 | only needed to send commands: Bluetooth off, zones |
+
+**Both are strapping pins, so what the radar does to them at reset matters.**
+A UART line idles high.
+
+- **IO46** decides boot mode together with GPIO0. In normal boot (GPIO0 high)
+  GPIO46 is ignored; to enter the serial bootloader it must be low or floating
+  [10]. So the radar's TX on IO46 costs nothing in normal use — but holding BOOT
+  through a reset to force download mode will not work while the radar is
+  plugged in. Unplug it for that. Whether esptool's automatic reset over USB is
+  affected: not verified.
+- **IO45** selects VDD_SPI at reset: 0 gives 3.3 V, 1 gives the 1.8 V LDO,
+  unless the `EFUSE_VDD_SPI_FORCE` eFuse is burnt, in which case the pin is
+  ignored [11]. Our own note says this module has it burnt — **unverified**.
+  Anything that might hold IO45 high at reset waits until
+  `espefuse.py summary` has been read. That is why the radar's RX, the
+  optional wire, is the one that goes there.
+- Both pins have weak pull-downs by default [12].
+
+**What it costs:** the knob. **What remains physical:** the BOOT button on
+GPIO0 still works as one button, for "next page".
+
+**What it gives:** one box, the radar at its full 10 Hz with no network in the
+way, and presence that keeps working when Wi-Fi does not.
+
+**Firmware work it needs:** today everything about pages sits under
+`CONTROL_ENCODER_ENABLED`. The page model has to come out from under it, with
+the encoder, the BOOT button, MQTT commands and the radar as separate inputs.
+Home Assistant gets MQTT discovery entities: a select for the page, a select for
+the clock style, a button for next.
+
+### Option 2 — a separate XIAO ESP32-C3 running ESPHome
+
+No pins on the matrix, the knob stays. **A C3 is enough; an S3 buys nothing
+here.** Apollo's MTR-1 ships the same pairing, an LD2450 on an ESP32-C3 with the
+radar on GPIO21/20 at 256 000 baud, using ESPHome's own component [13].
+
+| LD2450 | XIAO ESP32-C3 [14] |
+|---|---|
+| 5V | 5V (5 V out from USB) |
+| GND | GND |
+| TX | D7 = GPIO20 (RX) |
+| RX | D6 = GPIO21 (TX) |
+
+Avoid D0, D8 and D9 on the C3: GPIO2, 8 and 9 are its strapping pins [14]. The
+C3's logger defaults to USB_SERIAL_JTAG, so the UART is the radar's alone [15].
+
+```yaml
+# https://esphome.io/components/sensor/ld2450/
+uart:
+  id: uart_ld2450
+  tx_pin: GPIO21
+  rx_pin: GPIO20
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+ld2450:
+  id: ld2450_radar
+  uart_id: uart_ld2450
+```
+
+It then exposes `target_count`, `target_1`…`target_3` with `x`, `y`, `speed`,
+`distance` and `angle`, and `has_target`, `has_moving_target`,
+`has_still_target` [5]. **Every sensor is throttled to one update per second by
+default**, through a `throttle_with_priority: 1000ms` filter; the old
+`throttle` option is gone [16]. Fine for waking up. For eyes that follow you,
+override each sensor's filters — the exact syntax is not verified yet.
+
+### Or buy it
+
+| Product | Radar | Chip | Open ESPHome config |
 |---|---|---|---|
-| **A. Through Home Assistant** (start here) | none | ideas 1–3 now | the sensor needs its own small ESP with ESPHome; MQTT topic `nickoscope_matrix/presence` on the bus we already have |
-| B. Straight into the matrix | one: the radar's TX into a GPIO (RX only, no config) | ideas 4–5 at the full 10 Hz | there is no free header pin; take IO10 (RTC interrupt) or IO13 (IMU interrupt) from a pad and give that interrupt up |
-| C. Move the knob to I2C | frees IO45/46 for the radar | everything, cleanly | I2C is GPIO47/48, and whether they run at 1.8 V is open question 6 in [12](12-bringup.md) |
+| Apollo MTR-1 [17] | LD2450 | ESP32-C3 | yes, the native component [13] |
+| SCREEK Human Sensor 2A [18] | LD2450 | ESP32-C3 | yes, its own UART parser [19] |
+| Everything Presence Lite [20] | LD2450 | ESP32 | yes [21] |
 
-Option A first: no soldering, no pin fight, and it proves which effects are
-worth it. ESPHome throttles every sensor to one update a second by default [5],
-fine for waking up, too slow for eyes that follow you; lower it if idea 4 is
-tried over MQTT.
+Seeed's own XIAO radar kits use the MR24HPC1 and the LD2410B [22][23]: no X and
+Y, so not these.
 
 ## Firmware shape, when it is built
 
 - `src/presence/`: one state — present, moving, up to three targets with X, Y
-  and speed, time last seen. Fed by MQTT (option A) or by a UART parser
-  (option B).
-- A Lua binding, so effects in `luasim` can be written against a fake person
-  before a real one exists.
-- Flag `PRESENCE_ENABLED`, with the usual `#error` for a missing dependency
-  and a row in `tools/flag_matrix.py`.
+  and speed, time last seen. Fed by a UART parser (option 1) or by MQTT
+  (option 2).
+- A Lua binding shaped like `fake_targets()` in `room_radar.lua`, so the
+  simulator script moves across unchanged.
+- Flag `PRESENCE_ENABLED`, the usual `#error` for a missing dependency, and a
+  row in `tools/flag_matrix.py`.
 
 ## Traps already known
 
@@ -75,9 +154,11 @@ tried over MQTT.
   fans [3][6].
 - Mount at 1.5–2 m on a wall [3]. Never point two 24 GHz radars at each other [3].
 - Sending "enable configuration" stops the data until "end configuration" [4].
-- **Not verified:** whether the LD2450 keeps a person who is sitting perfectly
-  still, and whether the HUB75 panel disturbs the radar at close range. Both
-  are bench tests before idea 1 is trusted.
+- Bluetooth is on by default [2]. With the RX wire unconnected it stays on, and
+  anyone nearby with the app can reconfigure the radar.
+- **Not verified:** whether the LD2450 keeps a person who sits perfectly still,
+  and whether the HUB75 panel disturbs the radar at close range. Both are bench
+  tests before idea 1 is trusted.
 
 ## Sources
 
@@ -90,3 +171,17 @@ tried over MQTT.
 7. https://www.hlktech.net/index.php?id=1095
 8. https://shop.ideaelec.com/wp-content/uploads/2025/02/HLK-LD2410C-Serial-communication-protocol-V1.07.pdf (Hi-Link's PDF, third-party copy)
 9. https://esphome.io/components/sensor/ld2410/
+10. https://docs.espressif.com/projects/esptool/en/latest/esp32s3/advanced-topics/boot-mode-selection.html
+11. https://documentation.espressif.com/esp32-s3_technical_reference_manual_en.html — §8.4 VDD_SPI Voltage Control
+12. https://documentation.espressif.com/esp32-s3-wroom-2_datasheet_en.html — §4 Boot Configurations, Table 4-1
+13. https://github.com/ApolloAutomation/MTR-1/blob/main/Integrations/ESPHome/Core.yaml
+14. https://wiki.seeedstudio.com/XIAO_ESP32C3_Getting_Started/
+15. https://esphome.io/components/logger/
+16. https://github.com/esphome/esphome/blob/dev/esphome/components/ld2450/__init__.py
+17. https://apolloautomation.com/products/mtr-1
+18. https://shop.screek.io/products/2a
+19. https://github.com/screekworkshop/screek-human-sensor/blob/main/2a/yaml/human-sensor-2a-stable-github.yaml
+20. https://shop.everythingsmart.io/products/everything-presence-lite
+21. https://github.com/EverythingSmartHome/everything-presence-lite/blob/main/common/ld2450-base.yaml
+22. https://wiki.seeedstudio.com/mmwave_human_detection_kit/
+23. https://wiki.seeedstudio.com/mmwave_for_xiao/
