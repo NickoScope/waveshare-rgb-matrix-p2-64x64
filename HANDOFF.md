@@ -15,6 +15,8 @@ Rolling record of where the work stands. Newest first.
   host. Phase 6c.
 - The world clock matches its Lua prototype pixel for pixel on the host and
   has never seen NTP time on the board. Phase 6d.
+- **Presence: an Apollo MTR-1 is bought, the encoder stays.** Two stages in
+  [16](docs/16-presence-radar.md); nothing built on the panel side.
 - The pages are reachable only through the knob; no HTTP route, no button.
 - NickoScope-Watch still listens on the legacy `.../state` topic; the keyed
   topic is published in parallel until it migrates.
@@ -23,6 +25,23 @@ Rolling record of where the work stands. Newest first.
 - **FYI, unconfirmed:** on R16V parts VDD_SPI is 1.8 V and GPIO47/48 run at
   1.8 V with it. Those two are this board's I2C bus. Read in the WROOM-1
   datasheet; confirm against WROOM-2 before designing anything onto it.
+
+---
+
+## 2026-09-14, after midnight
+
+- Room radar drawn in the simulator (`room_radar.lua`): the LD2450's own fan,
+  trails, entry bursts, rings round people sitting still, dims when empty.
+- Radar hardware decided: **Apollo MTR-1** (LD2450 + ESP32-C3, ESPHome), bought.
+  The knob keeps IO45/IO46. It also brings a light sensor, which can drive
+  the panel's brightness, and CO2.
+- GPIO45 settled from the WROOM-2 datasheet: VDD_SPI is fixed by eFuse on this
+  module, so the strap is ignored. Found while being inconsistent about it;
+  the owner caught that. `esptool.py summary` in the bring-up was not a real
+  command — it is `espefuse.py summary`.
+
+**Next:** when the MTR-1 arrives, stage 1: an HA automation to
+`nickoscope_matrix/presence`, and `src/presence/` on the panel.
 
 ---
 

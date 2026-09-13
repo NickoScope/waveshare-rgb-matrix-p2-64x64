@@ -1,15 +1,17 @@
 # A presence radar: effects that wake up when someone walks in
 
-An idea, not built. Started 2026-09-14 so it is not lost. The room radar page
-already exists in the simulator: `tools/luasim/scripts/room_radar.lua` in the
-firmware repo.
+**Decided 2026-09-14: an Apollo MTR-1 is bought, and the encoder stays.** The
+radar lives in its own box and reaches the panel over the network; the two
+header pins stay with the knob. Nothing is built on the panel side yet. The
+room radar page already exists in the simulator:
+`tools/luasim/scripts/room_radar.lua` in the firmware repo.
 
 ## Which sensor
 
 The owner remembers "model 2050". No product by that name was found on
 hlktech.net, esphome.io or dfrobot.com. The two likely candidates are told
 apart by size: **HLK-LD2450 is 15 × 44 mm** [1], **HLK-LD2410C is 16 × 22 mm** [7].
-Measure the board before writing any code.
+Settled by the purchase: the LD2450, inside the MTR-1.
 
 | | HLK-LD2450 | HLK-LD2410C |
 |---|---|---|
@@ -43,7 +45,41 @@ The carousel should stop when the room is empty: nobody is there to see it.
 
 ## How to connect it
 
-### Option 1 — straight onto the header, control moves to Home Assistant
+### Chosen: Apollo MTR-1, over the network
+
+Its stock ESPHome config is public [13] and was read the day it was bought:
+
+| On board | What it is for here |
+|---|---|
+| HLK-LD2450 on the C3's UART, 256 000 baud | presence, moving and still, count; X, Y, speed, angle and distance for three targets; three zones |
+| LTR390 light and UV | the panel's brightness can follow the room. Its polling is off (`update_interval: never`) until the "LTR390 Update Interval" number is set |
+| SCD40 CO2, temperature, humidity, every 60 s | a card when the air goes stale; the threshold is the owner's call |
+| DPS310 pressure and temperature, every 30 s | — |
+| RGB LED, buzzer (an API action plays RTTTL) | — |
+| Button on GPIO9 | not a control: a self-test after 1 s held, factory reset after 8 s |
+
+The stock firmware talks only to Home Assistant, over the native API; there is
+no `mqtt:` in it. Its radar sensors carry no filters of their own, so ESPHome's
+default one-second throttle applies [16].
+
+**Stage 1 — nothing flashed on the MTR-1.** A Home Assistant automation
+republishes what the panel needs to `nickoscope_matrix/presence`, retained:
+present, count, moving, lux. On the panel, one small MQTT consumer in
+`src/presence/`: dim when the room empties, wake when someone walks in, stop the
+carousel while nobody is watching. The CO2 card needs no firmware at all — Home
+Assistant can publish to `nickoscope_matrix/card/air` today. One update a second
+is plenty for all of it.
+
+**Stage 2 — the room radar page, live.** Adopt the MTR-1 in the ESPHome
+dashboard (its config carries `dashboard_import`), add a package with `mqtt:`
+that publishes the three targets as JSON ten times a second straight to the
+broker, and lift the throttle on those sensors. ESPHome runs MQTT alongside the
+native API — its docs warn only about MQTT *without* the API [26] — so Home
+Assistant keeps everything it had. The exact filter override: not verified yet.
+
+### Not chosen: straight onto the header, control moves to Home Assistant
+
+Kept because the pin analysis is right and cost an evening to get right.
 
 The header U8 has two signal pins, IO45 and IO46 ([11](11-control-and-pins.md)).
 Today the encoder has both. Give them to the radar instead, and the knob's job
@@ -90,7 +126,7 @@ the encoder, the BOOT button, MQTT commands and the radar as separate inputs.
 Home Assistant gets MQTT discovery entities: a select for the page, a select for
 the clock style, a button for next.
 
-### Option 2 — a separate XIAO ESP32-C3 running ESPHome
+### Not chosen: a XIAO ESP32-C3 of our own, running ESPHome
 
 No pins on the matrix, the knob stays. **A C3 is enough; an S3 buys nothing
 here.** Apollo's MTR-1 ships the same pairing, an LD2450 on an ESP32-C3 with the
@@ -142,8 +178,8 @@ Y, so not these.
 ## Firmware shape, when it is built
 
 - `src/presence/`: one state — present, moving, up to three targets with X, Y
-  and speed, time last seen. Fed by a UART parser (option 1) or by MQTT
-  (option 2).
+  and speed, time last seen. Fed by MQTT from the MTR-1: the retained summary
+  from Home Assistant in stage 1, the targets straight from ESPHome in stage 2.
 - A Lua binding shaped like `fake_targets()` in `room_radar.lua`, so the
   simulator script moves across unchanged.
 - Flag `PRESENCE_ENABLED`, the usual `#error` for a missing dependency, and a
@@ -192,3 +228,4 @@ Y, so not these.
 23. https://wiki.seeedstudio.com/mmwave_for_xiao/
 24. https://documentation.espressif.com/esp32-s3-wroom-2_datasheet_en.html — §1.2 Series Comparison (S3R8V/S3R16V inside) and §8 Module Schematics (VDD_SPI set by eFuse)
 25. https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32s3/schematic-checklist.html — in-package flash/PSRAM with VDD_SPI_FORCE: GPIO45 no longer affects VDD_SPI
+26. https://esphome.io/components/mqtt/
