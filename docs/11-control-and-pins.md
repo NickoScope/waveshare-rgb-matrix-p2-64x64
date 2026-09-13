@@ -23,12 +23,18 @@ those interrupts and soldering to the module.
 
 Both header pins are strapping pins, and both are survivable:
 
-- **GPIO45** selects VDD_SPI voltage. This module has in-package flash and PSRAM
-  with VDD_SPI fixed at 1.8 V by the `VDD_SPI_FORCE` eFuse, and the ESP32-S3
-  hardware design guidelines state that the strap then no longer affects it.
-  **UNVERIFIED** — read the eFuse with `esptool.py summary` before trusting it.
-- **GPIO46** gates ROM message printing at boot. Cosmetic; it does not stop a
-  boot.
+- **GPIO45** selects VDD_SPI voltage on a bare chip, and **not on this module.**
+  The WROOM-2 datasheet (§1.2, §8) puts an ESP32-S3R16V in the N32R16V and says
+  its VDD_SPI is set to 1.8 V by eFuse; the ESP32-S3 hardware design guidelines
+  say GPIO45 then no longer affects VDD_SPI. Its level at reset does not matter,
+  whatever is wired to it. **Documented, not yet read off our board:**
+  `espefuse.py summary` is read-only and should show `VDD_SPI_FORCE = True`.
+  (Settled 2026-09-14 from the module datasheet; before that this line said
+  UNVERIFIED.)
+- **GPIO46** gates ROM message printing at boot, and together with GPIO0 picks
+  the boot mode: normal boot ignores it, but download mode needs it low or
+  floating (esptool, *Boot Mode Selection*). So anything that holds it high at
+  reset stops "hold BOOT through reset" from working, and nothing else.
 
 That Waveshare chose exactly these two for the header is itself evidence: they
 are the pins the board has left.

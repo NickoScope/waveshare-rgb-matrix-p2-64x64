@@ -271,16 +271,19 @@ The header's four-pin order is on the schematic in the `GPIO` block, connector
 U8 — worth a glance before soldering, because the drawing is the only place it
 is written down.
 
-Before that, one measurement decides whether GPIO45 is safe to drive at all:
+GPIO45 is safe to use. The module datasheet settles it: the ESP32-S3R16V in
+the WROOM-2-N32R16V has VDD_SPI fixed at 1.8 V by eFuse, so the GPIO45 strap is
+ignored ([11](11-control-and-pins.md) has the sources). A knob could not have
+changed the strap anyway: it only ever pulls a pin to ground, which is the
+default. Confirm it on the board once — read-only, nothing is burned:
 
 ```bash
-esptool.py --port <port> summary | grep -i vdd_spi
+espefuse.py --port <port> summary | grep -i vdd_spi
 ```
 
-If `VDD_SPI_FORCE` is burned, the GPIO45 strap no longer selects the flash
-voltage and the pin is free. If it is not burned, do **not** put an encoder on
-it — a knob left in the wrong position at power-up would set VDD_SPI wrongly
-and the board would not come up.
+Expect `VDD_SPI_FORCE = True`. If it says False, stop and ask before wiring
+anything to the header. (Earlier versions of this page gave the command as
+`esptool.py summary`, which is not an esptool command.)
 
 | Test | Pass |
 |---|---|

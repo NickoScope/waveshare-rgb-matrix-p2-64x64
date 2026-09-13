@@ -53,25 +53,30 @@ goes to Home Assistant over the MQTT bus we already have.
 |---|---|---|
 | 5V | an M3 power post H2/H3 (the panel's 5 V) | the header has only 3V3, and the radar wants 5 V [3] |
 | GND | header GND | |
-| TX | **IO46**, as UART RX | see the strapping note below |
-| RX | leave unconnected at first; later IO45 | only needed to send commands: Bluetooth off, zones |
+| TX | **IO45**, as UART RX | IO45 is ignored at reset on this module, so a line that idles high costs nothing |
+| RX | **IO46**, as UART TX | lets the firmware send commands: Bluetooth off, zones |
 
 **Both are strapping pins, so what the radar does to them at reset matters.**
 A UART line idles high.
 
-- **IO46** decides boot mode together with GPIO0. In normal boot (GPIO0 high)
-  GPIO46 is ignored; to enter the serial bootloader it must be low or floating
-  [10]. So the radar's TX on IO46 costs nothing in normal use — but holding BOOT
-  through a reset to force download mode will not work while the radar is
-  plugged in. Unplug it for that. Whether esptool's automatic reset over USB is
-  affected: not verified.
-- **IO45** selects VDD_SPI at reset: 0 gives 3.3 V, 1 gives the 1.8 V LDO,
-  unless the `EFUSE_VDD_SPI_FORCE` eFuse is burnt, in which case the pin is
-  ignored [11]. Our own note says this module has it burnt — **unverified**.
-  Anything that might hold IO45 high at reset waits until
-  `espefuse.py summary` has been read. That is why the radar's RX, the
-  optional wire, is the one that goes there.
+- **IO45 is ignored on this module.** On a bare chip it selects VDD_SPI at
+  reset, 3.3 V or 1.8 V [11]. But the WROOM-2-N32R16V carries an ESP32-S3R16V,
+  and on that chip VDD_SPI "has been set to 1.8 V by eFuse" [24]; with the eFuse
+  set, GPIO45 no longer affects it [25]. So the radar's TX, high from the moment
+  the radar has power, goes here. It is also why the encoder was safe on it — a
+  knob can only pull a pin to ground, which is the default anyway.
+- **IO46 still matters, a little.** With GPIO0 it picks the boot mode. In
+  normal boot GPIO0 is high and IO46 is ignored; to enter the serial bootloader
+  it must be low or floating [10]. The radar's RX is an input, so it can hold
+  IO46 high at reset only through a pull-up of its own — not verified. If it
+  has one, holding BOOT through a reset will not enter download mode while the
+  radar is plugged in. Normal boot is unaffected. Whether esptool's automatic
+  reset over USB is: not verified.
 - Both pins have weak pull-downs by default [12].
+- The first version of this page put the radar's TX on IO46 and kept IO45 for
+  later, pending an eFuse read. That was over-cautious and inconsistent with the
+  encoder decision; the module datasheet settles it. Confirm on the board anyway:
+  `espefuse.py summary` is read-only and should show `VDD_SPI_FORCE = True`.
 
 **What it costs:** the knob. **What remains physical:** the BOOT button on
 GPIO0 still works as one button, for "next page".
@@ -154,8 +159,8 @@ Y, so not these.
   fans [3][6].
 - Mount at 1.5–2 m on a wall [3]. Never point two 24 GHz radars at each other [3].
 - Sending "enable configuration" stops the data until "end configuration" [4].
-- Bluetooth is on by default [2]. With the RX wire unconnected it stays on, and
-  anyone nearby with the app can reconfigure the radar.
+- Bluetooth is on by default [2]. The firmware should switch it off over the RX
+  wire; otherwise anyone nearby with the app can reconfigure the radar.
 - **Not verified:** whether the LD2450 keeps a person who sits perfectly still,
   and whether the HUB75 panel disturbs the radar at close range. Both are bench
   tests before idea 1 is trusted.
@@ -185,3 +190,5 @@ Y, so not these.
 21. https://github.com/EverythingSmartHome/everything-presence-lite/blob/main/common/ld2450-base.yaml
 22. https://wiki.seeedstudio.com/mmwave_human_detection_kit/
 23. https://wiki.seeedstudio.com/mmwave_for_xiao/
+24. https://documentation.espressif.com/esp32-s3-wroom-2_datasheet_en.html — §1.2 Series Comparison (S3R8V/S3R16V inside) and §8 Module Schematics (VDD_SPI set by eFuse)
+25. https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32s3/schematic-checklist.html — in-package flash/PSRAM with VDD_SPI_FORCE: GPIO45 no longer affects VDD_SPI
