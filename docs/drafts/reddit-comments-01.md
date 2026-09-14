@@ -3,8 +3,9 @@
 **Status: POSTED 2026-09-15** on the owner's "отправляй все три", from his account
 u/No-Recording-8313:
 - top-level comment: https://old.reddit.com/r/esp32/comments/1w8vc0j/i_may_have_gone_a_bit_overboard_with_this_esp32s3/p9uhmk6/
-- reply in the S3 boards thread: https://old.reddit.com/r/esp32/comments/1w8vc0j/i_may_have_gone_a_bit_overboard_with_this_esp32s3/p9uhspe/ Written 2026-09-15 in
-the owner's own voice, plain text.
+- reply in the S3 boards thread: https://old.reddit.com/r/esp32/comments/1w8vc0j/i_may_have_gone_a_bit_overboard_with_this_esp32s3/p9uhspe/
+
+Written 2026-09-15 in the owner's own voice, plain text.
 
 Thread: r/esp32, "I may have gone a bit overboard with this ESP32-S3 pixel clock",
 by u/AdvertisingFormal746 (Keralots), 8 days old at the time, 2.3k upvotes,
