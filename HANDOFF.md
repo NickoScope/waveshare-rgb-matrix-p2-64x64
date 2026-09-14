@@ -36,6 +36,40 @@ Rolling record of where the work stands. Newest first.
 
 ---
 
+## 2026-09-14, evening — owner away, working alone (checkpoint)
+
+The owner left the bench with instructions to keep debugging, bring in the
+Guildford board and the Lua effects, extend the web UI, and finish with the
+code-audit gate. Written mid-way so nothing is lost if he is back first.
+
+Done and pushed to the fork unless marked:
+- **Encoder, second fix.** The flagship decoder "did not always fire". It is
+  now sampled by a 1 kHz esp_timer instead of once per loop(), learns
+  half-detent knobs (a 00 rest), and its lock-out is 10 ms, not 80.
+  `tools/control/encoder_host_test.cpp` runs the real control.cpp against
+  simulated knobs: 11/11. **Not yet turned by hand on the panel** — nobody was
+  there to turn it.
+- **Flight board** top-right now shows the time; it showed HA's last-fetch time,
+  which looked like a stopped clock.
+- **Guildford rail board merged** (`bb55814`, local until the flag matrix passes):
+  a page named TRAINS; a click enters it and rotation toggles board and
+  diagnostics. Needs the owner's RTT token in Home Assistant — steps below.
+- Running in the background: the flag matrix on the merge, a 10-minute soak on
+  the board, and two helpers in their own worktrees — the web UI
+  (`/Users/apple/AnimatedPixelClock-web`, `wip/web-ui`) and Lua effects on the
+  panel (`/Users/apple/AnimatedPixelClock-lua`, `wip/lua-effects`). Nothing of
+  theirs is merged yet.
+
+**Rail board, what only the owner can do** (from `tools/railboard/ha_package_guildford.yaml`):
+1. `<config>/secrets.yaml`: `rtt_bearer: "Bearer <long-life access token>"`.
+2. `configuration.yaml`, once: `homeassistant: packages: !include_dir_named packages`.
+3. Copy the package to `<config>/packages/railboard_guildford.yaml` and restart HA.
+4. Never set `homeassistant.components.rest_command` to debug logging: at debug
+   it logs request headers, which carry the token.
+Not run anywhere yet: the package has never been loaded into Home Assistant.
+
+---
+
 ## 2026-09-14, afternoon — the hardware is on the desk
 
 - Controller and panels arrived. Supply 5 V 10 A; the controller runs from its
