@@ -130,7 +130,6 @@ Rolling record of where the work stands. Newest first.
   - The first issue to Keralots is drafted in the owner's voice
     ([drafts/upstream-issue-01.md](docs/drafts/upstream-issue-01.md)). It goes
     out only on the owner's word.
-  - IR receiver, once the owner has fitted it.
 
 ## 2026-09-14, evening — second checkpoint
 
