@@ -73,8 +73,8 @@ Rolling record of where the work stands. Newest first.
   browser, upload.
   - Scope grew at the owner's request: a clip gallery on the TF card with
     streaming playback, read ahead in PSRAM; a size cap from the format and
-    the card; and three XY modes (oscilloscope music, stereo vectorscope, mono
-    phase portrait).
+    the card. Rendering is XY only; the extra modes were dropped after the
+    owner saw a vectorscope clip.
   - Not doing: downloading from YouTube or Spotify (their terms, and DRM).
   - In-page microphone or tab capture needs HTTPS, and the portal is plain
     HTTP; recording to a file is the path.
