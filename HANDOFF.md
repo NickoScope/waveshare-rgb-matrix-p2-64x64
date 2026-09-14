@@ -127,9 +127,14 @@ Rolling record of where the work stands. Newest first.
 - **Flag matrix: 35/35 as intended** on `bfe7375`, on `8ec3045` (boot health) and on `8c5f8cf` (gzip portal).
 - **Next:**
   - IR receiver, once the owner has fitted it.
-  - The first issue to Keralots is drafted in the owner's voice
-    ([drafts/upstream-issue-01.md](docs/drafts/upstream-issue-01.md)). It goes
-    out only on the owner's word.
+  - **Sent 2026-09-15:**
+    - the first issue to Keralots,
+      [#3](https://github.com/Keralots/AnimatedPixelClock/issues/3);
+    - two comments on his r/esp32 post, from the owner's Reddit account:
+      a top-level comment, and a reply in the S3 boards thread
+      ([drafts](docs/drafts/reddit-comments-01.md)).
+  - Watch the issue and the comments for the author's answer before any PR
+    work. The PR order is in the issue.
 
 ## 2026-09-14, evening — second checkpoint
 
