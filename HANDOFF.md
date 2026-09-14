@@ -18,10 +18,11 @@ Rolling record of where the work stands. Newest first.
   A TLS fetch needs its 12 KB stack plus ~4 KB. Still possible: run the SD
   reader task only while a clip plays (6 KB).
 - The two watchdog fixes have never run on hardware. Phase 6 exercises them.
-- Cards, icons and the carousel are proven on the wire and drawn only on the
-  host. Phase 6c.
-- The world clock matches its Lua prototype pixel for pixel on the host and
-  has never seen NTP time on the board. Phase 6d.
+- The carousel has run on the panel; the owner later switched it off in the
+  web UI. Cards and icons are still proven only on the wire and on the host.
+  Phase 6c.
+- The world clock runs on the panel with NTP time, the home city and city
+  search. The owner: "мировое время работает великолепно" (2026-09-14).
 - **Presence: an Apollo MTR-1 is bought, the encoder stays.** Two stages in
   [16](docs/16-presence-radar.md); nothing built on the panel side.
 - **Idea, owner's request 2026-09-14: any Home Assistant dashboard on the
@@ -39,6 +40,50 @@ Rolling record of where the work stands. Newest first.
 - **FYI, unconfirmed:** on R16V parts VDD_SPI is 1.8 V and GPIO47/48 run at
   1.8 V with it. Those two are this board's I2C bus. Read in the WROOM-1
   datasheet; confirm against WROOM-2 before designing anything onto it.
+
+---
+
+## 2026-09-15, after midnight — plan for the day
+
+**Where it stands at the end of the session.**
+- **On the panel:** the board branch at `8c5f8cf`, flashed over OTA and
+  confirmed by the panel itself. It carries the gzip portal, boot health, the
+  12 KB Lua stack, the yacht radar's own task, and fetches only while a page
+  is on screen. The football clock is showing.
+- **Pushed:** the board branch, every helper's `wip/` branch and this
+  repository. `wip/web-ui` had never been pushed and went up at the end.
+- **Sent to Keralots:** issue #3 and two comments under his r/esp32 post.
+  The scheduled task `keralots-watch` checks for answers every two hours,
+  08:00–22:00 ([watch list](docs/watch-list.md)).
+
+**Plan, in order.**
+
+1. **Answers.** When Keralots replies on #3, summarise it for the owner and
+   redo the PR order in [09](docs/09-upstream-contributions.md). No PR before
+   he answers or the owner decides.
+2. **PR 1, Waveshare board support.** Only after step 1.
+   - Branch from `upstream/main` with only the environment, the pins and
+     `opi_opi`.
+   - Build every upstream environment, and measure flash on `matrix-s3`.
+   - Draft the PR text in the owner's voice in `docs/drafts/`. It goes out on
+     his "отправляй".
+3. **Not yet checked on the panel.**
+   - Media player:
+     - TUNE and VOLUME from the knob;
+     - `play_fav` through `music_assistant.play_media`, never run yet;
+     - volume on the Yandex stations.
+   - Portal: save a setting and reload, export and import, the OTA page's
+     reload.
+   - `/api/info` `lastCrash`, after a day of use.
+4. **IR receiver.** RMT receive on GPIO14, once the owner has removed R47
+   and fitted it ([11](docs/11-control-and-pins.md)).
+5. **Memory.** Run the SD reader task only while a clip plays: 6 KB of
+   internal heap.
+6. **Waiting on the owner's decision:**
+   - keep the flight lists across reboots, which would save AeroAPI budget;
+   - GPL-3.0 for media player phase 2 (local radio);
+   - a password on `/update`;
+   - remove the eight worktrees whose branches are already merged.
 
 ---
 
