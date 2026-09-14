@@ -55,6 +55,8 @@ Rolling record of where the work stands. Newest first.
 - **Sent to Keralots:** issue #3 and two comments under his r/esp32 post.
   The scheduled task `keralots-watch` checks for answers every two hours,
   08:00–22:00 ([watch list](docs/watch-list.md)).
+- **The eight helper worktrees are removed.** All of them were merged and
+  pushed; the branches remain, locally and on GitHub.
 
 **Plan, in order.**
 
@@ -79,11 +81,16 @@ Rolling record of where the work stands. Newest first.
    and fitted it ([11](docs/11-control-and-pins.md)).
 5. **Memory.** Run the SD reader task only while a clip plays: 6 KB of
    internal heap.
-6. **Waiting on the owner's decision:**
-   - keep the flight lists across reboots, which would save AeroAPI budget;
+6. **Flight lists survive a reboot** (the owner said yes, 2026-09-15).
+   - Keep the last AeroAPI lists and their fetch time in flash.
+   - At boot, show them straight away. The next call waits for the
+     15-minute floor, counted in wall-clock time.
+   - Today every reboot bought the lists again; 24 calls went that way.
+   - Test after the day cap resets at 00:00 UTC: reboot twice and count the
+     calls.
+7. **Waiting on the owner's decision:**
    - GPL-3.0 for media player phase 2 (local radio);
-   - a password on `/update`;
-   - remove the eight worktrees whose branches are already merged.
+   - a password on `/update`.
 
 ---
 
