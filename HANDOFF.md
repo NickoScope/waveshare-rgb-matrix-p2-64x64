@@ -68,9 +68,28 @@ Rolling record of where the work stands. Newest first.
 - **Second Fenderson clip:** "Blocks" 2:15–2:29. The animation store now holds
   planets and blocks, with ~620 KB left, so a third full-length clip needs
   one deleted.
-- **Phone clip maker in progress** (helper, `/Users/apple/AnimatedPixelClock-clips`,
-  `wip/clip-maker`). Pick any audio or video file on the phone, render in the
-  browser, upload.
+- **Phone clip maker and TF card gallery merged** (`fd3e2f0`, flag matrix
+  26/26):
+  - "Make a clip" on the Effects & clips page takes any audio or video file,
+    renders XY in the browser, and uploads to the card, or to flash when there
+    is no card.
+  - The gallery on the card has thumbnails, Play and Delete, and a cap of
+    12 000 frames (8 min, 49 MB).
+  - Playback streams from the card with a 25-frame read-ahead ring in PSRAM.
+  - **Checked on the panel, 21:34–21:43:** the card mounts at boot, with
+    31 GB free. The whole Planets track (4875 frames, 20.0 MB) took 114 s to
+    upload, about 175 KB/s. The card itself writes 1.2 MB/s, so the portal's
+    upload handling is the bottleneck: a todo. Playback over 2 min read 2.5 ms
+    per frame on average and 6.4 ms at worst, with 0 underruns, the ring full,
+    and 3.3 KB of the 6 KB reader stack free.
+  - **Gotcha:** a clip shows only on the CLOCK page. The web Play button puts
+    that page up first; a bare `POST /api/clips {"play":…}` does not.
+- **Media player phase 1 in progress** (helper,
+  `/Users/apple/AnimatedPixelClock-media`, `wip/media-remote`): a now-playing
+  page and remote for HA/MA players over MQTT, with an AppDaemon app on the HA
+  side. The design is in [17](docs/17-media-player.md).
+- **IR receiver pin found:** IO14 with R47 removed, or IO10. Details in
+  [11](docs/11-control-and-pins.md). Nothing is soldered yet.
   - Scope grew at the owner's request: a clip gallery on the TF card with
     streaming playback, read ahead in PSRAM; a size cap from the format and
     the card. Rendering is XY only; the extra modes were dropped after the
