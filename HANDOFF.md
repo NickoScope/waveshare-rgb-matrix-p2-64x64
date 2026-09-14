@@ -18,6 +18,13 @@ Rolling record of where the work stands. Newest first.
   has never seen NTP time on the board. Phase 6d.
 - **Presence: an Apollo MTR-1 is bought, the encoder stays.** Two stages in
   [16](docs/16-presence-radar.md); nothing built on the panel side.
+- **Idea, owner's request 2026-09-14: any Home Assistant dashboard on the
+  panel.** Pick a dashboard (or a view of one) in HA and show it on the device
+  in a special 128×64 format, two 64×64 panels. Nothing designed yet. The open
+  questions: what "a dashboard" means at 128×64 (a rendered card image, or a
+  small layout language fed with entity states), where it is rendered (HA side
+  into a bitmap pushed over MQTT, like icons, or on the panel from states), and
+  how the choice is made (a select entity in HA, the knob, the web UI).
 - The pages are reachable only through the knob; no HTTP route, no button.
 - NickoScope-Watch still listens on the legacy `.../state` topic; the keyed
   topic is published in parallel until it migrates.
