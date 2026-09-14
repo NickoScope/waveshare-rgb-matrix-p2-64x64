@@ -69,7 +69,23 @@ Rolling record of where the work stands. Newest first.
   planets and blocks, with ~620 KB left, so a third full-length clip needs
   one deleted.
 - **Phone clip maker in progress** (helper, `/Users/apple/AnimatedPixelClock-clips`,
-  `wip/clip-maker`). Pick a WAV on the phone, render in the browser, upload.
+  `wip/clip-maker`). Pick any audio or video file on the phone, render in the
+  browser, upload.
+  - Scope grew at the owner's request: a clip gallery on the TF card with
+    streaming playback, read ahead in PSRAM; a size cap from the format and
+    the card; and three XY modes (oscilloscope music, stereo vectorscope, mono
+    phase portrait).
+  - Not doing: downloading from YouTube or Spotify (their terms, and DRM).
+  - In-page microphone or tab capture needs HTTPS, and the portal is plain
+    HTTP; recording to a file is the path.
+- **TF card works:** the owner's 32 GB card mounts in 1-bit MMC at 20 MHz and
+  reads a 4 KB frame in 2.6 ms on average, 6.4 ms at worst. Numbers are in
+  [02](docs/02-controller.md).
+- **Flight board going direct, in progress** (helper,
+  `/Users/apple/AnimatedPixelClock-flights`, `wip/flight-direct`):
+  - AeroAPI straight from the panel, with cost guard rails;
+  - up to 6 custom airports added by search;
+  - tracked flights pinned as the top row.
 - **World clock rework merged** (`2fed039`, flag matrix 24/24). The owner
   stopped the helper at 20:12 and chose to verify what was already committed.
   - The big time is home's time and home's name pulses for 10 s after a change.

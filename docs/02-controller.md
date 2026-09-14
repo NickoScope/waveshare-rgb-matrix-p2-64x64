@@ -101,6 +101,19 @@ I2S port 0.
 
 D1 through D3 being unconnected is why the documentation states MMC 1-bit mode only.
 
+**Measured on the panel, 2026-09-14.** Owner's 32 GB card, a standalone sketch
+on arduino-esp32 2.0.17.
+- **Mount:** `SD_MMC.setPins(1, 44, 17)` then
+  `SD_MMC.begin("/sdcard", true /*1-bit*/, false /*never format*/, 20000)`
+  mounted on the first try at 20 MHz.
+- **Card:** SDHC/SDXC, 30 436 MB; the file system reports 30 424 MB, empty.
+- **Speed:** writing 8 MB in 4 KB chunks ran at 1221 KB/s. Reading it back ran
+  at 1542 KB/s, 2.59 ms per 4 KB chunk on average and 6.44 ms at worst over
+  2048 chunks.
+- **What this means for clips:** a 4 bpp 128×64 clip frame is 4 KB. Streaming
+  one at 25 fps (~100 KB/s) takes about 7 % of the read speed, and the worst
+  read fits well inside a 40 ms frame.
+
 ### Button
 
 | Signal | GPIO |
