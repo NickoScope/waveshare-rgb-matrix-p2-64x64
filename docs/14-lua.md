@@ -203,3 +203,25 @@ livelier characters. Merged as `f332d7b`. The scripts no longer call
   the same pattern on the host). At 20 frames/s that frame costs about four
   frames: a hitch once a minute, not yet seen by eye.
 
+### Football clock, 2026-09-14 late evening
+
+A self-playing Atlético Madrid v Real Madrid match with the time top right.
+Built by a helper in `luasim` and merged as `3aa6d4e`. The helper worked the
+pitch markings out from IFAB Laws of the Game 2026/27, Law 1.
+
+| Effect | Frames/s | Draw avg / max | Open | Heap peak | Stack free |
+|---|---|---|---|---|---|
+| football_clock | 20.0, 16.9, 20.0 (three 30 s reports) | 17.7 / 27.9, 18.0 / 31.1, 18.0 / 31.9 ms | 202 ms, ~46 000 instructions | 142 KB | 12 044 B of 16 384 |
+
+- **Draw time:** 18 ms of the 50 ms budget at the 20 fps cap. The host
+  estimate was 6 ms of VM time, and snooker's 340 pixel calls a frame took
+  10 ms on the panel. At ~570 calls, 15–20 ms was expected, and that is
+  what the panel measured.
+- **The 16.9 report:** it holds one frame dropped past the 500 ms budget,
+  about 70 s after boot. In the same 10 s the loop on the other core
+  stalled 336 ms and internal heap dipped to 15.9 KB. That points to
+  something that stops both cores, such as a flash write while the first
+  fetches ran. The rail board's direct fetch writes its token with
+  Preferences. Neither suspect was confirmed, and the stall did not come
+  back in the next minute.
+
