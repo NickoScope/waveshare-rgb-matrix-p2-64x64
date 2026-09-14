@@ -55,8 +55,19 @@ Rolling record of where the work stands. Newest first.
     runs while the page is up, and 15 s was never enough for a boat to report.
 - **Snooker clock merged** (`66bee4b`). A self-playing frame under WPBSA rules
   with a HUD clock; on the panel 20 fps, draw average 10 ms.
-- **World clock rework** (home time, pulsing name, city search, default by
-  location) is with a helper in `/Users/apple/AnimatedPixelClock-world`.
+- **World clock rework merged** (`2fed039`, flag matrix 24/24). The owner
+  stopped the helper at 20:12 and chose to verify what was already committed.
+  - The big time is home's time and home's name pulses for 10 s after a change.
+  - Cities can be searched in the portal: the browser asks Open-Meteo's
+    geocoder, and up to 6 custom cities are kept in NVS (`wcC0`–`wcC5`).
+  - An unchosen home follows the weather location, then a once-per-boot IP
+    lookup, then the panel's zone. Zones come from an embedded tzdata table.
+  - Checked on the panel over the API:
+    - Almaty 23:16 (+5), Cannes 20:16 (+2), and TOKYO added as home 03:16 (+9);
+    - a bad zone, a 40-character name, latitude 123 and an unknown id are each
+      refused with a clear 400;
+    - the owner's home was restored and TOKYO removed afterwards.
+  - Owner at 20:20: "мировое время работает великолепно".
 - **Rail board fetches RTT directly from the panel** (merged `2fd1973`).
   - The owner provisioned the refresh token himself with
     `provision_secrets.py rtt-from-ha`, then the provision and normal flashes.
