@@ -57,14 +57,25 @@ Rolling record of where the work stands. Newest first.
   with a HUD clock; on the panel 20 fps, draw average 10 ms.
 - **World clock rework** (home time, pulsing name, city search, default by
   location) is with a helper in `/Users/apple/AnimatedPixelClock-world`.
-- **Rail board, direct RTT from the panel,** is with a helper in
-  `/Users/apple/AnimatedPixelClock-rail`.
-  - The token is a refresh token: it must be exchanged at
-    `/api/get_access_token`.
-  - The HA fetch automation is off at the owner's request until that exchange
-    is ready.
+- **Rail board fetches RTT directly from the panel** (merged `2fd1973`).
+  - The owner provisioned the refresh token himself with
+    `provision_secrets.py rtt-from-ha`, then the provision and normal flashes.
+  - On the panel at 19:59: source `direct`, token `refresh-exchanged`,
+    HTTP 200, 0 fails, 43 KB responses every 30 s.
+  - Quota reported by RTT: 9000 a day, 750 an hour, 30 a minute. The panel
+    uses about 2880 a day.
+  - The HA fetch automation stays off. Its AppDaemon replacement (option A in
+    `src/railboard/README.md`) is not installed; if it is, the two together
+    use ~7200 of the 9000.
   - RTT's API terms ask that tokens stay server-side. The owner was told and
     chose direct.
+- **Oscilloscope music on the panel, a first look.** A 14 s clip of Jerobeam
+  Fenderson's "Planets" (1:00–1:14) plays as a custom animation on the CLOCK
+  page.
+  - Rendered from the owner's own WAV with the beam's dwell as brightness,
+    phosphor afterglow and bloom, in 16 greens.
+  - The renderer is still in the session scratchpad. Neither the audio nor the
+    clip is in any repo.
 - **Encoder confirmed by hand:** owner at 18:50, "энкодер — хорошо", on the
   1 kHz sampler with the 2 ms pair filter. Phase 5 rotation is closed; the
   knob's switch is still unsoldered.
