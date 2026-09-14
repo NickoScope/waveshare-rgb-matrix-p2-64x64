@@ -64,7 +64,7 @@ There is **no schematic for the panel** and that is not an oversight — see the
 
 What the schematic already settles, so you do not measure it:
 
-- **Header U8 is `1 = IO45, 2 = IO46, 3 = GND, 4 = 3V3`.** Four pins, and that is
+- **Header U8 is `1 = IO45, 2 = IO46, 3 = 3V3, 4 = GND`.** Four pins, and that is
   the entire expansion budget.
 - **J1, the HUB75 output, is a keyed 2×8 header at 2.54 mm.** Keyed, so it only
   goes in one way — but the ribbon can still be reversed end for end.
@@ -369,8 +369,10 @@ passing.
 **Goal:** question 4, and the gesture map.
 
 Wire A → **GPIO45** (header U8 pin 1), B → **GPIO46** (pin 2), common → GND
-(pin 3). Pin 4 is 3V3 if the encoder needs it; ours does not, the internal
-pull-ups are enough. The switch has no header pin: solder it to the **BOOT
+(pin 4). Pin 3 is 3V3 if the encoder needs it; ours does not, the internal
+pull-ups are enough. **Wire by the silkscreen names, not by pin numbers:** until
+2026-09-14 this page had pins 3 and 4 the wrong way round. The schematic's U8
+and the board's silkscreen (GND, 3V3, IO46, IO45 from the top) agree. The switch has no header pin: solder it to the **BOOT
 button pad**, in parallel with the button.
 
 The header's four-pin order is on the schematic in the `GPIO` block, connector
