@@ -101,7 +101,7 @@ Thirteen questions are open; 1, 2, 3, 4 and 4b are answered. The phase that answ
 | 8 | The two enclosure measurements | The 3D session is waiting on them | 7 |
 | 11 | Do cards and notifications render as drawn? | The protocol round-trips on the live broker; the layout has only been drawn on the host | 6c |
 | 12 | Does the icon store survive a power cut? | Atomic write and rename, never tested against a real yank of the cable | 6c |
-| 13 | Does the world clock's night line match the real sky? | The C module matches the Lua prototype pixel for pixel on the host; neither has seen NTP time on the board | 6d |
+| 13 | Does the world clock's night line match the real sky? | **First look on the panel, 2026-09-14 15:21 CEST:** the Americas, Europe and Africa bright, East Asia and Australia dim — the right split, judged from a photo. Not yet compared dot by dot with a reference map | 6d |
 | 14 | Does presence reach the panel and put it to sleep and wake it correctly? | Nothing written yet: neither the Home Assistant automation nor `src/presence/` | 6e |
 | 15 | Does the LD2450 keep a person who sits perfectly still? | Not in any source read; the radar reports still targets, but for how long is unknown | 6e |
 | 16 | Does the running panel disturb the radar? | A HUB75 panel is a large, fast-switching load next to a 24 GHz sensor. Never tried | 6e |
@@ -353,6 +353,8 @@ passing.
 - Log noise, harmless: `nvs_get_str ... ais NOT_FOUND` every 75 s — the yacht
   radar looks for its key each time the carousel reaches it (25 + 20 + 15 + 15 s).
   Silenced in the fork the same day: `isKey()` first, which does not log.
+- Photos of the four pages on the panel:
+  [photos/2026-09-14-bringup](../photos/2026-09-14-bringup/README.md).
   And one `/littlefs/icons does not exist` at boot: the icon store's own
   existence check, just before it creates the directory.
 
