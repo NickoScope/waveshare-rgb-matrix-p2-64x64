@@ -59,7 +59,7 @@ Used only where no primary source exists. They must not drive decisions.
 | ~~HUB75 pin map~~ | **CLOSED.** Confirmed by three sources, two of them Waveshare's own | — |
 | ~~Peripheral pin map (I2C, I2S, mic, speaker)~~ | **CLOSED.** Confirmed by the vendor BSP `config.h` and two Arduino examples | — |
 | `mic_power_rail` on GPIO46 | **UNVERIFIED.** Present in hub75-studio, absent from the vendor BSP. Possibly an ESPHome-specific addition | read the schematic, or test on hardware |
-| Which shift driver the panel needs | **LIKELY FM6126A**, see #4 below. Verified by a third party on Waveshare P2.5 64x64, not yet on our P2 GOB | flash and look at the screen |
+| Which shift driver the panel needs | **FM6124-family init, from the chip marking (2026-09-14).** Our panels' column drivers read `FM6124HJ`; library 3.0.14 sends `FM6124`, `FM6126A` and `ICN2038S` through the same `fm6124init()`. See #4 | phase 2 test A confirms it on screen |
 | Whether the configs in `configs/` work | not compiled, not flashed | build and flash |
 | Real panel current under load | no measurements | clamp meter on a white field at brightness 128 and 255 |
 
@@ -120,6 +120,14 @@ Used only where no primary source exists. They must not drive decisions.
    anyway, because it costs one reflash to find out and a wrong init sequence looks identical
    to a wiring fault. If the screen stays black on known-good power, FM6126A is the first
    thing to change.
+
+   **Settled from our own panels, 2026-09-14.** The column drivers on the P2 panels we
+   received are marked `FM6124HJ`, not FM6126A. In ESP32-HUB75-MatrixPanel-DMA 3.0.14,
+   `MatrixPanel_I2S_DMA::shiftDriver()` sends `ICN2038S`, `FM6124` and `FM6126A` to one and
+   the same `fm6124init()`; `SHIFTREG`, which is GENERIC, runs none. So the `FM6126A`
+   setting both projects use runs exactly the init this chip family gets. The other parts
+   on the panel: `MW245BC` input buffers, and 16-pin `RUC7258G` parts not identified. Test A
+   in phase 2 is still the on-screen proof — now with FM6126A on first.
 
    **Second finding from the same source, and it is a symptom worth memorising.** On these
    panels the library's default clock phase drops the **rightmost column**. Their bring-up

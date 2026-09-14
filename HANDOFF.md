@@ -39,8 +39,12 @@ Rolling record of where the work stands. Newest first.
 - The bring-up image had stopped linking unnoticed (two `setup()`s). Fixed; the
   flag matrix now builds both bring-up images, 16/16.
 - The board has two USB-C sockets, USB and POWER; not yet traced which feeds what.
+- Rails by the owner's meter: about 5 V on the posts, about 3.3 V on the header.
+- **Panel column drivers are `FM6124HJ`.** Library 3.0.14 initialises FM6124 and
+  FM6126A through the same function, so question 1 is settled from the chip
+  marking; test A confirms it on screen.
 
-**Next:** the two rail measurements, then phase 2 with one panel.
+**Next:** phase 2 with one panel, FM6126A on.
 
 ---
 

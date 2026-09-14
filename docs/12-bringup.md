@@ -88,7 +88,7 @@ Fifteen questions are open; 3, 4 and 4b are answered. The phase that answers eac
 
 | # | Question | Why it is still open | Phase |
 |---|---|---|---|
-| 1 | `FM6126A` or `GENERIC` shift driver | Sources disagree; the balance moved to FM6126A but it is not proof. Contradiction #4 in [07](07-sources.md) | 2 |
+| 1 | `FM6126A` or `GENERIC` shift driver | **The chips say FM6124HJ** (read off the panels 2026-09-14), and the library gives FM6124 and FM6126A the same init. Test A confirms it on screen — [07](07-sources.md) #4 | 2 |
 | 2 | `clkphase = false`? | Fixes a dropped rightmost column on some batches | 2 |
 | 3 | ~~Does USB-CDC enumerate?~~ **Yes, on the board, 2026-09-14.** The USB socket shows up as Espressif's USB JTAG/serial (303A:1001), esptool flashes through it, and `Serial` prints over it | — | 1 ✓ |
 | 4 | ~~Are GPIO10/13 on the header?~~ **Answered from the schematic: no.** Header U8 is IO45, IO46, GND, 3V3 | IO10 is RTC_INT, IO13 is IMU_INT. Encoder moved to 45/46 — see [11](11-control-and-pins.md) | — |
@@ -182,7 +182,9 @@ every later step assumes you can iterate.
   the upload went through straight after. Holding BOOT while plugging in is the
   manual way.
 - The header silkscreen reads GND, 3V3, IO46, IO45 — the schematic's U8 order.
-- Not yet measured: the two rails, question 5 (GPIO46) and question 6 (GPIO47/48).
+- The two rails, by the owner's meter: about 5 V between the 5V and GND posts,
+  about 3.3 V on the header's 3V3. As expected; exact figures not recorded.
+- Not yet measured: question 5 (GPIO46) and question 6 (GPIO47/48).
 
 ---
 
@@ -200,7 +202,13 @@ pio run -e matrix-waveshare-rgb-bringup -t upload
 ```
 
 **Test A — driver chip (question 1).** Flash once with `USE_FM6126A` on and once
-with it off.
+with it off. Our panels' column drivers are marked `FM6124HJ`, which the library
+initialises through the same routine as FM6126A — so expect the picture with it
+**on**, and treat *off* as the comparison.
+
+**Power the panel before the controller boots.** The library writes the driver
+registers once, in `shiftDriver()`, before DMA starts; a panel that gets power
+afterwards has missed them. If in doubt, press RESET on the controller.
 
 | What you see | Conclusion |
 |---|---|
