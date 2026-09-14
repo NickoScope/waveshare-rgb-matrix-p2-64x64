@@ -55,6 +55,21 @@ Rolling record of where the work stands. Newest first.
     runs while the page is up, and 15 s was never enough for a boat to report.
 - **Snooker clock merged** (`66bee4b`). A self-playing frame under WPBSA rules
   with a HUD clock; on the panel 20 fps, draw average 10 ms.
+- **Rail board settings in the web** (merged `5515371`, flag matrix 24/24):
+  - swap interval, rows, brightness, stale threshold;
+  - row, heading and highlight colours;
+  - seconds on the clock;
+  - a green "due soon" window of 0–15 min, default 3.
+  - Kept in NVS `rbcfg`; web settings win over HA's config topic until reset.
+  - On the panel: every bad value is refused with a 400 naming the field,
+    and green rows are flagged live (2 departures, 3 arrivals).
+- **Portal "Effects & clips" page** (`aae1a78`): stored clips with Play and
+  Stop. Tried in a browser against the panel.
+- **Second Fenderson clip:** "Blocks" 2:15–2:29. The animation store now holds
+  planets and blocks, with ~620 KB left, so a third full-length clip needs
+  one deleted.
+- **Phone clip maker in progress** (helper, `/Users/apple/AnimatedPixelClock-clips`,
+  `wip/clip-maker`). Pick a WAV on the phone, render in the browser, upload.
 - **World clock rework merged** (`2fed039`, flag matrix 24/24). The owner
   stopped the helper at 20:12 and chose to verify what was already committed.
   - The big time is home's time and home's name pulses for 10 s after a change.
