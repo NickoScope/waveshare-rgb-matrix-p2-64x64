@@ -182,6 +182,8 @@ every later step assumes you can iterate.
   the upload went through straight after. Holding BOOT while plugging in is the
   manual way.
 - The header silkscreen reads GND, 3V3, IO46, IO45 — the schematic's U8 order.
+- Photos of the controller and panels as they arrived:
+  [photos/2026-09-14-arrival](../photos/2026-09-14-arrival/README.md).
 - The two rails, by the owner's meter: about 5 V between the 5V and GND posts,
   about 3.3 V on the header's 3V3. As expected; exact figures not recorded.
 - Not yet measured: question 5 (GPIO46) and question 6 (GPIO47/48).

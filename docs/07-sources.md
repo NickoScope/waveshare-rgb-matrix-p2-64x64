@@ -127,7 +127,8 @@ Used only where no primary source exists. They must not drive decisions.
    the same `fm6124init()`; `SHIFTREG`, which is GENERIC, runs none. So the `FM6126A`
    setting both projects use runs exactly the init this chip family gets. The other parts
    on the panel: `MW245BC` input buffers, and 16-pin `RUC7258G` parts not identified. Test A
-   in phase 2 is still the on-screen proof — now with FM6126A on first.
+   in phase 2 is still the on-screen proof — now with FM6126A on first. Photos of the
+   markings: [photos/2026-09-14-arrival](../photos/2026-09-14-arrival/README.md).
 
    **Second finding from the same source, and it is a symptom worth memorising.** On these
    panels the library's default clock phase drops the **rightmost column**. Their bring-up
