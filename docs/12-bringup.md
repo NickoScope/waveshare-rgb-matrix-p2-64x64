@@ -335,6 +335,26 @@ bigger problem than Lua.
 **Gate:** a stable clock for ten minutes with no reboot, and the self-test
 passing.
 
+### Result — 2026-09-14
+
+**Passed.**
+
+- `[nslua] ready (Lua 5.4.8, PSRAM allocator)` and `self-test PASSED`.
+- Ten minutes of serial log with no reboot, no panic and no watchdog; the
+  diagnostics endpoint reported reset reason 0. PSRAM 16 MB present, about 71 KB
+  of internal heap free, all 32 MB of flash seen.
+- The clock uses both panels; animated styles run without flicker; nothing froze.
+- **Not quite offline:** with no saved network the firmware opened its
+  `PixelClock-Setup` portal, joined Wi-Fi through it and synced NTP.
+- **More than the clock was seen.** With no knob attached the carousel advanced
+  on its own after a minute idle and walked every page: the clock, the world
+  clock with its day and night, the flight board saying there is no data (no
+  broker credentials yet), and the yacht radar saying there is no key.
+- Log noise, harmless: `nvs_get_str ... ais NOT_FOUND` every 75 s — the yacht
+  radar looks for its key each time the carousel reaches it (25 + 20 + 15 + 15 s).
+  And one `/littlefs/icons does not exist` at boot: the icon store's own
+  existence check, just before it creates the directory.
+
 ---
 
 ## Phase 5 — the encoder

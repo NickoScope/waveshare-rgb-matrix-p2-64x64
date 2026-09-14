@@ -6,7 +6,7 @@ Rolling record of where the work stands. Newest first.
 
 - **The hardware arrived on 2026-09-14.** Phases 1 and 2 passed (phase 1 after
   an octal-flash fix); phase 3 too — 128×64 as one canvas. Phase 4, our own
-  firmware offline, is next. The open questions and the
+  firmware, passed as well. Phase 5 (encoder) or 6 (network) next. The open questions and the
   gated sequence are in [12-bringup.md](docs/12-bringup.md).
 - **Phase 6b is the gate that blocks everything built on Lua** — the heap and
   the HUB75 framebuffer both want PSRAM, whose bandwidth already caps the
@@ -51,7 +51,11 @@ Rolling record of where the work stands. Newest first.
 - **Phase 3 passed:** one continuous 128×64 canvas, chain order right, white
   steady, no visible gap at the seam (by eye, panels loose).
 
-**Next:** phase 4, the real firmware offline.
+- **Phase 4 passed:** the real firmware, ten minutes without a reboot, Lua
+  self-test passing, both panels in use. The carousel walked all four pages on
+  its own: clock, world clock, flight board (no data yet), yacht radar (no key).
+
+**Next:** phase 5, the encoder, or phase 6, the network — the owner's call.
 
 ---
 
