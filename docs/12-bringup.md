@@ -416,6 +416,26 @@ anything to the header. (Earlier versions of this page gave the command as
 
 ---
 
+### Result — 2026-09-14
+
+**Rotation passed; the knob's own switch is not soldered yet.**
+
+- **The first wiring could not work.** The board pulls IO45 and IO46 down with
+  10 kΩ (R59, R60). With the common on GND both lines read 0 at rest and nothing
+  stepped. Moved the common to 3V3; the firmware reads A and B active-high.
+- **The first knob's DT contact was dead.** Touching the IO46 wire to 3V3 moved B
+  29 times, which cleared the board, the header and the firmware. A second knob
+  worked.
+- **The decoder is now the flagship's** (NickoScope32 S3 bridge, rest-position
+  gate, 80 ms debounce, click under 500 ms, long press past 1 s), at the owner's
+  request, instead of the one written for this board.
+- With `CTRL_DEBUG`: 40 s of turning gave A 66 and B 67 changes and 30 steps,
+  12 clockwise in a row and 12 anticlockwise in a row, no direction flips.
+  Clockwise is forward, so `CTRL_REVERSE` stays 0. The BOOT button gives clicks.
+- The gestures changed at the owner's request: rotation browses every clock style
+  and page, a click enters the flight board or the yacht radar.
+- Still to confirm by eye: one detent is exactly one step on the panel.
+
 ## Phase 6 — the network
 
 **Goal:** feed the two data pages, and question 7.

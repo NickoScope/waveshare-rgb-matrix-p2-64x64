@@ -66,7 +66,15 @@ Rolling record of where the work stands. Newest first.
   (`CAROUSEL_ALL_STYLES`, flag matrix 18/18). Lua effects are still not on the
   panel — the runtime is not connected to the display; phase 6b first.
 
-**Next:** phase 5, the encoder, or phase 6, the network — the owner's call.
+- **Phase 5, rotation passed.** The common goes to 3V3 on this board (10 k
+  pull-downs R59/R60); the first knob had a dead DT contact; the decoder is the
+  flagship's. The knob's own switch is still to be soldered (BOOT works meanwhile).
+- **Phase 6 in part:** broker credentials and the AIS key provisioned from the
+  owner's own run of `tools/provision_secrets.py`; the board connects to
+  Mosquitto and the flight board shows data.
+
+**Next:** the flight board airport choice in the web UI; merge the Guildford rail
+board branch; solder the knob's switch.
 
 ---
 
