@@ -78,6 +78,12 @@ Rolling record of where the work stands. Newest first.
   - Not doing: downloading from YouTube or Spotify (their terms, and DRM).
   - In-page microphone or tab capture needs HTTPS, and the portal is plain
     HTTP; recording to a file is the path.
+- **Oscilloscope clips: the XY algorithm is the one** (owner, 21:18). Left
+  channel is X and right is Y, from the original album tracks, as for
+  Planets, Blocks and now Circles (4:49–4:55, on the panel).
+  - A stereo vectorscope clip from a remix was rejected as garbage and deleted.
+  - The remixes are mostly ordinary music and draw only a blob.
+  - The clip maker is told: XY only.
 - **TF card works:** the owner's 32 GB card mounts in 1-bit MMC at 20 MHz and
   reads a 4 KB frame in 2.6 ms on average, 6.4 ms at worst. Numbers are in
   [02](docs/02-controller.md).
