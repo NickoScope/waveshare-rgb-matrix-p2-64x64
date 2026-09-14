@@ -51,6 +51,8 @@ Small general things, one PR each:
 
 Optional modules, if you want them upstream at all: rotary encoder control (pages, clock styles, page carousel), MQTT bus with Home Assistant cards (pages and notifications pushed from HA), world clock page (day/night map, timezones, home city), Lua effects (sandboxed Lua 5.4 runtime with a host simulator and scenes like snooker, football, tetris and snake clocks, this one is the big one), clip gallery played from TF card. All of them are compile time options now. Totally understand if you prefer to keep them in the fork.
 
+Also in progress on this board, not ready yet: IR remote control (receiver on a free GPIO), audio reactive effects from the onboard mics through the ES8311 codec, the QMI8658 accelerometer (orientation, tap/shake), a presence sensor to wake or dim the panel when nobody is in the room, and sound through the codec + onboard speaker amp (chimes, effects sounds). Same rule for those, behind flags.
+
 Staying in my fork because its personal or needs paid APIs: flight board with FlightAware AeroAPI, UK rail board (Realtime Trains), AIS yacht radar for one bay, Home Assistant media remote.
 
 Questions:
@@ -89,6 +91,8 @@ Nikolay
 6. Портал полегче. Страницы отдаются изнутри loop(), а плата передаёт около 80КБ/с, поэтому экран замирает, пока страница передаётся. Ваша страница настроек ~77КБ, так что это примерно 1с заморозки при каждом открытии портала. На вашей сборке не мерил, это просто размер x скорость. Gzip для статических файлов помогает. Чтобы сжать и страницу настроек, значения должны приходить JSON вместо подстановки в шаблон. Это изменение побольше в web.cpp/web_pages.h, так что только если идея нравится.
 
 Необязательные модули, если они вообще нужны в основном репо: управление энкодером (страницы, стили часов, карусель страниц), MQTT шина с карточками Home Assistant (страницы и уведомления из HA), страница мирового времени (карта дня и ночи, часовые пояса, домашний город), Lua эффекты (изолированная среда Lua 5.4 с симулятором на компьютере и сценами типа снукер, футбол, часы тетрис и змейка, это самый большой кусок), галерея клипов с TF карты. Сейчас всё это опции при сборке. Полностью пойму, если предпочтёте оставить их в форке.
+
+Ещё в работе на этой плате, пока не готово: управление с IR пульта (приёмник на свободном GPIO), аудиореактивные эффекты от встроенных микрофонов через кодек ES8311, акселерометр QMI8658 (ориентация, тап/встряхивание), датчик присутствия, чтобы будить или гасить панель, когда в комнате никого, и звук через кодек + встроенный усилитель на динамик (сигналы, звуки эффектов). Для них то же правило, за флагами.
 
 Остаётся в моём форке, потому что это личное или нужны платные API: табло аэропорта с FlightAware AeroAPI, британское ЖД табло (Realtime Trains), AIS радар яхт для одной бухты, пульт медиаплеера Home Assistant.
 
