@@ -25,6 +25,41 @@ Settled by the purchase: the LD2450, inside the MTR-1.
 The LD2450 is the more interesting one here: it knows **where** you are, not
 only **that** you are.
 
+### Already in the house: an Aqara FP2 (checked 2026-09-14)
+
+The owner plugged his FP2 into the Raspberry Pi's USB. It is a Wi-Fi device,
+already paired with Home Assistant through HomeKit Controller since June:
+device `Presence-Sensor-FP2-8F01`, firmware 1.3.6, room "Гостиная".
+
+- **USB gives it power, nothing more.** On the Pi, `lsusb` lists no Aqara
+  device. The FP2 came back in HA over Wi-Fi 15 s after it was plugged in.
+  Aqara specifies 5 V 1 A over USB-C [11].
+- **HA sees presence and light, not people.** Over HomeKit the FP2 exposes one
+  occupancy sensor per zone, plus a light sensor [12]. With no zones set up,
+  as now, that is a single presence for the whole room:
+  `binary_sensor.presence_sensor_fp2_8f01_presence_sensor_1` and
+  `sensor.presence_sensor_fp2_8f01_light_sensor_light_level`.
+- **Where the details live.** Coordinates and the count of people (up to 5)
+  exist only in the Aqara Home app [12][13]. HomeKit Controller supports
+  occupancy sensors, and the FP2 must be removed from Apple Home before pairing
+  with HA [14].
+- **Not verified:**
+  - Matter on the FP2: not in Aqara's specs, not in HA's Matter docs.
+  - Whether zones added later reach HA without re-pairing. One forum thread
+    says they do not.
+- **Already publishing for the panel.** Automation
+  `automation.matrix_fp2_presence_to_mqtt` sends
+  `{"any":bool,"zones":{...},"lux":n,"ts":epoch}`, retained, to
+  `nickoscope_matrix/presence/fp2`. It fires when presence changes and when HA
+  starts, and has been checked on the broker. It cannot tell an empty room
+  from an offline sensor: both give `any:false`.
+
+**How the two split:** the FP2 can drive idea 1 below, sleep and wake, today.
+Only the MTR-1 gives the x/y blips for the radar page. On the panel, presence
+should be FP2 `any` OR MTR-1 has_target, with a hold-off before sleep. The
+blips come from the MTR-1 alone. They work on different bands (60–64 GHz
+[11] vs 24 GHz); whether they disturb each other side by side is not verified.
+
 ## What it could do on the panel
 
 Ordered from cheapest to most ambitious.
@@ -213,6 +248,10 @@ Y, so not these.
 8. https://shop.ideaelec.com/wp-content/uploads/2025/02/HLK-LD2410C-Serial-communication-protocol-V1.07.pdf (Hi-Link's PDF, third-party copy)
 9. https://esphome.io/components/sensor/ld2410/
 10. https://docs.espressif.com/projects/esptool/en/latest/esp32s3/advanced-topics/boot-mode-selection.html
+11. https://www.aqara.com/us/product/presence-sensor-fp2/specs/
+12. https://cdn.shopify.com/s/files/1/0710/9220/7830/files/Presence-Sensor-FP2_User-Manual.pdf?v=1723628346
+13. https://www.aqara.com/us/product/presence-sensor-fp2/
+14. https://www.home-assistant.io/integrations/homekit_controller/
 11. https://documentation.espressif.com/esp32-s3_technical_reference_manual_en.html — §8.4 VDD_SPI Voltage Control
 12. https://documentation.espressif.com/esp32-s3-wroom-2_datasheet_en.html — §4 Boot Configurations, Table 4-1
 13. https://github.com/ApolloAutomation/MTR-1/blob/main/Integrations/ESPHome/Core.yaml

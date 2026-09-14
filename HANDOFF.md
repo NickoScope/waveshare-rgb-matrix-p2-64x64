@@ -36,6 +36,41 @@ Rolling record of where the work stands. Newest first.
 
 ---
 
+## 2026-09-14, evening — second checkpoint
+
+- **Web UI merge pushed** (`62a0e6a`, flag matrix 22/22).
+- **Knob "phantom" steps were measured, and they were not noise.**
+  - A first capture with nobody meant to be at the knob logged 18 clockwise
+    steps in 15 s.
+  - A 2 ms stability filter on the A/B pair went in (`af42154`). It filters
+    the pair, not each pin: a per-pin filter passes a 1 ms-a-state quadrature
+    sequence. The host test covers spikes, fake clicks and coupled pulses.
+  - CTRL_DEBUG builds now log every raw A/B change with its time.
+  - The second capture (10 min) had 6 clockwise steps 25–32 s after boot and
+    nothing after. They were clean quadrature: 34–50 ms between the A and B
+    edges, rests of 1–1.5 s at both 00 and 11. A rest at 00 needs both contacts
+    really closed through the 10k pull-downs, so this was the shaft turning,
+    not coupling. The only glitch in 10 min was one 1 ms bounce, filtered.
+  - **Ask the owner:** was someone at the knob, or does the module twist on
+    its wires? The earlier advice to tie the module's "+" to GND stays: it
+    removes the ~1.1 V divider on an open line while the other contact is
+    closed. That is a real margin problem, but not what these steps were.
+- **Aqara FP2 found in Home Assistant.** It was already paired over HomeKit
+  since June; the Pi's USB only powers it. HA gets one presence for the whole
+  room plus light level, with no coordinates.
+  - New automation `automation.matrix_fp2_presence_to_mqtt` publishes it
+    retained to `nickoscope_matrix/presence/fp2`, checked on the broker.
+  - Nothing on the panel consumes it yet.
+  - Details and sources are in [16](docs/16-presence-radar.md).
+- **Raspberry Pi (nickol), read-only look:** healthy — 52.7 °C, not
+  throttled, NVMe 7 % used.
+  - Swap is 1.4 of 2 GiB, mostly openclaw.
+  - 17 stale ssh sessions are open.
+  - eth0 has no cable, so it runs on Wi-Fi.
+  - The `nickol` alias did not resolve from the Mac.
+
+---
+
 ## 2026-09-14, evening — owner away, working alone (checkpoint)
 
 The owner left the bench with instructions to keep debugging, bring in the
