@@ -82,8 +82,8 @@ Rolling record of where the work stands. Newest first.
       - The static files are cached for a year, but `?v=` changes with every
         firmware, so the first portal open after a flash reloads them all.
       - The portal's polls are 22–60 ms each.
-      - **Proposed to the owner, no answer yet:** (1) gzip the static files;
-        (2) move the settings page to a JSON fetch so `/` can be gzipped too.
+      - **The owner chose both:** (1) gzip the static files; (2) move the
+        settings page to a JSON fetch so `/` can be gzipped too.
 - **PSRAM for the HUB75 buffers: tried and rejected.** Stripes on every page,
   and TLS `-9984` on both pinned hosts ([03](docs/03-firmware.md)).
 - **Football clock merged** (`3aa6d4e`). 20 fps, 18 ms a frame. One frame
