@@ -411,10 +411,16 @@ anything to the header. (Earlier versions of this page gave the command as
 **Goal:** feed the two data pages, and question 7.
 
 ```bash
-pio run -e provision -t upload \
-  --project-option="build_flags=-DPROV_MQTT_HOST=\"…\" -DPROV_MQTT_USER=\"…\" -DPROV_MQTT_PASS=\"…\" -DPROV_AIS_KEY=\"…\""
+cp provision_secrets.example.ini provision_secrets.ini   # then fill it in, in an editor
+pio run -e provision -t upload
+pio run -e provision -t clean                            # the values leave the build cache
 pio run -e matrix-waveshare-rgb -t upload
 ```
+
+`provision_secrets.ini` is gitignored and read through `extra_configs`, so no
+password goes on a command line or into shell history. Earlier versions of this
+page passed the values with `--project-option`, which PlatformIO 6.1 does not
+have — that command could never have worked.
 
 **Flight board.** The retained payload should land within milliseconds of
 subscribing — verified against the live broker on 2026-09-10, 1060 bytes, 15
