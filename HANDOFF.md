@@ -124,7 +124,7 @@ Rolling record of where the work stands. Newest first.
   - `/` loads in 0.14 s instead of 1.8 s.
   - All 105 settings the old template filled match.
   - Numbers are in [03](docs/03-firmware.md).
-- **Flag matrix: 35/35 as intended**, on `bfe7375` and again on `8ec3045` (boot health).
+- **Flag matrix: 35/35 as intended** on `bfe7375`, on `8ec3045` (boot health) and on `8c5f8cf` (gzip portal).
 - **Next:**
   - IR receiver, once the owner has fitted it.
   - The first issue to Keralots is drafted in the owner's voice
