@@ -118,11 +118,18 @@ Rolling record of where the work stands. Newest first.
     on.
   - One unexplained reboot at ~23:27 left no report, so it was not a panic:
     power, an external reset, or the owner.
+- **The portal is gzipped, and `/` is static** (merged `8c5f8cf`, flashed over OTA,
+  confirmed).
+  - First open, cache empty: 301 KB before, 80 KB after.
+  - `/` loads in 0.14 s instead of 1.8 s.
+  - All 105 settings the old template filled match.
+  - Numbers are in [03](docs/03-firmware.md).
 - **Flag matrix: 35/35 as intended**, on `bfe7375` and again on `8ec3045` (boot health).
 - **Next:**
-  - gzip the portal and make `/` static, both at the owner's request.
-    A helper is on `wip/portal-gzip` in `AnimatedPixelClock-portal`; the panel
-    check is ours.
+  - IR receiver, once the owner has fitted it.
+  - The first issue to Keralots is drafted in the owner's voice
+    ([drafts/upstream-issue-01.md](docs/drafts/upstream-issue-01.md)). It goes
+    out only on the owner's word.
   - IR receiver, once the owner has fitted it.
 
 ## 2026-09-14, evening — second checkpoint

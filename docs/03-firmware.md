@@ -204,9 +204,9 @@ server.
 |---|---|---|
 | Clock style change | ~1 s seen twice, blamed on the 129-key settings write | the write was not the cause; one key now, 0–3 ms, and style changes stay under 15 ms |
 | Entering the yacht radar | 636 ms: the AIS TLS handshake inside `loop()` | 16–38 ms: the websocket runs on a task that lives with the page |
-| Portal `/`, 128 KB | 1765 ms | open |
-| `/panel.js`, 100 KB | 987 ms | open |
-| `/portal.js`, 44 KB | 537 ms | open |
+| Portal `/`, 128 KB | 1765 ms | 18.9 KB gzip, 0.14 s; a revalidation gets a 304 (`8c5f8cf`) |
+| `/panel.js`, 100 KB | 987 ms | 31.4 KB gzip, 0.21 s |
+| `/portal.js`, 44 KB | 537 ms | 15.7 KB gzip, 0.17 s; the settings arrive separately from `/api/portal`: 6.3 KB, 0.11 s |
 | API polls, 0.1–4 KB | 22–60 ms | — |
 
 **Page transfers.** The web server is synchronous, so a page transfer holds
@@ -222,6 +222,15 @@ Sending fewer bytes is the lever:
 - **Static assets:** gzip them; they are already cached for a year.
 - **`/`:** it is a template carrying ~70 `%V_*%` settings tokens, so it
   would first need its values fetched as JSON.
+
+Both done since `8c5f8cf`: the page is one static gzip for every build, and
+its values come from `/api/portal`. Checked on the panel:
+- all 105 settings the old template filled read the same from `/api/portal`;
+  the other 42 controls on the page are file pickers, search boxes, or Panel
+  controls that `panel.js` fills;
+- in a browser the form filled in and Save was enabled;
+- internal heap was 40 KB right after `/api/portal` was served;
+- no request held `loop()` for more than 200 ms.
 
 ## Over-the-air updates, checked 2026-09-14
 
