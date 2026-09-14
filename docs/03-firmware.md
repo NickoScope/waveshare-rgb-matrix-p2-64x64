@@ -222,3 +222,56 @@ Sending fewer bytes is the lever:
 - **Static assets:** gzip them; they are already cached for a year.
 - **`/`:** it is a template carrying ~70 `%V_*%` settings tokens, so it
   would first need its values fetched as JSON.
+
+## Over-the-air updates, checked 2026-09-14
+
+**Partitions.** `default_16MB.csv` from arduino-esp32:
+- two app slots, `app0` and `app1`, 6.4 MB each;
+- `otadata`;
+- `spiffs`, 3.4 MB;
+- a 64 KB `coredump` partition at `0xFF0000`.
+
+The module carries 32 MB of flash; the table uses the lower 16 MB. The
+firmware is 2.29 MB, and `/api/info` reports `otaFreeBytes` of 6,553,600.
+
+**Updating.** `POST /update` takes a multipart upload. Either use the portal's
+update page (drop a `firmware.bin`), or run from a computer:
+
+```bash
+curl -F firmware=@.pio/build/matrix-waveshare-rgb/firmware.bin http://<panel-ip>/update
+```
+
+It answers `OK`, restarts after a second, and boots the other slot. There is
+no `ArduinoOTA`/`espota`, so PlatformIO cannot upload over the network by
+itself.
+
+**Tested on the panel:**
+- Upload: 2,292,032 B in 28.3 s, about 81 KB/s, the same rate the portal pages
+  get.
+- Back up on the new build 38 s after the upload started.
+- A software reboot after that stayed on the new build.
+
+**Rollback protects less than it seems.**
+- The SDK is built with `CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=1`.
+- arduino-esp32 2.0.17 marks the running image valid in `initArduino()`
+  (`cores/esp32/esp32-hal-misc.c`, `verifyRollbackLater()`, weak, returns
+  false), which runs before `setup()`.
+- So only an image that fails before `initArduino()` is rolled back. One that
+  boots and then hangs or crash-loops stays, and needs USB.
+- To do better, override `verifyRollbackLater()` to return true, then call
+  `esp_ota_mark_app_valid_cancel_rollback()` once the panel has shown a page
+  and reached the network. **Not done.**
+
+**No authentication.** `/update` takes a firmware from anyone on the home
+network, like every other route of this portal. **Not changed.**
+
+**Crash reports are kept.** The SDK has `CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH`,
+ELF format. Reading one resets the panel, because esptool takes the port:
+
+```bash
+~/.platformio/penv/bin/python ~/.platformio/packages/tool-esptoolpy/esptool.py --chip esp32s3 --port /dev/cu.usbmodem2101 read_flash 0xFF0000 0x10000 coredump.bin
+```
+
+```bash
+~/.platformio/penv/bin/python -m esp_coredump --chip esp32s3 info_corefile --core coredump.bin --core-format raw --gdb ~/.platformio/packages/tool-xtensa-esp-elf-gdb/bin/xtensa-esp32s3-elf-gdb .pio/build/matrix-waveshare-rgb/firmware.elf
+```

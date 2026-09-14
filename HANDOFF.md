@@ -13,10 +13,10 @@ Rolling record of where the work stands. Newest first.
   to PSRAM freed 130 KB of internal heap, but it striped the picture and broke
   TLS certificate checks, so it was reverted
   ([03](docs/03-firmware.md#tried-on-this-board-2026-09-14-rejected)).
-- **Internal heap is the scarce resource on this board.** Free after boot
-  ~37 KB; a TLS fetch needs its 12 KB stack plus ~4 KB. Still possible:
-  - the Lua stack from 16 to 12 KB (six effects use at most 4.8 KB);
-  - the SD reader task only while a clip plays (6 KB).
+- **Internal heap is the scarce resource on this board.** ~41 KB free after
+  boot, up from ~37 KB when the Lua stack went from 16 to 12 KB (`123ce83`).
+  A TLS fetch needs its 12 KB stack plus ~4 KB. Still possible: run the SD
+  reader task only while a clip plays (6 KB).
 - The two watchdog fixes have never run on hardware. Phase 6 exercises them.
 - Cards, icons and the carousel are proven on the wire and drawn only on the
   host. Phase 6c.
