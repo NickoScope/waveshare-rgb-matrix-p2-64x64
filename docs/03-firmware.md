@@ -191,3 +191,34 @@ mbedTLS, which also allocates there (`tls_psram.cpp`). The cause is **not establ
 the build was reverted before it could be.
 
 **Verdict:** the DMA buffers stay in internal SRAM. Internal heap has to be won elsewhere.
+
+## Where loop() stalls — measured on the panel, 2026-09-14
+
+`loop()` renders every page, so anything slow inside it freezes the picture.
+The firmware now names the slowest part of each 10 s window: `/api/info`
+reports `loopSlowPart` and `loopSlowPartMs`. Any part over 200 ms also prints
+`[loop] <part> took N ms` on serial, with the URI when the part is the web
+server.
+
+| What | Before | After |
+|---|---|---|
+| Clock style change | ~1 s seen twice, blamed on the 129-key settings write | the write was not the cause; one key now, 0–3 ms, and style changes stay under 15 ms |
+| Entering the yacht radar | 636 ms: the AIS TLS handshake inside `loop()` | 16–38 ms: the websocket runs on a task that lives with the page |
+| Portal `/`, 128 KB | 1765 ms | open |
+| `/panel.js`, 100 KB | 987 ms | open |
+| `/portal.js`, 44 KB | 537 ms | open |
+| API polls, 0.1–4 KB | 22–60 ms | — |
+
+**Page transfers.** The web server is synchronous, so a page transfer holds
+`loop()` for its whole length. Measured: 70–100 KB/s from the panel to a Mac
+on the same Wi-Fi.
+
+A likely limit is lwIP's 5760-byte send buffer
+(`CONFIG_LWIP_TCP_SND_BUF_DEFAULT` in arduino-esp32 2.0.17's sdkconfig). It is
+precompiled, so it cannot be changed from the sketch. Not measured
+separately.
+
+Sending fewer bytes is the lever:
+- **Static assets:** gzip them; they are already cached for a year.
+- **`/`:** it is a template carrying ~70 `%V_*%` settings tokens, so it
+  would first need its values fetched as JSON.

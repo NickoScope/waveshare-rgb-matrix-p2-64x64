@@ -66,10 +66,24 @@ Rolling record of where the work stands. Newest first.
     - Flights made 2 calls.
   - Off screen, 1 min 45 s went by with the rail poll due and none sent. A
     poll can still start in the 3 s after the page leaves.
-  - **New lead, not yet measured:** `loopMaxMs` hit ~1 s twice. Both times a
-    clock style had just changed: once from the knob, once through the API.
-    The suspect is the settings write to NVS. If it is, that could be the
-    "screens switch late" the owner reported.
+  - **The ~1 s loop stalls, found with a part profiler** (`fc67bda`: `/api/info`
+    `loopSlowPart`, serial `[loop] <part> took N ms`):
+    - **Not the settings write.** A style change now writes one key in 0–3 ms
+      (`f341bae`), and four style changes stayed under 15 ms.
+    - **Entering the yacht radar: 636 ms.** The AIS TLS handshake ran in
+      `loop()`. It is now on a task that lives with the page (`bfe7375`), and
+      three entries measured 16–38 ms.
+    - **Loading a portal page** blocks `loop()` for as long as the transfer
+      takes, at ~70–100 KB/s:
+      - `/` (128 KB): 1765 ms. It is a template with ~70 `%V_*%` tokens, so
+        it cannot simply be gzipped.
+      - `/panel.js` (100 KB): 987 ms.
+      - `/portal.js` (44 KB): 537 ms.
+      - The static files are cached for a year, but `?v=` changes with every
+        firmware, so the first portal open after a flash reloads them all.
+      - The portal's polls are 22–60 ms each.
+      - **Proposed to the owner, no answer yet:** (1) gzip the static files;
+        (2) move the settings page to a JSON fetch so `/` can be gzipped too.
 - **PSRAM for the HUB75 buffers: tried and rejected.** Stripes on every page,
   and TLS `-9984` on both pinned hosts ([03](docs/03-firmware.md)).
 - **Football clock merged** (`3aa6d4e`). 20 fps, 18 ms a frame. One frame
