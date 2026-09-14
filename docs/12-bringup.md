@@ -352,6 +352,7 @@ passing.
   broker credentials yet), and the yacht radar saying there is no key.
 - Log noise, harmless: `nvs_get_str ... ais NOT_FOUND` every 75 s — the yacht
   radar looks for its key each time the carousel reaches it (25 + 20 + 15 + 15 s).
+  Silenced in the fork the same day: `isKey()` first, which does not log.
   And one `/littlefs/icons does not exist` at boot: the icon store's own
   existence check, just before it creates the directory.
 
