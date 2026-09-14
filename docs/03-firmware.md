@@ -169,3 +169,25 @@ DMA buffer, bandwidth caps the output clock at roughly 13 MHz, which limits how 
 you can chain without flicker. Quad SPI PSRAM must never back the DMA buffer — too slow.
 This board has octal PSRAM, so the path is open, but 20 MHz is not achievable while running
 the buffer out of PSRAM.
+
+### Tried on this board, 2026-09-14: rejected
+
+`-DSPIRAM_DMA_BUFFER` on the Waveshare build (2 × 64×64 chained, 8-bit, double-buffered).
+
+| | Internal SRAM buffers | PSRAM buffers |
+|---|---|---|
+| Internal heap free at the end of `setup()` | 37.0 KB | 167.7 KB |
+| Internal SRAM the display still takes | ~147 KB (with the buffers) | 15.4 KB |
+| Refresh the driver reports | 84 Hz | 84 Hz |
+| Picture | clean | **stripes and flicker on every page** (owner, by eye) |
+| TLS to the two pinned hosts (RTT, AeroAPI) | handshakes succeed | **every handshake failed**: `-9984`, X509 certificate verification failed |
+
+Measured with `MEM_TRACE` checkpoints in `setup()`: internal free after each step, printed
+over serial. The Wi-Fi connect step costs 46.5 KB in both builds.
+
+The TLS failures are the stranger result. Both hosts served the same chain as in the morning,
+when the same code verified it. The failures began with the DMA reading from PSRAM, alongside
+mbedTLS, which also allocates there (`tls_psram.cpp`). The cause is **not established**, and
+the build was reverted before it could be.
+
+**Verdict:** the DMA buffers stay in internal SRAM. Internal heap has to be won elsewhere.
