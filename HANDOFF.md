@@ -101,20 +101,23 @@ Rolling record of where the work stands. Newest first.
 - **"IP (for Python)" on the boot screen:** upstream's label for the PC
   Companion App, which sends to UDP 4210. Explained to the owner; not
   changed.
-- **OTA tested on the panel.** 2.29 MB went up through `/update` in 28 s, and
-  a reboot afterwards stayed on the new build. Two limits, neither changed:
-  rollback catches only an image that fails before `initArduino()`, and
-  `/update` has no password ([03](docs/03-firmware.md)).
-- **Crash report found in flash, from an earlier build of the day.**
-  - `loopTask`, EXCCAUSE 29 (StoreProhibited): a write to address 0 at PC
-    `0x420b0a29`.
-  - The dump's app SHA is `52f21f1c046d1d7b`. No ELF on disk matches, so it
-    cannot be symbolized; the current ELF puts that PC in unrelated code.
-  - The raw dump is kept only in the session scratchpad, not in the KB: it
-    holds RAM contents.
-  - The current build ran 4 min on the football clock without a reset.
-  - One unexplained reboot at ~23:27 left no new dump. So it was not a panic
-    of the current build: power, an external reset, or the owner.
+- **OTA works, and now rolls back** (`8ec3045`, [03](docs/03-firmware.md)).
+  - `/update` took a 2.29 MB image in 23–28 s.
+  - An image is confirmed only after a minute up, with Wi-Fi and 200 frames.
+    A test image that aborts before that was rolled back on the panel, from
+    `app1` to `app0`.
+  - `/update` still has no password; the owner chose the other two fixes.
+- **Crash reports now show in `/api/info` → `lastCrash`**, read out at boot and
+  erased from flash.
+  - Left over from earlier in the day: `loopTask`, `StoreProhibited` at
+    address 0, `pc 0x40377c0a`, image `52f21f1c046d1d7b`. That is the shape
+    of an `abort()` or a failed assert: the rollback test's deliberate abort
+    reads the same, `pc` in `panic_abort`. So it was likely an abort in
+    `loop()`. The cause is unknown, because no ELF with that SHA survives.
+  - ELFs of flashed images are kept in `~/AnimatedPixelClock-elf/` from now
+    on.
+  - One unexplained reboot at ~23:27 left no report, so it was not a panic:
+    power, an external reset, or the owner.
 - **Flag matrix on `bfe7375`: 35/35 as intended.**
 - **Next:**
   - gzip the portal and make `/` static, both at the owner's request.

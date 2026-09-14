@@ -251,22 +251,57 @@ itself.
 - Back up on the new build 38 s after the upload started.
 - A software reboot after that stayed on the new build.
 
-**Rollback protects less than it seems.**
-- The SDK is built with `CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=1`.
-- arduino-esp32 2.0.17 marks the running image valid in `initArduino()`
-  (`cores/esp32/esp32-hal-misc.c`, `verifyRollbackLater()`, weak, returns
-  false), which runs before `setup()`.
-- So only an image that fails before `initArduino()` is rolled back. One that
-  boots and then hangs or crash-loops stays, and needs USB.
-- To do better, override `verifyRollbackLater()` to return true, then call
-  `esp_ota_mark_app_valid_cancel_rollback()` once the panel has shown a page
-  and reached the network. **Not done.**
+**Rollback, as built from `8ec3045`.**
+- The SDK is built with `CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=1`. Out of
+  the box, arduino-esp32 2.0.17 confirms every image in `initArduino()`
+  (`cores/esp32/esp32-hal-misc.c`: the weak `verifyRollbackLater()` returns
+  false). That runs before `setup()`, so rollback would only catch an image
+  that fails even earlier.
+- `src/health` overrides `verifyRollbackLater()` to return true and confirms
+  the image itself once it has run: a minute up, Wi-Fi connected, and 200
+  frames drawn (or the display off). The minute is a choice, not a measured
+  figure.
+- An image that crashes, or hangs until the task watchdog panics, before
+  then is rolled back on the reset that follows. A hang that never resets
+  stays until power is cycled.
+- `/api/info` → `ota`:
+  - `partition`;
+  - `state`: `pending`, `valid`, or `undefined` when flashed over USB;
+  - `rolledBackFrom`;
+  - `confirmedAtS`.
+- **Tested over OTA, 2026-09-14:**
+  - The release image booted `pending` and confirmed itself after 60 s and
+    3180 frames.
+  - An image built with `-DHEALTH_ROLLBACK_TEST` aborts at 20 s, before it
+    can confirm. It booted in `app1`, aborted, and the next boot came up in
+    `app0`, reported as "rolled back from app1".
 
 **No authentication.** `/update` takes a firmware from anyone on the home
 network, like every other route of this portal. **Not changed.**
 
-**Crash reports are kept.** The SDK has `CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH`,
-ELF format. Reading one resets the panel, because esptool takes the port:
+**Crash reports.** On a panic the SDK writes an ELF core dump to flash
+(`CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH`). At the next boot `src/health` reads
+its summary, logs it, keeps it in NVS `health`, and erases the dump.
+
+`/api/info` → `lastCrash` holds:
+- `task`;
+- `cause` and `causeName`: the Xtensa EXCCAUSE, named after ESP-IDF's
+  `panic_arch.c`;
+- `pc` and `addr`;
+- up to eight backtrace addresses;
+- `image`: the first 16 hex digits of the crashed image's ELF SHA-256;
+- `bootReason` and `seenUtc`, for the boot that found it.
+
+**An `abort()` or failed assert reads as `StoreProhibited` at address 0, with
+`pc` in `panic_abort`.** The panic path writes to address 0 on purpose. The
+rollback test image confirms it: its `pc` resolved to `panic_abort` at
+`panic.c:408`, called from the deliberate abort in `boot_health.cpp`.
+
+Decoding a backtrace needs the ELF whose SHA-256 starts with `image`. Keep
+the ELF of every image that goes onto the panel: `~/AnimatedPixelClock-elf/`.
+
+To read a dump by hand before a health build has booted and erased it
+(this resets the panel):
 
 ```bash
 ~/.platformio/penv/bin/python ~/.platformio/packages/tool-esptoolpy/esptool.py --chip esp32s3 --port /dev/cu.usbmodem2101 read_flash 0xFF0000 0x10000 coredump.bin
