@@ -1,6 +1,6 @@
 # Draft: first issue to Keralots/AnimatedPixelClock
 
-**Status: DRAFT, not sent.** Posted only when the owner says so. Written
+**Status: SENT 2026-09-15** as https://github.com/Keralots/AnimatedPixelClock/issues/3 (from NickoScope, on the owner's "отправляй"). Written
 2026-09-14, rewritten 2026-09-15 in the owner's own voice at his request:
 plain text, no formatting. Plan behind it:
 [09-upstream-contributions.md](../09-upstream-contributions.md).
