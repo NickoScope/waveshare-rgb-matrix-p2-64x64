@@ -1,180 +1,102 @@
 # Draft: first issue to Keralots/AnimatedPixelClock
 
 **Status: DRAFT, not sent.** Posted only when the owner says so. Written
-2026-09-14. Plan behind it: [09-upstream-contributions.md](../09-upstream-contributions.md).
+2026-09-14, rewritten 2026-09-15 in the owner's own voice at his request:
+plain text, no formatting. Plan behind it:
+[09-upstream-contributions.md](../09-upstream-contributions.md).
 
-Figures used below, and where they come from:
+Figures used in the text, and where they come from:
 
 | Figure | Source |
 |---|---|
-| `matrix-s3` at 82% flash | measured at `74f964b`, [09](../09-upstream-contributions.md) |
+| matrix-s3 at 82% flash | measured at `74f964b`, [09](../09-upstream-contributions.md) |
 | Internal heap ~30 → ~38 KB | panel, 2026-09-14, fork commit `6e91d54` |
 | ~80 KB/s page transfers | panel, 2026-09-14, [03](../03-firmware.md) |
-| Upstream settings page ~77 KB | length of `PAGE_HTML` in `upstream/main`. The one-second freeze is an estimate from size and rate, not measured on their build |
+| Upstream settings page ~77 KB | length of `PAGE_HTML` in `upstream/main`. The one-second freeze is size times rate, not measured on their build, and the text says so |
 | OTA rollback test | panel, 2026-09-14, fork commit `8ec3045` |
 
----
+Copy the text from inside the blocks; it is meant to be posted as is.
 
 ## English (to post)
 
-**Title:** Waveshare ESP32-S3-RGB-Matrix support and a set of fixes from a fork: how would you like them?
+Title:
 
-Hi! Thanks for AnimatedPixelClock. It has been a joy to build on.
+```text
+Waveshare ESP32-S3-RGB-Matrix support + some fixes from my fork, how do you want them?
+```
 
-I run it on a **Waveshare ESP32-S3-RGB-Matrix** (ESP32-S3-WROOM-2 N32R16V, octal
-flash and octal PSRAM) with two chained 64×64 panels (FM6126A). The fork has
-grown quite a bit since, so before opening any pull requests I'd like to ask how
-you'd prefer to receive them.
+Body:
 
-Fork: https://github.com/NickoScope/AnimatedPixelClock, branch
-`board/waveshare-esp32-s3-rgb-matrix`.
+```text
+Hi, first thanks for AnimatedPixelClock, really nice project to build on.
 
-I know the 4 MB `matrix-s3` build is tight: 82% of flash when I measured `74f964b`.
-Anything below that adds noticeable flash would sit behind a build flag, off by
-default there, and each PR would state its `matrix-s3` size.
+I run it on Waveshare ESP32-S3-RGB-Matrix board (ESP32-S3-WROOM-2 N32R16V, octal flash + octal PSRAM) with two 64x64 panels chained, FM6126A. My fork grew quite a lot since then, so before I open any PRs I want to ask how you prefer to get them.
+Fork: https://github.com/NickoScope/AnimatedPixelClock branch board/waveshare-esp32-s3-rgb-matrix
 
-**Small, general changes, one PR each:**
+I know the matrix-s3 4MB build is tight, it was 82% flash when I measured on 74f964b. So everything that adds noticable flash would go behind a build flag and be off by default there, and I will put the matrix-s3 size in every PR.
 
-1. **Waveshare ESP32-S3-RGB-Matrix board support.** A `platformio.ini` environment
-   and its pin set, which is the HUB75 library's default ESP32-S3 map with E on
-   GPIO9. The module needs `board_build.arduino.memory_type = opi_opi`: with
-   `qio_opi` the image flashed, but every boot failed in `do_core_init`. Tested on
-   the hardware.
-2. **Weather: one task per fetch.** The weather task keeps an 8 KB stack in
-   internal SRAM for the ten minutes between fetches. With a task started for each
-   fetch, and a fetch only while the weather clock is on screen, free internal
-   heap a minute after boot went from ~30 KB to ~38 KB on my build.
-3. **TLS buffers in PSRAM on boards that have it.** The precompiled libraries use
-   `CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC`. One call to
-   `mbedtls_platform_set_calloc_free()` at startup moves TLS allocations to PSRAM.
-   Without PSRAM it does nothing.
-4. **OTA rollback that actually rolls back, plus a crash report.** Rollback is
-   enabled in the SDK, but arduino-esp32 2.0.17 marks every image valid in
-   `initArduino()`. So a new image that boots and then crashes is never rolled
-   back. Overriding `verifyRollbackLater()` and confirming the image after a minute
-   of running with Wi-Fi up fixes that. I tested it over `/update`: an image that
-   aborts at 20 s was replaced by the previous one on the next boot. At boot, the
-   core dump summary (task, cause, PC, backtrace, image SHA) is also read into
-   `/api/info`, and the dump is erased.
-5. **Loop diagnostics in `/api/info`.** The longest `loop()` pass in the last 10 s,
-   and which part of `loop()` it was spent in. This is how I found the issue in 6.
-6. **A lighter portal.** Pages are sent from inside `loop()`, and the board sends
-   at about 80 KB/s, so the display freezes while a page transfers. By size, your
-   ~77 KB settings page should freeze it for about a second each time the portal
-   opens (estimated, not measured on your build).
-   - **Assets:** gzipping the static files helps.
-   - **Settings page:** serving it compressed as well means loading the setting
-     values as JSON instead of template tokens. That is a bigger change to
-     `web.cpp`/`web_pages.h`, so I'd only do it if you like the idea.
+Small general things, one PR each:
 
-**Optional modules, if you want them upstream at all:**
+1. Waveshare ESP32-S3-RGB-Matrix board support. One env in platformio.ini and the pin set, its basically the default ESP32-S3 HUB75 map from the library with E on GPIO9. The module needs board_build.arduino.memory_type = opi_opi, with qio_opi the image flashes ok but every boot dies in do_core_init. Tested on real hardware.
 
-- rotary encoder control: page and clock style browsing, and a page carousel;
-- an MQTT bus with Home Assistant "cards" (pages and notifications pushed from HA);
-- a world clock page: day/night map, time zones, home city;
-- Lua effects: a sandboxed Lua 5.4 runtime with a host simulator and scenes
-  (snooker, football, Tetris and snake clocks). This is the big one;
-- a clip gallery played from a TF card.
+2. Weather task only for the fetch. Now the weather task keeps its 8KB stack in internal SRAM all 10 minutes between fetches. I start a task per fetch and fetch only when the weather clock is really on screen, free internal heap one minute after boot went from ~30KB to ~38KB on my build.
 
-They are compile-time options today. I'd understand if you'd rather they stayed
-in the fork.
+3. TLS buffers in PSRAM on boards that have PSRAM. The precompiled libs are built with CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC, one call to mbedtls_platform_set_calloc_free() at startup moves TLS allocations to PSRAM. Without PSRAM it does nothing.
 
-**Staying in the fork**, as they are personal or need paid APIs: a flight board
-(FlightAware AeroAPI), a UK rail board (Realtime Trains), an AIS yacht radar for
-one bay, and a Home Assistant media remote.
+4. OTA rollback that really rolls back + crash report. Rollback is enabled in the SDK but arduino-esp32 2.0.17 marks every image valid in initArduino(), so a new image that boots and then crashes never rolls back. I override verifyRollbackLater() and confirm the image after one minute of running with WiFi up. Tested via /update, an image that aborts at 20s was replaced with the previous one on next boot. Also at boot the core dump summary (task, cause, PC, backtrace, image SHA) goes to /api/info and the dump is erased.
 
-**Questions:**
+5. Loop diagnostics in /api/info: longest loop() pass in the last 10s and which part of loop it was spent in. Thats how I found point 6.
 
-1. Are PRs welcome, and which of the above interest you?
-2. One PR per change, branched from `main`: does that suit you? Any conventions
-   I should follow (formatting, version bumps, release notes)?
-3. The optional modules: behind build flags in this repo, or better left in the
-   fork?
+6. Lighter portal. Pages are sent from inside loop() and the board sends around 80KB/s, so the display freezes while a page is transfering. Your settings page is ~77KB, so it should be about 1s freeze on every portal open. Didnt measure it on your build, its just size x speed. Gzip for the static files helps. To gzip the settings page too, the values need to come as JSON instead of template tokens. Thats a bigger change in web.cpp/web_pages.h, so only if you like the idea.
 
-Most of this code was written with AI assistance (Claude) and checked on the
-hardware. I'm happy to walk through any of it. Thanks!
+Optional modules, if you want them upstream at all: rotary encoder control (pages, clock styles, page carousel), MQTT bus with Home Assistant cards (pages and notifications pushed from HA), world clock page (day/night map, timezones, home city), Lua effects (sandboxed Lua 5.4 runtime with a host simulator and scenes like snooker, football, tetris and snake clocks, this one is the big one), clip gallery played from TF card. All of them are compile time options now. Totally understand if you prefer to keep them in the fork.
 
----
+Staying in my fork because its personal or needs paid APIs: flight board with FlightAware AeroAPI, UK rail board (Realtime Trains), AIS yacht radar for one bay, Home Assistant media remote.
+
+Questions:
+1. Are PRs welcome and what from the list is interesting for you?
+2. One PR per change branched from main is ok? Any rules I should follow, formatting, version bump, release notes?
+3. Optional modules behind build flags in your repo, or better they stay in the fork?
+
+Thanks!
+Nikolay
+```
 
 ## Русский (для чтения, не отправляется)
 
-**Заголовок:** Поддержка Waveshare ESP32-S3-RGB-Matrix и набор исправлений из форка: в каком виде вам удобнее их получить?
+```text
+Заголовок: Поддержка Waveshare ESP32-S3-RGB-Matrix + несколько исправлений из моего форка, как вам удобнее их получить?
 
-Привет! Спасибо за AnimatedPixelClock, на нём было очень приятно строить.
+Привет, во-первых спасибо за AnimatedPixelClock, очень приятный проект чтобы на нём строить.
 
-Я запускаю его на **Waveshare ESP32-S3-RGB-Matrix** (ESP32-S3-WROOM-2 N32R16V,
-octal flash и octal PSRAM) с двумя соединёнными панелями 64×64 (FM6126A). С тех
-пор форк заметно разросся, поэтому до открытия PR хочу спросить, в каком виде
-вам удобнее их получать.
+Я запускаю его на плате Waveshare ESP32-S3-RGB-Matrix (ESP32-S3-WROOM-2 N32R16V, octal flash + octal PSRAM) с двумя панелями 64x64 цепочкой, FM6126A. Мой форк с тех пор сильно разросся, поэтому прежде чем открывать PR хочу спросить, как вам удобнее их получать.
+Форк: https://github.com/NickoScope/AnimatedPixelClock ветка board/waveshare-esp32-s3-rgb-matrix
 
-Форк: https://github.com/NickoScope/AnimatedPixelClock, ветка
-`board/waveshare-esp32-s3-rgb-matrix`.
+Я знаю, что сборка matrix-s3 на 4МБ почти забита, было 82% flash когда я мерил на 74f964b. Поэтому всё, что заметно добавляет к прошивке, пойдёт за флагом сборки и по умолчанию будет там выключено, и в каждом PR я укажу размер для matrix-s3.
 
-Я знаю, что сборка `matrix-s3` на 4 МБ почти заполнена: 82% flash, когда я мерил
-`74f964b`. Всё из списка ниже, что заметно добавляет к прошивке, будет за флагом
-сборки и по умолчанию выключено на ней, а в каждом PR будет указан размер для
-`matrix-s3`.
+Небольшие общие вещи, по PR на каждую:
 
-**Небольшие общие изменения, по PR на каждое:**
+1. Поддержка платы Waveshare ESP32-S3-RGB-Matrix. Одно окружение в platformio.ini и набор пинов, по сути стандартная раскладка HUB75 для ESP32-S3 из библиотеки, только E на GPIO9. Модулю нужен board_build.arduino.memory_type = opi_opi, с qio_opi прошивка заливается нормально, но каждый старт падает в do_core_init. Проверено на реальном железе.
 
-1. **Поддержка платы Waveshare ESP32-S3-RGB-Matrix.** Окружение в
-   `platformio.ini` и набор пинов: стандартная для ESP32-S3 раскладка HUB75 из
-   библиотеки, только E на GPIO9. Модулю нужен
-   `board_build.arduino.memory_type = opi_opi`: с `qio_opi` прошивка
-   заливалась, но каждый старт падал в `do_core_init`. Проверено на железе.
-2. **Погода: отдельная задача на каждый запрос.** Задача погоды держит стек 8 КБ
-   во внутренней памяти все десять минут между запросами. Теперь задача
-   запускается на каждый запрос, а запрос идёт только когда погодные часы на
-   экране. Свободная внутренняя память через минуту после старта выросла у меня
-   с ~30 КБ до ~38 КБ.
-3. **Буферы TLS в PSRAM на платах, где она есть.** Готовые библиотеки собраны с
-   `CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC`. Один вызов
-   `mbedtls_platform_set_calloc_free()` при старте переносит память TLS в PSRAM.
-   Без PSRAM он ничего не делает.
-4. **Откат OTA, который действительно откатывает, и отчёт о падении.** Откат в
-   SDK включён, но arduino-esp32 2.0.17 помечает каждую прошивку рабочей в
-   `initArduino()`. Поэтому новая прошивка, которая загрузилась и потом упала,
-   никогда не откатывается. Переопределение `verifyRollbackLater()` и
-   подтверждение прошивки после минуты работы с поднятым Wi-Fi это исправляют.
-   Проверено через `/update`: прошивка, падающая на 20-й секунде, при следующей
-   загрузке сменилась прежней. Кроме того, при старте сводка дампа падения
-   (задача, причина, PC, цепочка вызовов, SHA прошивки) попадает в `/api/info`,
-   а сам дамп стирается.
-5. **Диагностика цикла в `/api/info`.** Самый долгий проход `loop()` за 10 с и
-   участок `loop()`, на который пришлось это время. Так я и нашёл проблему из
-   пункта 6.
-6. **Лёгкий портал.** Страницы отдаются изнутри `loop()`, а плата передаёт около
-   80 КБ/с, так что пока страница передаётся, экран стоит. По размеру ваша
-   страница настроек (~77 КБ) должна замораживать экран примерно на секунду при
-   каждом открытии портала (оценка, на вашей сборке не мерил).
-   - **Файлы:** сжатие gzip для статических файлов помогает.
-   - **Страница настроек:** чтобы отдавать сжатой и её, значения настроек нужно
-     загружать через JSON вместо подстановки в шаблон. Это более крупное
-     изменение `web.cpp`/`web_pages.h`, так что сделаю его, только если вам
-     нравится идея.
+2. Задача погоды только на время запроса. Сейчас задача погоды держит свой стек 8КБ во внутренней SRAM все 10 минут между запросами. Я запускаю задачу на каждый запрос и запрашиваю только когда погодные часы реально на экране, свободная внутренняя память через минуту после старта выросла у меня с ~30КБ до ~38КБ.
 
-**Необязательные модули, если они вообще нужны в основном репозитории:**
+3. Буферы TLS в PSRAM на платах, где PSRAM есть. Готовые библиотеки собраны с CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC, один вызов mbedtls_platform_set_calloc_free() при старте переносит память TLS в PSRAM. Без PSRAM ничего не делает.
 
-- управление энкодером: листание страниц и стилей часов, карусель страниц;
-- MQTT-шина с «карточками» из Home Assistant (страницы и уведомления из HA);
-- страница мирового времени: карта дня и ночи, часовые пояса, домашний город;
-- Lua-эффекты: изолированная среда Lua 5.4 с симулятором на компьютере и сценами
-  (снукер, футбол, часы-тетрис и змейка). Это самый крупный пункт;
-- галерея клипов с TF-карты.
+4. Откат OTA, который реально откатывает, + отчёт о падении. Откат в SDK включён, но arduino-esp32 2.0.17 помечает каждую прошивку рабочей в initArduino(), поэтому новая прошивка, которая загрузилась и потом падает, никогда не откатывается. Я переопределяю verifyRollbackLater() и подтверждаю прошивку после минуты работы с поднятым WiFi. Проверено через /update, прошивка, которая падает на 20с, при следующей загрузке заменилась предыдущей. Ещё при старте сводка дампа падения (задача, причина, PC, цепочка вызовов, SHA прошивки) идёт в /api/info, а дамп стирается.
 
-Сейчас всё это включается при сборке. Пойму, если вы предпочтёте оставить их в
-форке.
+5. Диагностика цикла в /api/info: самый долгий проход loop() за последние 10с и на какую часть loop он пришёлся. Так я и нашёл пункт 6.
 
-**Остаётся в форке**, потому что это личное или требует платных API: табло
-аэропорта (FlightAware AeroAPI), табло британских поездов (Realtime Trains),
-AIS-радар яхт в одной бухте и пульт медиаплеера для Home Assistant.
+6. Портал полегче. Страницы отдаются изнутри loop(), а плата передаёт около 80КБ/с, поэтому экран замирает, пока страница передаётся. Ваша страница настроек ~77КБ, так что это примерно 1с заморозки при каждом открытии портала. На вашей сборке не мерил, это просто размер x скорость. Gzip для статических файлов помогает. Чтобы сжать и страницу настроек, значения должны приходить JSON вместо подстановки в шаблон. Это изменение побольше в web.cpp/web_pages.h, так что только если идея нравится.
 
-**Вопросы:**
+Необязательные модули, если они вообще нужны в основном репо: управление энкодером (страницы, стили часов, карусель страниц), MQTT шина с карточками Home Assistant (страницы и уведомления из HA), страница мирового времени (карта дня и ночи, часовые пояса, домашний город), Lua эффекты (изолированная среда Lua 5.4 с симулятором на компьютере и сценами типа снукер, футбол, часы тетрис и змейка, это самый большой кусок), галерея клипов с TF карты. Сейчас всё это опции при сборке. Полностью пойму, если предпочтёте оставить их в форке.
 
-1. Принимаете ли вы PR, и что из списка вам интересно?
-2. Один PR на одно изменение, ветка от `main`: вам так удобно? Есть ли правила,
-   которых стоит держаться (форматирование, номера версий, заметки к релизу)?
-3. Необязательные модули: за флагами сборки у вас или лучше оставить в форке?
+Остаётся в моём форке, потому что это личное или нужны платные API: табло аэропорта с FlightAware AeroAPI, британское ЖД табло (Realtime Trains), AIS радар яхт для одной бухты, пульт медиаплеера Home Assistant.
 
-Большая часть кода написана с помощью ИИ (Claude) и проверена на железе. Готов
-подробно пройтись по любой части. Спасибо!
+Вопросы:
+1. Принимаете PR и что из списка вам интересно?
+2. Один PR на одно изменение, ветка от main, ок? Есть правила, которых держаться, форматирование, номер версии, заметки к релизу?
+3. Необязательные модули за флагами сборки у вас в репо, или лучше пусть остаются в форке?
+
+Спасибо!
+Николай
+```
