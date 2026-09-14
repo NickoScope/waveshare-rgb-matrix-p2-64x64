@@ -84,7 +84,7 @@ What the schematic already settles, so you do not measure it:
 
 ## What this is meant to settle
 
-Thirteen questions are open; 1, 2, 3, 4 and 4b are answered. The phase that answers each is in the last column.
+Twelve questions are open; 1, 2, 3, 4, 4b and 7 are answered. The phase that answers each is in the last column.
 
 | # | Question | Why it is still open | Phase |
 |---|---|---|---|
@@ -95,7 +95,7 @@ Thirteen questions are open; 1, 2, 3, 4 and 4b are answered. The phase that answ
 | 4b | ~~Does the GPIO45 strap matter?~~ **Answered from the WROOM-2 datasheet: no.** VDD_SPI on the S3R16V is fixed at 1.8 V by eFuse | **Confirmed on the board 2026-09-14:** `VDD_SPI_FORCE = True`, VDD_SPI on the 1.8 V LDO | 1 ✓ |
 | 5 | `mic_power_rail` on GPIO46 | In hub75-studio, absent from the vendor BSP | 1 |
 | 6 | Do GPIO47/48 run at 1.8 V? | VDD_SPI is 1.8 V on this module (WROOM-2 datasheet §8); whether 47/48 follow it is what is open. That is this board's I2C bus | 1 |
-| 7 | TLS session heap for the AIS websocket | Allocated at runtime, never measured | 6 |
+| 7 | ~~TLS session heap for the AIS websocket~~ **Measured 2026-09-14: about 52 KB of internal SRAM** at peak, leaving 7.7 KB as the largest free block. Moved to PSRAM at run time; internal low-water mark now 56.7 KB | — | 6 ✓ |
 | 9 | **Can a Lua heap share PSRAM with the HUB75 DMA?** | Both want the same bandwidth-limited memory. Never measured | 6b |
 | 10 | Do the two watchdog fixes hold? | Written by hand after an audit, never run on hardware | 6 |
 | 8 | The two enclosure measurements | The 3D session is waiting on them | 7 |
@@ -480,6 +480,23 @@ a `TG0WDT` or `TG1WDT` there means a watchdog fired and one of the fixes did
 not hold.
 
 **Gate:** both pages populated, and **no reboot in any of the five tests**.
+
+### Result so far — 2026-09-14
+
+- **Broker and AIS key provisioned** by the owner's own run of
+  `tools/provision_secrets.py` (values never printed); Mosquitto logs the board
+  connecting; the flight board shows data.
+- **Question 7, the TLS heap.** The arduino-esp32 2.0.17 libraries are built with
+  `CONFIG_MBEDTLS_INTERNAL_MEM_ALLOC`. Polling `/api/diagnostics` every 3 s through
+  carousel laps, free internal heap sat at 68.7 KB and fell to 16.5–20.8 KB for the
+  15 s of the yacht radar slot; the low-water mark reached **11.2 KB** and the
+  largest free block **7.7 KB**. Their `esp_config.h` keeps
+  `mbedtls_platform_set_calloc_free()` available, so the fork now points mbedTLS at
+  PSRAM first thing in `setup()`. Same poll afterwards: internal low-water mark
+  **56.7 KB**, largest block never under 51.2 KB, and PSRAM dips 42.7 KB during the
+  radar slot instead. No reboot in either run.
+- **Not done yet:** the five failure tests above, and vessels seen on the panel
+  with the new allocator — nobody was at it.
 
 ---
 
