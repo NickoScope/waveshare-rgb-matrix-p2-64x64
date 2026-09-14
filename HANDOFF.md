@@ -5,7 +5,8 @@ Rolling record of where the work stands. Newest first.
 ## Open, across everything
 
 - **The hardware arrived on 2026-09-14.** Phases 1 and 2 passed (phase 1 after
-  an octal-flash fix); phase 3, two panels chained, is next. The open questions and the
+  an octal-flash fix); phase 3 too — 128×64 as one canvas. Phase 4, our own
+  firmware offline, is next. The open questions and the
   gated sequence are in [12-bringup.md](docs/12-bringup.md).
 - **Phase 6b is the gate that blocks everything built on Lua** — the heap and
   the HUB75 framebuffer both want PSRAM, whose bandwidth already caps the
@@ -47,7 +48,10 @@ Rolling record of where the work stands. Newest first.
 - **Phase 2 passed:** colour order, rightmost column with `clkphase = false`, all
   64 rows. GENERIC draws the same picture; the firmware keeps FM6126A.
 
-**Next:** phase 3, two panels chained.
+- **Phase 3 passed:** one continuous 128×64 canvas, chain order right, white
+  steady, no visible gap at the seam (by eye, panels loose).
+
+**Next:** phase 4, the real firmware offline.
 
 ---
 

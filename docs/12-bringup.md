@@ -285,6 +285,19 @@ that appears only at full white is the supply sagging, not the panel.
 **Gate:** 128 × 64 as one continuous canvas. Photograph the seam — the 3D
 session needs to know whether the gap is optical or physical.
 
+### Result — 2026-09-14
+
+**Passed.** `PANELS = 2`, `FM6126A`, brightness 90 of 255; the log reads
+`HUB75 128x64 (chain=2)`.
+
+- Fills, border, corners, diagonal and halves all as expected: the border runs
+  round both panels unbroken, the diagonal crosses the seam without a step, the
+  left panel is red and the right blue — chain order right.
+- White without flicker on the 5 V 10 A supply.
+- **The seam shows no gap** by eye, with the panels lying loose side by side.
+  Not measured and not photographed yet — phase 7 still owes the enclosure a
+  number for panels mounted in a frame.
+
 ---
 
 ## Phase 4 — our firmware, offline
