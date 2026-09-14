@@ -83,6 +83,21 @@ Rolling record of where the work stands. Newest first.
   trees ran the matrix at once and shared `/tmp/pio_flag_matrix.ini`. The
   script now keeps its scratch file under each tree's `.pio`. The rerun on
   `ba390dd` passed 22/22, and everything up to `ba390dd` is pushed.
+- **Code-audit gate on the whole day (`20eb9c1..ba390dd`): CHANGES-REQUIRED**
+  — no blocker, 2 major, 7 minor, 5 nit.
+  - No secrets were found (gitleaks) and the build is clean.
+  - Both majors are fixed: paid AeroAPI requests are capped in the firmware,
+    and portal POSTs must be JSON.
+  - The cheap minors are fixed too.
+  - **Left open, for the owner:**
+    - An EC11 held once for 250 ms at 00 switches the knob to half-detent
+      until reboot.
+    - The Lua task's 16 KB stack against `LUAI_MAXCCALLS 200` is unmeasured:
+      run a nested-pcall script on the panel.
+    - One shared retained `railboard/select` topic serves every device.
+    - A flight board payload has no date, so a day-old board fetched in the
+      same half hour looks fresh. The fix is an epoch `ts` from HA.
+  - The auditor's own note: this was a code review, not a hardware QA pass.
 - **Aqara FP2 found in Home Assistant.** It was already paired over HomeKit
   since June; the Pi's USB only powers it.
   - Over HomeKit, HA gets one presence for the whole room plus light level.
