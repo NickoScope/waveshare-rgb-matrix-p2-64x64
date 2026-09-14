@@ -88,7 +88,13 @@ Rolling record of where the work stands. Newest first.
    - Today every reboot bought the lists again; 24 calls went that way.
    - Test after the day cap resets at 00:00 UTC: reboot twice and count the
      calls.
-7. **Waiting on the owner's decision:**
+7. **PC control: the companion app's stats and spectrum stream.** Still in
+   the firmware on UDP 4210, but never tried on this panel.
+   - First from the Mac: send synthetic packets, `FFT1` plus 32 bands for the
+     spectrum and v2.2 JSON for the stats, and check both screens at 128×64.
+   - Then with the owner's Windows or Linux PC and the real app. There is
+     no macOS build.
+8. **Waiting on the owner's decision:**
    - GPL-3.0 for media player phase 2 (local radio);
    - a password on `/update`.
 
@@ -185,6 +191,8 @@ Rolling record of where the work stands. Newest first.
     - two comments on his r/esp32 post, from the owner's Reddit account:
       a top-level comment, and a reply in the S3 boards thread
       ([drafts](docs/drafts/reddit-comments-01.md)).
+    - a Show and tell post about the Waveshare board in the HUB75 library,
+      [#962](https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/discussions/962).
   - Watch the issue and the comments for the author's answer before any PR
     work. The PR order is in the issue.
 

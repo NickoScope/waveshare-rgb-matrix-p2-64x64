@@ -32,6 +32,7 @@ anything new it:
 | 2 | Replies to our top-level comment | https://old.reddit.com/r/esp32/comments/1w8vc0j/i_may_have_gone_a_bit_overboard_with_this_esp32s3/p9uhmk6/ | Atom feed of the comment (`.rss`) | no replies |
 | 3 | Replies to our note in the S3 boards thread | https://old.reddit.com/r/esp32/comments/1w8vc0j/i_may_have_gone_a_bit_overboard_with_this_esp32s3/p9uhspe/ | Atom feed of the comment | no replies |
 | 4 | New upstream commits and releases | https://github.com/Keralots/AnimatedPixelClock | `gh api`: commits, latest release | `946ed42`, release `v2.3.0` |
+| 5 | Replies to our Show and tell post about the Waveshare board | https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/discussions/962 | GraphQL: comments, replies, upvotes | posted 2026-09-15 01:00, no replies |
 
 **Why item 4 is watched.** New upstream code is what our PR branches will be
 rebased onto. Changes to `web.cpp`, `web_pages.h` or `weather.cpp` collide
@@ -55,5 +56,7 @@ not depend on this check.
 
 Newest first. One line per event: date, item, who, the gist, what was done.
 
+- 2026-09-15 01:00 — item 5 added: the Show and tell post about the Waveshare
+  board, published on the owner's "отправляй".
 - 2026-09-15 00:45 — watch started. Issue #3 and both Reddit comments are
   published; nothing has come back yet.

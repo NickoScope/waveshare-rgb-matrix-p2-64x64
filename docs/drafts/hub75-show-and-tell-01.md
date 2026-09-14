@@ -1,8 +1,9 @@
 # Draft: use case post for the HUB75 library, "Show and tell"
 
-**Status: DRAFT, not posted.** Posted only when the owner says "отправляй", from
-NickoScope via `gh`. Written 2026-09-15 in the owner's voice: correct, natural
-English, plain paragraphs (the owner, 00:52: "пиши правильно, по-человечески").
+**Status: POSTED 2026-09-15** on the owner's "отправляй", from NickoScope:
+https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/discussions/962.
+
+Written 2026-09-15 in the owner's voice: correct, natural English, plain paragraphs (the owner, 00:52: "пиши правильно, по-человечески").
 
 ## Where, and why there
 

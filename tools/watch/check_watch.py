@@ -13,7 +13,8 @@ or "NOTHING NEW". Exit code 0 unless every source failed (2).
 
 Sources:
 - GitHub: `gh api`, logged in as NickoScope. Covers issue #3's comments,
-  reactions and state, and new upstream commits and releases.
+  reactions and state, new upstream commits and releases, and replies to the
+  Show and tell discussion (GraphQL).
 - Reddit: the public Atom feeds of the owner's two comments. The JSON API
   answers 403 without OAuth, and the feeds allow a few requests before a 429,
   so they are fetched 12 s apart.
@@ -95,6 +96,40 @@ def check_github(state, events):
         pass
 
 
+DISCUSSIONS = {
+    "hub75 show-and-tell #962": ("mrcodetastic", "ESP32-HUB75-MatrixPanel-DMA", 962),
+}
+
+
+def check_discussions(state, events):
+    seen = set(state.get("discussion_comment_ids", []))
+    for label, (owner, name, number) in DISCUSSIONS.items():
+        q = ('query { repository(owner:"%s", name:"%s") { discussion(number:%d) { url upvoteCount '
+             'comments(first:100) { nodes { id url author { login } bodyText '
+             'replies(first:50) { nodes { id url author { login } bodyText } } } } } } }') % (owner, name, number)
+        out = subprocess.run(["gh", "api", "graphql", "-f", "query=" + q], capture_output=True, text=True, timeout=60)
+        if out.returncode != 0:
+            raise RuntimeError(out.stderr.strip()[:200])
+        d = json.loads(out.stdout)["data"]["repository"]["discussion"]
+        nodes = []
+        for c in d["comments"]["nodes"]:
+            nodes.append(c)
+            nodes.extend(c.get("replies", {}).get("nodes", []))
+        for c in nodes:
+            if c["id"] in seen:
+                continue
+            seen.add(c["id"])
+            who = (c.get("author") or {}).get("login", "?")
+            if who == "NickoScope":
+                continue
+            events.append(("discussion-comment", c["url"], who, f"[{label}] " + first_line(c["bodyText"])))
+        key = f"upvotes_{number}"
+        if key in state and d["upvoteCount"] != state[key]:
+            events.append(("discussion-upvotes", d["url"], "-", f"upvotes {state[key]} -> {d['upvoteCount']}"))
+        state[key] = d["upvoteCount"]
+    state["discussion_comment_ids"] = sorted(seen)
+
+
 def check_reddit(state, events):
     seen = set(state.get("reddit_entry_ids", []))
     first = True
@@ -128,7 +163,7 @@ def main():
             state = json.load(f)
     baseline = not state
     events, failures = [], []
-    for name, fn in (("github", check_github), ("reddit", check_reddit)):
+    for name, fn in (("github", check_github), ("discussions", check_discussions), ("reddit", check_reddit)):
         try:
             fn(state, events)
         except Exception as ex:  # a source down is reported, not fatal
@@ -147,7 +182,7 @@ def main():
         print(f"SOURCE FAILED {f}")
     if not events:
         print("NOTHING NEW")
-    sys.exit(2 if len(failures) == 2 else 0)
+    sys.exit(2 if len(failures) == 3 else 0)
 
 
 if __name__ == "__main__":
