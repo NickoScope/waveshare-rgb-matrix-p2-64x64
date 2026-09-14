@@ -94,7 +94,17 @@ Rolling record of where the work stands. Newest first.
      spectrum and v2.2 JSON for the stats, and check both screens at 128×64.
    - Then with the owner's Windows or Linux PC and the real app. There is
      no macOS build.
-8. **Waiting on the owner's decision:**
+8. **Power for the final installation** ([12](docs/12-bringup.md) Phase 0,
+   [04](docs/04-best-practices.md)).
+   - Which supply the owner has (volts, amps). Needed: 5 V, at least 8 A.
+   - Each panel on its own lead from the supply.
+   - The controller from the same supply, through the M3 posts or the POWER
+     socket.
+   - 1000–2000 µF across each panel's input.
+   - Check that the USB socket does not back-feed.
+   - Measure the current on a white field at brightness 128 and 255, and the
+     5 V at the panels' VH4 under load.
+9. **Waiting on the owner's decision:**
    - GPL-3.0 for media player phase 2 (local radio);
    - a password on `/update`.
 

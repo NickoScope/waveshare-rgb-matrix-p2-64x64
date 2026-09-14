@@ -76,8 +76,21 @@ What the schematic already settles, so you do not measure it:
   drawing ORs or diode-isolates them, so feeding both at once back-feeds one
   into the other. Pick one.
 - **The board has two USB-C sockets, silkscreened USB and POWER** (seen on the
-  hardware, 2026-09-14). Which of them shares the USB_5V net with the posts has
-  not been traced. Until it is: one USB-C at a time, and flash through **USB**.
+  hardware, 2026-09-14).
+  - **Traced on the schematic, 2026-09-15.**
+    - The **POWER** socket (H4) puts its VBUS straight onto USB_5V (TVS2 only),
+      the same net as the M3 posts H2/H3.
+    - The **USB** socket (H1) reaches USB_5V through M1 (AO4407A P-MOSFET)
+      with Q1/Q2 (MMBT3906) and R5/R6. That part set is the usual discrete
+      ideal diode, which would stop a supply on the posts or on POWER from
+      back-feeding the computer on USB.
+    - The ideal-diode reading comes from the parts, not from a traced
+      netlist. **Not verified.** Before relying on it: supply on the posts,
+      USB cable to a charger or a USB power meter, check that no current
+      flows back.
+  - **How it was powered on 2026-09-14/15:** the panels from their own
+    supply through the VH4 cables, and the controller from the Mac through
+    USB. Ground is common through the ribbon.
 - 3V3 comes from an **MP1605GTF-Z** buck; C27 is a convenient place to measure it.
 
 ---
