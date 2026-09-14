@@ -182,3 +182,23 @@ render on core 1 only blits. From the `[luafx]` serial lines over a carousel lap
   in Lua every frame (~310 000 instructions). Moving them into C helpers, or
   drawing the static grid once, is the obvious next step.
 
+### The new looks, same evening
+
+The owner asked for the Tetris and snake clocks on a fully black ground with
+digits as big as the world clock's, and a Minecraft with more contrast and
+livelier characters. Merged as `f332d7b`. The scripts no longer call
+`px.glow` or `px.blend`, whose double-precision math the S3 does in software.
+
+| Effect | Frames/s | Draw avg / max | Open | Heap peak |
+|---|---|---|---|---|
+| minecraft (new) | 20.0 (the cap) | **18.0 / 23.5 ms**, was 33.6 / 42.4 | 78 ms, ~20 000 instructions | 55 KB |
+| tetris_clock (new) | 19.9 | 15.7 / 217.7 ms | 25–27 ms | 131 KB |
+| snake_clock (new) | not captured: the page left before the 30 s report | | 24–26 ms | |
+
+- The minecraft that does more now draws in about half the time. Dropping
+  glow and blend is the likely reason, not measured separately.
+- tetris_clock's 218 ms max, ~87 000 instructions, is a single frame, most
+  likely the minute change when every digit is rebuilt (the helper measured
+  the same pattern on the host). At 20 frames/s that frame costs about four
+  frames: a hitch once a minute, not yet seen by eye.
+

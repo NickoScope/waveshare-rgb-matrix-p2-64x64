@@ -436,6 +436,24 @@ anything to the header. (Earlier versions of this page gave the command as
   and page, a click enters the flight board or the yacht radar.
 - Still to confirm by eye: one detent is exactly one step on the panel.
 
+**Second fix, the same evening: "does not always fire" is gone.**
+- **The problem:** the owner found the flagship decoder dropped clicks.
+- **The change:**
+  - Sampling moved from loop() to a 1 kHz esp_timer.
+  - The decoder learns half-detent knobs, which rest at 00 as well as 11.
+  - The lock-out went from 80 ms to 10.
+  - A new state of the A/B pair counts only after 2 ms of agreement.
+  - Lock-out, debounce, direction and detent mode can be changed from the web
+    UI.
+- **Host test:** `tools/control/encoder_host_test.cpp` passes, including spikes
+  and fake clicks.
+- **On the panel:** a raw capture of the owner turning the knob showed 34–50 ms
+  between the A and B edges and one 1 ms bounce in 10 minutes. The filter
+  removed that bounce.
+- **Owner, 18:50: "энкодер — хорошо".**
+- **Still open:** the knob's own switch is not soldered yet, so clicks still
+  come from BOOT.
+
 ## Phase 6 — the network
 
 **Goal:** feed the two data pages, and question 7.

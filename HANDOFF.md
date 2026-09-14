@@ -39,6 +39,9 @@ Rolling record of where the work stands. Newest first.
 ## 2026-09-14, evening — second checkpoint
 
 - **Web UI merge pushed** (`62a0e6a`, flag matrix 22/22).
+- **Encoder confirmed by hand:** owner at 18:50, "энкодер — хорошо", on the
+  1 kHz sampler with the 2 ms pair filter. Phase 5 rotation is closed; the
+  knob's switch is still unsoldered.
 - **Knob "phantom" steps were measured, and they were not noise.**
   - A first capture with nobody meant to be at the knob logged 18 clockwise
     steps in 15 s.
@@ -51,13 +54,42 @@ Rolling record of where the work stands. Newest first.
     edges, rests of 1–1.5 s at both 00 and 11. A rest at 00 needs both contacts
     really closed through the 10k pull-downs, so this was the shaft turning,
     not coupling. The only glitch in 10 min was one 1 ms bounce, filtered.
-  - **Ask the owner:** was someone at the knob, or does the module twist on
-    its wires? The earlier advice to tie the module's "+" to GND stays: it
-    removes the ~1.1 V divider on an open line while the other contact is
-    closed. That is a real margin problem, but not what these steps were.
+  - **Answered by the owner at 18:48:** he was turning the knob and switching
+    modes from the web himself. There were no phantoms. The raw log is a
+    clean picture of a real hand on this knob: 34–50 ms between the A and B
+    edges at a relaxed pace. The advice to tie the module's "+" to GND stays:
+    it removes the ~1.1 V divider on an open line while the other contact is
+    closed, a margin problem in its own right.
+- **Flight board: arrivals and departures take turns every 10 s** (`133ff50`).
+  - Both halves come in on one wildcard subscription.
+  - A half fetched more than 30 min ago is asked for again, once. Retained
+    departures stamped 09:34 were being shown at 18:30.
+  - The web page has "Both, every 10 s", plus arrivals only and departures
+    only.
+  - Inside the page, the knob now steps airports only.
+  - Verified on the panel: 10 s swaps, 400 on a bad value, stale departures
+    refetched.
+- **Lua looks merged** (`f332d7b`): black ground, big digits, a livelier
+  Minecraft. On the panel Minecraft draws in 18 ms, down from 33.6. Numbers
+  are in [14](docs/14-lua.md).
+- **Rail board merged** (`ba390dd`), laid out from the owner's photo of a UK
+  station screen.
+  - One list at a time, 10 s each; any station by CRS code from the web.
+  - `tools/railboard/ha_package_railboard.yaml` replaces the Guildford one.
+  - On the panel it subscribes and publishes the GLD selection. There is no
+    data yet: the package and the RTT token are not in HA. The owner has the
+    commands.
+- **Flag matrix:** the 22/22 recorded for `133ff50` is **unverified**. Two
+  trees ran the matrix at once and shared `/tmp/pio_flag_matrix.ini`. The
+  script now keeps its scratch file under each tree's `.pio`. The rerun on
+  `ba390dd` passed 22/22, and everything up to `ba390dd` is pushed.
 - **Aqara FP2 found in Home Assistant.** It was already paired over HomeKit
-  since June; the Pi's USB only powers it. HA gets one presence for the whole
-  room plus light level, with no coordinates.
+  since June; the Pi's USB only powers it.
+  - Over HomeKit, HA gets one presence for the whole room plus light level.
+  - The FP2 does count people, as the owner pointed out, but that goes out
+    only through Aqara's cloud API. The route needs a bridge on :8080 and
+    his decision.
+  - No coordinates leave the stock firmware.
   - New automation `automation.matrix_fp2_presence_to_mqtt` publishes it
     retained to `nickoscope_matrix/presence/fp2`, checked on the broker.
   - Nothing on the panel consumes it yet.

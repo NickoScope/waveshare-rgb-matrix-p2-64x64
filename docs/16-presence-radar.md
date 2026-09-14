@@ -34,19 +34,38 @@ device `Presence-Sensor-FP2-8F01`, firmware 1.3.6, room "Гостиная".
 - **USB gives it power, nothing more.** On the Pi, `lsusb` lists no Aqara
   device. The FP2 came back in HA over Wi-Fi 15 s after it was plugged in.
   Aqara specifies 5 V 1 A over USB-C [11].
-- **HA sees presence and light, not people.** Over HomeKit the FP2 exposes one
-  occupancy sensor per zone, plus a light sensor [12]. With no zones set up,
-  as now, that is a single presence for the whole room:
-  `binary_sensor.presence_sensor_fp2_8f01_presence_sensor_1` and
-  `sensor.presence_sensor_fp2_8f01_light_sensor_light_level`.
-- **Where the details live.** Coordinates and the count of people (up to 5)
-  exist only in the Aqara Home app [12][13]. HomeKit Controller supports
-  occupancy sensors, and the FP2 must be removed from Apple Home before pairing
-  with HA [14].
+- **The FP2 counts people; our HA path does not carry it.** The owner
+  corrected a first reading that said otherwise. Each path gives:
+  - **HomeKit, our path today, local:** one occupancy sensor per zone plus a
+    light sensor [12][15]. With no zones set up, that is a single presence for
+    the whole room: `binary_sensor.presence_sensor_fp2_8f01_presence_sensor_1`
+    and `sensor.presence_sensor_fp2_8f01_light_sensor_light_level`.
+    HomeKit Controller supports occupancy sensors. The FP2 must leave Apple
+    Home before pairing with HA [14].
+  - **Aqara cloud Open API:** people count for the whole view and per zone,
+    over 10 s and per minute. The HACS integration ha-aqara-devices reads it
+    as resources `0.60.85`, `13.120.85` and `13.{120+N}.85` [16].
+    - Needs an Aqara developer account, the owner's app keys, message push,
+      and a bridge listening on the LAN at :8080. That is a new network
+      listener, so only with the owner's explicit yes.
+    - Aqara's own resource list sits behind a developer login and was not
+      read: **not verified**.
+  - **Aqara's V3 trait catalogue** and the local LANLink route through an M3
+    hub: occupancy, pose, sleep and vitals, but no count and no
+    coordinates [17].
+  - **Coordinates:** shown in the Aqara Home app [12]. No path out of the
+    stock firmware was found.
+  - **ESPHome firmware replacing Aqara's** gives count, zones and target
+    positions every 500 ms, locally [18]. The cost: opening the case, a UART
+    connection, backing up the calibration, and losing HomeKit, the app and
+    the warranty.
 - **Not verified:**
-  - Matter on the FP2: not in Aqara's specs, not in HA's Matter docs.
+  - Matter on the FP2: not in Aqara's specs, and the firmware metadata's
+    Matter id is empty.
   - Whether zones added later reach HA without re-pairing. One forum thread
     says they do not.
+  - Which firmware brought people counting, and whether it is switched on for
+    this unit. It runs 1.3.6, the newest in a public archive.
 - **Already publishing for the panel.** Automation
   `automation.matrix_fp2_presence_to_mqtt` sends
   `{"any":bool,"zones":{...},"lux":n,"ts":epoch}`, retained, to
@@ -55,7 +74,8 @@ device `Presence-Sensor-FP2-8F01`, firmware 1.3.6, room "Гостиная".
   from an offline sensor: both give `any:false`.
 
 **How the two split:** the FP2 can drive idea 1 below, sleep and wake, today.
-Only the MTR-1 gives the x/y blips for the radar page. On the panel, presence
+It can add a people count once the cloud route is approved. Only the MTR-1
+gives the x/y blips for the radar page without reflashing the FP2. On the panel, presence
 should be FP2 `any` OR MTR-1 has_target, with a hold-off before sleep. The
 blips come from the MTR-1 alone. They work on different bands (60–64 GHz
 [11] vs 24 GHz); whether they disturb each other side by side is not verified.
@@ -252,6 +272,10 @@ Y, so not these.
 12. https://cdn.shopify.com/s/files/1/0710/9220/7830/files/Presence-Sensor-FP2_User-Manual.pdf?v=1723628346
 13. https://www.aqara.com/us/product/presence-sensor-fp2/
 14. https://www.home-assistant.io/integrations/homekit_controller/
+15. https://github.com/ebaauw/fp2-proxy
+16. https://github.com/Darkdragon14/ha-aqara-devices/blob/main/custom_components/ha_aqara_devices/fp2.py
+17. https://opendoc.aqara.com/en/docs/developmanual/apiDocument/trait-codes.html and https://github.com/absent42/Aqara-LANLink
+18. https://github.com/JameZUK/esphome_fp2_ng
 11. https://documentation.espressif.com/esp32-s3_technical_reference_manual_en.html — §8.4 VDD_SPI Voltage Control
 12. https://documentation.espressif.com/esp32-s3-wroom-2_datasheet_en.html — §4 Boot Configurations, Table 4-1
 13. https://github.com/ApolloAutomation/MTR-1/blob/main/Integrations/ESPHome/Core.yaml
