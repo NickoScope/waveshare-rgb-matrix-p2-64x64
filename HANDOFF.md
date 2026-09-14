@@ -91,17 +91,21 @@ Rolling record of where the work stands. Newest first.
   [14](docs/14-lua.md).
 - **Media player phase 1 merged** (`6ad1133`).
   - On the panel: page 11, subscribed under `nickoscope_matrix/d20ec8/media/`.
-  - The AppDaemon app has been reviewed and is not installed. Installing it
-    needs a broker login in AppDaemon's `secrets.yaml`; the owner enters it.
+  - The AppDaemon app is installed and running, on the broker login
+    `flight_board` already uses (`nicko_mqtt_user`/`nicko_mqtt_pass`); nothing
+    new was entered. Backup: `apps.yaml.bak-media-20260914`. The panel reports
+    the bridge online, 5 players, a now-playing state and 16 radio favourites.
 - **AeroAPI ran into its day cap** (24 board calls, $0.12). Every reflash
   refetched everything. Keeping the lists across reboots was offered to the
   owner and has no answer yet.
 - **"IP (for Python)" on the boot screen:** upstream's label for the PC
   Companion App, which sends to UDP 4210. Explained to the owner; not
   changed.
+- **Flag matrix on `bfe7375`: 35/35 as intended.**
 - **Next:**
-  - flag matrix on the latest commits;
-  - install the HA media app;
+  - gzip the portal and make `/` static, both at the owner's request.
+    A helper is on `wip/portal-gzip` in `AnimatedPixelClock-portal`; the panel
+    check is ours.
   - IR receiver, once the owner has fitted it.
 
 ## 2026-09-14, evening — second checkpoint
