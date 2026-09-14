@@ -29,7 +29,7 @@ not on the panel; and presence from the Apollo MTR-1 has no firmware yet —
 phase 6e says what to do before it does.
 
 Before flashing anything, run `python3 tools/flag_matrix.py` in the firmware
-repo. It builds fourteen flag combinations, asserts that four of them are
+repo. It builds sixteen flag combinations, asserts that five of them are
 *refused* by the dependency guards, and then builds the `provision` and
 bring-up images. Those two were added after the bring-up image had silently
 stopped linking — found on 2026-09-14, the day the hardware arrived. It exists because the obvious way to check
@@ -355,6 +355,10 @@ passing.
   Silenced in the fork the same day: `isKey()` first, which does not log.
 - Photos of the four pages on the panel:
   [photos/2026-09-14-bringup](../photos/2026-09-14-bringup/README.md).
+- **Afterwards, at the owner's request, while the knob is not fitted:** the
+  carousel shows every page and every clock style, 15 s each — flag
+  `CAROUSEL_ALL_STYLES`. One lap is about 4 min 15 s; styles are shown, not
+  saved, so NVS is not rewritten every slot.
   And one `/littlefs/icons does not exist` at boot: the icon store's own
   existence check, just before it creates the directory.
 

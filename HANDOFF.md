@@ -55,6 +55,10 @@ Rolling record of where the work stands. Newest first.
   self-test passing, both panels in use. The carousel walked all four pages on
   its own: clock, world clock, flight board (no data yet), yacht radar (no key).
 
+- **For now, without a knob:** every page and all 14 clock styles, 15 s each
+  (`CAROUSEL_ALL_STYLES`, flag matrix 18/18). Lua effects are still not on the
+  panel — the runtime is not connected to the display; phase 6b first.
+
 **Next:** phase 5, the encoder, or phase 6, the network — the owner's call.
 
 ---
