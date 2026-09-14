@@ -29,8 +29,10 @@ not on the panel; and presence from the Apollo MTR-1 has no firmware yet —
 phase 6e says what to do before it does.
 
 Before flashing anything, run `python3 tools/flag_matrix.py` in the firmware
-repo. It builds fourteen flag combinations and asserts that four of them are
-*refused* by the dependency guards. It exists because the obvious way to check
+repo. It builds fourteen flag combinations, asserts that four of them are
+*refused* by the dependency guards, and then builds the `provision` and
+bring-up images. Those two were added after the bring-up image had silently
+stopped linking — found on 2026-09-14, the day the hardware arrived. It exists because the obvious way to check
 this silently reported success for builds that never ran.
 
 ## Before the boxes are opened
