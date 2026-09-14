@@ -62,6 +62,13 @@ Rolling record of where the work stands. Newest first.
     `provision_secrets.py rtt-from-ha`, then the provision and normal flashes.
   - On the panel at 19:59: source `direct`, token `refresh-exchanged`,
     HTTP 200, 0 fails, 43 KB responses every 30 s.
+  - **The board was still empty.** RTT's live times carry no zone
+    (`2026-09-14T18:31:00`), although the spec describes UTC or an offset, so
+    every service was refused. Found with new skip counters and a raw sample
+    in `/api/railboard`. Zone-less times are now London time. At 20:07:
+    8 departures and 8 arrivals from the direct fetch.
+  - **A web-forced mode trapped the knob:** a clip started by
+    `/api/anim/play` could not be left. Any page change now releases it.
   - Quota reported by RTT: 9000 a day, 750 an hour, 30 a minute. The panel
     uses about 2880 a day.
   - The HA fetch automation stays off. Its AppDaemon replacement (option A in
