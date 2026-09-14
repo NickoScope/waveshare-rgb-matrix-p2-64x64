@@ -8,9 +8,15 @@ Rolling record of where the work stands. Newest first.
   an octal-flash fix); phase 3 too — 128×64 as one canvas. Phase 4, our own
   firmware, passed as well. Phase 5 (encoder) or 6 (network) next. The open questions and the
   gated sequence are in [12-bringup.md](docs/12-bringup.md).
-- **Phase 6b is the gate that blocks everything built on Lua** — the heap and
-  the HUB75 framebuffer both want PSRAM, whose bandwidth already caps the
-  driver at ~13 MHz, and nobody has measured what happens when they share.
+- **Phase 6b is measured, and the HUB75 buffers stay in internal SRAM.** Lua in
+  PSRAM beside them costs the render under a millisecond. Moving the buffers
+  to PSRAM freed 130 KB of internal heap, but it striped the picture and broke
+  TLS certificate checks, so it was reverted
+  ([03](docs/03-firmware.md#tried-on-this-board-2026-09-14-rejected)).
+- **Internal heap is the scarce resource on this board.** Free after boot
+  ~37 KB; a TLS fetch needs its 12 KB stack plus ~4 KB. Still possible:
+  - the Lua stack from 16 to 12 KB (six effects use at most 4.8 KB);
+  - the SD reader task only while a clip plays (6 KB).
 - The two watchdog fixes have never run on hardware. Phase 6 exercises them.
 - Cards, icons and the carousel are proven on the wire and drawn only on the
   host. Phase 6c.
@@ -25,7 +31,7 @@ Rolling record of where the work stands. Newest first.
   small layout language fed with entity states), where it is rendered (HA side
   into a bitmap pushed over MQTT, like icons, or on the panel from states), and
   how the choice is made (a select entity in HA, the knob, the web UI).
-- The pages are reachable only through the knob; no HTTP route, no button.
+- Pages are shown by the knob, the portal, or `POST /api/panel {"show":{"page":i}}`.
 - NickoScope-Watch still listens on the legacy `.../state` topic; the keyed
   topic is published in parallel until it migrates.
 - `mic_power_rail` GPIO46 — and GPIO46 is now the encoder's B line, so this
@@ -35,6 +41,54 @@ Rolling record of where the work stands. Newest first.
   datasheet; confirm against WROOM-2 before designing anything onto it.
 
 ---
+
+## 2026-09-14, late evening — third checkpoint
+
+- **The slowdowns the owner saw came from internal heap running out.** The
+  snooker clock stuttered, pages switched late, and the rail board sat in
+  LOW MEM.
+  - `MEM_TRACE` checkpoints in `setup()` found where the memory goes: the
+    HUB75 buffers ~148 KB, the Wi-Fi connect 46.5 KB, the Lua task stack
+    16 KB.
+  - The fixes, each run on the panel:
+    - Fetches take turns, below the effects (`425c571`).
+    - The weather task lives only for a fetch (`6e91d54`): ~30 KB free a
+      minute after boot became ~38 KB.
+    - At boot, internal heap now bottoms out at 30 KB. It was 10.6 KB while
+      the boards fetched in the background.
+- **Boards and weather fetch only while their page is on screen.** Owner's
+  brief. The rail board used to poll every 5 min off screen, and tracked
+  flights on their own cadence. Weather was fetched whenever the rotation
+  contained its clock, even if it wasn't showing. Checked after boot: 0 rail
+  polls, 0 AeroAPI calls, no weather fetch.
+  - Then each page was shown in turn through `/api/panel`:
+    - Trains fetched at once: 93 services.
+    - Flights made 2 calls.
+  - Off screen, 1 min 45 s went by with the rail poll due and none sent. A
+    poll can still start in the 3 s after the page leaves.
+  - **New lead, not yet measured:** `loopMaxMs` hit ~1 s twice. Both times a
+    clock style had just changed: once from the knob, once through the API.
+    The suspect is the settings write to NVS. If it is, that could be the
+    "screens switch late" the owner reported.
+- **PSRAM for the HUB75 buffers: tried and rejected.** Stripes on every page,
+  and TLS `-9984` on both pinned hosts ([03](docs/03-firmware.md)).
+- **Football clock merged** (`3aa6d4e`). 20 fps, 18 ms a frame. One frame
+  dropped once, about 70 s after boot; the suspects are in
+  [14](docs/14-lua.md).
+- **Media player phase 1 merged** (`6ad1133`).
+  - On the panel: page 11, subscribed under `nickoscope_matrix/d20ec8/media/`.
+  - The AppDaemon app has been reviewed and is not installed. Installing it
+    needs a broker login in AppDaemon's `secrets.yaml`; the owner enters it.
+- **AeroAPI ran into its day cap** (24 board calls, $0.12). Every reflash
+  refetched everything. Keeping the lists across reboots was offered to the
+  owner and has no answer yet.
+- **"IP (for Python)" on the boot screen:** upstream's label for the PC
+  Companion App, which sends to UDP 4210. Explained to the owner; not
+  changed.
+- **Next:**
+  - flag matrix on the latest commits;
+  - install the HA media app;
+  - IR receiver, once the owner has fitted it.
 
 ## 2026-09-14, evening — second checkpoint
 
