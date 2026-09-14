@@ -35,6 +35,12 @@ Both header pins are strapping pins, and both are survivable:
   the boot mode: normal boot ignores it, but download mode needs it low or
   floating (esptool, *Boot Mode Selection*). So anything that holds it high at
   reset stops "hold BOOT through reset" from working, and nothing else.
+- **Both carry 10 kΩ pull-downs on the board** (schematic R59 on IO45, R60 on
+  IO46; the pull-up positions R57 and R58 are not fitted). An internal pull-up
+  loses to them, so anything on these pins must drive them *up*: a knob's common
+  goes to 3V3, not GND, and the firmware reads A and B active-high. Found on the
+  bench on 2026-09-14, when a knob wired common-to-GND read 0 on both lines at
+  rest and gave no steps.
 
 That Waveshare chose exactly these two for the header is itself evidence: they
 are the pins the board has left.

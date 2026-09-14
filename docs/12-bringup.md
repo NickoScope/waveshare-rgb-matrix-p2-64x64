@@ -368,12 +368,20 @@ passing.
 
 **Goal:** question 4, and the gesture map.
 
-Wire A → **GPIO45** (header U8 pin 1), B → **GPIO46** (pin 2), common → GND
-(pin 4). Pin 3 is 3V3 if the encoder needs it; ours does not, the internal
-pull-ups are enough. **Wire by the silkscreen names, not by pin numbers:** until
-2026-09-14 this page had pins 3 and 4 the wrong way round. The schematic's U8
-and the board's silkscreen (GND, 3V3, IO46, IO45 from the top) agree. The switch has no header pin: solder it to the **BOOT
-button pad**, in parallel with the button.
+Wire A → **GPIO45** (header U8 pin 1), B → **GPIO46** (pin 2), and the knob's
+common → **3V3** (pin 3) — **not GND**. The board pulls IO45 and IO46 down with
+10 kΩ (schematic R59 and R60; the pull-up positions R57 and R58 are not fitted),
+and a weak internal pull-up cannot win against that: with the common on GND, both
+lines read 0 at rest and a closed contact changes nothing — seen on the bench on
+2026-09-14. With the common on 3V3 a closed contact reads HIGH, and the firmware
+reads A and B active-high on this board (`CTRL_AB_ACTIVE_HIGH`).
+
+The switch is the other way round: between the **BOOT button pad** (GPIO0) and
+**GND**, in parallel with the button itself.
+
+**Wire by the silkscreen names, not by pin numbers.** Until 2026-09-14 this page
+had pins 3 and 4 swapped and sent the common to GND. The schematic's U8 and the
+board's silkscreen (GND, 3V3, IO46, IO45 from the top) agree.
 
 The header's four-pin order is on the schematic in the `GPIO` block, connector
 U8 — worth a glance before soldering, because the drawing is the only place it
