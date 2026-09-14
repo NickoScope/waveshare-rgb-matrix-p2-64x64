@@ -4,9 +4,9 @@ Rolling record of where the work stands. Newest first.
 
 ## Open, across everything
 
-- **Nothing is hardware-verified.** The panels have not arrived. Twelve open
-  questions and the gated sequence that settles them are in
-  [12-bringup.md](docs/12-bringup.md).
+- **The hardware arrived on 2026-09-14.** Phase 1 passed after a memory-type
+  fix (octal flash); phase 2, one panel, is next. The open questions and the
+  gated sequence are in [12-bringup.md](docs/12-bringup.md).
 - **Phase 6b is the gate that blocks everything built on Lua** — the heap and
   the HUB75 framebuffer both want PSRAM, whose bandwidth already caps the
   driver at ~13 MHz, and nobody has measured what happens when they share.
@@ -25,6 +25,22 @@ Rolling record of where the work stands. Newest first.
 - **FYI, unconfirmed:** on R16V parts VDD_SPI is 1.8 V and GPIO47/48 run at
   1.8 V with it. Those two are this board's I2C bus. Read in the WROOM-1
   datasheet; confirm against WROOM-2 before designing anything onto it.
+
+---
+
+## 2026-09-14, afternoon — the hardware is on the desk
+
+- Controller and panels arrived. Supply 5 V 10 A; the controller runs from its
+  USB socket.
+- **Phase 1 passed after one fix.** Every image boot-looped at first: the env
+  said `qio_opi`, and the WROOM-2's flash is octal. Now `opi_opi`; `provision`
+  boots and prints over USB-CDC (question 3). `VDD_SPI_FORCE = True` read off
+  the chip (question 4b).
+- The bring-up image had stopped linking unnoticed (two `setup()`s). Fixed; the
+  flag matrix now builds both bring-up images, 16/16.
+- The board has two USB-C sockets, USB and POWER; not yet traced which feeds what.
+
+**Next:** the two rail measurements, then phase 2 with one panel.
 
 ---
 

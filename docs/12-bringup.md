@@ -75,21 +75,24 @@ What the schematic already settles, so you do not measure it:
   connector and the M3 screw posts H2/H3 in `Screen_Power`. Nothing on the
   drawing ORs or diode-isolates them, so feeding both at once back-feeds one
   into the other. Pick one.
+- **The board has two USB-C sockets, silkscreened USB and POWER** (seen on the
+  hardware, 2026-09-14). Which of them shares the USB_5V net with the posts has
+  not been traced. Until it is: one USB-C at a time, and flash through **USB**.
 - 3V3 comes from an **MP1605GTF-Z** buck; C27 is a convenient place to measure it.
 
 ---
 
 ## What this is meant to settle
 
-Sixteen questions are open; 4 and 4b are answered. The phase that answers each is in the last column.
+Fifteen questions are open; 3, 4 and 4b are answered. The phase that answers each is in the last column.
 
 | # | Question | Why it is still open | Phase |
 |---|---|---|---|
 | 1 | `FM6126A` or `GENERIC` shift driver | Sources disagree; the balance moved to FM6126A but it is not proof. Contradiction #4 in [07](07-sources.md) | 2 |
 | 2 | `clkphase = false`? | Fixes a dropped rightmost column on some batches | 2 |
-| 3 | Does USB-CDC enumerate? | No UART bridge on this board; marked UNVERIFIED in `platformio.ini` | 1 |
+| 3 | ~~Does USB-CDC enumerate?~~ **Yes, on the board, 2026-09-14.** The USB socket shows up as Espressif's USB JTAG/serial (303A:1001), esptool flashes through it, and `Serial` prints over it | — | 1 ✓ |
 | 4 | ~~Are GPIO10/13 on the header?~~ **Answered from the schematic: no.** Header U8 is IO45, IO46, GND, 3V3 | IO10 is RTC_INT, IO13 is IMU_INT. Encoder moved to 45/46 — see [11](11-control-and-pins.md) | — |
-| 4b | ~~Does the GPIO45 strap matter?~~ **Answered from the WROOM-2 datasheet: no.** VDD_SPI on the S3R16V is fixed at 1.8 V by eFuse | One read-only `espefuse.py summary` confirms it — see [11](11-control-and-pins.md) | 5 |
+| 4b | ~~Does the GPIO45 strap matter?~~ **Answered from the WROOM-2 datasheet: no.** VDD_SPI on the S3R16V is fixed at 1.8 V by eFuse | **Confirmed on the board 2026-09-14:** `VDD_SPI_FORCE = True`, VDD_SPI on the 1.8 V LDO | 1 ✓ |
 | 5 | `mic_power_rail` on GPIO46 | In hub75-studio, absent from the vendor BSP | 1 |
 | 6 | Do GPIO47/48 run at 1.8 V? | VDD_SPI is 1.8 V on this module (WROOM-2 datasheet §8); whether 47/48 follow it is what is open. That is this board's I2C bus | 1 |
 | 7 | TLS session heap for the AIS websocket | Allocated at runtime, never measured | 6 |
@@ -160,6 +163,26 @@ While here, with no panel connected and nothing to damage:
 
 **Gate:** the board flashes and re-flashes reliably. Do not proceed otherwise —
 every later step assumes you can iterate.
+
+### Result — 2026-09-14
+
+**Passed, after one fix.**
+
+- esptool: ESP32-S3 (QFN56) rev v0.2, 40 MHz crystal, 32 MB flash, "Embedded
+  PSRAM 16MB (AP_1v8)". The module is marked `MCN32R16V`.
+- eFuse: `VDD_SPI_FORCE = True`, VDD_SPI on the 1.8 V LDO — question 4b confirmed.
+- **The first image boot-looped.** Every boot ended in
+  `assert failed: do_core_init startup.c:328 (flash_ret == ESP_OK)` right after
+  `Octal Flash Mode Enabled`. The env had `memory_type = qio_opi` — quad flash,
+  octal PSRAM — and this module's flash is octal too. Fixed to `opi_opi` in the
+  fork; `provision` then boots and prints its report over USB (question 3).
+- **A boot-looping board drops off USB too often for a normal upload** ("No
+  serial data received"). `esptool.py --port <port> --after no_reset
+  --connect-attempts 15 chip_id` caught it and left it in the bootloader, and
+  the upload went through straight after. Holding BOOT while plugging in is the
+  manual way.
+- The header silkscreen reads GND, 3V3, IO46, IO45 — the schematic's U8 order.
+- Not yet measured: the two rails, question 5 (GPIO46) and question 6 (GPIO47/48).
 
 ---
 

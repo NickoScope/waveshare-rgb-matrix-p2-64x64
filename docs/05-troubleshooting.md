@@ -23,6 +23,8 @@ common failures), the esp-hub75 troubleshooting guide, and the ESPHome component
 | Garbage on exactly half of one panel | defective panel | return it, there is no software fix |
 | Wi-Fi degrades while the panel runs | DMA interference into the radio | known ESP32-S3 class issue, see 04-best-practices |
 | Port not detected when flashing | board not in download mode | hold BOOT, plug in USB, release BOOT, press RESET after upload |
+| Boot loop: `assert failed: do_core_init startup.c:328 (flash_ret == ESP_OK)` right after `Octal Flash Mode Enabled` | the image was built for quad flash, and the module's flash is octal (`qio_opi` on a WROOM-2) | `board_build.arduino.memory_type = opi_opi`. Hit on our board on 2026-09-14 |
+| Upload fails with "No serial data received" while the board boot-loops | the USB port drops with every reboot | `esptool.py --port <port> --after no_reset --connect-attempts 15 chip_id` catches it in the bootloader, then upload; or hold BOOT while plugging in |
 | Colours washed out, pastel | an advanced HUB75 option was changed | reset to factory settings |
 
 ## Debug order for a panel that will not start
