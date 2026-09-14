@@ -53,6 +53,47 @@ its pin-assignment table and the U8 connector — plus the *ESP32-S3 Datasheet*
 is 1.8 V and **GPIO47/48 run at 1.8 V** with it. Those two are this board's I2C
 bus. Confirm against the WROOM-2 datasheet before hanging a 3.3 V part on it.
 
+## One more input: an IR receiver (2026-09-14)
+
+The owner wants an IR receiver, which needs one GPIO. The vendor pin table
+assigns every GPIO the board brings out, so a pin can only be taken from a
+function this firmware does not use.
+
+Checked on the vendor schematic in `reference-drawings/controller/`. The
+schematic has the pin table, the RTC, IMU and SD_CARD blocks, and the module
+pinout, where bottom-edge pads 15–26 are IO3, IO46, IO9, IO10, IO11, IO12,
+IO13, IO14, IO21, IO47, IO48, IO45.
+
+| Pin | Today | Verdict |
+|---|---|---|
+| **IO14** (module pad 22) | `SD_CS`. Runs through **R47 (0 Ω)** to the TF socket's pin 2 CD/D3; **R41 10 k** pulls that line up on the socket side | **Best.** The card runs in 1-bit MMC on IO1/44/17 and never uses CS. Not a strapping pin, not flash or PSRAM. **Remove R47** and IO14 is free while the card keeps its D3 pull-up. Solder the receiver to R47's module-side pad, or to module pad 22 |
+| **IO10** (module pad 18) | `RTC_INT` from PCF85063ATL pin 4 | **Good second choice.** The NXP datasheet (Rev. 7.3, Table 3) makes INT an *open-drain* output, so a receiver can share the line while the RTC's interrupts stay off; the firmware clears them at boot. The RTC is a DFN2626, so the joint has to be on the module pad |
+| IO13 (module pad 21) | `IMU_INT` from QMI8658 INT1 | **Avoid.** The QMI8658C's INT pins are push-pull and low by default; the A and B variants start high-Z. Which variant is fitted is not known |
+| IO0 | BOOT, and the knob's switch | taken |
+| IO45/46 | header, encoder A/B | taken |
+
+**Why not leave R47 in:** with R47 fitted, the receiver would also drive the
+card's D3. After the card is up that does nothing, but a remote pressed while
+the card initialises (CMD0) holds D3 low, which asks the card for SPI mode. The
+mount would then fail. Taking R47 out removes that case.
+
+**Finding R47 on the board:** the silkscreen has no designators. In continuity
+mode, one end of the 0 Ω part beside the TF slot rings to the socket's pin 2
+(CD/D3), and its other end rings to module pad 22.
+
+**Wiring:**
+- receiver VCC to the header's 3V3 and GND to its GND;
+- OUT to IO14, with the ESP's internal pull-up on;
+- choose a receiver rated for 3.3 V supply.
+
+**Firmware, not built yet:** RMT receive on GPIO14. SD code must never touch
+GPIO14 (the clip-gallery helper has been told).
+
+**Not verified:**
+- that R47 is the part the continuity test finds;
+- the fitted QMI8658 variant;
+- anything on hardware.
+
 ## The encoder needs three pins and the header has two
 
 | | How | Cost |
