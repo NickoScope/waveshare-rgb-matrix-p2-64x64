@@ -4,8 +4,8 @@ Rolling record of where the work stands. Newest first.
 
 ## Open, across everything
 
-- **The hardware arrived on 2026-09-14.** Phase 1 passed after a memory-type
-  fix (octal flash); phase 2, one panel, is next. The open questions and the
+- **The hardware arrived on 2026-09-14.** Phases 1 and 2 passed (phase 1 after
+  an octal-flash fix); phase 3, two panels chained, is next. The open questions and the
   gated sequence are in [12-bringup.md](docs/12-bringup.md).
 - **Phase 6b is the gate that blocks everything built on Lua** — the heap and
   the HUB75 framebuffer both want PSRAM, whose bandwidth already caps the
@@ -44,7 +44,10 @@ Rolling record of where the work stands. Newest first.
   FM6126A through the same function, so question 1 is settled from the chip
   marking; test A confirms it on screen.
 
-**Next:** phase 2 with one panel, FM6126A on.
+- **Phase 2 passed:** colour order, rightmost column with `clkphase = false`, all
+  64 rows. GENERIC draws the same picture; the firmware keeps FM6126A.
+
+**Next:** phase 3, two panels chained.
 
 ---
 

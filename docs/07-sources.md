@@ -59,7 +59,7 @@ Used only where no primary source exists. They must not drive decisions.
 | ~~HUB75 pin map~~ | **CLOSED.** Confirmed by three sources, two of them Waveshare's own | — |
 | ~~Peripheral pin map (I2C, I2S, mic, speaker)~~ | **CLOSED.** Confirmed by the vendor BSP `config.h` and two Arduino examples | — |
 | `mic_power_rail` on GPIO46 | **UNVERIFIED.** Present in hub75-studio, absent from the vendor BSP. Possibly an ESPHome-specific addition | read the schematic, or test on hardware |
-| Which shift driver the panel needs | **FM6124-family init, from the chip marking (2026-09-14).** Our panels' column drivers read `FM6124HJ`; library 3.0.14 sends `FM6124`, `FM6126A` and `ICN2038S` through the same `fm6124init()`. See #4 | phase 2 test A confirms it on screen |
+| ~~Which shift driver the panel needs~~ | **CLOSED 2026-09-14.** Chips `FM6124HJ`. On our panels both `FM6126A` (the FM6124 init) and GENERIC draw a correct picture; the firmware keeps FM6126A. See #4 | — |
 | Whether the configs in `configs/` work | not compiled, not flashed | build and flash |
 | Real panel current under load | no measurements | clamp meter on a white field at brightness 128 and 255 |
 
@@ -129,6 +129,11 @@ Used only where no primary source exists. They must not drive decisions.
    on the panel: `MW245BC` input buffers, and 16-pin `RUC7258G` parts not identified. Test A
    in phase 2 is still the on-screen proof — now with FM6126A on first. Photos of the
    markings: [photos/2026-09-14-arrival](../photos/2026-09-14-arrival/README.md).
+
+   **Closed on screen, 2026-09-14, phase 2.** Both settings drew the same correct picture
+   on one panel. GENERIC was run after the panel's supply was switched off and on, so
+   nothing was left over from the init. And `clkphase = false` keeps the rightmost column,
+   as the AnimatedPixelClock author found on theirs.
 
    **Second finding from the same source, and it is a symptom worth memorising.** On these
    panels the library's default clock phase drops the **rightmost column**. Their bring-up

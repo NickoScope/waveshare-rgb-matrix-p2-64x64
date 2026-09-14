@@ -84,12 +84,12 @@ What the schematic already settles, so you do not measure it:
 
 ## What this is meant to settle
 
-Fifteen questions are open; 3, 4 and 4b are answered. The phase that answers each is in the last column.
+Thirteen questions are open; 1, 2, 3, 4 and 4b are answered. The phase that answers each is in the last column.
 
 | # | Question | Why it is still open | Phase |
 |---|---|---|---|
-| 1 | `FM6126A` or `GENERIC` shift driver | **The chips say FM6124HJ** (read off the panels 2026-09-14), and the library gives FM6124 and FM6126A the same init. Test A confirms it on screen — [07](07-sources.md) #4 | 2 |
-| 2 | `clkphase = false`? | Fixes a dropped rightmost column on some batches | 2 |
+| 1 | ~~`FM6126A` or `GENERIC` shift driver~~ **Both work on our panels (test A, 2026-09-14).** | The chips are FM6124HJ; the firmware keeps `FM6126A`, which runs the FM6124 init — [07](07-sources.md) #4 | 2 ✓ |
+| 2 | ~~`clkphase = false`?~~ **Yes, 2026-09-14:** with it the rightmost column is there | — | 2 ✓ |
 | 3 | ~~Does USB-CDC enumerate?~~ **Yes, on the board, 2026-09-14.** The USB socket shows up as Espressif's USB JTAG/serial (303A:1001), esptool flashes through it, and `Serial` prints over it | — | 1 ✓ |
 | 4 | ~~Are GPIO10/13 on the header?~~ **Answered from the schematic: no.** Header U8 is IO45, IO46, GND, 3V3 | IO10 is RTC_INT, IO13 is IMU_INT. Encoder moved to 45/46 — see [11](11-control-and-pins.md) | — |
 | 4b | ~~Does the GPIO45 strap matter?~~ **Answered from the WROOM-2 datasheet: no.** VDD_SPI on the S3R16V is fixed at 1.8 V by eFuse | **Confirmed on the board 2026-09-14:** `VDD_SPI_FORCE = True`, VDD_SPI on the 1.8 V LDO | 1 ✓ |
@@ -215,7 +215,7 @@ afterwards has missed them. If in doubt, press RESET on the controller.
 | What you see | Conclusion |
 |---|---|
 | Image only with FM6126A | It is FM6126A. Set `cfg.driver` and record it |
-| Image both ways | It is GENERIC-compatible; prefer GENERIC — fewer init writes |
+| Image both ways | GENERIC-compatible. This is what our panels did; the firmware kept FM6126A anyway, because the chips are FM6124 and that init is the one written for them |
 | Image neither way | Not the driver. Go to the black-screen ladder below |
 
 **Test B — clock phase (question 2).** Look at the **rightmost column**. If it
@@ -249,6 +249,22 @@ In this order, one change at a time:
 **Gate:** one panel showing correct colours, full geometry and all 64 rows.
 Record the driver and clkphase answers in [07](07-sources.md) — contradiction #4
 gets closed here.
+
+### Result — 2026-09-14
+
+**Passed.** One panel, `PANELS = 1`, brightness 90 of 255.
+
+| Test | With `FM6126A` | With GENERIC |
+|---|---|---|
+| A — a picture at all | yes | yes. Run after switching the panel's supply off and on, so no register state was left over from the FM6126A run |
+| B — rightmost column, `clkphase = false` | present | the same |
+| C — colour order | red, green, blue — correct | the same |
+| D — geometry | all 64 rows; border, corners and diagonal correct | the same |
+
+The firmware keeps `FM6126A`: the chips are FM6124HJ and the library's init is
+the one written for that family, while GENERIC stays a known-good fallback.
+Whether the init makes a visible difference at low brightness or on gradients
+has not been looked at.
 
 ---
 
