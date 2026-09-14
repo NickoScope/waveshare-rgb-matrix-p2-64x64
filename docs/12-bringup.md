@@ -84,7 +84,7 @@ What the schematic already settles, so you do not measure it:
 
 ## What this is meant to settle
 
-Twelve questions are open; 1, 2, 3, 4, 4b and 7 are answered. The phase that answers each is in the last column.
+Eleven questions are open; 1, 2, 3, 4, 4b, 7 and 9 are answered. The phase that answers each is in the last column.
 
 | # | Question | Why it is still open | Phase |
 |---|---|---|---|
@@ -96,7 +96,7 @@ Twelve questions are open; 1, 2, 3, 4, 4b and 7 are answered. The phase that ans
 | 5 | `mic_power_rail` on GPIO46 | In hub75-studio, absent from the vendor BSP | 1 |
 | 6 | Do GPIO47/48 run at 1.8 V? | VDD_SPI is 1.8 V on this module (WROOM-2 datasheet §8); whether 47/48 follow it is what is open. That is this board's I2C bus | 1 |
 | 7 | ~~TLS session heap for the AIS websocket~~ **Measured 2026-09-14: about 52 KB of internal SRAM** at peak, leaving 7.7 KB as the largest free block. Moved to PSRAM at run time; internal low-water mark now 56.7 KB | — | 6 ✓ |
-| 9 | **Can a Lua heap share PSRAM with the HUB75 DMA?** | Both want the same bandwidth-limited memory. Never measured | 6b |
+| 9 | ~~**Can a Lua heap share PSRAM with the HUB75 DMA?**~~ **Yes, 2026-09-14:** the frame buffers are in internal SRAM in this build, and Lua on core 0 cost the render under a millisecond. The limit is CPU time per frame | Numbers in [14](14-lua.md) | 6b ✓ |
 | 10 | Do the two watchdog fixes hold? | Written by hand after an audit, never run on hardware | 6 |
 | 8 | The two enclosure measurements | The 3D session is waiting on them | 7 |
 | 11 | Do cards and notifications render as drawn? | The protocol round-trips on the live broker; the layout has only been drawn on the host | 6c |
@@ -533,6 +533,15 @@ Both cannot have it. Which one wins is a measurement, not an opinion.
 
 **Gate:** a number for each row above, written into `docs/14-lua.md`. A
 flickering panel is not a failure of this phase — it is its result.
+
+### Result — 2026-09-14
+
+**Numbers in, flicker check owed.** Every row has a number in
+[14](14-lua.md#measured-on-the-panel--2026-09-14): refresh 84 Hz, frame buffers in
+internal SRAM, a background Lua load costing the render under a millisecond, PSRAM
+returning to its start value. The Lua effects then went onto the panel: minecraft
+at its 20 fps cap, room_radar at 2.6 fps, too slow as written. The owner's eye on
+phase C for flicker is still to come.
 
 ## Phase 6c — cards, notifications and icons
 

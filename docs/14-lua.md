@@ -100,6 +100,11 @@ So: **both**, which the plug-and-play binding registry
 
 ## The risk that is ours alone
 
+> **Measured on 2026-09-14 — see the last section.** In this build the HUB75 frame
+> buffers are in internal SRAM, not PSRAM: `SPIRAM_DMA_BUFFER` is not defined, and
+> the library then allocates with `MALLOC_CAP_INTERNAL | MALLOC_CAP_DMA`. The
+> contention described below did not show; the limit turned out to be CPU time.
+
 The Watch's framebuffer lives in PSRAM and so does its Lua heap, and that is
 fine there. Here, **the HUB75 DMA buffer may also be in PSRAM** — that is what
 lets the panel grow past internal SRAM at all — and PSRAM bandwidth is already
@@ -133,3 +138,47 @@ Sequence, so that each step is provable:
 Do **not** start until the panels are here and phase 4 of the
 [bring-up](12-bringup.md) is green. Every question above is answered by
 measurement, and there is nothing to measure yet.
+
+## Measured on the panel — 2026-09-14
+
+### The phase 6b bench
+
+Env `matrix-waveshare-rgb-luabench`, the clock held on Snake, three 20 s phases.
+
+| | Result |
+|---|---|
+| Driver refresh | 84 Hz; frame buffers in internal SRAM |
+| One `nslua_run`, empty script (a fresh sandboxed state) | 2.54 ms |
+| 50 000-iteration compute loop | 64.1 ms |
+| Building 3000 strings | 182.5 ms |
+| A — the clock alone | 58–62 frames/s, render avg 1.9–2.2 ms, max ~3 ms |
+| B — that string script once per frame, inline | 5.3 frames/s: the script is the frame |
+| C — the same script back to back in a task on core 0 | render avg 2.2–2.5 ms, max 2.4–4 ms, frame rate unchanged |
+| PSRAM | back to its start value after every phase |
+| Internal heap minimum | ~32 KB with or without Lua |
+
+The first run failed every script: the sandbox removes `collectgarbage`, and the
+script called it last. Not yet done: the owner's eye on phase C for flicker.
+
+### The effects on the panel
+
+The luasim scripts as pages (`src/lua/`): one persistent state per effect on a
+core-0 task with a 16 KB internal stack, drawing into a PSRAM canvas that the
+render on core 1 only blits. From the `[luafx]` serial lines over a carousel lap:
+
+| Effect | Frames/s | Draw avg / max | Open | Heap peak |
+|---|---|---|---|---|
+| minecraft | 20.0 (the cap) | 33.6 / 42.4 ms | 33 ms | 30 KB |
+| room_radar | **2.6** | **378.6 / 396.4 ms** | **1.78 s** (1.02 M instructions) | 87 KB |
+| tetris_clock | not captured — the page left before the 30 s report | | 29–31 ms | |
+| snake_clock | not captured, likewise | | 23–26 ms | |
+
+- The task took 16.8 KB of internal heap (89.9 → 73.1 KB free at start); the stack
+  never had less than 11.6 KB free.
+- Every close returned PSRAM to the same value.
+- Heap polled over the same lap: internal low-water mark 39.5 KB, largest block
+  never under 34.8 KB, PSRAM dipping 108.5 KB, no restart.
+- **room_radar is too slow as written:** its per-pixel background and grid loops run
+  in Lua every frame (~310 000 instructions). Moving them into C helpers, or
+  drawing the static grid once, is the obvious next step.
+
