@@ -118,7 +118,7 @@ Rolling record of where the work stands. Newest first.
     on.
   - One unexplained reboot at ~23:27 left no report, so it was not a panic:
     power, an external reset, or the owner.
-- **Flag matrix on `bfe7375`: 35/35 as intended.**
+- **Flag matrix: 35/35 as intended**, on `bfe7375` and again on `8ec3045` (boot health).
 - **Next:**
   - gzip the portal and make `/` static, both at the owner's request.
     A helper is on `wip/portal-gzip` in `AnimatedPixelClock-portal`; the panel
