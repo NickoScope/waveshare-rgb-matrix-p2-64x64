@@ -194,6 +194,7 @@ livelier characters. Merged as `f332d7b`. The scripts no longer call
 | minecraft (new) | 20.0 (the cap) | **18.0 / 23.5 ms**, was 33.6 / 42.4 | 78 ms, ~20 000 instructions | 55 KB |
 | tetris_clock (new) | 19.9 | 15.7 / 217.7 ms | 25–27 ms | 131 KB |
 | snake_clock (new) | not captured: the page left before the 30 s report | | 24–26 ms | |
+| snooker_clock (merged `66bee4b`) | 20.0 (the cap), two reports | 10.3 / 39.9 ms, then 9.7 / 28.4 ms | 261 ms, ~184 000 instructions | 199 KB |
 
 - The minecraft that does more now draws in about half the time. Dropping
   glow and blend is the likely reason, not measured separately.

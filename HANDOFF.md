@@ -39,6 +39,32 @@ Rolling record of where the work stands. Newest first.
 ## 2026-09-14, evening — second checkpoint
 
 - **Web UI merge pushed** (`62a0e6a`, flag matrix 22/22).
+- **Yacht radar fixed and extended; the owner: "отлично радар яхт работает".**
+  - **Why it was always empty:** aisstream.io sends binary websocket frames,
+    and the port handled text only. The flagship fixed the same bug in
+    v33.0.3. Fix in `ab4314c`.
+  - **More boats:** added the Class B messages, with names from
+    aisstream/ais-message-models. The flagship subscribes to Class A only.
+    The table then filled to its 16-vessel cap in two minutes; with Class A
+    alone it had reached 11.
+  - **On screen:** a 6 s sweeping beam that flashes the dot and its list row,
+    lengths in the list, and the list looping when it overflows (`281d46f`).
+  - **Then:** the list is sorted by length by default, and static data is
+    kept for vessels not yet plotted, so lengths no longer wait six minutes.
+  - **Carousel off:** at the owner's request, from the web. The AIS stream only
+    runs while the page is up, and 15 s was never enough for a boat to report.
+- **Snooker clock merged** (`66bee4b`). A self-playing frame under WPBSA rules
+  with a HUD clock; on the panel 20 fps, draw average 10 ms.
+- **World clock rework** (home time, pulsing name, city search, default by
+  location) is with a helper in `/Users/apple/AnimatedPixelClock-world`.
+- **Rail board, direct RTT from the panel,** is with a helper in
+  `/Users/apple/AnimatedPixelClock-rail`.
+  - The token is a refresh token: it must be exchanged at
+    `/api/get_access_token`.
+  - The HA fetch automation is off at the owner's request until that exchange
+    is ready.
+  - RTT's API terms ask that tokens stay server-side. The owner was told and
+    chose direct.
 - **Encoder confirmed by hand:** owner at 18:50, "энкодер — хорошо", on the
   1 kHz sampler with the 2 ms pair filter. Phase 5 rotation is closed; the
   knob's switch is still unsoldered.
