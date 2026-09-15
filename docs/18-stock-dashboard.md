@@ -537,6 +537,21 @@ the fix. The multi-position frames now use an example allocation.
 
 **Approved by the owner at 12:53.**
 
+## Build status, 2026-09-15 13:50
+
+**The app is done** (`wip/market-board`, 1a3530c).
+- **Audit fixes.** BLOCKERs and MAJORs fixed, plus MINOR 1, 3, 4, 6, 7, 8, 10, 11, 14 and 15 and NIT 1. The rest is in the README backlog.
+- **Merges.** Previews v2 and the finished panel branch are merged in.
+- **FX.** One FX path, on the ECB `E` series.
+- **Returns.** TWR, ANN and XIRR equal the oracle in every window.
+- **Panel decoder.** Accepts all 47 dry-run payloads, after `v` was added to `tape`.
+
+**First real fetch** with the short User-Agent: 22 of 22 symbols in 363 s, no 429. The owner's golden figures are in the gitignored `private/`.
+
+**Fees are missing.** Yahoo's fund-profile endpoint answered HTTP 401 to all 14 requests without a cookie, so no TER drag is computed yet. The TER override setting is the fallback; `yfinance` might restore it (not tried).
+
+**Integration.** Both branches squashed into one staged change on `feature/market-dashboard` from board 8c5f8cf: 153 files. A scan finds none of the owner's funds, weights or file names, no LAN IP and no private file.
+
 ## Build status, 2026-09-15 13:40
 
 **Finish line set at 13:33, after the owner's "is this endless?"** Audits gate
