@@ -32,6 +32,7 @@ anything new it:
 | 2 | Replies to our top-level comment | https://old.reddit.com/r/esp32/comments/1w8vc0j/i_may_have_gone_a_bit_overboard_with_this_esp32s3/p9uhmk6/ | Atom feed of the comment (`.rss`) | no replies |
 | 3 | Replies to our note in the S3 boards thread | https://old.reddit.com/r/esp32/comments/1w8vc0j/i_may_have_gone_a_bit_overboard_with_this_esp32s3/p9uhspe/ | Atom feed of the comment | no replies |
 | 4 | New upstream commits and releases | https://github.com/Keralots/AnimatedPixelClock | `gh api`: commits, latest release | `946ed42`, release `v2.3.0` |
+| 6 | Review of PR #4, mbedTLS buffers in PSRAM (item 3 of #3) | https://github.com/Keralots/AnimatedPixelClock/pull/4 | `gh api`: reviews, comments, state, merged | opened 2026-09-15 18:37, no review |
 | 5 | Replies to our Show and tell post about the Waveshare board | https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/discussions/962 | GraphQL: comments, replies, upvotes | posted 2026-09-15 01:00, no replies |
 
 **Why item 4 is watched.** New upstream code is what our PR branches will be
@@ -56,6 +57,7 @@ not depend on this check.
 
 Newest first. One line per event: date, item, who, the gist, what was done.
 
+- 2026-09-15 18:37: item 6 added. PR #4 (mbedTLS buffers in PSRAM) opened on the owner's "отправляй", the first of the order 3-2-4-6.
 - 2026-09-15 17:55. **Items 1 and 4 (read by hand).**
   - **Item 1:** Keralots answered #3 at 14:55 UTC.
     - Board support is already upstream: v2.3.1 with a 32MB layout.

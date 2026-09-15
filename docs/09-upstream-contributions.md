@@ -34,7 +34,7 @@ Source: https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-568
 - the `matrix-s3` size in the description;
 - no build flags: all four changes on by default.
 
-**PR order: 3, then 2 (the task half), then 4 (the crash report half), then 6.** No PR starts until the owner decides. Texts are drafted in `docs/drafts/` in his voice and posted only on his "отправляй".
+**PR order: 3, then 2 (the task half), then 4 (the crash report half), then 6.** PR for 3 opened: https://github.com/Keralots/AnimatedPixelClock/pull/4 (2026-09-15 18:37). No PR starts until the owner decides. Texts are drafted in `docs/drafts/` in his voice and posted only on his "отправляй".
 
 **Consequence for our fork:** his 32MB partition table would give LittleFS 23MB, against our 3.4MB. That removes the market record's "no space" (doc 18). Switching needs a USB flash of the new partition table and erases LittleFS, animations included. That is the owner's decision.
 

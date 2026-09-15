@@ -1,6 +1,6 @@
 # Draft: upstream PR 1 to Keralots/AnimatedPixelClock, mbedTLS buffers in PSRAM
 
-**Status: DRAFT, not posted. Revised after the audit gate (2026-09-15 18:25): the security paragraph now says the switch is global, WPA3-SAE included, and flash encryption is off.** Nothing is pushed. The branch exists only locally.
+**Status: POSTED 2026-09-15 18:37** on the owner's "отправляй": https://github.com/Keralots/AnimatedPixelClock/pull/4 (branch `NickoScope:feat/tls-buffers-psram`, commit 7135b4e on upstream main 9e37721). Revised after the audit gate before posting. The body ends with the Claude Code attribution line.
 
 Written 2026-09-15 in the owner's voice: correct, natural English, plain paragraphs.
 Rafał asked for this one first in his answer on issue #3
@@ -12,7 +12,7 @@ Plan behind it: [09-upstream-contributions.md](../09-upstream-contributions.md).
 - Branch `feat/tls-buffers-psram`, made from `upstream/main` at `9e37721` (v2.3.1).
 - One commit, `7135b4e`: `feat(net): allocate mbedTLS buffers in PSRAM`.
 - Files: `src/network/tls_psram.h` (new, 15 lines), `src/network/tls_psram.cpp` (new, 36 lines), `src/main.cpp` (+4 lines).
-- To open the PR, the owner pushes the branch to the NickoScope fork and opens it against `Keralots:main`. That happens only on "отправляй".
+- Opened as PR #4 against `Keralots:main` on the owner's "отправляй".
 
 ## His rules, checked
 
