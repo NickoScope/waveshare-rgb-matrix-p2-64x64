@@ -99,6 +99,12 @@ Rolling record of where the work stands. Newest first.
    - a research report on professional dashboards and a settings inventory,
      to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
      many settings as sensibly possible; GitHub, Reddit, finance sources).
+   **17:05: steps 1–6 done, working end to end.**
+   - Guarded firmware flashed.
+   - App re-enabled.
+   - The panel accepts the data and has not rebooted.
+   - Step 7 (the owner's look at the pages) and the HA "Портфель" view are left.
+   - Delete the local wip branches and worktrees after step 7.
    **17:00: incident.** From 16:31 to 16:53 the panel rebooted every ~16 s. LittleFS was full (12 KB free); the
    market record write hit littlefs's divide-by-zero in its NOSPC log.
    - The app is stopped: pre-install `apps.yaml` restored; the package, store and `local.json` remain on HA.

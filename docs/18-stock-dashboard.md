@@ -542,6 +542,26 @@ the fix. The multi-position frames now use an example allocation.
 
 **Approved by the owner at 12:53.**
 
+## Working end to end, 2026-09-15 17:05
+
+**Firmware with the free-space guard (b40c3d6), flashed over the air at 17:00.**
+- Build `17:00:11`, 2 147 696 B, sha256 `483bbd579e32f69f…`.
+- OTA `app1` `valid` at 60 s; no crash this boot.
+
+**App back on HA at 17:02:37**, after the `apps.yaml` entry was restored without `disable`.
+- It logged `starting from the panel's last config`: the final audit's MAJOR fix, working on the real system.
+- It published 76 payloads (largest 1 855 B), then again on reconnect.
+
+**Panel, watched for ~5 minutes:**
+- 133–139 payloads accepted, 0 refused, bridge `online`;
+- uptime rose from 129 s to 295 s with no reboot;
+- the guard fired once, `no space: needs 125459 B, 12288 B free`;
+- internal heap 39 440 B free, minimum 32 928 B.
+
+**Remaining.**
+- **Step 7:** the owner looks at the four pages and tries the knob.
+- **The offline record cannot be written on this panel.** LittleFS has 12 KB free; the animation uploads fill 3.5 MB. Consequence: after a reboot, the pages stay empty until HA publishes again, seconds while HA is up. Freeing ~125 KB would enable the record.
+
 ## Incident, 2026-09-15 16:31–16:53: the panel rebooted every ~16 s
 
 **What happened.** The HA app was installed at 16:25 (step 6) and published
