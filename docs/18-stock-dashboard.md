@@ -177,6 +177,38 @@ open while `regularMarketTime` has not moved for 20 minutes is shown as
 STALE, not OPEN. The tape carries: NYSE, NASDAQ, LSE, XETRA, EURONEXT (Paris
 and Amsterdam), TOKYO by default; the owner chooses in the portal.
 
+## Ready-made Home Assistant integrations, checked 2026-09-15 09:30
+
+The owner asked what exists already, official or on HACS.
+
+**Official (core), category Finance**, from the docs repository's front
+matter (`ha_category: Finance`): alpha_vantage, bitcoin, blockchain,
+coinbase, currencylayer, etherscan, fints, firefly_iii, fixer, kraken,
+monarch_money, monzo, nordpool, openexchangerates, ripple, simplefin,
+starlingbank. For stocks that is **Alpha Vantage alone** (a key, 25
+calls/day on the free tier; adjusted history is a premium endpoint per its
+pricing page, not probed). The rest is crypto, banking and FX rates with
+keys. Nothing gives daily history from 2000 or dividend events.
+
+**HACS, from the store index cached on the owner's HA** (none installed):
+
+| Repository | Stars, last push, licence | What it does | For us |
+|---|---|---|---|
+| `iprak/yahoofinance` | 122, 2026-04, MIT | Yahoo quotes as sensors: `regularMarket*`, 52-week, dividend rate and yield, `target_currency`; `scan_interval` ≥ 30 s (default 6 h); "Delayed Quote" | quotes only; no history, no dividend events |
+| `derspe/ha-easy-stock` | 18, 2026-09-08, MIT | Yahoo quotes, a Lovelace sparkline card, 1M/YTD/1Y charts from daily closes, currency conversion, no key | a nice HA dashboard card, if the owner wants stocks in HA's own UI |
+| `Chreece/HA-Investment` | 0, 2026-09-12, MIT | a private portfolio with lots and cost basis; dividends, cash and rebalancing are "on the roadmap" | too new; the parts we need are not built |
+| `ad-ha/atw` | 8, 2025-02, GPL-3.0 | virtual buy/sell wallet on Yahoo and CoinGecko | no dividends, no backtest; GPL |
+| `nuggetz/ha-tradepulse` | 0, new | real-time US prices, news, insider trades; Finnhub key optional | no history |
+| `T-leco/investing_portfolio`, `cubinet-code/ha-parqet-companion`, `MichelFR/ha_ghostfolio`, `FaserF/ha-traderepublic`, `Smart-Home-Assistant-UK/homeassistant-trading212`, `Poshy163/HomeAssistant-Sharesight`, `jippi/hass-nordnet`, `custom-components/sensor.avanza_stock` | small | readers of a real account at one broker or portfolio service | only if the owner wants his real broker account on the panel one day |
+
+**Conclusion.** Nothing computes what the brief asks for: a percentage
+allocation bought at a date, dividends into cash, a yearly rebalance,
+windows from 2000. That stays our AppDaemon app on `yfinance`. Two things
+are reusable: `yfinance` itself (history, dividends, TER, quotes, crumb
+handled), and, should the owner want the numbers in HA's own dashboards
+too, `ha-easy-stock` for a card. A second Yahoo client from HACS for the
+live quotes would add nothing our app does not already do.
+
 ## A fact that shapes the fee figure
 
 **A fund's price is already net of its TER.** The fee is taken from the fund's
