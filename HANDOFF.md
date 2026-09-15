@@ -90,9 +90,17 @@ Rolling record of where the work stands. Newest first.
      calls.
 7. **The market dashboard** ([18](docs/18-stock-dashboard.md)): design v3
    after two council reviews; the owner moved the maths to Home Assistant.
-   The previews are done and with the owner (10:00). Next: his approval
-   against the 12-point checklist, then the AppDaemon app (paced: Yahoo
-   returned 429 to the Mac after ~40 requests in 90 min) and the panel page. Installed for HA's own dashboards on his word:
+   Previews approved 10:13. Three helpers since ~10:20:
+   - the AppDaemon app, plug-and-play modules, on `wip/market-board` in
+     `AnimatedPixelClock-market` (paced: Yahoo returned 429 to the Mac after
+     ~40 requests in 90 min);
+   - the panel page and the portal's Market page on `wip/market-panel` in
+     `AnimatedPixelClock-market-panel`, with a table-driven settings registry;
+   - a research report on professional dashboards and a settings inventory,
+     to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
+     many settings as sensibly possible; GitHub, Reddit, finance sources).
+   Then: merge, flag matrix, the audit gate, OTA, the HA app install (the
+   add-on's `python_packages`), the "Портфель" view in HA, measure. Installed for HA's own dashboards on his word:
    `ha-easy-stock` with the four indices and the dashboard "Биржа".
 8. **PC control: the companion app's stats and spectrum stream.** Still in
    the firmware on UDP 4210, but never tried on this panel.
