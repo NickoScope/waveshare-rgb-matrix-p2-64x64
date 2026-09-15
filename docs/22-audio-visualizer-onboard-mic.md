@@ -762,6 +762,71 @@ Build `c71bdb5` of `feature/market-climate-audio`, flashed over USB. Two cycles 
 
 Still to do from the list above: music and a clap (latency), LED supply noise, the eight styles one by one, gain, a held SDA.
 
+### 12.2 Panel test, 2026-09-15 21:30–23:20: the visualizer hangs the system
+
+The owner's verdict, 23:22: "аудио визуалайзер вешает всю систему, с ним нужно работать … я пока не буду запускать аудио. завтра начнешь искать причину." Until the visualizer is started everything works and every screen is fine; after it starts, the system hangs. **The onboard-mic visualizer stays off until the cause is found** (no mic capture starts unless the visualizer is started; the portal Source "PC companion only" keeps it off for good).
+
+Serial logs: `~/panel-backups/2026-09-15-monitor/serial.log` (host timestamps, private); boot logs in `~/panel-backups/2026-09-15-before-climate-audio/`.
+
+**Builds flashed over USB today**
+
+| Time | Build | Why |
+|---|---|---|
+| 21:34 | `c71bdb5` | first flash of market + climate + mics + styles 7-14, lazy capture |
+| 21:54 | `f79fe99` | settings save fix |
+| 22:30 | `a55a477` | heap diagnostics, 4 KB capture stack, Code EQ as style 2 |
+| 22:53 | backup app0, the 18:05 build | A/B for the room radar |
+| 22:59 | `bisect-noaudio` | today's tree without `AUDIO_MIC_ENABLED`/`VIZ_WOW_ENABLED` |
+| 23:02 | `f896605` | full build with the fast room_radar; on the panel now |
+
+**What passed on the panel**
+
+| Check | Result |
+|---|---|
+| Boot, market record, MQTT topics | clean on every build; record read from LittleFS |
+| SHTC3 | state ok, id 0x0887, 0 CRC and 0 I2C errors; 30.9-32.2 C inside the case, offset not measured |
+| Mic start and stop | start within 5 s of `/api/mode/viz`, ~50 frames/s, stop 20-25 s after leaving; 10.4 KB internal while running (32,952 -> 22,556 B); nothing lost over two cycles |
+| Portal save | 1,109 ms -> 51 ms after `f79fe99` (upstream code erased 40 absent NVS keys) |
+| Heap diagnostics | `[mem]` lines and the failed-allocation hook work; they caught the chain below |
+| room_radar rewrite | opens in 0.76-0.86 s instead of ~2 s; one frame over budget under load at 23:03:54, did not stop; no 30 s frame report yet |
+
+**What failed**
+
+1. **The hang (the blocker).** Capture holds 10.4 KB of internal heap; a portal page load spikes ~20 KB more.
+   - 23:04:40-54: internal minimum 8,452 -> 3,524 -> 896 B "during web server", largest block 2,292 B; `allocation failed: 1626 B, caps 0x80c, task wifi`.
+   - 23:08:32 mics up; 23:08:33 and 23:08:58 portal loads; minimum 504 B; Wi-Fi allocations of 496 B and 1,626 B failed.
+   - From 23:05:34 and again from 23:09:31: `[loop] mqtt took 3001 ms` every ~5 s (the display freeze), then DNS failures, TLS failure (`start_ssl_client: -1`), `ping_sock: send error`.
+   - 23:12:10 the firmware's own link recovery restarted Wi-Fi ("gateway unreachable") and MQTT stopped stalling: about 3 minutes of hang.
+   - caps 0x80c is internal, DMA-capable, 8-bit memory: Wi-Fi RX buffers.
+2. **Earlier dips, not attributed** (before the diagnostics): minimum 1,684 B after the 21:45 boot; 1,320 B at 22:02:30 with the mics idle (free 11,104 B, largest 7,668 B, `/api/info` took 1,717 ms).
+3. **Portal page loads with the mics idle:** 22:30:37 `web /` took 324 ms, internal minimum 19,932 -> 12,900 -> 9,476 B, largest block 6,132 B.
+4. **DSP cost:** `audioDspUs` 11.8-15.1 ms per 20 ms frame on core 0 (max 19.8 ms), 1 overrun in ~110 s; core 0 also runs Wi-Fi and the Lua effects.
+5. **`loopMaxMs`** up to 43 ms while the visualizer styles render (5-11 ms idle).
+6. **room_radar stopped** ("over the time budget (500 ms)", three frames in a row) in today's builds:
+
+   | Build | draw avg / max | drops after open |
+   |---|---|---|
+   | 18:05 | 384 / 408 ms (two 30 s reports) | 0 |
+   | `bisect-noaudio` | 381 / 407 ms | 2 (survived) |
+   | full build before the rewrite | not reached | 3, stopped, five times |
+
+   No Lua code or budget changed since `8c5f8cf`. The rewrite `3b57c93` is merged and flashed.
+
+### 12.3 Debts, in the order to work them (from 2026-09-16)
+
+| # | Debt | Evidence | First step |
+|---|---|---|---|
+| D1 | **Internal heap with the mics on: find the ~20 KB portal consumer** | 12.2 items 1 and 3 | add the URI to the `[mem]` line; load `/`, `/portal.js`, `/portal.css`, `/api/portal`, `/api/info`, `/save` one at a time with curl, mics idle and running; then move that path's small allocations off internal heap (a PSRAM allocator for the JSON documents and request args, or a lower always-internal threshold with an audit) |
+| D2 | **No capture start without internal headroom** | the chain above | thresholds from the D1 measurements; consider a smaller DMA buffer set (4x256 now) and the 4 KB stack (1,232 B used) |
+| D3 | **MQTT reconnect holds `loop()` 3 s every 5 s during an outage** | `[loop] mqtt took 3001 ms` x ~40 | `WiFiClient::setTimeout(1)` before `connect()` (it sets the connect timeout, `WiFiClient.cpp:325`), backoff 5 -> 60 s, resolve `homeassistant.local` once |
+| D4 | **Recovery after a Wi-Fi allocation failure takes ~3 min** | 23:09:31 -> 23:12:10 | treat `allocFails` from task wifi as a link-recovery trigger |
+| D5 | **DSP cost on core 0** | 12-15 ms per 20 ms frame | profile; esp-dsp FFT or less work per hop |
+| D6 | **Verify room_radar on the panel** | no 30 s report yet | 30 s frame report with the portal open; then update the "~380 ms" comment in `lua_effects.cpp` and `src/lua/README.md` |
+| D7 | **Why today's full build slows Lua's first frames** | A/B table above | flash `bisect-nowow` (built, in `.pio/bisect.ini`) to split mics from styles |
+| D8 | **The portal served from `loop()` freezes the display 0.2-0.3 s per page** | `web / took 211-324 ms` | pre-existing; after D1 |
+| D9 | **SHTC3 self-heating offset** | 31-32 C in the case | reference thermometer, 30-60 min |
+| D10 | **Audit minors** | `src/audio/README.md`, `src/climate/README.md` backlogs | after D1-D4 |
+
 ## 13. Upstream
 
 [09](09-upstream-contributions.md) §4 still holds: "discuss first". What is

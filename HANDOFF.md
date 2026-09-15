@@ -4,6 +4,7 @@ Rolling record of where the work stands. Newest first.
 
 ## Open, across everything
 
+- **The onboard-mic audio visualizer hangs the whole panel (2026-09-15 evening).** Capture's 10.4 KB plus a ~20 KB portal spike exhaust internal heap, Wi-Fi fails its buffers, MQTT retries freeze `loop()`. The owner keeps it off until the cause is found; the debts, in order, are in [22](docs/22-audio-visualizer-onboard-mic.md) §12.3.
 - **The hardware arrived on 2026-09-14.** Phases 1 and 2 passed (phase 1 after
   an octal-flash fix); phase 3 too — 128×64 as one canvas. Phase 4, our own
   firmware, passed as well. Phase 5 (encoder) or 6 (network) next. The open questions and the
@@ -78,7 +79,8 @@ Rolling record of where the work stands. Newest first.
   - worktree `/Users/apple/AnimatedPixelClock-radar`;
   - backups in `~/panel-backups/2026-09-15-before-climate-audio/` (the 18:05 app0 image, otadata, boot logs).
 - **Monitor:** a serial-only logger from the session scratchpad is running and holds `/dev/cu.usbmodem2101`.
-- **Next step:** the owner decides between two options. Either the mics stay off (PC only) while (a)–(c) are done, or the panel goes back to the 18:05 build.
+- **The owner's decision, 23:22:** "аудио визуалайзер вешает всю систему, с ним нужно работать … я пока не буду запускать аудио. завтра начнешь искать причину." The audio visualizer stays off. Every result of today's checks and the ordered debts are in [22](docs/22-audio-visualizer-onboard-mic.md) §12.2-12.3.
+- **Next step, 2026-09-16:** start on D1: put the URI into the `[mem]` line, then measure each portal request with the mics idle and running.
 
 ---
 
