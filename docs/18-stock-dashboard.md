@@ -6,39 +6,97 @@ dividends and with the cost of holding the positions. Tickers are entered in
 the web portal; dividend amounts and position fees are pulled in. The period
 is adjustable from 2000 to now. "Professional dashboard" level.
 
-His answers, 08:41–08:43:
-- **Fees:** only the funds' own fees (TER) for now. No broker commissions.
-- **Positions:** set as a percentage allocation in the portal (08:47), one
-  row per ticker with its weight. The purchase price is the price on the
-  entry date, from the history (08:43). With a capital setting this answers
-  "what would this allocation, bought at the start of the period, be worth
-  now".
-
-- **Currency:** each ticker in its own currency (08:44). The portfolio
-  currency he did not name: EUR by default, converted with Yahoo's `EURUSD=X`
-  history, USD selectable.
+His decisions, 08:41–09:14:
+- **Fees:** only the funds' own fees (TER). No broker commissions.
+- **Positions:** a percentage allocation, one row per ticker with its target
+  weight. The purchase price is the price on the entry date, from history.
+- **Currency:** each ticker in its own currency; the portfolio in EUR by
+  default, USD selectable.
 - **Default indices:** S&P 500 `^GSPC`, NASDAQ `^IXIC`, CAC 40 `^FCHI`,
-  DAX `^GDAXI`, changeable in the portal (08:44).
-- **Rebalancing** (08:51): an option. Every 31 December the holdings are
-  brought back to the set weights; a checkbox chooses whether the results
-  are shown with or without it.
+  DAX `^GDAXI`, changeable in the portal.
+- **Rebalancing:** an option, every 31 December back to the target weights;
+  a checkbox chooses which result the panel shows.
+- **Source:** Yahoo Finance, with the risk that it closes one day.
+- **Process:** the design went to the LLM council (two consultations, 09:01
+  and 09:02), then to him; code only after his approval. Code is judged by
+  the audit gate, not the council.
+- **Where it runs (09:13): the maths and the data live in Home Assistant.**
+  The panel only shows what HA has computed, with the selections made in
+  the panel's web portal (period, tickers, currency, rebalance on/off).
+- **Cash (09:13):** one cash row in the portfolio. Dividends paid, extra
+  contributions, and the share of a position whose fund did not exist yet
+  all sit in cash until 31 December, when the year-end rebalance puts them
+  into positions.
 
-- **Source:** Yahoo Finance, no key, with the risk that it closes one day
-  (08:45: "да"). The only source probed that works from a microcontroller and
-  carries dividends.
+Taken as defaults, because he did not say: the initial capital is a setting,
+10 000 in the portfolio currency; extra contributions are a setting, 0 by
+default; the inception date is a setting, default 2000-01-01.
 
-Taken as defaults, because he did not say: the **initial capital** is a
-setting, 10 000 in the portfolio currency; a weight total under 100 % leaves
-the rest as cash at 0 %; each row may carry a later entry date than the period
-start.
+**Status: v3, waiting for the owner's approval of the previews. No code
+written.** The helper that had started the on-device version was stopped;
+its worktree `wip/market-board` holds only the saved Yahoo samples.
 
-Status: **designed; the firmware is being built by a helper on
-`wip/market-board`** (started 2026-09-15 ~09:00). Nothing on the panel yet.
+## Why Home Assistant, after the council
+
+The council was asked with HA as option B and rejected it only because the
+owner's rule at the time was "no home server"; on the data side every
+councillor called it the most reliable option. The owner chose it himself
+at 09:13. What decides it:
+- the portfolio is a backtest engine: in Python with pandas it is a day's
+  work and easy to test against a reference; on the ESP32 in 40 KB of
+  internal heap it is a week with risk, and every error means a reflash;
+- when Yahoo closes, the source changes in one Python file, not in firmware;
+- daily history from 2000 is kept whole, and every window, both rebalance
+  modes, CAGR and drawdown are precomputed; the panel picks a ready curve
+  and switches instantly;
+- the panel's memory is not involved; the page is as simple as the media
+  player's: receive over MQTT, draw.
+
+The rail and flight boards stay direct: there one answer becomes rows, and
+that is a different class of task.
+
+## What the councils changed (2026-09-15)
+
+Three models (GPT-5.6, Gemini 3.1 Pro, Grok 4.5) plus a devil's advocate
+(DeepSeek V4 Pro), twice: architecture and maths; the dashboard's UI. Both
+verdicts, unanimous: not the v1 design. The corrections, kept in v3:
+
+1. **Two clearly named series, never mixed.** PX = prices only; the main
+   value = the ledger (positions + cash), which is what the owner's cash
+   model gives. `adjclose` is not used for the portfolio at all now, only
+   for a total-return benchmark.
+2. **Inception is separate from the chart window.** v1 tied the entry to
+   the period preset. Inception is a setting; the preset only changes what
+   is visible.
+3. **FX direction defined.** `EURUSD=X` is USD per EUR: a USD price in EUR
+   is `close / EURUSD`.
+4. **Rebalancing is a step-by-step ledger simulation**, not a formula.
+5. **Fees are an estimate and say so:** `TER DRAG ~`, computed with today's
+   TER because the historical TER is not available.
+6. **No frozen FX before 2003-12:** ECB monthly reference rates for
+   1999–2003 (ECB Data Portal, series `EXR.M.USD.EUR.SP00.A`; the app
+   fetches them, nothing is typed from memory).
+7. **Entry and rebalance prices are bar closes**, with the effective date
+   reported. With daily data on HA this is the close of the first trading
+   day on or after the date.
+8. **The portfolio is a hypothetical backtest**; the portal says so.
+9. **A provider seam and a versioned store** so the source can change.
+10. **A consistent snapshot:** the panel shows nothing half-refreshed; every
+    payload carries its as-of.
+11. **UI as "a departure board for money":** one primary read per page, the
+    house style of the rail and flight boards, as-of on every page, YTD,
+    signs with colours, STALE and DATA ERR states, a glossary, number-format
+    rules, and a 12-point preview checklist.
+
+Council points that HA makes moot: the on-device TLS heap, the 12 KB task
+stack, the JSON peak, the crumb lifetime on the device, the cache CRC on
+LittleFS (the panel keeps only the last payloads, small), the trust set of
+TLS roots.
 
 ## Data source, probed 2026-09-15 08:40 from the Mac
 
-**Yahoo Finance chart API v8**, no key, no login:
-`https://query1.finance.yahoo.com/v8/finance/chart/<symbol>?period1=<epoch>&period2=<epoch>&interval=<i>&events=div,split`
+**Yahoo Finance chart API v8**, no key:
+`https://query1.finance.yahoo.com/v8/finance/chart/<symbol>?period1=&period2=&interval=1d|1wk|1mo&events=div,split`
 
 | Request | Answer |
 |---|---|
@@ -47,177 +105,252 @@ Status: **designed; the firmware is being built by a helper on
 | `VOO`, max, monthly | 193 points from 2010-10, **63 dividends, 1 split**, 25.6 KB |
 | `AAPL`, 5y, weekly | 262 points, 20 dividends, 31.1 KB |
 | `^GSPC`, 1y, daily | 251 points, 26.5 KB |
-| `^IXIC`, `period1`=2000-01-01, monthly | 322 points, 2000-01 → 2026-09, 35.0 KB |
+| `^IXIC`, `period1`=2000-01-01, monthly | 322 points, 35.0 KB |
 | `^GDAXI`, same | 322 points, EUR, 33.6 KB |
 | `IWDA.AS`, same | 206 points from 2009-08, EUR, no dividends (accumulating), 23.3 KB |
 | `EURUSD=X`, same | 275 points, **from 2003-12**, 30.5 KB |
 
-What every answer carries:
-- `timestamp[]`, `open/high/low/close/volume[]`;
-- **`adjclose[]`**: the close adjusted for dividends and splits, which is the
-  total-return series a "with dividends" chart needs;
-- `events.dividends`: each cash dividend with its date and amount;
-  `events.splits` with numerator and denominator;
+Every answer carries `timestamp[]`, `close[]` (split-adjusted), `adjclose[]`
+(split- and dividend-adjusted), `events.dividends` (date, amount, split-
+adjusted), `events.splits`, `meta.currency`, `meta.instrumentType`. Checked
+on VOO's 2013 1:2 reverse split: close 160.88 pre-split in the data (real
+~80), dividend 0.786 (real 0.393). So quantities are never multiplied by
+split ratios. Monthly bars are stamped at the month's start and close at its
+end; a "today" point is appended.
 
-**`close[]` and the dividend amounts are already split-adjusted.** Checked on
-the VOO sample, 2026-09-15: the 2013-10-24 1:2 reverse split shows as a close
-of 160.88 on 2013-10-01 (the real pre-split price was about 80) and a
-dividend of 0.786 on 2013-09-23 (the real one was 0.393). So quantities are
-never multiplied by split ratios; `events.splits` is diagnostics only.
-- `meta.currency`, `meta.instrumentType` (INDEX, ETF, EQUITY, CURRENCY),
-  `meta.exchangeTimezoneName`.
+**Expense ratios** need Yahoo's crumb: `GET /v1/test/getcrumb` on `query2`
+worked without a cookie on 2026-09-15; then
+`quoteSummary/<symbol>?modules=fundProfile&crumb=`: VOO 0.03 %, SPY 0.0945 %,
+IWDA.AS 0.20 %, VWCE.DE none, AAPL none (a stock). A manual TER per symbol
+covers the funds Yahoo lacks.
 
-**Not verified:** how long the endpoint stays open without a key. It is not a
-documented public API; Yahoo has closed `v7/finance/quote` to key-less callers
-("User is unable to access this feature", seen 2026-09-15) while `v8/chart`
-still answers. The design fails soft: the last series stay in flash and the
-page says how old they are.
+In Python the `yfinance` library wraps all of this, crumb included. The app
+uses it; the samples saved on 2026-09-15 stay as test fixtures.
 
-**TLS.** `query1.finance.yahoo.com` chains to **DigiCert Global Root G2**
-(sha256 fingerprint `CB:3C:CB:B7:60:31:E5:E0:13:8F:8D:D3:9A:23:F9:DE:47:FF:C3:5E:43:C1:14:4C:EA:27:D4:6A:5A:B1:CB:5F`,
-valid to 2038-01-15), present in macOS's system root store. Pinned, as the
-rail board pins the ISRG roots.
+**Not verified:** how long the endpoint stays key-less (Yahoo has already
+closed `v7/finance/quote`). On HA the source is one adapter; the store is
+versioned; the panel keeps the last payloads.
 
-**Expense ratios**, probed 08:45: `GET /v1/test/getcrumb` on
-`query2.finance.yahoo.com` gave an 11-character crumb (the `fc.yahoo.com`
-visit answered 404 and set no cookie, and the crumb worked anyway). Then
-`quoteSummary/<symbol>?modules=fundProfile,price&crumb=...`:
-
-| Symbol | Type | Currency | `annualReportExpenseRatio` |
-|---|---|---|---|
-| VOO | ETF | USD | 0.0003 (0.03 %) |
-| SPY | ETF | USD | 0.000945 |
-| IWDA.AS | ETF | EUR | 0.002 |
-| VWCE.DE | ETF | EUR | **none** |
-| AAPL | EQUITY | USD | none, as expected |
-
-So the TER can be pulled for most funds, and the portal needs a manual field
-for the ones Yahoo does not carry. **Not verified:** how long a crumb stays
-valid, and whether the crumb-less path keeps working.
-
-**Fallbacks probed and rejected:**
-- Stooq CSV: behind a JavaScript proof-of-work challenge now (2026-09-15); not
-  reachable from a microcontroller.
-- Alpha Vantage: 25 calls/day on the free tier; daily-adjusted series is a
-  premium endpoint. From its pricing page, not probed. **Not verified.**
+**Fallbacks probed and rejected:** Stooq (JavaScript challenge, 2026-09-15);
+Alpha Vantage (25 calls/day, adjusted series premium; from its pricing page,
+not probed).
 
 ## A fact that shapes the fee figure
 
 **A fund's price is already net of its TER.** The fee is taken from the fund's
-assets every day, so the chart drawn from Yahoo's prices is the return after
-fees. Subtracting the TER again would count it twice. The dashboard therefore:
-- draws the real curves, which are net of fees;
-- shows **"fees paid"** as an estimate for information: for each month,
-  position value × TER / 12, summed over the period;
-- can draw the gross-of-fees curve as a dashed line, off by default.
+assets every day, so a curve drawn from prices is the return after fees.
+Subtracting the TER again would count it twice. So: the curves stay as they
+are; `TER DRAG ~` is shown as an estimate (position value × TER × years,
+summed by day, with today's TER); a gross-of-fees line is a counterfactual
+(`net × exp(TER × years held)`), dashed, labelled EST, off by default.
 
-## Design
+## Design v3
 
-### Module
+### Where things live
 
-`src/market/`, behind `-DMARKET_ENABLED`. Needs the knob build
-(`CONTROL_ENCODER_ENABLED`) like the other pages; refused without it. Pages
-`PAGE_MARKET_*` after `PAGE_RAILBOARD`; portal key `PANEL_KEY_MARKET`.
+| Part | Where | Job |
+|---|---|---|
+| **The app** `matrix_market.py` | AppDaemon on HA, beside `flight_board.py` and `matrix_media.py` | fetch daily history and dividends, keep the store, compute every window and both modes, publish retained payloads over MQTT |
+| **The store** | `/addon_configs/a0d7b954_appdaemon/market/` | one Parquet or CSV file per symbol, daily bars from 2000, FX, TER; the ECB table; a `manifest.json` with versions and fetched-at |
+| **The page** `src/market/` | the panel, behind `-DMARKET_ENABLED`, needs `MQTT_BUS_ENABLED` and the knob | receive, keep the last payloads in PSRAM and in LittleFS, draw the four pages, the knob |
+| **The portal card** | the panel's web portal | the selections; publishes the config; shows the app's status |
 
-| File | Job |
-|---|---|
-| `market_model.h/.cpp` | series store, portfolio maths; plain C++, host-testable |
-| `yahoo_direct.h/.cpp`, `yahoo_roots.h` | the fetch task, the crumb, the parser |
-| `market_page.cpp` | the four pages and the knob |
-| `market_settings.h` | NVS namespace `market` |
-| `README.md` | the contract, the API, what is measured |
+### MQTT contract, under `nickoscope_matrix/<dev>/market/`
 
-### Data on the panel
+`<dev>` is the panel's id, as the media player uses (`d20ec8` today).
 
-- **Series** per symbol, in PSRAM: `ts[]`, `close[]`, `adjclose[]` as
-  `uint32/float/float`, dividends `(ts, amount)`, splits `(ts, ratio)`, meta
-  (currency, type, name, TER, fetched-at). At most 1400 points.
-- **Resolution by period:** up to 2 years weekly (`1wk`), longer monthly
-  (`1mo`). At 128 px wide, more would not show.
-- **Cache** on LittleFS, `/market/<symbol>.bin`, written after every good
-  fetch and read at boot, so the page shows at once and survives reboots.
-- **Fetch policy:** only while a market page is on screen (the owner's rule
-  for every board), when the cache is older than `refreshH` (default 6 h),
-  and after a portal save. One symbol at a time, under the net lock, task on
-  core 0 at priority 0 with a 12 KB stack, body in PSRAM (cap 128 KB), parsed
-  with an ArduinoJson filter that keeps only the fields above. TER once per 30
-  days per fund.
-- **Internal heap gate:** as the rail board, no fetch under 28 KB free.
+From the panel, retained:
+- `config` `{"v":1, "indices":[..≤8], "tickers":[..≤8], "portfolio":{"capital":10000,
+  "currency":"EUR", "inception":"2000-01-01", "contrib":{"amount":0,"every":"year"},
+  "rebalance":true, "positions":[{"sym":"VOO","w":50.0,"entry":null},...],
+  "ter":{"VWCE.DE":0.22}}, "presets":["YTD","1Y","3Y","5Y","10Y","MAX"]}`.
+  A change makes the app recompute and republish.
 
-### Portfolio maths
+From the app, retained:
+- `status` `{"v":1,"asof":"2026-09-14","fetched":"2026-09-15T07:02Z","state":"ok|stale|error",
+  "err":"","symbols":{"VOO":{"asof":"2026-09-12","bars":6700,"ter":0.0003,"terSrc":"yahoo"},...}}`
+- `index/<sym>/<preset>` and `ticker/<sym>/<preset>`:
+  `{"v":1,"sym":"VOO","name":"VOO","cur":"USD","preset":"5Y","from":"2021-09-13","to":"2026-09-12",
+  "last":548.2,"chg":0.124,"hi":552.1,"lo":327.4,"n":128,"min":327.4,"max":552.1,"pts":"<base64>"}`
+  where `pts` is 128 `uint16` values scaled between `min` and `max` (256 B,
+  344 B in base64), sampled at equal time steps across the window.
+- `portfolio/<mode>/<preset>` for `mode` in `hold`, `rebal`:
+  `{"v":1,"cur":"EUR","preset":"5Y","from":..,"to":..,"value":123456.0,"chg":0.482,
+  "sinceStart":1.85,"cagr":0.071,"mdd":-0.23,"div":4210.0,"terDrag":312.0,"cash":150.0,
+  "n":128,"min":..,"max":..,"pts":"<base64>","px":"<base64>","bench":"<base64>","gross":"<base64>"}`
+- `holdings/<mode>` `{"v":1,"asof":..,"rows":[{"sym":"VOO","tgt":50.0,"now":53.1,"ret":0.52,
+  "entry":"2015-01-02"},...],"cash":{"now":1.2}}`
+- `ha`: `online` / `offline`, the app's will, as the media app does.
 
-For a position `(symbol, weight)` with capital `C` and the period start `S`
-(or the row's later date):
-- `cost = C × weight`; `t0` = first point at or after `S`; `p0 = close[t0]`;
-  `qty0 = cost / p0`.
-- A symbol with no data at `S` (VOO begins 2010-10) keeps its money as cash at
-  0 % until its first point, then buys; the page says "VOO from 2010".
-- `qty` stays constant between purchases and rebalances: the closes are
-  split-adjusted already (above).
-- Value in the portfolio currency: `qty(t) × close(t) × fx(t)`, where `fx`
-  converts the symbol's currency (EUR = 1; USD via `EURUSD=X`; others
-  refused with a message in the portal).
-- Total return with dividends reinvested: `value0 × adjclose(t)/adjclose(t0)
-  × fx(t)/fx(t0)`.
-- Cash dividends received: sum over dividends after `t0` of
-  `amount × qty(at that date) × fx`.
-- Fees paid (estimate): sum over months of `value(t) × TER / 12`.
-- Portfolio curves are sums over positions plus the cash remainder; the cost
-  basis is `C`.
-- **Rebalancing, when on:** at the last data point of each calendar year
-  after the first entry (the December point at monthly resolution), the
-  total value `V` is redistributed: each position to `V × weight`, cash to
-  `V × (1 − Σ weights)`. A symbol without data yet keeps its weight as cash.
-  No transaction costs. Both modes are computed every time; the checkbox
-  chooses which one the page shows, and the portal shows both end values
-  side by side.
-- Before 2003-12 there is no EUR/USD history from this source; a lot older
-  than that uses the first rate and the page says "FX from 2003".
+Sizes: every payload under 1 900 B, the bus's limit (checked by the app,
+which drops the optional lines first). Topics: at most 16 symbols × 6
+presets + 2 × 6 + 2 + 2 = 112 retained topics, all under one wildcard
+subscription.
+
+The app republishes everything after its daily fetch, after a `config`
+change, and every 6 h as a keepalive (`status` only when nothing changed).
+
+### The app
+
+- **Fetch:** once a day at 07:00 local, and on a `config` change: daily
+  bars, dividends and splits per symbol from 2000 (or the listing), FX
+  `EURUSD=X`, TER via `yfinance`'s fund info, the ECB 1999–2003 monthly
+  rates once. Retries with back-off; a failed symbol keeps its store and is
+  marked in `status`.
+- **Store:** one file per symbol; append only new bars; a full refetch when
+  a split or a corporate action changes past closes (detected by comparing
+  the last 30 stored closes).
+- **Timeline:** trading days of the portfolio currency's calendar; each
+  series carried forward from its last bar on or before the day; nothing
+  interpolated; a symbol exists from its first bar.
+- **Windows:** YTD (from the last trading day of the previous year), 1Y,
+  3Y, 5Y, 10Y, MAX (from the inception date). Downsampled to 128 points by
+  taking the last bar of each equal time slice.
+
+### Portfolio maths, v3: the ledger
+
+Settings: capital `C`, currency, inception `S`, contributions (amount and
+period), positions `(sym, w, entry)`, rebalance on/off. `X_s(d)` = portfolio
+currency per unit of `s`'s currency on day `d`.
+
+- **Start:** `cash = C` on the first trading day ≥ `S`. For every position
+  whose fund has a bar on that day and whose entry (if set) has come:
+  `qty_s = C × w_s / (close_s × X_s)`, `cash −= C × w_s`. The weight of a
+  position that does not exist yet stays in cash.
+- **Each day:** `V_px(d) = Σ qty_s × close_s(d) × X_s(d)` (positions only);
+  `V(d) = V_px(d) + cash`. Dividends with an ex-date on `d`:
+  `cash += amount × qty_s × X_s(d)`, `DIV += the same`. Contributions on
+  their day: `cash += amount`. `TERdrag += qty_s × close_s × X_s × TER_s /
+  252` for every fund position.
+- **31 December** (the last trading day of the year), in both modes, the
+  cash is put to work:
+  - **HOLD:** no selling. Cash is spent on positions in proportion to their
+    target weights (a position without data yet keeps its share in cash).
+  - **REBAL:** `V = V_px + cash`; every position with data is set to
+    `V × w_s` (buying or selling at the close); cash becomes `V × (1 − Σ w)`
+    plus the shares of positions that do not exist yet.
+  The effective date is reported. No transaction costs, no taxes.
+- **Reported per window:** `value` at the end, `chg` = value at the end ÷
+  value at the window's start − 1, `sinceStart` = value ÷ (C + contributions)
+  − 1, `cagr` when the window ≥ 3 years, `mdd` = the deepest fall of `V`
+  from a previous peak inside the window, `div`, `terDrag`, `cash` share.
+- **Lines:** `pts` = `V`; `px` = a second run of the same ledger with the
+  dividends dropped (the "without dividends" line); `bench` = the first
+  index from the same start, price index scaled to `C` (S&P 500 has a
+  total-return twin `^SP500TR` on Yahoo; if it answers, the app uses it and
+  says so); `gross` = the EST counterfactual, off by default.
+
+**Before the portfolio page is coded:** the app's numbers for a three-fund
+allocation are compared with an independent tool (the owner's Excel, or
+Portfolio Visualizer) within 0.1 % on the end value.
 
 ### Pages, 128×64
 
-Four pages, the knob steps them; the carousel gives each 20 s.
+House style: black ground; amber headings; white primary; dim
+(110/122/128) secondary; green/red only for signed changes, never pure
+0/255; amber `STALE`, red `DATA ERR`; at most four semantic colours on a
+page. Fonts: 5×7 for primary text, 2× for the one key number, Picopixel
+only for secondary rows and the footer. Numbers: tabular, right-aligned;
+thousands separators; `12.3K`, `1.24M` when a value would not fit; one
+decimal on percentages under 100, none above; a sign always. No motion
+except an optional one-shot line draw under 0.5 s on entry; no blinking last
+point, no sweep.
 
-1. **Overview**: four tiles of 64×32, one per index: name, last, period
-   change in green/red, a sparkline of the period.
-2. **Ticker detail**, one per chosen ticker: header with the name, the last
-   price and the period change; a line chart with the period's high and low
-   labelled; year ticks along the bottom; the period label ("2000→", "5Y").
-3. **Portfolio**: header "PORTFOLIO €123,456 +48.2%"; two lines, price value
-   and total return with dividends; footer "DIV €4,210  FEES €312" and a tag,
-   REBAL or HOLD.
-4. **Holdings**: one row per symbol: symbol, the weight as set, the current
-   share, return since entry, in the rail board's row style, looping when
-   they overflow.
+1. **MARKETS**: heading `MARKETS` + `AS OF 14 SEP`; the primary index:
+   mnemonic (SPX, NDX, CAC, DAX), last at 2×, `+1.2%` for the window, a
+   48×16 sparkline; three secondary rows `NDX  26 186  +0.8%`. Click, then
+   rotate: which index is primary.
+2. **TICKER** (one page; rotate inside it steps the ticker): heading `VOO`
+   + window tag; `548.2 USD` at 2× and `+12.4%`; one close-line chart, 128
+   wide × ~30 high, three time ticks; footer `HI 552  LO 327` + as-of.
+3. **PORTFOLIO**: heading `PORTFOLIO EUR` + `REBAL`/`HOLD` + as-of; `123.5K`
+   at 2× and `+48.2%`; one bright value line, the no-dividend line dim
+   (setting), the benchmark dim; footer `DIV 4.2K  TER~ 0.3K  CASH 1%`.
+4. **HOLDINGS**: heading `HOLDINGS 1/2` + window; rows `VOO  40→43%  +52%`,
+   a `CASH` row last; four rows a page, rotate inside pages.
 
-Knob: rotate steps the pages; click enters; inside, rotate steps the period
-preset (1Y, 3Y, 5Y, 10Y, since 2000) and a toast names it.
+Knob: rotate browses pages; click enters; inside, rotate steps the window
+preset (YTD, 1Y, 3Y, 5Y, 10Y, MAX), global for the market pages, shown in a
+fixed status row for 1.5 s; on TICKER a second click switches rotate to the
+ticker list; click again or 10 s of quiet leaves. The carousel shows the four
+pages 20 s each. The preset and the ticker choice are the panel's, kept in
+NVS; every preset is already on hand, so switching is instant.
 
-### Portal card "Market"
+### Glossary
 
-- tickers: up to 8 rows, symbol plus an optional display name;
-- positions: up to 16 rows: symbol, weight % (0.1 % steps; the card shows the
-  sum and refuses more than 100 %), an optional later entry date;
-- initial capital in the portfolio currency, default 10 000;
-- period: start year 2000..now, and the presets;
-- portfolio currency: EUR or USD;
-- rebalance every 31 December on/off; both end values shown side by side;
-- refresh, hours; gross-of-fees line on/off;
-- TER override per symbol, %, for funds Yahoo does not carry;
-- diagnostics: per symbol the points, the fetched-at, the last HTTP code,
-  the crumb state; heap before and min during the last fetch.
-- `GET /api/market`, `POST /api/market` JSON only, as the other cards.
+| Label | Meaning |
+|---|---|
+| LAST | the last available close, with its date; never "live" |
+| % | the change over the selected window: last ÷ first in the window − 1, with its sign |
+| PX / "no DIV" | the same ledger with dividends dropped |
+| DIV | cash distributions received after entry, at Yahoo's event date |
+| TER DRAG ~ | estimated cost of the funds' expense ratios; an estimate with today's TER |
+| HI / LO | the highest and lowest close in the window |
+| CASH | the cash row: dividends, contributions, and the shares of funds not yet listed, until 31 December |
+| YTD … MAX | the chart window; MAX = from the inception date |
+| AS OF | the date of the oldest series on the page; STALE when older than 3 trading days; DATA ERR when the app reports an error and nothing is stored |
+| REBAL / HOLD | which model the page shows |
+| TGT → NOW | target weight → current share |
 
-### Checks
+### The panel side
 
-- `tools/market/market_host_test.cpp` + `check_market.py`: the parser and the
-  maths against a Python reference on the samples saved from today's probes.
-- `tools/market/render.py`: the four pages from the same constants, PNG
-  previews at 6× and 1:1, committed.
-- Flag matrix rows: "market + knob" builds; "market without the knob" is
-  refused; market joins "everything".
+- `src/market/market_model.*`: the payloads decoded into PSRAM; the last
+  payloads written to LittleFS `/market/last.bin` so a reboot with HA down
+  still shows the page with its as-of.
+- `src/market/market_page.cpp`: the four pages and the knob.
+- The portal card: indices and tickers (≤ 8 each, symbol + display name),
+  positions (≤ 16: symbol, target %, optional entry; the sum shown and
+  capped at 100 %), capital, currency, inception, contributions, rebalance
+  on/off, the lines on/off, TER override per symbol, the app's status per
+  symbol, both end values side by side, and a note: hypothetical backtest,
+  no taxes, no commissions. `GET/POST /api/market`, JSON only.
+- Bus limits: the media merge raised handlers and subscriptions to 8; the
+  market page takes one of each.
+
+### Checks before the panel
+
+- `tools/market/market_ref.py` (the same maths, standalone) against the
+  app's `compute()` on the saved samples and on synthetic cases: a two-asset
+  drift where HOLD and REBAL differ by a hand-checked amount; a late
+  listing; FX both ways; a dividend on a rebalance day; contributions.
+- The golden match with an independent tool, above.
+- `tools/market/render.py`: the four pages from the layout constants, PNG at
+  6× and 1:1, with worst-case strings (an 8-character symbol, a six-figure
+  negative, `+1,245%`, STALE, DATA ERR, no dividends, a short history).
+- `tools/market/check_market.py`: payload sizes under 1 900 B for the largest
+  config; the panel's decoder against the app's encoder.
+- Flag matrix rows: "market + bus + knob" builds; "market without the bus"
+  and "without the knob" are refused; market joins "everything".
+
+### Preview checklist (the council's, merged)
+
+1. The primary number reads from 3 m in 2 s.
+2. No more than two large numbers on a page.
+3. The window tag is always visible.
+4. AS OF, STALE or DATA ERR is always visible.
+5. Every change carries a sign; zero is not green.
+6. The main line and the no-dividend line cannot be confused.
+7. Consistent with the rail and flight boards: black, amber headings, white
+   primary.
+8. At most four semantic colours on a page.
+9. Nothing written inside the chart; HI/LO in the footer.
+10. No motion that imitates a live feed.
+11. Picopixel only for secondary text.
+12. Number formats do not jump between frames; worst-case strings fit.
+
+Then on the panel, from 1.5, 3 and 4 m, by day and in the evening.
+
+## Phases
+
+1. **Previews** of the four pages from `render.py` with real numbers from
+   the Python reference on the saved samples → the owner approves against
+   the checklist.
+2. **The app** with the reference maths, the store, the publisher; the
+   golden match.
+3. **The panel page and the portal card**; flag matrix; audit gate; flash;
+   measure.
 
 ## Measured on the panel
 
-Nothing yet. To measure: fetch time per symbol, JSON peak, internal heap min
-during a fetch, the render time of the chart pages, the cache read at boot.
+Nothing yet. To measure: payload sizes as received, PSRAM for the decoded
+set, render time of the chart pages, the boot with HA down.
