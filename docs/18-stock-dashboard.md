@@ -585,6 +585,7 @@ the fix. The multi-position frames now use an example allocation.
 
 **Remaining.**
 - **Step 7:** the owner looks at the four pages and tries the knob.
+- **Resolved 18:54:** after the move to the 32MB layout the record is written (`wrote 87260 B in 1061 ms`, 20 MB free). Before that:
 - **The offline record cannot be written on this panel.** LittleFS has 12 KB free; the animation uploads fill 3.5 MB. Consequence: after a reboot, the pages stay empty until HA publishes again, seconds while HA is up. Freeing ~125 KB would enable the record.
 
 ## Incident, 2026-09-15 16:31–16:53: the panel rebooted every ~16 s

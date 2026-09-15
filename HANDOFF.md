@@ -99,6 +99,11 @@ Rolling record of where the work stands. Newest first.
    - a research report on professional dashboards and a settings inventory,
      to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
      many settings as sensibly possible; GitHub, Reddit, finance sources).
+   **18:54: 32MB done.** On the owner's "да", the panel was repartitioned over USB.
+   - Result: LittleFS 23.9 MB, 20 MB free; the animations carried over; the market record is written.
+   - Watch minFreeHeap (12.5 KB at boot).
+   - PR #4 is open upstream.
+   - Agents still running: the climate sensor and audio FX.
    **18:10 32MB flash, the owner's request.** Following upstream: large_littlefs_32MB.csv, LittleFS 3.4MB to 23.9MB, NVS unchanged.
    - Done: committed and built on `feature/market-dashboard`; the table was verified.
    - To do: needs USB. Back up, copy the files, flash the app and table, flash the new LittleFS image.

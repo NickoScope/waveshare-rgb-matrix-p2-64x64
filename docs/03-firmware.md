@@ -234,7 +234,27 @@ its values come from `/api/portal`. Checked on the panel:
 
 ## Over-the-air updates, checked 2026-09-14
 
-**Partitions: moving to 32MB (2026-09-15, planned, not flashed).**
+**Partitions: moved to 32MB on 2026-09-15, 18:46–18:54, over USB, with `tools/flash/repartition_32mb.py`.**
+- **What the tool did:**
+  - read the old LittleFS in download mode and verified it on the chip;
+  - extracted 5 files (3 animations, 2 icons), 3 484 452 B;
+  - built a 23 986 176 B littlefs image (block 4096, name_max 255, disk v2.1) and re-mounted it to verify;
+  - checked that the old LittleFS was unchanged since the read;
+  - `pio upload` wrote the bootloader, the new table, `boot_app0` and the app;
+  - wrote the image at 0x910000 and ran `verify_flash` (digest matched).
+
+  The FS write took 300 s.
+- **After the reboot:**
+  - LittleFS 23 986 176 B total, 20 459 520 B free, all three animations listed;
+  - the market record written for the first time (`wrote 87260 B in 1061 ms`);
+  - 69 market payloads accepted, 0 refused;
+  - no crash this boot.
+- **OTA state:** `app0` / `undefined`, as expected for an image flashed over USB (upstream notes the same). The next OTA gets the normal pending-verify path.
+- **Watch:** `minFreeHeap` was 12 532 B at 74 s of uptime, lower than the ~33 KB seen before. Check whether it comes from the first boot's work or recurs.
+- **Rollback image:** `~/panel-backups/2026-09-15-before-32mb/flash_full.bin` (private); `restore-old` writes it back.
+- **Core dump offset:** the read command below now uses `0x1FF0000`, not `0xFF0000`.
+
+**Partitions: the plan as it was (2026-09-15).**
 Upstream v2.3.1 declares the whole 32MB part with arduino-esp32's
 `large_littlefs_32MB.csv` (Keralots 86955e61, flash access checked at
 0x00F00000, 0x01800000 and 0x01FE0000 with IDF 4.4.7). Our env follows in
@@ -344,7 +364,7 @@ To read a dump by hand before a health build has booted and erased it
 (this resets the panel):
 
 ```bash
-~/.platformio/penv/bin/python ~/.platformio/packages/tool-esptoolpy/esptool.py --chip esp32s3 --port /dev/cu.usbmodem2101 read_flash 0xFF0000 0x10000 coredump.bin
+~/.platformio/penv/bin/python ~/.platformio/packages/tool-esptoolpy/esptool.py --chip esp32s3 --port /dev/cu.usbmodem2101 read_flash 0x1FF0000 0x10000 coredump.bin
 ```
 
 ```bash
