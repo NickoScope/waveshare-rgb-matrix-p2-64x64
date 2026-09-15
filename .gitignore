@@ -10,3 +10,6 @@ __pycache__/
 build/
 enclosure/cad/out/*.stl
 secrets.yaml
+
+# the owner's personal data (portfolio); the repository is public
+private/

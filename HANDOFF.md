@@ -99,7 +99,15 @@ Rolling record of where the work stands. Newest first.
    - a research report on professional dashboards and a settings inventory,
      to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
      many settings as sensibly possible; GitHub, Reddit, finance sources).
-   11:30: the panel side is done and pushed (`wip/market-panel`); the audit
+   **Privacy (11:58).** Both repos are public; the owner's allocation had
+   been pushed. His decision:
+   - fork branches: scrub. `origin/wip/market-board` and
+     `origin/wip/market-panel` were deleted at 11:59; the local copies are
+     intact. Push squashed clean branches only after `git grep` finds none
+     of his weights.
+   - KB: allocation moved to gitignored `private/`; history kept.
+
+   11:30: the panel side is done (`wip/market-panel`, remote deleted since); the audit
    gate is running on it; the research is in doc 19; the owner has six
    page decisions to make (doc 18). The HA app is still building.
    Then: merge, OTA, the HA app install (the add-on's `python_packages`),

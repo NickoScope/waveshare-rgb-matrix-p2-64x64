@@ -395,9 +395,10 @@ Portfolio Visualizer's defaults are the same 5 % absolute / 25 % relative
 bands, annual rebalancing by default, and a drift chart when rebalancing is
 off ([PV FAQ](https://www.portfoliovisualizer.com/faq)).
 
-For our fourteen positions the 5/25 rule gives absolute bands only for VOO
-(23.7 %); every other position is under 20 % and gets a relative band:
-GLDM 16.5 % → ±4.1 points, ASHR 1.25 % → ±0.31 points.
+Under 5/25, a position of 20 % or more gets a band of ±5 points. A smaller
+position gets ±25 % of its own weight: a 16 % position ±4 points, a 1 %
+position ±0.25 points. In a portfolio of many small positions, most bands
+are relative.
 
 **Benchmark for a multi-asset allocation.** GIPS: the benchmark "must
 reflect the investment mandate, objective, or strategy" and "must not [be]
@@ -430,7 +431,7 @@ one, otherwise the value doc 18 already chose.
 | Setting | What it does | Pro default | Range | Seen in | Verdict |
 |---|---|---|---|---|---|
 | Indices list | the MARKETS page and the tape | SPX, NDX, CAC, DAX (18) | ≤ 8 symbols | TV, KF, LED | Core (18) |
-| Tickers list | the TICKER page | the fourteen funds (18) | ≤ 8 on the panel | TV, KF, LED | Core (18) |
+| Tickers list | the TICKER page | the owner's funds (18, kept locally) | ≤ 8 on the panel | TV, KF, LED | Core (18) |
 | Display name per symbol | a 3–4 letter mnemonic for 128 px | Yahoo `shortName` truncated | free text ≤ 8 | TV, LED | Core (18) |
 | Tape exchanges | which sessions the top row shows | NYSE, NASDAQ, LSE, XETRA, EURONEXT, TOKYO (18) | any `exchange_calendars` code | LED status dot, TV extended hours | Core (18) |
 | Proxy / backfill symbol | extend a young fund with its index or an older share class | none | one symbol per position | PV "Backfilling asset returns" | Advanced: fixes the 2010 VOO gap in the owner's backtest |
@@ -439,7 +440,7 @@ one, otherwise the value doc 18 already chose.
 
 | Setting | What it does | Pro default | Range | Seen in | Verdict |
 |---|---|---|---|---|---|
-| Positions: symbol, target weight | the allocation | the owner's fourteen (18) | ≤ 16, sum = 100 % | PV, PP, GF, WF, SS | Core (18) |
+| Positions: symbol, target weight | the allocation | the owner's allocation (18, kept locally) | ≤ 16, sum = 100 % | PV, PP, GF, WF, SS | Core (18) |
 | Entry date per position | when a position starts | inception | any date ≥ inception | 18, KF "purchase date" | Advanced (18) |
 | Initial capital | the base | 10 000 (18); PV also 10 000 | > 0 | PV, MS "growth of 10,000", VG fact sheet | Core (18) |
 | Inception date | the start of MAX | 2000-01-01 (18) | ≥ oldest data | PV start year, GIPS 2.A.27 "inception date" | Core (18) |

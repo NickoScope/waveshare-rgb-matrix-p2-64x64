@@ -37,22 +37,14 @@ His decisions, 08:41–09:14:
   closed, on every market page. The council's "no marquee" rule is
   overridden for this one row by the owner.
 
-**The owner's target allocation** (a screenshot of his spreadsheet, 09:49;
-the weights sum to 100.00 %):
+**The owner's target allocation** (a screenshot of his spreadsheet, 09:49):
+fourteen USD funds on US exchanges, weights summing to 100 %. **Not in this
+public repository** since 11:58, at the owner's decision:
+- here, in `private/owner-allocation.md` (gitignored);
+- on the panel, in `src/market/market_local_defaults.h` (gitignored);
+- in the app, in `apps_market.local.yaml` (gitignored).
 
-| Ticker | Weight | Ticker | Weight |
-|---|---|---|---|
-| VOO | 23.70 % | GLDM | 16.50 % |
-| VB | 12.00 % | SCHP | 6.50 % |
-| QQQ | 9.50 % | VCLT | 2.90 % |
-| VGK | 7.00 % | VCIT | 1.90 % |
-| PGJ | 5.00 % | VNQ | 3.00 % |
-| FXI | 4.75 % | VNQI | 2.00 % |
-| INDY | 4.00 % | ASHR | 1.25 % |
-
-SPY and GLD stand in the sheet without weights, read as the alternatives to
-VOO and GLDM, not held. All fourteen are USD funds on US exchanges. These
-are the default positions of the market app and the previews.
+Committed code, tests and docs use a neutral example: VFINX 60 / VBMFX 40.
 
 Taken as defaults, because he did not say: the initial capital is a setting,
 10 000 in the portfolio currency; extra contributions are a setting, 0 by
@@ -230,14 +222,8 @@ dashboard **Биржа** (`/stock-market/indices`) with the `easy-stock-card`
 value, the day's change and the market state; at 09:40 a second section
 "Фонды" with VOO (`sensor.voo`, USD) and IWDA.AS (`sensor.iwda`, EUR), their
 own currencies (IWDA removed again at 09:50: the owner does not hold it);
-at 09:45 the owner's fund list, all USD on US exchanges:
-SCHP (Schwab U.S. TIPS), VCIT and VCLT (Vanguard corporate bonds,
-intermediate and long), VB (Vanguard Small-Cap), PGJ (Invesco Golden Dragon
-China), VGK (Vanguard FTSE Europe), INDY (iShares India 50), GLDM (SPDR
-Gold MiniShares), VNQ and VNQI (Vanguard real estate, US and ex-US), as
-`sensor.<ticker lower-case>`; at 09:50 ASHR, FXI and QQQ from his allocation.
-**This list is the owner's fund universe**;
-the market app's default positions should come from it. Indices work: CAC and DAX
+at 09:45–09:50 the owner's funds (fourteen USD ETFs, listed in
+`private/owner-allocation.md`), as `sensor.<ticker lower-case>`. Indices work: CAC and DAX
 reported `REGULAR` and `price_is_live: true` during the Paris session. Not
 yet looked at in a browser. Adding a ticker is Settings → Devices &
 Services → Add integration → Easy Stock → symbol.
@@ -529,7 +515,8 @@ Contract choices it made:
 - one NVS blob `market/cfg`;
 - LittleFS `/market/last.bin`;
 - the extra presets `WTD MTD 1M 3M 6M`;
-- default tickers VOO, GLDM, VB, QQQ (the four largest weights).
+- default tickers from the allocation (replaced by the neutral
+  example after the privacy fix).
 
 All of it is recorded in `src/market/README.md`.
 
@@ -621,10 +608,11 @@ copies are the `MK_*` names in `render.py`: tape rows 0–6, a dark rule at
 
 What is real in them: the four indices, VOO, EURUSD=X from the saved
 samples. The real portfolio is VOO alone (the only one of the owner's
-fourteen funds with a sample): 10 000 EUR from 2000-01-01, reserved as cash
+funds with a sample): 10 000 EUR from 2000-01-01, reserved as cash
 until the 2010 year-end, 89 800.95 EUR on 14 SEP 2026, +798 %, CAGR 8.6 %,
 MDD −19.8 %, DIV 8 803.90, TER~ 170.51. The fourteen-position frames use
-synthetic series with the owner's weights, marked as such. The session strip
+synthetic series with an example allocation, marked as such (the owner's
+weights at first, replaced at 11:58). The session strip
 on TICKER is synthetic everywhere (no 5-minute sample).
 
 **Yahoo rate-limited the Mac.** From 09:30 every request from this Mac got
