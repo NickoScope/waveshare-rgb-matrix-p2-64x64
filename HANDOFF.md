@@ -43,6 +43,45 @@ Rolling record of where the work stands. Newest first.
 
 ---
 
+## 2026-09-15, late evening — the audio visualizer breaks the panel
+
+- **On the panel:** `feature/market-climate-audio` `f896605`, flashed over USB. It carries the market, the 32 MB layout, the SHTC3, the onboard mics, styles 7–14, Code EQ as style 2, the heap diagnostics (`[mem]` lines, `allocFails`), a 4 KB capture stack, the settings-save fix and the fast `room_radar`.
+- **The owner's summary, 23:20:** until the audio visualizer is started everything works and every screen is fine; after it starts, something breaks.
+- **What the serial log shows.** The log is in `~/panel-backups/2026-09-15-monitor/` (private).
+  1. **Memory.** Capture holds 10.4 KB of internal heap while it runs, and a portal page load spikes another ~20 KB. Together they took free internal heap down to 896 B (23:04:54) and 504 B (23:08:58).
+     - Wi-Fi then failed its RX buffer allocations (`1626 B, caps 0x80c, task wifi`) and the network stack died.
+     - MQTT retried every 5 s, and each attempt held `loop()` for 3 s: that is the frozen display. DNS, TLS and ping failed too.
+     - The firmware's link recovery restarted Wi-Fi about 3 min later (23:12:10).
+  2. **`room_radar` stopped** ("over the time budget (500 ms)", three frames in a row) in today's builds. A/B on the panel:
+
+     | Build | Draw avg / max | Drops after open |
+     |---|---|---|
+     | 18:05 build | 384 / 408 ms | 0 |
+     | Today's tree without `AUDIO_MIC`/`VIZ_WOW` | 381 / 407 ms | 2 |
+     | Full build | — | 3, the effect stops |
+
+     The rewrite `3b57c93` has 4.7x fewer instructions per frame and is byte-identical at 6,822 timestamps. It is merged and flashed, but no 30 s frame report on the panel yet.
+  3. **Portal saves froze the display for 1.1 s.** This was upstream code erasing 40 absent NVS keys. Fixed in `f79fe99`: 51 ms.
+  4. **DSP cost:** 12–15 ms per 20 ms frame on core 0, which it shares with Lua and Wi-Fi.
+- **Mitigation without a flash:** portal, Audio visualizer, Source, "PC companion only". `micFeedsViz()` returns false for `AUDIO_SRC_PC`, so capture never starts; the visualizer still runs from the PC stream.
+- **Proposed, not started** (the owner has not said go yet):
+  - (a) name the portal request that takes ~20 KB (URI in the `[mem]` line) and move its small allocations to PSRAM;
+  - (b) no capture start without internal headroom;
+  - (c) MQTT: a 1 s connect timeout (`WiFiClient::setTimeout`) and retries backing off from 5 to 60 s;
+  - (d) DSP cost.
+- **Also today:**
+  - a comment on Keralots #3 (22:22), watch item 7;
+  - PR #4 merged at 20:35;
+  - Code EQ picked by the owner (variant 3).
+- **Local only:**
+  - `.pio/bisect.ini` (envs `bisect-noaudio`, `bisect-nowow`) in the integration worktree;
+  - worktree `/Users/apple/AnimatedPixelClock-radar`;
+  - backups in `~/panel-backups/2026-09-15-before-climate-audio/` (the 18:05 app0 image, otadata, boot logs).
+- **Monitor:** a serial-only logger from the session scratchpad is running and holds `/dev/cu.usbmodem2101`.
+- **Next step:** the owner decides between two options. Either the mics stay off (PC only) while (a)–(c) are done, or the panel goes back to the 18:05 build.
+
+---
+
 ## 2026-09-15, evening — the sensor and the microphones are on the panel
 
 - **On the panel:** `feature/market-climate-audio` `c71bdb5` (market, 32 MB layout, SHTC3, onboard mics, styles 7–14). Flashed over USB at 21:34 at the owner's request, after byte-comparing the partition table with the build. The previous app0 and otadata are backed up in `~/panel-backups/2026-09-15-before-climate-audio/` (private).
