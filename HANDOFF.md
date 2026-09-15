@@ -99,6 +99,12 @@ Rolling record of where the work stands. Newest first.
    - a research report on professional dashboards and a settings inventory,
      to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
      many settings as sensibly possible; GitHub, Reddit, finance sources).
+   **19:35 two features in build, both from feature/market-dashboard 776fc04.**
+   - `feat/onboard-climate`: SHTC3 on I2C 47/48. The owner picked design B; it is being drawn now.
+   - `feat/audiofx-onboard-mic`: ES7210 with two mics; the capture pipeline is done. The owner picked all 8 new effects and keeps the old 6; they are being built.
+   - Plan: one integration branch with both merged, `web_assets.h` regenerated after the merge, the audit gate (BLOCKER/MAJOR only), then one OTA.
+   - Hardware tests after that: the SHTC3 ID and a self-heating calibration against a reference thermometer, then mic noise and latency.
+   - At the squash, leave out `tools/audiofx/out` (23 MB of GIF/MP4 previews) or move it out of git.
    **18:54: 32MB done.** On the owner's "да", the panel was repartitioned over USB.
    - Result: LittleFS 23.9 MB, 20 MB free; the animations carried over; the market record is written.
    - Watch minFreeHeap (12.5 KB at boot).
