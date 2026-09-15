@@ -537,6 +537,30 @@ the fix. The multi-position frames now use an example allocation.
 
 **Approved by the owner at 12:53.**
 
+## Build status, 2026-09-15 13:40
+
+**Finish line set at 13:33, after the owner's "is this endless?"** Audits gate
+only on BLOCKER and MAJOR findings. Everything smaller goes into a Backlog in
+the module README. After that come: one integrated branch, one final audit,
+OTA, the HA install, and the hardware test.
+
+**The panel is done** at `d31b7cb`:
+- a bus connect counter, so the market config and the media selection
+  republish on every new connection;
+- the window row on the DRAWDOWN stop moved over the heading;
+- the four remaining NITs are in the README backlog.
+
+Checks: 392 + 13 host checks, 31/32 frames, flag matrix 39/39. RAM
+100 560 B; flash 2 147 085 B for the owner's build, 2 146 625 B for the
+neutral one.
+
+`wip/market-panel` descends from `board/waveshare-esp32-s3-rgb-matrix`
+8c5f8cf, and no board commits are missing, so integration is a single
+squash.
+
+**The panel did not answer at 13:40** (192.168.4.43: no ping, no
+`/api/info`).
+
 ## Build status, 2026-09-15 13:15
 
 **The panel is on previews v2** (`wip/market-panel` 252b939, local only).
