@@ -96,6 +96,38 @@ def check_github(state, events):
         pass
 
 
+# Our pull requests upstream (watch list item 6 and later): comments, reviews,
+# review comments, and the state including merged.
+PULLS = {
+    4: "PR #4 mbedTLS buffers in PSRAM",
+}
+
+
+def check_pulls(state, events):
+    for number, label in PULLS.items():
+        key = f"pr{number}"
+        pr = gh(f"repos/{REPO}/pulls/{number}")
+        url = pr["html_url"]
+        seen = set(state.get(f"{key}_ids", []))
+        found = []
+        for c in gh(f"repos/{REPO}/issues/{number}/comments?per_page=100"):
+            found.append(("pr-comment", c["id"], c["html_url"], c["user"]["login"], c["body"]))
+        for c in gh(f"repos/{REPO}/pulls/{number}/comments?per_page=100"):
+            found.append(("pr-review-comment", c["id"], c["html_url"], c["user"]["login"], c["body"]))
+        for r in gh(f"repos/{REPO}/pulls/{number}/reviews?per_page=100"):
+            found.append(("pr-review", r["id"], r["html_url"], r["user"]["login"],
+                          f"{r['state']}: {r.get('body') or ''}"))
+        for kind, cid, curl, who, body in found:
+            if cid not in seen:
+                events.append((kind, curl, who, f"[{label}] " + first_line(body)))
+                seen.add(cid)
+        state[f"{key}_ids"] = sorted(seen)
+        status = "merged" if pr.get("merged") else pr["state"]
+        if status != state.get(f"{key}_state", "open"):
+            events.append(("pr-state", url, "-", f"[{label}] is now {status}"))
+        state[f"{key}_state"] = status
+
+
 DISCUSSIONS = {
     "hub75 show-and-tell #962": ("mrcodetastic", "ESP32-HUB75-MatrixPanel-DMA", 962),
 }
@@ -163,7 +195,7 @@ def main():
             state = json.load(f)
     baseline = not state
     events, failures = [], []
-    for name, fn in (("github", check_github), ("discussions", check_discussions), ("reddit", check_reddit)):
+    for name, fn in (("github", check_github), ("pulls", check_pulls), ("discussions", check_discussions), ("reddit", check_reddit)):
         try:
             fn(state, events)
         except Exception as ex:  # a source down is reported, not fatal
