@@ -10,7 +10,7 @@ Plan behind it: [09-upstream-contributions.md](../09-upstream-contributions.md).
 ## What is ready
 
 - Branch `feat/tls-buffers-psram`, made from `upstream/main` at `9e37721` (v2.3.1).
-- One commit, `e329a49`: `feat(net): allocate mbedTLS buffers in PSRAM`.
+- One commit, `7135b4e`: `feat(net): allocate mbedTLS buffers in PSRAM`.
 - Files: `src/network/tls_psram.h` (new, 15 lines), `src/network/tls_psram.cpp` (new, 36 lines), `src/main.cpp` (+4 lines).
 - To open the PR, the owner pushes the branch to the NickoScope fork and opens it against `Keralots:main`. That happens only on "отправляй".
 
