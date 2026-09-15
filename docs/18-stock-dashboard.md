@@ -537,6 +537,39 @@ the fix. The multi-position frames now use an example allocation.
 
 **Approved by the owner at 12:53.**
 
+## Build status, 2026-09-15 13:15
+
+**The panel is on previews v2** (`wip/market-panel` 252b939, local only).
+- The delta audit's MINORs and NITs are fixed:
+  - no heap allocation for the local-defaults check;
+  - `pgKnown` carries a copy of `pages`, and the legacy mask knows CLOCK..CARDS;
+  - an identical `config` is suppressed by CRC;
+  - a failed rename keeps `last.tmp`;
+  - a short write stops the socket.
+- `wip/market-previews2` is merged.
+- The firmware draws the new frames:
+  - `D<min>`, TWR, ANN, the XIRR footer with flows, a third knob stop for
+    the drawdown, the whole-K formatter;
+  - `^SP500TR` and the delay badge as defaults;
+  - record v3.
+
+**Checks**
+- 31 of 32 frames are identical in text and pixels; the exception is
+  `ticker_err`, where the panel cannot know the currency.
+- 384 + 13 host checks, 702 numbers equal to render.py, and the layout
+  budget equals render.py's.
+- Flag matrix 39/39. The largest payload is 1 592 B.
+
+**Sizes (RAM / flash)**
+- The owner's build: 100 544 / 2 147 001 B.
+- The neutral build: 100 544 / 2 146 541 B.
+
+**Edge rules given to the app:**
+- an open quote always carries `delay_s`;
+- `flows` always comes with `xirr_ann`.
+
+Delta audit 2: running.
+
 ## Build status, 2026-09-15 12:55
 
 - **Panel.** The delta audit of `3024545..4727ed0` was **APPROVED**. It left
