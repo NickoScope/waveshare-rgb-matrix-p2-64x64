@@ -227,7 +227,8 @@ dashboard **Биржа** (`/stock-market/indices`) with the `easy-stock-card`
 (currency RAW, 1-day range, medium tiles) and four tile cards showing the
 value, the day's change and the market state; at 09:40 a second section
 "Фонды" with VOO (`sensor.voo`, USD) and IWDA.AS (`sensor.iwda`, EUR), their
-own currencies; at 09:45 the owner's fund list, all USD on US exchanges:
+own currencies (IWDA removed again at 09:50: the owner does not hold it);
+at 09:45 the owner's fund list, all USD on US exchanges:
 SCHP (Schwab U.S. TIPS), VCIT and VCLT (Vanguard corporate bonds,
 intermediate and long), VB (Vanguard Small-Cap), PGJ (Invesco Golden Dragon
 China), VGK (Vanguard FTSE Europe), INDY (iShares India 50), GLDM (SPDR
