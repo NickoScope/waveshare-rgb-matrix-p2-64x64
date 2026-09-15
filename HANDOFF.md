@@ -99,6 +99,22 @@ Rolling record of where the work stands. Newest first.
    - a research report on professional dashboards and a settings inventory,
      to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
      many settings as sensibly possible; GitHub, Reddit, finance sources).
+   **17:10 session summary (market dashboard).**
+   Done:
+   - council design and the owner's decisions; previews v1 and v2 approved;
+   - panel page and portal; HA app with plug-and-play modules;
+   - audits, fixes, and squash into `feature/market-dashboard` (b40c3d6, pushed);
+   - OTA to the panel (build 17:00:11); app on HA; "Портфель" view in HA.
+   Fixed on the real system:
+   - AppDaemon's `config_path` Path in `self.args`;
+   - the panel reboot loop on a full LittleFS (free-space guard).
+   Left:
+   - step 7, the owner's look at the panel pages;
+   - the owner's decision on freeing ~125 KB of LittleFS for the offline record;
+   - log noise `live: shrunk`;
+   - delete the local wip branches and worktrees (they hold the funds in history) after step 7;
+   - merge `feature/market-dashboard` into the board branch after step 7.
+   Next step: the owner's hardware check, then merge and cleanup.
    **17:05: steps 1–6 done, working end to end.**
    - Guarded firmware flashed.
    - App re-enabled.
