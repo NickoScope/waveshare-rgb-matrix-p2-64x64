@@ -56,6 +56,14 @@ not depend on this check.
 
 Newest first. One line per event: date, item, who, the gist, what was done.
 
+- 2026-09-15 17:55. **Items 1 and 4 (read by hand).**
+  - **Item 1:** Keralots answered #3 at 14:55 UTC.
+    - Board support is already upstream: v2.3.1 with a 32MB layout.
+    - He wants items 3, 2 (the task half), 4 (the crash report half) and 6, in that order.
+    - Rollback and loop diagnostics: no. The optional modules stay in the fork.
+    - PR order and rules recorded in [09](09-upstream-contributions.md). No PR is started until the owner decides.
+  - **Item 4:** upstream commits merged the Waveshare target and published release v2.3.1.
+  - **Reddit:** answered 429 in this run, so it was not read.
 - 2026-09-15 01:00 — item 5 added: the Show and tell post about the Waveshare
   board, published on the owner's "отправляй".
 - 2026-09-15 00:45 — watch started. Issue #3 and both Reddit comments are

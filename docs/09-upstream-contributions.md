@@ -10,6 +10,34 @@ Our fork: [NickoScope/AnimatedPixelClock](https://github.com/NickoScope/Animated
 active (three releases in four days as of 2026-09-09), so a short exchange costs nothing and
 prevents building the wrong shape.
 
+## Keralots' answer on issue #3 (2026-09-15 14:55 UTC), and the PR order it sets
+
+Source: https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5682483397 (Rafał). PRs are welcome.
+
+| # in our issue | Change | His answer | Our work to base it on |
+|---|---|---|---|
+| 1 | Waveshare board support | **Already upstream.** v2.3.1 shipped a `matrix-waveshare` env with a bring-up env, a shared pin map in `src/display/hub75_pins.h` and a flasher tile. It uses the full 32MB flash with `large_littlefs_32MB.csv`: 4.5MB OTA slots and 23MB LittleFS, flash access checked at 0x00F00000, 0x01800000 and 0x01FE0000. Our `opi_opi` finding counts as independent confirmation. | nothing to send |
+| 2 | Weather | **Yes to the task half:** a task per fetch with `vTaskDelete`, instead of the 8KB task kept forever at `weather.cpp:160`. **No to on-screen gating:** his looser gating at `weather.cpp:37` prefetches on purpose, and a cycle slot can be 5 s (`cycle_config.h:26`). | the task lifetime part of 6e91d54, without the gating |
+| 3 | TLS buffers in PSRAM | **Yes, send first.** The framework sets `CONFIG_MBEDTLS_SSL_MAX_CONTENT_LEN` 16384 with no asymmetric override, so the buffers are ~32KiB of internal heap per session. | our mbedTLS-in-PSRAM change |
+| 4 | Boot health | **Crash report yes, rollback no.** A confirm condition that depends on WiFi would roll back a healthy image when the credentials changed, and it does not cover his USB full-image path (`ESP_OTA_IMG_UNDEFINED`). A link-independent confirm would change his mind. | the core dump summary in `/api/info` only (from 8ec3045) |
+| 5 | Loop diagnostics | **No.** Keep it in the fork. | none |
+| 6 | Lighter portal (gzip) | **Yes, the most interesting, send last.** He measured `web_pages.h` at 144,451 B, gzipped 32,956 B, so `matrix-s3` goes from 82.6 % to ~77 % flash. He asks for the generator in the PR and a loud failure when the header is stale; our `web_assets_gen.py --check` already does that. | 8c5f8cf |
+| — | Optional modules (encoder, MQTT/HA, world clock, Lua, TF gallery, data boards, radars) | **Keep them in the fork**, a matter of scope. The one peripheral he would take is the SHTC3, as local temperature for the weather clock. | — |
+
+**His PR rules:**
+- one PR per change, off `main`;
+- Conventional Commits;
+- no `FIRMWARE_VERSION` bump or release notes;
+- existing formatting kept;
+- README in the same PR if the change needs setup;
+- all three envs build;
+- the `matrix-s3` size in the description;
+- no build flags: all four changes on by default.
+
+**PR order: 3, then 2 (the task half), then 4 (the crash report half), then 6.** No PR starts until the owner decides. Texts are drafted in `docs/drafts/` in his voice and posted only on his "отправляй".
+
+**Consequence for our fork:** his 32MB partition table would give LittleFS 23MB, against our 3.4MB. That removes the market record's "no space" (doc 18). Switching needs a USB flash of the new partition table and erases LittleFS, animations included. That is the owner's decision.
+
 ## The binding constraint: flash on the 4MB board
 
 Measured on commit `74f964b`, arduino-esp32 2.0.17 via espressif32@6.12.0:
