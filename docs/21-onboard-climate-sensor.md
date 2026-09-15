@@ -1,5 +1,7 @@
 # The board's temperature and humidity sensor, and the weather screen
 
+**Owner's decision, 2026-09-15 19:10: variant B, split "outside | inside".** Being implemented on `feat/onboard-climate`. Variants A and C stay in `tools/climate/preview/` for reference.
+
 **2026-09-15.**
 
 | Stage | Where it stands |
