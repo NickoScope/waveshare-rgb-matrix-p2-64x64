@@ -542,6 +542,27 @@ the fix. The multi-position frames now use an example allocation.
 
 **Approved by the owner at 12:53.**
 
+## Build status, 2026-09-15 16:25
+
+**Step 4, the final audit, returned CHANGES-REQUIRED with one MAJOR.**
+- **The finding:** after an AppDaemon restart, the first generation was built from apps.yaml rather than from the panel's config. It showed the wrong allocation on the panel, left a spike in HA's statistics, and cleared the panel's own symbols.
+- **The fix:** cd7c3bf. The app now starts from the stored `config_last`.
+- **Verification:** the new `RestartTests`, the auditor's own reproduction (now shows the panel's allocation and no clears), 113 app tests and `check_market.py`.
+- **Backlog:** the MINOR and NIT findings went there, including `apply()` not checking `kConfigMax` and the stale `mqtt_bus` comment.
+
+**Step 5 done: the panel is flashed over the air.**
+- The panel's address had changed to 192.168.4.62; it was found through mDNS as `pixelclock.local`.
+- Image: the owner's build of `feature/market-dashboard`, 2 147 456 B, sha256 `178fffc6ed43e5ec…`.
+- Upload: HTTP 200 in 28 s.
+- After the reboot:
+  - build `Sep 15 2026 16:17:48`;
+  - OTA `app0`, `valid`, confirmed at 60 s;
+  - internal heap 40 196 B free, minimum 33 820 B, largest block 31 732 B;
+  - loop maximum 9 ms;
+  - `/api/market` ready, MQTT connected, status `NO DATA`, because the app is not installed yet.
+
+**US quotes are real-time** (measured 16:13; see Live quotes).
+
 ## Build status, 2026-09-15 13:55
 
 **Step 3 of 7 done.** `feature/market-dashboard` e737aab is pushed to the fork.
