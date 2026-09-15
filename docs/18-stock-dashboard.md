@@ -8,8 +8,11 @@ is adjustable from 2000 to now. "Professional dashboard" level.
 
 His answers, 08:41–08:43:
 - **Fees:** only the funds' own fees (TER) for now. No broker commissions.
-- **Positions:** ticker, quantity, purchase date. The purchase price is the
-  price on that date, from the history.
+- **Positions:** set as a percentage allocation in the portal (08:47), one
+  row per ticker with its weight. The purchase price is the price on the
+  entry date, from the history (08:43). With a capital setting this answers
+  "what would this allocation, bought at the start of the period, be worth
+  now".
 
 - **Currency:** each ticker in its own currency (08:44). The portfolio
   currency he did not name: EUR by default, converted with Yahoo's `EURUSD=X`
@@ -21,8 +24,10 @@ His answers, 08:41–08:43:
   (08:45: "да"). The only source probed that works from a microcontroller and
   carries dividends.
 
-Taken as a default, because he did not say: **lots** are one row per purchase,
-and the same ticker may appear in several rows.
+Taken as defaults, because he did not say: the **initial capital** is a
+setting, 10 000 in the portfolio currency; a weight total under 100 % leaves
+the rest as cash at 0 %; each row may carry a later entry date than the period
+start.
 
 Status: **designed; the firmware is being built by a helper on
 `wip/market-board`** (started 2026-09-15 ~09:00). Nothing on the panel yet.
@@ -132,8 +137,12 @@ fees. Subtracting the TER again would count it twice. The dashboard therefore:
 
 ### Portfolio maths
 
-For a lot `(symbol, qty0, date)`:
-- `t0` = first point at or after `date`; `p0 = close[t0]`.
+For a position `(symbol, weight)` with capital `C` and the period start `S`
+(or the row's later date):
+- `cost = C × weight`; `t0` = first point at or after `S`; `p0 = close[t0]`;
+  `qty0 = cost / p0`.
+- A symbol with no data at `S` (VOO begins 2010-10) keeps its money as cash at
+  0 % until its first point, then buys; the page says "VOO from 2010".
 - `qty(t)` = `qty0` × product of split ratios between `t0` and `t`.
 - Value in the portfolio currency: `qty(t) × close(t) × fx(t)`, where `fx`
   converts the symbol's currency (EUR = 1; USD via `EURUSD=X`; others
@@ -143,7 +152,8 @@ For a lot `(symbol, qty0, date)`:
 - Cash dividends received: sum over dividends after `t0` of
   `amount × qty(at that date) × fx`.
 - Fees paid (estimate): sum over months of `value(t) × TER / 12`.
-- Portfolio curves are sums over lots; the cost basis is the sum of `value0`.
+- Portfolio curves are sums over positions plus the cash remainder; the cost
+  basis is `C`.
 - Before 2003-12 there is no EUR/USD history from this source; a lot older
   than that uses the first rate and the page says "FX from 2003".
 
@@ -158,8 +168,9 @@ Four pages, the knob steps them; the carousel gives each 20 s.
    labelled; year ticks along the bottom; the period label ("2000→", "5Y").
 3. **Portfolio**: header "PORTFOLIO €123,456 +48.2%"; two lines, price value
    and total return with dividends; footer "DIV €4,210  FEES €312".
-4. **Holdings**: one row per symbol: symbol, weight %, return %, in the rail
-   board's row style, looping when they overflow.
+4. **Holdings**: one row per symbol: symbol, the weight as set, the current
+   share, return since entry, in the rail board's row style, looping when
+   they overflow.
 
 Knob: rotate steps the pages; click enters; inside, rotate steps the period
 preset (1Y, 3Y, 5Y, 10Y, since 2000) and a toast names it.
@@ -167,7 +178,9 @@ preset (1Y, 3Y, 5Y, 10Y, since 2000) and a toast names it.
 ### Portal card "Market"
 
 - tickers: up to 8 rows, symbol plus an optional display name;
-- positions: up to 16 rows: symbol, quantity, purchase date;
+- positions: up to 16 rows: symbol, weight % (0.1 % steps; the card shows the
+  sum and refuses more than 100 %), an optional later entry date;
+- initial capital in the portfolio currency, default 10 000;
 - period: start year 2000..now, and the presets;
 - portfolio currency: EUR or USD;
 - refresh, hours; gross-of-fees line on/off;
