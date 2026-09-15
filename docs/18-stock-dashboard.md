@@ -23,10 +23,12 @@ His decisions, 08:41–09:14:
 - **Where it runs (09:13): the maths and the data live in Home Assistant.**
   The panel only shows what HA has computed, with the selections made in
   the panel's web portal (period, tickers, currency, rebalance on/off).
-- **Cash (09:13):** one cash row in the portfolio. Dividends paid, extra
-  contributions, and the share of a position whose fund did not exist yet
-  all sit in cash until 31 December, when the year-end rebalance puts them
-  into positions.
+- **Cash (09:13, made precise 09:23):** one cash row in the portfolio.
+  Dividends paid, extra contributions, and the share of a position whose
+  fund did not exist yet all sit in cash. On 31 December, in both modes,
+  the cash goes into positions; only the shares of funds that still do not
+  trade stay in cash, and each of those goes into its position on the first
+  31 December after the fund starts trading.
 - **The portal (09:19):** a page of its own, "professional settings but
   light and intuitive, not convoluted".
 - **Live during trading (09:19):** not static data; the screen updates as
@@ -277,12 +279,15 @@ currency per unit of `s`'s currency on day `d`.
   their day: `cash += amount`. `TERdrag += qty_s × close_s × X_s × TER_s /
   252` for every fund position.
 - **31 December** (the last trading day of the year), in both modes, the
-  cash is put to work:
-  - **HOLD:** no selling. Cash is spent on positions in proportion to their
-    target weights (a position without data yet keeps its share in cash).
-  - **REBAL:** `V = V_px + cash`; every position with data is set to
-    `V × w_s` (buying or selling at the close); cash becomes `V × (1 − Σ w)`
-    plus the shares of positions that do not exist yet.
+  cash is put to work at the close:
+  - **HOLD:** no selling. All cash except the reserved shares goes into the
+    positions that trade, in proportion to their target weights.
+  - **REBAL:** `V = V_px + cash − reserved`; every position that trades is
+    set to `V × w_s / Σ w_trading` (buying or selling at the close).
+  - **Reserved cash** = `(C + contributions so far) × Σ w_not_yet_listed`;
+    a fund that has started trading by this 31 December is bought now
+    (HOLD: with its reserved share; REBAL: through the rebalance) and stops
+    being reserved.
   The effective date is reported. No transaction costs, no taxes.
 - **Reported per window:** `value` at the end, `chg` = value at the end ÷
   value at the window's start − 1, `sinceStart` = value ÷ (C + contributions)
