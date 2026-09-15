@@ -234,7 +234,32 @@ its values come from `/api/portal`. Checked on the panel:
 
 ## Over-the-air updates, checked 2026-09-14
 
-**Partitions.** `default_16MB.csv` from arduino-esp32:
+**Partitions: moving to 32MB (2026-09-15, planned, not flashed).**
+Upstream v2.3.1 declares the whole 32MB part with arduino-esp32's
+`large_littlefs_32MB.csv` (Keralots 86955e61, flash access checked at
+0x00F00000, 0x01800000 and 0x01FE0000 with IDF 4.4.7). Our env follows in
+`feature/market-dashboard`.
+
+| Partition | `default_16MB.csv` (now) | `large_littlefs_32MB.csv` (next) |
+|---|---|---|
+| nvs | 0x9000, 20K | 0x9000, 20K (unchanged: settings and WiFi survive) |
+| otadata | 0xe000, 8K | 0xe000, 8K |
+| app0 / app1 | 0x10000 / 0x650000, 6.25MB each | 0x10000 / 0x490000, 4.5MB each (the image is 2.15MB) |
+| spiffs (LittleFS) | 0xc90000, 3.4MB | 0x910000, 23.9MB |
+| coredump | 0xFF0000, 64K | 0x1FF0000, 64K |
+
+Why: the animations fill 3.4MB (12KB free on 2026-09-15). The market
+record's free-space guard (doc 18) then skips the record.
+
+How:
+- Only a USB flash changes the table; OTA cannot.
+- LittleFS moves, so its files are copied first: a full 32MB backup, the old
+  filesystem extracted, a new 23.9MB image built and verified.
+- Then the app with the new table is flashed, then the image
+  (`tools/flash/repartition_32mb.py`).
+- The core dump read command below changes to offset `0x1FF0000`.
+
+**Partitions until then.** `default_16MB.csv` from arduino-esp32:
 - two app slots, `app0` and `app1`, 6.4 MB each;
 - `otadata`;
 - `spiffs`, 3.4 MB;

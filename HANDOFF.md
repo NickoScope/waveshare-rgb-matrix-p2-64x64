@@ -99,6 +99,11 @@ Rolling record of where the work stands. Newest first.
    - a research report on professional dashboards and a settings inventory,
      to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
      many settings as sensibly possible; GitHub, Reddit, finance sources).
+   **18:10 32MB flash, the owner's request.** Following upstream: large_littlefs_32MB.csv, LittleFS 3.4MB to 23.9MB, NVS unchanged.
+   - Done: committed and built on `feature/market-dashboard`; the table was verified.
+   - To do: needs USB. Back up, copy the files, flash the app and table, flash the new LittleFS image.
+   - The script is being written in `tools/flash/`, tested offline.
+   - Waiting for the owner to connect USB and give his go.
    **17:10 session summary (market dashboard).**
    Done:
    - council design and the owner's decisions; previews v1 and v2 approved;
