@@ -27,6 +27,13 @@ His decisions, 08:41–09:14:
   contributions, and the share of a position whose fund did not exist yet
   all sit in cash until 31 December, when the year-end rebalance puts them
   into positions.
+- **The portal (09:19):** a page of its own, "professional settings but
+  light and intuitive, not convoluted".
+- **Live during trading (09:19):** not static data; the screen updates as
+  fast as the free services deliver. Measured below: once a minute.
+- **A tape on top (09:19):** a scrolling line of the main exchanges, open or
+  closed, on every market page. The council's "no marquee" rule is
+  overridden for this one row by the owner.
 
 Taken as defaults, because he did not say: the initial capital is a setting,
 10 000 in the portfolio currency; extra contributions are a setting, 0 by
@@ -135,6 +142,39 @@ versioned; the panel keeps the last payloads.
 Alpha Vantage (25 calls/day, adjusted series premium; from its pricing page,
 not probed).
 
+### Live quotes, probed 2026-09-15 09:19–09:21 CEST (Paris and Frankfurt open)
+
+- `v8/chart?range=1d&interval=1m` for `^GDAXI`, `^FCHI`, `^FTSE`: the last
+  1-minute bar and `regularMarketTime` sat **15 minutes behind** the clock
+  (lag 902–906 s on every probe), and advanced by one minute between two
+  probes 63 s apart. So Yahoo updates the delayed price **once a minute**.
+  That is the refresh period during trading: **60 s**.
+- **US exchanges not yet measured** (closed at probe time): to check at
+  15:35 CEST whether Yahoo's US prices are real-time or delayed. A one-time
+  scheduled check is set.
+- `meta.currentTradingPeriod.regular` gives each symbol's session start and
+  end in UTC (Paris 07:00–15:30Z, New York 13:30–20:00Z, Tokyo
+  00:00–06:30Z), and `regularMarketTime`, `regularMarketPrice`,
+  `chartPreviousClose`, `regularMarketDayHigh/Low`, `fiftyTwoWeekHigh/Low`.
+- **One request for many symbols:** `v7/finance/spark?symbols=A,B,C&range=1d&interval=5m`
+  answered for seven symbols at once, 15 KB in 0.35 s, with the same meta.
+  So the live poll is **one spark request a minute** for every symbol on the
+  panel, only while at least one of their exchanges is open, plus one
+  `v8/chart` 1-minute request for the ticker shown on the TICKER page for
+  its intraday line.
+- **Rate limits:** Yahoo publishes none for these endpoints. One request a
+  minute is within what `yfinance` users do daily; on a 429 the app backs
+  off to 5 min, then 15. **Not verified** over days.
+
+### Exchange open/closed, for the tape
+
+Two sources, cross-checked: the `exchange_calendars` Python package
+(sessions and holidays for XNYS, XNAS, XPAR, XETR, XLON, XAMS, XTKS, ...)
+and Yahoo's `currentTradingPeriod`. A session that the calendar says is
+open while `regularMarketTime` has not moved for 20 minutes is shown as
+STALE, not OPEN. The tape carries: NYSE, NASDAQ, LSE, XETRA, EURONEXT (Paris
+and Amsterdam), TOKYO by default; the owner chooses in the portal.
+
 ## A fact that shapes the fee figure
 
 **A fund's price is already net of its TER.** The fee is taken from the fund's
@@ -150,7 +190,7 @@ summed by day, with today's TER); a gross-of-fees line is a counterfactual
 
 | Part | Where | Job |
 |---|---|---|
-| **The app** `matrix_market.py` | AppDaemon on HA, beside `flight_board.py` and `matrix_media.py` | fetch daily history and dividends, keep the store, compute every window and both modes, publish retained payloads over MQTT |
+| **The app** `matrix_market.py` | AppDaemon on HA, beside `flight_board.py` and `matrix_media.py`; needs `yfinance`, `pandas`, `exchange_calendars` added to the add-on's `python_packages` (the owner's change in the add-on options) | fetch daily history and dividends, keep the store, compute every window and both modes, poll live quotes during sessions, publish retained payloads over MQTT |
 | **The store** | `/addon_configs/a0d7b954_appdaemon/market/` | one Parquet or CSV file per symbol, daily bars from 2000, FX, TER; the ECB table; a `manifest.json` with versions and fetched-at |
 | **The page** `src/market/` | the panel, behind `-DMARKET_ENABLED`, needs `MQTT_BUS_ENABLED` and the knob | receive, keep the last payloads in PSRAM and in LittleFS, draw the four pages, the knob |
 | **The portal card** | the panel's web portal | the selections; publishes the config; shows the app's status |
@@ -180,6 +220,15 @@ From the app, retained:
   "n":128,"min":..,"max":..,"pts":"<base64>","px":"<base64>","bench":"<base64>","gross":"<base64>"}`
 - `holdings/<mode>` `{"v":1,"asof":..,"rows":[{"sym":"VOO","tgt":50.0,"now":53.1,"ret":0.52,
   "entry":"2015-01-02"},...],"cash":{"now":1.2}}`
+- `live` (retained, every 60 s while any watched exchange is open):
+  `{"v":1,"ts":..,"q":{"^GSPC":{"last":7619.98,"prev":7656.98,"day":-0.0048,"state":"OPEN","asof":..},...}}`
+  under 1 900 B for 16 symbols (the app drops the day high/low first).
+- `intraday/<sym>` (retained, every 60 s while that exchange is open, only
+  for the symbol the panel has selected on TICKER, which the panel publishes
+  in `config.ticker`): 128 points across the session, same `pts` encoding.
+- `tape` (retained, on every state change and every 15 min):
+  `{"v":1,"ts":..,"x":[{"n":"NYSE","s":"OPEN","t":"20:00"},{"n":"LSE","s":"CLOSED","t":"08:00"},...]}`
+  where `t` is the next change, in the panel's local time.
 - `ha`: `online` / `offline`, the app's will, as the media app does.
 
 Sizes: every payload under 1 900 B, the bus's limit (checked by the app,
@@ -192,6 +241,11 @@ change, and every 6 h as a keepalive (`status` only when nothing changed).
 
 ### The app
 
+- **Live loop:** every 60 s while any watched exchange is open: one spark
+  request for all symbols, one chart request for the selected ticker;
+  publishes `live`, `intraday/<sym>`, and `tape` when a state changes.
+  Outside sessions nothing is polled; `tape` still updates at each
+  open/close from the calendar.
 - **Fetch:** once a day at 07:00 local, and on a `config` change: daily
   bars, dividends and splits per symbol from 2000 (or the listing), FX
   `EURUSD=X`, TER via `yfinance`'s fund info, the ECB 1999–2003 monthly
@@ -256,6 +310,17 @@ decimal on percentages under 100, none above; a sign always. No motion
 except an optional one-shot line draw under 0.5 s on entry; no blinking last
 point, no sweep.
 
+**The tape**, rows 0–6 on every market page: `NYSE OPEN  LSE CLOSED  XETRA
+OPEN  EURONEXT OPEN  TOKYO CLOSED`, Picopixel, OPEN in green, CLOSED dim,
+PRE/POST amber, STALE amber; scrolling 1 px per frame at 20 fps, one loop
+every ~20 s. The page area is rows 8–63.
+
+**Live state:** while a symbol's exchange is OPEN its last price carries a
+small green mark and the change next to it is the DAY change against the
+previous close; the window change stays in its own place. When CLOSED the
+label reads CLOSE with the as-of date. On TICKER a thin intraday line of
+the session can be shown under the window chart.
+
 1. **MARKETS**: heading `MARKETS` + `AS OF 14 SEP`; the primary index:
    mnemonic (SPX, NDX, CAC, DAX), last at 2×, `+1.2%` for the window, a
    48×16 sparkline; three secondary rows `NDX  26 186  +0.8%`. Click, then
@@ -298,7 +363,16 @@ NVS; every preset is already on hand, so switching is instant.
   payloads written to LittleFS `/market/last.bin` so a reboot with HA down
   still shows the page with its as-of.
 - `src/market/market_page.cpp`: the four pages and the knob.
-- The portal card: indices and tickers (≤ 8 each, symbol + display name),
+- The portal page **Market**, a page of its own in the sidebar (not a card
+  in the Panel group), in three plain blocks and one folded "Advanced":
+  **Watch** (indices and tickers as chips: type a symbol, add; the app's
+  status marks an unknown one), **Portfolio** (the allocation table with a
+  live sum bar, capital, currency, inception, the rebalance switch, both end
+  values side by side), **Display** (window default, tape exchanges, the
+  lines on/off, refresh), and under Advanced: contributions, TER overrides,
+  the backtest note, diagnostics. Same JSON API. The page's own JS and CSS
+  ship gzipped like the rest of the portal. Indices and tickers ≤ 8 each
+  (symbol + display name),
   positions (≤ 16: symbol, target %, optional entry; the sum shown and
   capped at 100 %), capital, currency, inception, contributions, rebalance
   on/off, the lines on/off, TER override per symbol, the app's status per
