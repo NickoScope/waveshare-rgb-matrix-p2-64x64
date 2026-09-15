@@ -567,7 +567,23 @@ fact sheet in doc 19). Probed on Yahoo v8 on 2026-09-15, monthly from
 The panel's portal still names `^GSPC`/`AGG` in the help text. This is to be
 corrected together with the audit findings.
 
-**Waiting on the owner:** the changes the research recommends to the approved
+**The owner's decisions, 11:43: all six as recommended.**
+1. **Freshness label.** A delayed quote shows a delay badge instead of
+   `LIVE`. `LIVE` only when the quote is less than 120 s behind.
+2. **Benchmark.** The default is `^SP500TR`; the 60/40 blend stays a setting.
+3. **Return label.** The window figure is labelled `TWR`. `XIRR (ann.)` is
+   shown only when contributions are on.
+4. **Annualised figures** from 1 year, marked `ann`.
+5. **Drawdown dates** on a click, not in the footer. HOLDINGS stays sorted
+   by target weight; sorting by contribution is an option.
+6. **Colours.** Green/red stays; blue/red is a setting.
+
+Points 1–5 change approved pages, so new previews come first
+(`wip/market-previews2`), then the firmware.
+
+Below, the list as it was put to him:
+
+**Was waiting on the owner:** the changes the research recommends to the approved
 pages. They are implemented as settings at the approved defaults, so each
 decision only changes a default:
 1. `LIVE` on a quote Yahoo delivers 15 min late (measured for the Paris and
