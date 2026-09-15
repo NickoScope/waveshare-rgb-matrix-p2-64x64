@@ -210,7 +210,13 @@ dashboard **Биржа** (`/stock-market/indices`) with the `easy-stock-card`
 (currency RAW, 1-day range, medium tiles) and four tile cards showing the
 value, the day's change and the market state; at 09:40 a second section
 "Фонды" with VOO (`sensor.voo`, USD) and IWDA.AS (`sensor.iwda`, EUR), their
-own currencies. Indices work: CAC and DAX
+own currencies; at 09:45 the owner's fund list, all USD on US exchanges:
+SCHP (Schwab U.S. TIPS), VCIT and VCLT (Vanguard corporate bonds,
+intermediate and long), VB (Vanguard Small-Cap), PGJ (Invesco Golden Dragon
+China), VGK (Vanguard FTSE Europe), INDY (iShares India 50), GLDM (SPDR
+Gold MiniShares), VNQ and VNQI (Vanguard real estate, US and ex-US), as
+`sensor.<ticker lower-case>`. **This list is the owner's fund universe**;
+the market app's default positions should come from it. Indices work: CAC and DAX
 reported `REGULAR` and `price_is_live: true` during the Paris session. Not
 yet looked at in a browser. Adding a ticker is Settings → Devices &
 Services → Add integration → Easy Stock → symbol.
