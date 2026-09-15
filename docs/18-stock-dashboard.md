@@ -514,9 +514,25 @@ was deleted for privacy). The package is `matrix_market`:
 **Not verified:** nothing ran inside AppDaemon or against the broker.
 
 **No real data yet.** Every fetch attempt from the Mac (10:40, 10:50, 11:09,
-12:09) got HTTP 429 on its first request. The golden figures on the owner's
-allocation are therefore still to come; the store fills from HA's address
-instead. The maths matches the reference on the saved samples.
+12:09) got HTTP 429 on its first request. **The cause is the User-Agent, not
+a rate limit.** Measured at 12:20, one request per case to
+`v8/finance/chart/VOO`, 6 s apart:
+
+| User-Agent | Answer |
+|---|---|
+| the app's full Safari 17 string | 429, `Too Many Requests` |
+| Python urllib's default | 429, `Edge: Too Many Requests` |
+| `Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36` | 200, twice |
+
+The `Accept` header made no difference. Yahoo can change this filter at any
+time. The fix, to follow the audit:
+- the UA becomes a setting;
+- its default is the short string that measured 200;
+- a 429 logs the UA and the response body.
+
+The morning's "rate limit" on the Mac may have been the same thing; the UAs
+used then were not recorded. The golden figures on the owner's allocation
+come after that fix. The maths matches the reference on the saved samples.
 
 Audit gate on the app: running.
 
@@ -639,7 +655,7 @@ synthetic series with an example allocation, marked as such (the owner's
 weights at first, replaced at 11:58). The session strip
 on TICKER is synthetic everywhere (no 5-minute sample).
 
-**Yahoo rate-limited the Mac.** From 09:30 every request from this Mac got
+**Yahoo refused the Mac** (at 12:20 found to be the User-Agent, see Build status). From 09:30 every request from this Mac got
 429 (chart, crumb, cookie), after roughly 40 requests in 90 minutes
 (the probes plus the helper's sample fetches); by 10:05 it answered 200
 again. Home Assistant's own polling (18 symbols every 15 min, another IP)
