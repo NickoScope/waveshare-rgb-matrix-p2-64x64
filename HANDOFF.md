@@ -99,8 +99,11 @@ Rolling record of where the work stands. Newest first.
    - a research report on professional dashboards and a settings inventory,
      to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
      many settings as sensibly possible; GitHub, Reddit, finance sources).
-   Then: merge, flag matrix, the audit gate, OTA, the HA app install (the
-   add-on's `python_packages`), the "Портфель" view in HA, measure. Installed for HA's own dashboards on his word:
+   11:30: the panel side is done and pushed (`wip/market-panel`); the audit
+   gate is running on it; the research is in doc 19; the owner has six
+   page decisions to make (doc 18). The HA app is still building.
+   Then: merge, OTA, the HA app install (the add-on's `python_packages`),
+   the "Портфель" view in HA, measure. Installed for HA's own dashboards on his word:
    `ha-easy-stock` with the four indices and the dashboard "Биржа".
 8. **PC control: the companion app's stats and spectrum stream.** Still in
    the firmware on UDP 4210, but never tried on this panel.

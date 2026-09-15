@@ -510,6 +510,33 @@ Then on the panel, from 1.5, 3 and 4 m, by day and in the evening.
 3. **The panel page and the portal card**; flag matrix; audit gate; flash;
    measure.
 
+## Build status, 2026-09-15 11:30
+
+**The panel side is built** on `wip/market-panel` (pushed): five commits on
+54ef4af; RAM +2 128 B static, flash +74 356 B; about 112 KB of PSRAM for the
+store and an 84 972 B record buffer. Checked on the Mac:
+- the flag matrix: 38 of 38;
+- `check_market_panel.py`: 303 checks. 468 formatted numbers are identical to
+  `render.py`. All 25 preview frames go through the panel's own ingest and
+  layout: every string matches, and 24 of 25 rasters are pixel-identical.
+  The exception is `ticker_err`, where the firmware cannot know the currency
+  with nothing stored;
+- the portal Market page in a browser against a mock: filling, the sum bar,
+  validation and saving.
+
+Contract choices it made:
+- `config` v2, streamed as one retained message of about 1.9 KB;
+- one NVS blob `market/cfg`;
+- LittleFS `/market/last.bin`;
+- the extra presets `WTD MTD 1M 3M 6M`;
+- default tickers VOO, GLDM, VB, QQQ (the four largest weights).
+
+All of it is recorded in `src/market/README.md`.
+
+Nothing has run on the panel. **Next:** the audit gate on that branch
+(running); the HA app, which is still being built and must match this
+contract; then merge, OTA, the app's install on HA, and measurements.
+
 ## Settings after the research, 2026-09-15 10:50
 
 The owner (10:15): as many settings as sensibly possible, the page still
