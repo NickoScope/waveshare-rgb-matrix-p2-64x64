@@ -715,6 +715,27 @@ regenerated `web_assets.h`.
 
 ---
 
+### 12.1 First measurements (2026-09-15, 21:35–21:45)
+
+Build `c71bdb5` of `feature/market-climate-audio`, flashed over USB. Two cycles of `/api/mode/viz` for 40 s and 20 s, each followed by `/api/mode/auto`, with `/api/info` read every 5 s. Room noise only: no music, no clap.
+
+| What | Measured |
+|---|---|
+| Start | within 5 s of `/api/mode/viz`: `audioMic` "ok", serial `[audio] ES7210 up: 48 kHz, gain 30 dB` |
+| Frames | 245–256 per 5 s, the 20 ms hop |
+| Internal heap, running | 32,952 B idle → 22,556 B: **10.4 KB**, inside the audit's estimate. The firmware's own `audioInternalBytes` says 6,340 B, which under-reports (backlog) |
+| Largest free block | 20,468 B → 12,788–13,812 B while running, 20,468 B again after the stop |
+| minFreeHeap | 15,332 B after boot → 11,284 B after both cycles |
+| Stop | 20–25 s after `auto`: `audioMic` "idle", heap back |
+| Loss per cycle | none in cycle 2: 32,952 B before and after. Cycle 1 ended 2.5 KB under the pre-test 35,440 B and did not repeat |
+| DSP time | `audioDspUs` 11.8–15.1 ms per 20 ms frame on core 0, max 19.8 ms |
+| Overruns / stalls | 1 in about 110 s of capture / 0 |
+| `loopMaxMs` | 5–11 ms idle, up to 43 ms while the visualizer shows |
+| Task stack | 3,888 of 5,120 B never touched |
+| Level, BPM | −39 to −68 dB in the room; BPM wanders 83–158 on room noise |
+
+Still to do from the list above: music and a clap (latency), LED supply noise, the eight styles one by one, gain, a held SDA.
+
 ## 13. Upstream
 
 [09](09-upstream-contributions.md) §4 still holds: "discuss first". What is

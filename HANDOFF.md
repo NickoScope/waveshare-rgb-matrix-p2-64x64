@@ -43,6 +43,31 @@ Rolling record of where the work stands. Newest first.
 
 ---
 
+## 2026-09-15, evening — the sensor and the microphones are on the panel
+
+- **On the panel:** `feature/market-climate-audio` `c71bdb5` (market, 32 MB layout, SHTC3, onboard mics, styles 7–14). Flashed over USB at 21:34 at the owner's request, after byte-comparing the partition table with the build. The previous app0 and otadata are backed up in `~/panel-backups/2026-09-15-before-climate-audio/` (private).
+- **Before flashing:**
+  - build: RAM 102,016 B, flash 2,239,977 B; flag matrix 46/46;
+  - climate 147/0; weather screen 11 frames identical; market, portal and media checks passed;
+  - audio DSP: C++ matches Python; styles 7–14 pixel-identical in double.
+  - The final audit found one MAJOR: the mics held about 11 KB of internal RAM forever. Fixed in `e7ad859`: capture now runs only while the visualizer shows the mics, stops 25 s after, and GPIO11 is driven low. The delta audit approved it, and the committed code matched the audited diff by patch-id.
+- **On hardware:**
+  - clean boot; the market record was read from LittleFS;
+  - climate "ok", id 0x0887, 31 °C (docs/21 §12.7);
+  - the mics start and stop, cost 10.4 KB while running and lose nothing per cycle; DSP takes 12–15 ms per 20 ms frame (docs/22 §12.1).
+- **For the owner to test:**
+  - a reference thermometer for 30–60 min (docs/21 §12.6);
+  - design B live and stale via `/api/climate/pause`;
+  - styles 7–14 with music, a clap for latency, LED supply noise, gain (docs/22 §12);
+  - the market pages.
+- **Open:**
+  - minFreeHeap 11.3 KB after the visualizer ran; watch it next to the TLS pages;
+  - DSP cost; `audioInternalBytes` under-reports;
+  - the backlogs in `src/audio/README.md` and `src/climate/README.md`.
+  - After the owner's test: merge into `board/waveshare-esp32-s3-rgb-matrix`, then delete the local `wip/market-*` branches, which carry fund history.
+
+---
+
 ## 2026-09-15, after midnight — plan for the day
 
 **Where it stands at the end of the session.**

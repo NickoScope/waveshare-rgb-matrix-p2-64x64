@@ -830,6 +830,13 @@ The full plan is section 5.4. In short:
    other days. Take five sessions or more before deciding whether one offset
    holds (5.3).
 
+### 12.7 First reading (2026-09-15)
+
+Build `c71bdb5`, flashed over USB at 21:34 instead of OTA, the owner's call.
+- **At 107 s after boot:** `climate.state` "ok", `id` 0x0887, accepted by the reader's ID check. 10 reads, 0 CRC errors, 0 I2C errors, 0 stuck-bus events, 0 stalls.
+- **The reading:** 30.94 °C and 40.6 %RH, rising to 31.7 °C over the next 12 minutes while the visualizer ran. The weather service reported 24.7 °C outdoors.
+- **Offset still unknown:** there is no indoor reference yet, so the self-heating offset in §12.6 is still to be measured.
+
 ## 13. Sources
 
 1. waveshareteam/ESP32-S3-RGB-Matrix, commit 4047e4e — `example/idf_v5.5.2/components/bsp/esp32_s3_matrix/include/bsp/config.h`, and `.../esp32_s3_matrix.c` (`bsp_i2c_init`)
