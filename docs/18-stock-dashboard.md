@@ -19,6 +19,9 @@ His answers, 08:41–08:43:
   history, USD selectable.
 - **Default indices:** S&P 500 `^GSPC`, NASDAQ `^IXIC`, CAC 40 `^FCHI`,
   DAX `^GDAXI`, changeable in the portal (08:44).
+- **Rebalancing** (08:51): an option. Every 31 December the holdings are
+  brought back to the set weights; a checkbox chooses whether the results
+  are shown with or without it.
 
 - **Source:** Yahoo Finance, no key, with the risk that it closes one day
   (08:45: "да"). The only source probed that works from a microcontroller and
@@ -55,6 +58,12 @@ What every answer carries:
   total-return series a "with dividends" chart needs;
 - `events.dividends`: each cash dividend with its date and amount;
   `events.splits` with numerator and denominator;
+
+**`close[]` and the dividend amounts are already split-adjusted.** Checked on
+the VOO sample, 2026-09-15: the 2013-10-24 1:2 reverse split shows as a close
+of 160.88 on 2013-10-01 (the real pre-split price was about 80) and a
+dividend of 0.786 on 2013-09-23 (the real one was 0.393). So quantities are
+never multiplied by split ratios; `events.splits` is diagnostics only.
 - `meta.currency`, `meta.instrumentType` (INDEX, ETF, EQUITY, CURRENCY),
   `meta.exchangeTimezoneName`.
 
@@ -143,7 +152,8 @@ For a position `(symbol, weight)` with capital `C` and the period start `S`
   `qty0 = cost / p0`.
 - A symbol with no data at `S` (VOO begins 2010-10) keeps its money as cash at
   0 % until its first point, then buys; the page says "VOO from 2010".
-- `qty(t)` = `qty0` × product of split ratios between `t0` and `t`.
+- `qty` stays constant between purchases and rebalances: the closes are
+  split-adjusted already (above).
 - Value in the portfolio currency: `qty(t) × close(t) × fx(t)`, where `fx`
   converts the symbol's currency (EUR = 1; USD via `EURUSD=X`; others
   refused with a message in the portal).
@@ -154,6 +164,13 @@ For a position `(symbol, weight)` with capital `C` and the period start `S`
 - Fees paid (estimate): sum over months of `value(t) × TER / 12`.
 - Portfolio curves are sums over positions plus the cash remainder; the cost
   basis is `C`.
+- **Rebalancing, when on:** at the last data point of each calendar year
+  after the first entry (the December point at monthly resolution), the
+  total value `V` is redistributed: each position to `V × weight`, cash to
+  `V × (1 − Σ weights)`. A symbol without data yet keeps its weight as cash.
+  No transaction costs. Both modes are computed every time; the checkbox
+  chooses which one the page shows, and the portal shows both end values
+  side by side.
 - Before 2003-12 there is no EUR/USD history from this source; a lot older
   than that uses the first rate and the page says "FX from 2003".
 
@@ -167,7 +184,8 @@ Four pages, the knob steps them; the carousel gives each 20 s.
    price and the period change; a line chart with the period's high and low
    labelled; year ticks along the bottom; the period label ("2000→", "5Y").
 3. **Portfolio**: header "PORTFOLIO €123,456 +48.2%"; two lines, price value
-   and total return with dividends; footer "DIV €4,210  FEES €312".
+   and total return with dividends; footer "DIV €4,210  FEES €312" and a tag,
+   REBAL or HOLD.
 4. **Holdings**: one row per symbol: symbol, the weight as set, the current
    share, return since entry, in the rail board's row style, looping when
    they overflow.
@@ -183,6 +201,7 @@ preset (1Y, 3Y, 5Y, 10Y, since 2000) and a toast names it.
 - initial capital in the portfolio currency, default 10 000;
 - period: start year 2000..now, and the presets;
 - portfolio currency: EUR or USD;
+- rebalance every 31 December on/off; both end values shown side by side;
 - refresh, hours; gross-of-fees line on/off;
 - TER override per symbol, %, for funds Yahoo does not carry;
 - diagnostics: per symbol the points, the fetched-at, the last HTTP code,
