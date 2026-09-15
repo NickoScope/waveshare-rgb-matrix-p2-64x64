@@ -568,7 +568,18 @@ the fix. The multi-position frames now use an example allocation.
 - an open quote always carries `delay_s`;
 - `flows` always comes with `xirr_ann`.
 
-Delta audit 2: running.
+**Delta audit 2, 13:25: APPROVED.** It left three MINOR findings:
+- the DRAWDOWN stop would print `MDD 0.0%` when the app sends `mdd` without
+  dates;
+- a reconnect that happens inside `mqttBusLoop` does not force the config
+  to be sent again (an older issue; the media page has it too); the fix is a
+  connect counter on the bus;
+- the history of the branch still holds the funds, including the merged
+  previews branch, so the squash must be a real squash, not a rebase.
+
+The NITs are a CRC collision, the knob state machine without a host test (and
+the status row covering the MDD footer), a comment, and the message of
+`92eb7e7`. The fixes are with the builder.
 
 ## Build status, 2026-09-15 12:55
 
