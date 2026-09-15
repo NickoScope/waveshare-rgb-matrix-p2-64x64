@@ -555,6 +555,18 @@ through. What went in:
 - Left out as not user choices: price basis, FX source, provider, number
   format.
 
+**The 60/40 blend preset** is VFINX 60 + VBMFX 40, on adjusted closes. It
+mirrors Vanguard's Balanced Composite (60 % US stocks, 40 % US bonds; see the
+fact sheet in doc 19). Probed on Yahoo v8 on 2026-09-15, monthly from
+2000-01-01:
+- **VFINX** (Vanguard 500 Index Investor) and **VBMFX** (Vanguard Total Bond
+  Market Index Inv) both start at 2000-01-01 with adjclose and dividends.
+- **AGG** (from 2003-09), **BND** (from 2007-04) and **VBTLX** (from 2001-11)
+  do not cover 2000.
+
+The panel's portal still names `^GSPC`/`AGG` in the help text. This is to be
+corrected together with the audit findings.
+
 **Waiting on the owner:** the changes the research recommends to the approved
 pages. They are implemented as settings at the approved defaults, so each
 decision only changes a default:
