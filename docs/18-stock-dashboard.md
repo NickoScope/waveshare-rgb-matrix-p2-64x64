@@ -561,7 +561,9 @@ the fix. The multi-position frames now use an example allocation.
 
 **First real fetch** with the short User-Agent: 22 of 22 symbols in 363 s, no 429. The owner's golden figures are in the gitignored `private/`.
 
-**Fees are missing.** Yahoo's fund-profile endpoint answered HTTP 401 to all 14 requests without a cookie, so no TER drag is computed yet. The TER override setting is the fallback; `yfinance` might restore it (not tried).
+**Fees are missing.** Yahoo's fund-profile endpoint answered HTTP 401 to all 14 requests without a cookie, so no TER drag is computed yet. The TER override setting is the fallback.
+
+**`yfinance` does restore them.** Measured on 2026-09-15 at 14:00 from the Mac with `yfinance` 1.7.0: `Ticker(sym).funds_data.fund_operations`, row "Annual Report Expense Ratio", gives VOO 0.0003 and VFINX 0.0014, the same VOO figure as the manual probe at 08:45. The HA install therefore adds `yfinance` to the add-on's `python_packages`. That list is empty today, and the add-on is 0.19.2 with the default import method.
 
 **Integration.** Both branches squashed into one staged change on `feature/market-dashboard` from board 8c5f8cf: 153 files. A scan finds none of the owner's funds, weights or file names, no LAN IP and no private file.
 
