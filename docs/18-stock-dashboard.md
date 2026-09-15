@@ -570,6 +570,19 @@ the fix. The multi-position frames now use an example allocation.
 - AppDaemon 4.5.13 ignored `disable: true` added to a running app's entry. Removing the entry did stop it.
 - The littlefs NOSPC divide-by-zero is an upstream latent bug. Not reported: nothing public without the owner's OK.
 
+**Backlog from the manual's code reading (doc 20, section 11; none checked on the panel):**
+- `display.dwell_s` has no effect on `matrix-waveshare-rgb`: the carousel's 15 s slot wins until it is set to 0.
+- `LIVE` can stay after the day's last close. The app stops publishing `live` once every tape exchange is closed, and the last message still says `OPEN`; the panel does not check the quote time. Fix on the app side: publish one final `live` with `CLOSED` at session end.
+- `bench.telltale` hides the benchmark line, and the panel does not draw the telltale line.
+- `display.fx_effect` and the tape's next-change time are never drawn.
+- The panel and the app accept different ranges: `ter` 0–10 vs 0–5, `bench.blend` 8 vs 4 legs, `portfolio.inception` 1970 vs 1990.
+- Where the app README and doc 18 disagree with the code:
+  - the keepalive publishes only `status`;
+  - `cli view` still writes the wrong Easy Stock card keys;
+  - the HOLD reserve is C × w in the code, but (C + contributions) × w in doc 18.
+- `fs.free` and `fs.noSpace` appear in `/api/market` but not in the portal.
+- The MARKETS primary index resets to the first after a reboot.
+
 **Remaining.**
 - **Step 7:** the owner looks at the four pages and tries the knob.
 - **The offline record cannot be written on this panel.** LittleFS has 12 KB free; the animation uploads fill 3.5 MB. Consequence: after a reboot, the pages stay empty until HA publishes again, seconds while HA is up. Freeing ~125 KB would enable the record.
