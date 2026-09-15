@@ -34,6 +34,7 @@ anything new it:
 | 4 | New upstream commits and releases | https://github.com/Keralots/AnimatedPixelClock | `gh api`: commits, latest release | `946ed42`, release `v2.3.0` |
 | 6 | Review of PR #4, mbedTLS buffers in PSRAM (item 3 of #3) | https://github.com/Keralots/AnimatedPixelClock/pull/4 | `gh api`: reviews, comments, state, merged | opened 2026-09-15 18:37, no review |
 | 5 | Replies to our Show and tell post about the Waveshare board | https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/discussions/962 | GraphQL: comments, replies, upvotes | posted 2026-09-15 01:00, no replies |
+| 7 | Rafał's reply to our comment on #3: the visualizer on the board's mics, the SHTC3, the settings-save stall | https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5687555292 | `gh api`: issue #3 comments after 2026-09-15 20:22 UTC | posted 2026-09-15 22:22, no reply |
 
 **Why item 4 is watched.** New upstream code is what our PR branches will be
 rebased onto. Changes to `web.cpp`, `web_pages.h` or `weather.cpp` collide
@@ -57,6 +58,7 @@ not depend on this check.
 
 Newest first. One line per event: date, item, who, the gist, what was done.
 
+- 2026-09-15 22:22: item 7 added. A comment on #3 about the visualizer on the board's microphones, eight new styles, the SHTC3 and the settings-save stall, posted on the owner's "отправляй". Draft: `docs/drafts/upstream-issue-03-comment-mics.md`.
 - 2026-09-15 22:01: item 6, Keralots. PR #4 (mbedTLS buffers in PSRAM) merged at 20:35 local time, with no review comments. Nothing sent.
 - 2026-09-15 22:01: item 4, Keralots. Upstream `a091505`, the merge of PR #4: `src/main.cpp`, `src/network/tls_psram.{cpp,h}`. Touches no `src/web/*`, `src/weather/*` or `platformio.ini`; release still `v2.3.1`. Reddit answered 429. Nothing sent.
 - 2026-09-15 18:37: item 6 added. PR #4 (mbedTLS buffers in PSRAM) opened on the owner's "отправляй", the first of the order 3-2-4-6.

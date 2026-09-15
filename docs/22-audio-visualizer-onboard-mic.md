@@ -500,7 +500,8 @@ indices and its behaviour.
 
 | `vizStyle` | Effect | Code in `APC/src/viz/` |
 |---|---|---|
-| 0, 1, 2, 3, 5, 6 | the six as they ship | `visualizer.cpp`, `starfield.cpp`, `oscilloscope.cpp` |
+| 0, 1, 3, 5, 6 | as they ship | `visualizer.cpp`, `starfield.cpp`, `oscilloscope.cpp` |
+| 2 | **Code EQ** in `VIZ_WOW_ENABLED` builds (§9.4); Phosphor Waterfall without the flag | `wow/wow_matrix.cpp` |
 | 7 | Prism EQ | `wow/wow_bars.cpp` `renderPrismEq` |
 | 8 | Neon Mirror+ | `wow/wow_bars.cpp` `renderNeonMirrorPlus` |
 | 9 | Spectrogram | `wow/wow_bars.cpp` `updateSpectrogram`, `renderSpectrogram` |
@@ -562,6 +563,31 @@ The float difference is a particle position truncating into the next pixel. The
 S3's newlib `exp`/`sin`/`cos` may differ from macOS's in the last bit; untested.
 
 ---
+
+### 9.4 Style 2: Code EQ (the owner's pick, 2026-09-15 22:08)
+
+Phosphor Waterfall ("a pointless effect") gives way to an audio-reactive Matrix
+Rain. Of three previews (`tools/audiofx/effects_matrix.py`: Spectrum Rain, Bass
+Curtain, Code EQ, rendered by `render_matrix.py` from mic frames and PC packets)
+the owner chose **Code EQ**: bars of bright glyphs rise from the bottom of each of
+21 columns to its bands' level, a white head glyph and a held peak glyph above,
+over a dim rain that speeds up with the bass; a beat tears a glitch line across;
+silence leaves the dim rain alone.
+
+- Reused from the Matrix Rain clock style (`src/clocks/clock_matrix.cpp`): the
+  21 × 8 grid of 6 × 8 px cells, the charset, the 32-level trail fade and the
+  rain and head colours, capped at 235.
+- Index 2 stays, so stored settings and the PC companion are unaffected; the
+  portal names it "Code EQ (Matrix)" in flag builds.
+- It draws from the VizFrame, like styles 7–14, so beats and levels come from the
+  DSP or, from a PC, from `PcFrameDeriver`. The classic packet path has neither.
+- Port: `src/viz/wow/wow_matrix.cpp`, engine effect 8. State ~808 B inside the
+  engine's PSRAM block; no new buffer, no internal heap, nothing allocated while
+  drawing. On the host it is pixel-identical to the preview over 300 frames with
+  `real` double and float, and from PC-derived frames; it renders in 3.8–5.6 µs
+  mean per frame on the host, between Spectrogram and Synthwave Grid and about a
+  quarter of Beat Particles (not measured on the panel).
+- `matrix-waveshare-rgb`: RAM 101 728 B, flash 2 223 329 B (+1 824 B against `e7ad859`).
 
 ## 10. Previews
 
