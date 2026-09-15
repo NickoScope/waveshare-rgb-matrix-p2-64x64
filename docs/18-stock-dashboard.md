@@ -349,9 +349,12 @@ currency per unit of `s`'s currency on day `d`.
   cash is put to work at the close:
   - **HOLD:** no selling. All cash except the reserved shares goes into the
     positions that trade, in proportion to their target weights.
-  - **REBAL:** `V = V_px + cash − reserved`; every position that trades is
-    set to `V × w_s / Σ w_trading` (buying or selling at the close).
-  - **Reserved cash** = `(C + contributions so far) × Σ w_not_yet_listed`;
+  - **REBAL:** every position that trades is set to `V × w_s`, where
+    `V = V_px + cash`. Buying and selling happen at the close. Cash becomes
+    `V × Σ w_not_yet_listed`. This share of the current value was the
+    owner's decision at 12:53: the portfolio keeps its target proportions,
+    with cash standing in for a fund that does not trade yet.
+  - **Reserved cash in HOLD** = `(C + contributions so far) × Σ w_not_yet_listed`;
     a fund that has started trading by this 31 December is bought now
     (HOLD: with its reserved share; REBAL: through the rebalance) and stops
     being reserved.
@@ -532,7 +535,24 @@ Branch `wip/market-previews2`, local only. 32 frames: 16 changed in place,
 4-character slot as `0.0M`; it now prints `22K`, and the firmware must copy
 the fix. The multi-position frames now use an example allocation.
 
-Waiting on the owner's approval.
+**Approved by the owner at 12:53.**
+
+## Build status, 2026-09-15 12:55
+
+- **Panel.** The delta audit of `3024545..4727ed0` was **APPROVED**. It left
+  3 MINOR findings and 5 NITs:
+  - a 3 604 B internal `calloc` that is never freed, in the owner's build
+    only;
+  - the page mask can hide the market pages when this branch, then main,
+    then this branch again are flashed;
+  - the squash must also cover `market_settings.cpp`, the README, the host
+    test and the portal mock in the branch history.
+
+  The builder is fixing these. Then it merges previews v2 and brings the
+  firmware to the 32 new frames.
+- **App.** Being fixed after its audit. Then it merges previews v2, moves the
+  ECB series to `E`, checks TWR and XIRR against the preview oracle on
+  Excel's 365-day basis, and runs a real fetch with the short User-Agent.
 
 ## Build status, 2026-09-15 12:15
 
