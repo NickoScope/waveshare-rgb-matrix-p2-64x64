@@ -58,8 +58,8 @@ Taken as defaults, because he did not say: the initial capital is a setting,
 10 000 in the portfolio currency; extra contributions are a setting, 0 by
 default; the inception date is a setting, default 2000-01-01.
 
-**Status: v3, waiting for the owner's approval of the previews. No code
-written.** The helper that had started the on-device version was stopped;
+**Status: v3; the previews are done (10:00) and with the owner for
+approval. No firmware, no HA app yet.** The helper that had started the on-device version was stopped;
 its worktree `wip/market-board` holds only the saved Yahoo samples.
 
 ## Why Home Assistant, after the council
@@ -507,6 +507,39 @@ Then on the panel, from 1.5, 3 and 4 m, by day and in the evening.
    golden match.
 3. **The panel page and the portal card**; flag matrix; audit gate; flash;
    measure.
+
+## The previews, 2026-09-15 10:00
+
+On `wip/market-board` (pushed): `tools/market/market_ref.py` (the ledger on
+daily bars, standard library only), `test_market_ref.py` (33 tests, the
+HOLD/REBAL drift case hand-checked at 12 500 vs 12 375), `render.py` and
+`preview/` (25 frames at 6× and 1:1, a contact sheet, a README with every
+number and the 12-point checklist ticked). The layout constants the firmware
+copies are the `MK_*` names in `render.py`: tape rows 0–6, a dark rule at
+7, the page from row 8; the key number at 2× on rows 16–29; footer at 58.
+
+What is real in them: the four indices, VOO, EURUSD=X from the saved
+samples. The real portfolio is VOO alone (the only one of the owner's
+fourteen funds with a sample): 10 000 EUR from 2000-01-01, reserved as cash
+until the 2010 year-end, 89 800.95 EUR on 14 SEP 2026, +798 %, CAGR 8.6 %,
+MDD −19.8 %, DIV 8 803.90, TER~ 170.51. The fourteen-position frames use
+synthetic series with the owner's weights, marked as such. The session strip
+on TICKER is synthetic everywhere (no 5-minute sample).
+
+**Yahoo rate-limited the Mac.** From 09:30 every request from this Mac got
+429 (chart, crumb, cookie), after roughly 40 requests in 90 minutes
+(the probes plus the helper's sample fetches); by 10:05 it answered 200
+again. Home Assistant's own polling (18 symbols every 15 min, another IP)
+was not affected. So the app must pace itself: history one symbol every
+10 s or slower, live quotes one spark call a minute, back off on 429.
+
+Two things the previews surfaced, for the owner:
+- In HOLD a fund that lists late enters with its reserved cash, `capital ×
+  weight`, which by then is a small share of a grown portfolio (a 10 %
+  target became 2.9 % in one synthetic case); REBAL gives it the full target
+  weight at that year-end. Inherent to "no selling"; his call.
+- The HOLDINGS return is since entry, not over the window; the window tag
+  stays in the heading because the checklist wants it visible.
 
 ## Measured on the panel
 

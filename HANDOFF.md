@@ -90,9 +90,9 @@ Rolling record of where the work stands. Newest first.
      calls.
 7. **The market dashboard** ([18](docs/18-stock-dashboard.md)): design v3
    after two council reviews; the owner moved the maths to Home Assistant.
-   Waiting: the previews from the helper on `wip/market-board` (Python only),
-   the owner's approval against the 12-point checklist, then the AppDaemon
-   app and the panel page. Installed for HA's own dashboards on his word:
+   The previews are done and with the owner (10:00). Next: his approval
+   against the 12-point checklist, then the AppDaemon app (paced: Yahoo
+   returned 429 to the Mac after ~40 requests in 90 min) and the panel page. Installed for HA's own dashboards on his word:
    `ha-easy-stock` with the four indices and the dashboard "Биржа".
 8. **PC control: the companion app's stats and spectrum stream.** Still in
    the firmware on UDP 4210, but never tried on this panel.
