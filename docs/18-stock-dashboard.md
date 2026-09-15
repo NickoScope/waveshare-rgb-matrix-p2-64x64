@@ -162,9 +162,14 @@ not probed).
   (lag 902–906 s on every probe), and advanced by one minute between two
   probes 63 s apart. So Yahoo updates the delayed price **once a minute**.
   That is the refresh period during trading: **60 s**.
-- **US exchanges not yet measured** (closed at probe time): to check at
-  15:35 CEST whether Yahoo's US prices are real-time or delayed. A one-time
-  scheduled check is set.
+- **US exchanges, measured 2026-09-15 16:13–16:14 CEST** (the scheduled
+  15:35 check did not report, so it was run by hand), `v8/chart
+  range=1d interval=1m`, short User-Agent, two rounds 60 s apart:
+  VOO, `^GSPC`, AAPL `regularMarketTime` 1–7 s behind the clock, so
+  **real-time**; `^GDAXI` in the same rounds 901–902 s, so **15 min
+  delayed**. With the rule "LIVE under 120 s", the panel shows `LIVE` for US
+  symbols and `D15` for European ones on its own; no per-exchange default
+  is needed.
 - `meta.currentTradingPeriod.regular` gives each symbol's session start and
   end in UTC (Paris 07:00–15:30Z, New York 13:30–20:00Z, Tokyo
   00:00–06:30Z), and `regularMarketTime`, `regularMarketPrice`,
