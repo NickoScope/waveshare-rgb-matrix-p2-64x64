@@ -99,6 +99,12 @@ Rolling record of where the work stands. Newest first.
    - a research report on professional dashboards and a settings inventory,
      to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
      many settings as sensibly possible; GitHub, Reddit, finance sources).
+   **17:00: incident.** From 16:31 to 16:53 the panel rebooted every ~16 s. LittleFS was full (12 KB free); the
+   market record write hit littlefs's divide-by-zero in its NOSPC log.
+   - The app is stopped: pre-install `apps.yaml` restored; the package, store and `local.json` remain on HA.
+   - Retained topics were cleared.
+   - A free-space guard is in firmware; it is being built for OTA.
+   - Then re-add the apps.yaml entry from `apps.yaml.market-disabled-20260915`, without its `disable` line.
    **13:55: finish line in 7 steps.**
    1. Panel: done.
    2. App: done. First real fetch OK; fees missing (401).

@@ -542,6 +542,50 @@ the fix. The multi-position frames now use an example allocation.
 
 **Approved by the owner at 12:53.**
 
+## Incident, 2026-09-15 16:31–16:53: the panel rebooted every ~16 s
+
+**What happened.** The HA app was installed at 16:25 (step 6) and published
+its first generation at 16:31. From then on the panel received all ~66
+payloads, and ~5 s later rebooted. Its `lastCrash`, symbolized with the
+image's ELF:
+- `IntegerDivideByZero` in `lfs_alloc` (littlefs `lfs.c:689`);
+- called from `lfs_file_write`;
+- called from the market record writer.
+
+**Root cause, from the sources.**
+- The panel's LittleFS partition is 3 538 944 B, and only **12 288 B were
+  free**: the animation uploads fill it. The 87 260 B market record cannot
+  fit.
+- littlefs f53a0cc, which esp_littlefs 41873c2 pins, reports that condition
+  with `LFS_ERROR("No more free space …", … % lfs->cfg->block_count)`
+  (`lfs.c:689-691`).
+- esp_littlefs sets `cfg.block_count = 0` to autodetect the block count
+  (`esp_littlefs.c:945`).
+- So running out of space divides by zero instead of returning
+  `LFS_ERR_NOSPC`. That is an upstream latent bug, not yet checked against
+  their issue trackers.
+
+**What was done.**
+1. The market app was stopped on HA. `disable: true` was not applied by
+   AppDaemon; restoring the pre-install `apps.yaml` removed the app at
+   16:57:58. The installed package, the store and `local.json` stay.
+2. The ~67 retained market topics on the broker were cleared. At 16:53 the
+   reboots stopped; uptime keeps climbing.
+3. **Firmware fix:** the record is written only when LittleFS has room for
+   it plus 25 % and four blocks; otherwise the portal says
+   `no space: needs … B, … B free`. `/api/market` `fs` now has `free` and
+   `noSpace`.
+
+**Also found and fixed on HA at the same install.** AppDaemon 4.5.13 passes
+its whole AppConfig as `self.args`, including `config_path` as a
+`pathlib.Path`. It reached `config_last` and failed every generation after
+its publish, with `TypeError`. The fix (910947d) drops those fields and adds
+file:line stacks to the app's failure logs.
+
+**Lesson.** The on-device record assumed free flash that this panel does
+not have. No test covered a nearly full filesystem, and the hardware run
+found it in minutes.
+
 ## Build status, 2026-09-15 16:25
 
 **Step 4, the final audit, returned CHANGES-REQUIRED with one MAJOR.**
