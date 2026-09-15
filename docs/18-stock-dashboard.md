@@ -201,6 +201,18 @@ keys. Nothing gives daily history from 2000 or dividend events.
 | `nuggetz/ha-tradepulse` | 0, new | real-time US prices, news, insider trades; Finnhub key optional | no history |
 | `T-leco/investing_portfolio`, `cubinet-code/ha-parqet-companion`, `MichelFR/ha_ghostfolio`, `FaserF/ha-traderepublic`, `Smart-Home-Assistant-UK/homeassistant-trading212`, `Poshy163/HomeAssistant-Sharesight`, `jippi/hass-nordnet`, `custom-components/sensor.avanza_stock` | small | readers of a real account at one broker or portfolio service | only if the owner wants his real broker account on the panel one day |
 
+**Installed on the owner's word, 09:31–09:45:** `derspe/ha-easy-stock`
+v0.5.0 through HACS, HA restarted, four config entries (S&P 500 `^GSPC`,
+NASDAQ `^IXIC`, CAC 40 `^FCHI`, DAX `^GDAXI`; entities `sensor.s_p_500`,
+`sensor.nasdaq`, `sensor.cac_40`, `sensor.dax`; `scan_interval` 900 s, the
+integration's default, changeable per entry under Configure), and a new
+dashboard **Биржа** (`/stock-market/indices`) with the `easy-stock-card`
+(currency RAW, 1-day range, medium tiles) and four tile cards showing the
+value, the day's change and the market state. Indices work: CAC and DAX
+reported `REGULAR` and `price_is_live: true` during the Paris session. Not
+yet looked at in a browser. Adding a ticker is Settings → Devices &
+Services → Add integration → Easy Stock → symbol.
+
 **Conclusion.** Nothing computes what the brief asks for: a percentage
 allocation bought at a date, dividends into cash, a yearly rebalance,
 windows from 2000. That stays our AppDaemon app on `yfinance`. Two things

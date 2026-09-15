@@ -88,7 +88,13 @@ Rolling record of where the work stands. Newest first.
    - Today every reboot bought the lists again; 24 calls went that way.
    - Test after the day cap resets at 00:00 UTC: reboot twice and count the
      calls.
-7. **PC control: the companion app's stats and spectrum stream.** Still in
+7. **The market dashboard** ([18](docs/18-stock-dashboard.md)): design v3
+   after two council reviews; the owner moved the maths to Home Assistant.
+   Waiting: the previews from the helper on `wip/market-board` (Python only),
+   the owner's approval against the 12-point checklist, then the AppDaemon
+   app and the panel page. Installed for HA's own dashboards on his word:
+   `ha-easy-stock` with the four indices and the dashboard "Биржа".
+8. **PC control: the companion app's stats and spectrum stream.** Still in
    the firmware on UDP 4210, but never tried on this panel.
    - First from the Mac: send synthetic packets, `FFT1` plus 32 bands for the
      spectrum and v2.2 JSON for the stats, and check both screens at 128×64.
