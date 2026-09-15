@@ -496,6 +496,30 @@ Then on the panel, from 1.5, 3 and 4 m, by day and in the evening.
 3. **The panel page and the portal card**; flag matrix; audit gate; flash;
    measure.
 
+## Build status, 2026-09-15 12:15
+
+**The HA app is built** on `wip/market-board` (local only; the public branch
+was deleted for privacy). The package is `matrix_market`:
+- A declarative settings schema with 56 keys, identical to the panel's rows.
+  Defaults are layered: code < apps.yaml < a gitignored local override < the
+  panel's `config`.
+- Registries for features, providers, modes, metrics, windows and lines.
+- A `config` diff with a 5 s debounce. A ticker-only change switches
+  `intraday` without a recompute.
+- `market_ref.py` extended additively: TWR, XIRR, annualised figures, bands.
+  `simulate_ext(Rules())` equals `simulate()` to the last digit.
+- 74 tests. `check_market.py` passes: 101 messages in the dry run, the
+  largest 1 204 B.
+
+**Not verified:** nothing ran inside AppDaemon or against the broker.
+
+**No real data yet.** Every fetch attempt from the Mac (10:40, 10:50, 11:09,
+12:09) got HTTP 429 on its first request. The golden figures on the owner's
+allocation are therefore still to come; the store fills from HA's address
+instead. The maths matches the reference on the saved samples.
+
+Audit gate on the app: running.
+
 ## Build status, 2026-09-15 11:30
 
 **The panel side is built** on `wip/market-panel` (pushed): five commits on
