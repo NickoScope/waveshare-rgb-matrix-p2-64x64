@@ -536,6 +536,22 @@ come after that fix. The maths matches the reference on the saved samples.
 
 Audit gate on the app: running.
 
+**Panel audit fixes done (12:17)**, `3024545..4727ed0`, local only:
+- knob changes settle and publish once;
+- portal saves write NVS before publishing;
+- the page mask migrates with `pgKnown`;
+- a short MQTT write disconnects;
+- LittleFS renames without a `remove`, and a valid `last.tmp` is promoted;
+- `intraday` is accepted only for the selected ticker;
+- the JSON and statics are in PSRAM (RAM 102 456 → 100 544 B);
+- neutral committed defaults, with the owner's in a gitignored header.
+
+Checks: flag matrix 39/39; host checks 333 + 13; frames 24/25. The delta
+audit is running.
+
+Out of scope, offered as a separate task: `src/media/media_ha.cpp` has the
+same `millis() | 1` settle wrap.
+
 ## Build status, 2026-09-15 11:30
 
 **The panel side is built** on `wip/market-panel` (pushed): five commits on
