@@ -58,8 +58,10 @@ Taken as defaults, because he did not say: the initial capital is a setting,
 10 000 in the portfolio currency; extra contributions are a setting, 0 by
 default; the inception date is a setting, default 2000-01-01.
 
-**Status: v3; the previews are done (10:00) and with the owner for
-approval. No firmware, no HA app yet.** The helper that had started the on-device version was stopped;
+**Status: previews approved by the owner (10:13). Both decisions kept: HOLD
+enters a late fund with its reserved cash; HOLDINGS returns are since
+entry. Building: the AppDaemon app (plug-and-play modules, his request) on
+`wip/market-board`, the panel page and portal page on `wip/market-panel`.** The helper that had started the on-device version was stopped;
 its worktree `wip/market-board` holds only the saved Yahoo samples.
 
 ## Why Home Assistant, after the council
