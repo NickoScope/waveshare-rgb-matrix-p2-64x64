@@ -57,6 +57,8 @@ not depend on this check.
 
 Newest first. One line per event: date, item, who, the gist, what was done.
 
+- 2026-09-15 22:01: item 6, Keralots. PR #4 (mbedTLS buffers in PSRAM) merged at 20:35 local time, with no review comments. Nothing sent.
+- 2026-09-15 22:01: item 4, Keralots. Upstream `a091505`, the merge of PR #4: `src/main.cpp`, `src/network/tls_psram.{cpp,h}`. Touches no `src/web/*`, `src/weather/*` or `platformio.ini`; release still `v2.3.1`. Reddit answered 429. Nothing sent.
 - 2026-09-15 18:37: item 6 added. PR #4 (mbedTLS buffers in PSRAM) opened on the owner's "отправляй", the first of the order 3-2-4-6.
 - 2026-09-15 17:55. **Items 1 and 4 (read by hand).**
   - **Item 1:** Keralots answered #3 at 14:55 UTC.
