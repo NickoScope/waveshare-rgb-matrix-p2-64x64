@@ -7,13 +7,15 @@ flashed** (the USB port was busy with the flash backup and the repartition).
 Written by the audio-visual effects helper. The owner chooses which "wow"
 versions get built (§10); until then no effect's drawing changes.
 
-**Where this stands at the end of the session.** Done: the hardware facts
-(§1), this design, the previews (§10), and the capture pipeline in firmware
-behind `-DAUDIO_MIC_ENABLED`, with its host test and builds (§11); local commits
-on `feat/audiofx-onboard-mic`, not pushed. Left: flash it and run the panel
-tests (§12); the owner's choice among W1–W8 (§9); then build the chosen
-effects on `audioSnapshot()`. **Next step:** flash the branch and run §12
-items 1–4.
+**Where this stands.** Round 1 (18:27–19:26): the hardware facts (§1), this
+design, the previews (§10), the capture pipeline behind `-DAUDIO_MIC_ENABLED`
+(§11). **The owner's picks, 19:30: build all eight proposals and keep the six as
+they are.** Round 2: the eight are in the firmware as styles 7–14 behind
+`-DVIZ_WOW_ENABLED`, pixel-identical to the previews on the host (§9.3, §11.1),
+and the ES7210 no longer starts the I2C bus and is configured from the loop task
+(§1.4). Local commits on `feat/audiofx-onboard-mic`, not pushed, nothing flashed.
+`src/board/board_i2c` is in, byte-identical to the climate branch. Left: flash;
+§12. **Next step:** flash the branch and run §12 items 1–4 and 12–17.
 
 Owner's request (2026-09-15 18:27, in short): take the upstream author's
 visualizer effects, which today need the PC companion's stream, raise them to a
@@ -65,6 +67,10 @@ Path aliases:
 6. **Built, not flashed** (`APC/src/audio/`, `-DAUDIO_MIC_ENABLED`): ES7210 driver,
    capture task, DSP, source switch, `/api/info` fields, four portal settings. A
    host build of the DSP matches the Python reference frame by frame (§11).
+7. **The owner's picks (19:30): all eight, built** as styles 7–14
+   (`-DVIZ_WOW_ENABLED`, `APC/src/viz/wow/`), pixel-identical to the previews on
+   the host in a double build, and fed from the PC stream too through a derived
+   frame (§9.1–9.3, §11.1).
 
 ---
 
@@ -131,9 +137,39 @@ This pipeline takes 12, 38, 39, 43 and I2C 47/48 only. Carried over from there:
 - **IO43** carries the ROM boot log onto the codec's BCLK at every reset.
 - **IO11** (amp enable) is not driven by this code; if it floats high the NS4150B
   may sit enabled with no signal.
-- **I2C 47/48** are shared with the RTC, SHTC3 and IMU. `Wire.begin()` on a bus
-  someone already started warns and returns true, and Wire takes its own lock
-  (`FW/libraries/Wire/src/Wire.cpp:300-303`, `:50`), so another module can share it.
+- **I2C 47/48** carry the SHTC3, ES7210, ES8311, PCF85063 and QMI8658 (the
+  climate branch's audit adds an NDC7002N level shifter; not checked here). With
+  2.0.17 the first `Wire.begin()` fixes speed and timeout for every device and
+  later calls only warn (`FW/libraries/Wire/src/Wire.cpp:300-303`). **Decision
+  (coordinator, 2026-09-15): one owner.** `src/board/board_i2c` from the climate
+  branch starts the bus once in `setup()` at 100 kHz. `es7210.cpp` never begins
+  it or sets its clock, checks `i2cIsInit(0)` (`FW/cores/esp32/esp32-hal-i2c.h:35`)
+  and runs on the loop task only: `audioPoll()` configures the codec once MCLK
+  runs, `audioApplySettings()` writes the gain. As built (`1dd9adb`): the
+  files are byte-identical to `078d5dc`, `boardI2cBegin()` is called in `setup()`
+  with the climate branch's exact hunk, the driver asks `boardI2cReady()`, and
+  like the climate reader (`0f7460a`) it sends nothing while `boardI2cLinesHigh()`
+  is false, times every transaction, stops the sequence at the first one over
+  100 ms or a timeout, and backs off a minute (`audioMic` "i2c held low" / "i2c
+  stalled", `audioI2cHeld`, `audioI2cStalls`). A held bus therefore costs no
+  transaction, a bus that stalls mid-sequence one second, not fifty. The copies'
+  SHA-1s are `c678370b…` (`.h`) and `1665c471…` (`.cpp`); as git blobs `43672f0a…`
+  and `89f79633…`, the same objects as in `078d5dc` and `dc43eba`.
+- **All Wire use runs on the loop task** (the fork's rule, coordinator 2026-09-15).
+  Wire's mutex covers a write (`beginTransmission()` takes it, `FW/libraries/Wire/src/Wire.cpp:421`;
+  `endTransmission()` gives it back, `:453-456`) and a read's transfer
+  (`requestFrom()`, `:504`, `:518`), but `read()` and `available()` take no lock on
+  the one receive buffer (`:547-564`): a second task's `requestFrom()` in between
+  hands this task the other's bytes. The ES7210 is reached only from `audioPoll()`,
+  from `audioApplySettings()` in `audioBegin()` and in the `/save` and import
+  handlers, all on `loopTask` (`FW/cores/esp32/main.cpp`: `loopTask()` runs
+  `setup()`, then `loop()`); `captureTask` makes no I2C call, and after an I2S stall
+  it only clears a flag for the loop task. `-DAUDIO_DEBUG` makes the driver's I2C
+  helpers print the calling task and `abort()` if it is not `loopTask`
+  (`loopTaskHandle`, `FW/cores/esp32/main.cpp:20`); flag_matrix.py compiles it.
+  `APC/src/audio/README.md` states the rule for the next I2C user. 100 kHz is what esp_codec_dev
+  drives this chip at (`CODEC/platform/audio_codec_ctrl_i2c.c:15, 52`,
+  `DEFAULT_I2C_CLOCK (100000)`). The ES7210 datasheet's I2C limits were not read.
 - [12](12-bringup.md) question 6 (do 47/48 run at 1.8 V?) is still open.
 
 ### 1.5 Still unverified
@@ -325,6 +361,24 @@ struct Frame {                     // APC/src/audio/audio_dsp.h
 | 2 mic | — | ok | microphones; PC spectrum packets are dropped, the stats JSON is untouched |
 | `-DAUDIO_MIC_ONLY` build | — | ok | microphones, fixed; the portal hides the source choice |
 
+### 5.1 Styles 7–14: the frame they draw from
+
+`wow::VizFrame` (`APC/src/viz/wow/viz_frame.h`, 436 B): the 32 band bytes, the
+waveform, level and peak per band, bass/mid/treble, beat and strength, clipping,
+and `steps`, how many DSP frames it stands for.
+
+- **From the microphones** every DSP frame (20 ms) is copied into a 16-frame ring
+  in PSRAM inside the task's spinlock. `audioPoll()` drains it on the loop task
+  into the visualizer's own 16-frame queue, which `displayVisualizer()` applies in
+  order before it draws, so no beat is skipped at 60 Hz. A frame lost to a full
+  ring counts in `/api/info` `audioWowLost`. The six still get the packet, through
+  `vizIngestMic()`, which derives nothing.
+- **From the PC** `vizIngest()` hands each packet to `PcFrameDeriver`
+  (`viz_frame.cpp`), which rebuilds the frame with the DSP's constants: bytes as
+  dB (38 dB over 0..255), attack/release and peak holds at the packet's interval,
+  the same flux rule on bands 0–9 over a one-second history of 25 packets,
+  `steps = 2`. What that costs: §9.2.
+
 ---
 
 ## 6. Budgets
@@ -343,6 +397,28 @@ struct Frame {                     // APC/src/audio/audio_dsp.h
 | **Total** | internal ≈10.5 KB + I2C; PSRAM ≈52 KB | | `/api/info` `audioInternalBytes` measures the internal side (free before the task, minus free once the codec is up; approximate) |
 
 Flash and static RAM: §11.
+
+### 6.1 Styles 7–14, as built
+
+| Item | Size | Where |
+|---|---|---|
+| Engine state: every effect's scalars, rings, stars, needles, the current frame | 1 592 B (host float build, 64-bit pointers; less on the S3) | PSRAM |
+| Spectrogram history, 128 × 64 colour indices | 8 192 B | PSRAM |
+| Beat Particles canvas, 128 × 64 × 3 bytes | 24 576 B | PSRAM |
+| Particle pool, 238 × 24 B | 5 712 B | PSRAM |
+| Scope Afterglow, 128 × 64 bytes | 8 192 B | PSRAM |
+| Visualizer frame queue, 16 × 436 B | 6 976 B | PSRAM |
+| PC frame deriver | 772 B | PSRAM |
+| Microphone frame ring, 16 × 436 B | 6 976 B | PSRAM |
+| **PSRAM** | **≈63 KB**, allocated once in `setup()` (`vizWowBegin()`, `audioBegin()`) | |
+| Static internal RAM | +40 B against `7a0d964` | .bss |
+| Stack, transient | one 436 B frame in `audioPoll()` or `vizIngest()`, one canvas object | loop task, 8 KB |
+
+Nothing allocates after `setup()`, and nothing on the render path. A float canvas
+for the particles would have been 98 KB rewritten 60 times a second through the
+S3's 32 KB PSRAM data cache (`SDK:301`, `CONFIG_ESP32S3_DATA_CACHE_SIZE 0x8000`),
+so both fading buffers became bytes before the first firmware build. **CPU per
+frame is not measured**: see §12.
 
 **Latency**, estimated:
 
@@ -372,9 +448,9 @@ of the same render. To be measured with a clap and a phone's slow-motion camera.
 | Noise gate | `micGateDb` | `micGateDb` | −90 … −30 dBFS | −60, starting value | **built** |
 | AGC | `micAgc` | `micAgc` | on/off | on | **built** |
 | Band count | — | — | fixed at 32 | 32 | not a setting: the packet, every effect and the wow designs index 32 bands |
-| Effect | `vizStyle` | `vizStyle` | existing list | existing | exists; wow styles append after the owner's choice |
-| Palette | per wow effect | — | e.g. synth, fire, ice, mono | per effect | with the wow effects |
-| Beat reactivity | `vizBeatFx` | — | 0–100 % (flash, palette shift, particle count) | 60 % | with the wow effects |
+| Effect | `vizStyle` | `vizStyle` | 0–3, 5, 6; 7–14 in `VIZ_WOW_ENABLED` builds | 0 | **built**: the portal lists all 14; without the flag the page drops 7–14 and a stored 7–14 reads as 0 |
+| Palette | — | — | — | — | **not built**: each of the eight keeps its own palette, as the six do; a choice would change every effect's drawing, which is not cheap |
+| Beat reactivity | `vizBeatFx` | `vizBeatFx` | 0–100 %, one setting for styles 7–14 | 100 (the previews) | **built**: scales the beat flash and the hue step; 0 ignores beats, so no rings or particle bursts; a change applies without resetting the effect |
 | Beat sensitivity | `micBeat` | — | 1–10, scales K and the rise | 5 = today's numbers | after the real-music check |
 | Auto-start on sound | — | — | like the companion's `VizAutoTrigger` | off | later |
 
@@ -388,6 +464,7 @@ stored and exported in every build, so a settings backup moves between builds.
 
 | State | Detected by | The panel shows | `/api/info` |
 |---|---|---|---|
+| I2C bus not started, held low, or stalled | `boardI2cReady()`, `boardI2cLinesHigh()`, a transaction over 100 ms; back off 30 s / 60 s / 60 s | as a missing codec | `"no i2c bus"`, `"i2c held low"`, `"i2c stalled"`; `audioI2cHeld`, `audioI2cStalls` |
 | No codec (no ACK at 0x40) | the first I2C writes of `es7210::begin()`; retried every 30 s | with the mic as source: "No audio data..." after 2 s; auto falls back to the PC | `audioMic: "no codec"` |
 | I2S install failed | `i2s_driver_install` / `i2s_set_pin`; retried every 30 s | as above | `"i2s failed"` |
 | No PSRAM | a failed `heap_caps_calloc` | as above | `"no memory"` |
@@ -416,9 +493,73 @@ most one PSRAM buffer. All have been rendered (§10).
 | W7 Twin VU | new | two analog meters, LO and HI, auto-ranging, needle inertia with a little overshoot, fading ghost needles, a red peak LED | the LO needle | the pivot caps glow | needles rest left | lines and circles |
 | W8 Synthwave Grid | new | a striped sun on the horizon, mountains cut from the spectrum (bass at the edges) standing in front of it, a perspective grid rushing forward faster with the energy | the sun grows | grid flash and a speed kick | the grid idles, the ridge flattens | lines |
 
-Beat-driven extras to share across all of them once built: a global brightness
-pulse capped by the dimming schedule, a palette shift per beat, and a
-`vizBeatFx` strength setting.
+### 9.1 The owner's picks (2026-09-15 19:30)
+
+All eight, alongside the six, which are unchanged. The PC companion keeps its
+indices and its behaviour.
+
+| `vizStyle` | Effect | Code in `APC/src/viz/` |
+|---|---|---|
+| 0, 1, 2, 3, 5, 6 | the six as they ship | `visualizer.cpp`, `starfield.cpp`, `oscilloscope.cpp` |
+| 7 | Prism EQ | `wow/wow_bars.cpp` `renderPrismEq` |
+| 8 | Neon Mirror+ | `wow/wow_bars.cpp` `renderNeonMirrorPlus` |
+| 9 | Spectrogram | `wow/wow_bars.cpp` `updateSpectrogram`, `renderSpectrogram` |
+| 10 | Radial Bloom | `wow/wow_bars.cpp` `beatRadialBloom`, `renderRadialBloom` |
+| 11 | Beat Particles | `wow/wow_glow.cpp` `beatParticles`, `renderBeatParticles` |
+| 12 | Scope Afterglow | `wow/wow_glow.cpp` `renderScopeAfterglow` |
+| 13 | Twin VU | `wow/wow_glow.cpp` `renderTwinVu` |
+| 14 | Synthwave Grid | `wow/wow_glow.cpp` `renderSynthwave` |
+
+The clock overlay, "No audio data..." and the 60 Hz render are the visualizer's
+own, as for the six. The knob and the carousel carry no visualizer list, so the
+portal's select is the only list extended.
+
+### 9.2 Fed from the PC stream: what degrades
+
+Measured on the host: the DSP's own 40 ms packets from `showreel.wav` through
+`PcFrameDeriver` (`make -C tools/audiofx/host wow`; `out/pc_*.gif`).
+
+| Aspect | From the microphones | From a PC packet |
+|---|---|---|
+| Frames | 50 a second | 25 a second |
+| Beats on the showreel | 7/7 kicks, 20 ms after onset on average | 7/7 kicks, 40 ms after onset, on 40 ms steps |
+| Levels and peaks | from dB bands every 20 ms | from AGC'd bytes every 40 ms: more than 38 dB under the loudest band reads 0, loud passages compress |
+| Twin VU's red lamp on clipping | yes | never: no clipping flag in the packet |
+| Spectrogram | 50 columns a second | same speed (each packet drawn twice), half the time resolution |
+| Scope Afterglow | the DSP's waveform every 40 ms | the companion's; a companion older than the scope gives a flat line |
+| Added delay | — | the companion's 40 ms block and Wi-Fi |
+
+On the panel, beat timing from a real companion is untested (§12).
+
+### 9.3 How the port was held to the previews
+
+- `effects_wow.py` was first made exactly repeatable, keeping the look: xorshift32
+  (seed 2463534242) instead of Mersenne Twister, explicit interpolation instead of
+  `np.interp`, `math.sqrt` in `fill_circle`, rotation, grid offset and hue
+  wrapped so float stays exact on the panel, the white clock of `drawVizClock()`,
+  and byte buffers with integer maths for the particle canvas and the afterglow
+  (§6.1). The GIFs and contact sheet were rendered again from it.
+- The C++ follows it expression by expression: Python's `round()` (half to even),
+  float `%` and int `//` have C twins, `min`/`max` break ties the same way, and the
+  line, circle and filled circle are drawn by the effects' own code.
+- `tools/audiofx/host/test_wow.cpp` runs the C++ DSP over the showreel, writes the
+  frames and renders the eight at 60 Hz as `render.py` does; `compare_wow.py`
+  renders the Python effects from the same frames and compares every pixel of
+  300 frames per effect, in two builds:
+
+| Effect | `real = double`, `-ffp-contract=off` (must match) | `real = float`, as on the panel |
+|---|---|---|
+| Prism EQ | identical | identical |
+| Neon Mirror+ | identical | identical |
+| Spectrogram | identical | identical |
+| Radial Bloom | identical | identical |
+| Beat Particles | identical | 15/300 frames differ, at most 2 px in a frame, 29 px in all |
+| Scope Afterglow | identical | identical |
+| Twin VU | identical | identical |
+| Synthwave Grid | identical | identical |
+
+The float difference is a particle position truncating into the next pixel. The
+S3's newlib `exp`/`sin`/`cos` may differ from macOS's in the last bit; untested.
 
 ---
 
@@ -449,6 +590,11 @@ would; the wow effects get every 20 ms frame; everything is drawn at 60 Hz.
 | `oscilloscope.gif` | the trace with three ghosts; kicks as slow swings, the sweep fills the screen (the ÷8 decimation aliases above ~3 kHz, as the companion's does) |
 | `w1_prism_eq.gif` … `w8_synthwave_grid.gif` | the eight designs of §9 |
 | `*.mp4` | the same at 60 fps with the audio track, to judge sync |
+| `pc_w*.gif` | the eight fed from PC packets through `PcFrameDeriver` (§9.2), from `compare_wow.py --pc-gifs` |
+
+The `w*` files were rendered again in round 2 from the exactly repeatable
+`effects_wow.py` (§9.3); the random particle and star positions differ from the
+round-1 GIFs, the design does not.
 
 ---
 
@@ -491,6 +637,36 @@ capture task, source switch, `/api/info`, portal settings. The branch against
 `776fc04`: 26 files, +4 039 / −1 011, of which about 2 000 lines are the
 regenerated `web_assets.h`.
 
+### 11.1 Round 2: styles 7–14 and the I2C owner
+
+| Commit | What |
+|---|---|
+| `7a0d964` | the ES7210 never starts the bus; codec bring-up and gain from the loop task |
+| `4ba0b2b` | `src/viz/wow`: the eight effects, the PC frame deriver, the canvas; exactly repeatable `effects_wow.py`; the host harness |
+| `da68533` | byte buffers for Beat Particles and Scope Afterglow; `setReact` |
+| `c9e0b30` | styles 7–14 in the visualizer, the microphone frame ring, `vizBeatFx`, the portal list, `-DVIZ_WOW_ENABLED`, flag-matrix rows |
+| `1dd9adb` | `src/board/board_i2c` byte-identical from the climate branch's `078d5dc`, `boardI2cBegin()` in `setup()`; the ES7210 looks at the lines first and stops at the first stalled transaction |
+
+| `matrix-waveshare-rgb` | Static RAM | Flash |
+|---|---|---|
+| `776fc04`, the base | 100 576 B | 2 146 893 B |
+| `e924c94`, capture pipeline | 101 640 B | 2 205 053 B |
+| `7a0d964`, I2C owner | 101 648 B | 2 199 017 B |
+| `c9e0b30`, styles 7–14 | 101 688 B | 2 213 453 B |
+| `1dd9adb`, everything | **101 704 B** | **2 220 729 B** (47.1 %) |
+| against `e924c94` | +64 B | +15676 B |
+| against `776fc04` | +1128 B | +73836 B |
+
+| Check | Result |
+|---|---|
+| `pio run -e matrix-waveshare-rgb` | success, no compiler warnings |
+| `python3 tools/flag_matrix.py` | 44/44: rows `mic on, debug asserts` (compiles the `AUDIO_DEBUG` loop-task check), `mic only, no PC stream`, `viz wow styles`, `viz wow + mic` build; `mic only, no mic` is refused by its guard; `everything` carries both flags; `src/board` compiles in every row |
+| `make -C tools/audiofx/host check` (DSP) | C++ and Python agree on all six WAVs |
+| `make -C tools/audiofx/host wow` (effects) | §9.3 |
+| `python3 tools/web_assets_gen.py --check` | passes |
+| pre-commit hook | ran on every commit; on `c9e0b30`, which staged the portal, it held `web_assets.h` and the clock-style table current |
+| Merge with the climate branch (`git merge-tree`, read-only) | the tree of `1dd9adb` against `dc43eba`: `main.cpp` (one `boardI2cBegin()`, the include block twice), `config.h`, `settings.cpp`, `web_pages.h` merge clean and `src/board` is the same blobs; conflicts in `platformio.ini`, the `/api/info` block of `web.cpp` and `flag_matrix.py`, each both sides appending (keep both), and `web_assets.h` (regenerate) |
+
 ---
 
 ## 12. To test on the panel
@@ -522,6 +698,20 @@ regenerated `web_assets.h`.
     `audioDspUsMax`, `loopMaxMs`, `freeInternalHeap`, with the Lua effects and a
     clip playing at the same time.
 11. **Enclosure:** the mics need an acoustic path through the case ([10](10-mechanical.md)).
+12. **Styles 7–14 at 60 Hz:** `loopMaxMs` and the frame rate with each of the
+    eight, alone and with a Lua effect or a clip playing; Beat Particles and Scope
+    Afterglow first (33 KB of PSRAM touched a frame).
+13. **Partial scans:** Spectrogram and Beat Particles fill the screen with bright
+    pixels; the starfield needed `waitForScanCompletion()` for this
+    (`APC/src/main.cpp`). Look for tearing bands.
+14. **Beat timing, both sources:** a 120 BPM click through the room and through
+    the companion; watch flashes, rings and bursts land; `audioWowLost` stays 0.
+15. **Beat reactivity:** 0, 50 and 100 in the portal; saving must not restart the effect.
+16. **Brightness:** the eight cap channels at 235; at the owner's usual brightness,
+    do Prism EQ's dim bar bases and Synthwave's sky read at all?
+17. **I2C:** `audioMic` reads "ok" and the climate sensor still reads; the log
+    shows no I2C errors. Then hold SDA low with a jumper for a few seconds:
+    `audioMic` "i2c held low", `loopMaxMs` stays low, and both recover once released.
 
 ---
 
@@ -532,7 +722,8 @@ fork-only: the ES7210 driver and its pins (one board), the build flag, the
 Sound source card, the wow effects until the owner picks. What could go upstream
 as an idea: a local source feeding `vizIngest()` with the companion's packet
 unchanged, and the portable DSP with its host test. The companion and its packet
-need no change.
+need no change. Styles 7–14 are fork-only until the owner says
+otherwise; their portable module and host harness would travel with them.
 
 ---
 
