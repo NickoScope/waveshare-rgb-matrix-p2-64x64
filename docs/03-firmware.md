@@ -259,6 +259,12 @@ How:
   (`tools/flash/repartition_32mb.py`).
 - The core dump read command below changes to offset `0x1FF0000`.
 
+**The backup before the move (2026-09-15 18:28).**
+- **Full dump.** `read_flash 0 0x2000000` over USB at 921600 took 470 s, into `~/panel-backups/2026-09-15-before-32mb/flash_full.bin`. The file is private: it holds NVS with the WiFi credentials, sits outside every repository, and has mode 600. Size 33 554 432 B, sha256 prefix `ec13f02b01a49ccf`. Its table at 0x8000 decodes to `default_16MB.csv`.
+- **Read check.** A second read of a static region, the first 1 MB of app1 at 0x650000, matched byte for byte (14.4 s).
+- **LittleFS moves between boots.** A second read of the spiffs region, taken after one boot, differed in exactly 2 of 864 blocks (720, 721). They carry the same littlefs revision header, and the new read holds more committed data. The firmware appended to a metadata pair while it ran; this was not a read error.
+- **Consequence for the move.** The files are copied from a read made with the chip held in download mode (`--after no_reset`) right before flashing, so the firmware never runs between that read and the new table.
+
 **Partitions until then.** `default_16MB.csv` from arduino-esp32:
 - two app slots, `app0` and `app1`, 6.4 MB each;
 - `otadata`;
