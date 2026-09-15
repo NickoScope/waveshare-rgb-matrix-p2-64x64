@@ -17,11 +17,12 @@ His answers, 08:41–08:43:
 - **Default indices:** S&P 500 `^GSPC`, NASDAQ `^IXIC`, CAC 40 `^FCHI`,
   DAX `^GDAXI`, changeable in the portal (08:44).
 
-Taken as defaults, because he did not say and each has one sensible reading:
-- **Source:** Yahoo Finance, no key. The only source probed that works from a
-  microcontroller and carries dividends.
-- **Lots:** one row is one purchase; the same ticker may appear in several
-  rows.
+- **Source:** Yahoo Finance, no key, with the risk that it closes one day
+  (08:45: "да"). The only source probed that works from a microcontroller and
+  carries dividends.
+
+Taken as a default, because he did not say: **lots** are one row per purchase,
+and the same ticker may appear in several rows.
 
 Status: **designed; the firmware is being built by a helper on
 `wip/market-board`** (started 2026-09-15 ~09:00). Nothing on the panel yet.
