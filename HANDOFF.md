@@ -99,6 +99,16 @@ Rolling record of where the work stands. Newest first.
    - a research report on professional dashboards and a settings inventory,
      to become `docs/19-market-dashboard-research.md` (the owner, 10:15: as
      many settings as sensibly possible; GitHub, Reddit, finance sources).
+   **13:55: finish line in 7 steps.**
+   1. Panel: done.
+   2. App: done. First real fetch OK; fees missing (401).
+   3. Squashed `feature/market-dashboard` e737aab: pushed.
+   4. Final audit: running.
+   5. OTA: the panel at 192.168.4.43 has been offline since morning.
+   6. HA install: needs the owner's yes and a backup.
+   7. Hardware test.
+
+   Delete the local wip branches after step 7.
    **Privacy (11:58).** Both repos are public; the owner's allocation had
    been pushed. His decision:
    - fork branches: scrub. `origin/wip/market-board` and

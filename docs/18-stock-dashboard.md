@@ -537,6 +537,19 @@ the fix. The multi-position frames now use an example allocation.
 
 **Approved by the owner at 12:53.**
 
+## Build status, 2026-09-15 13:55
+
+**Step 3 of 7 done.** `feature/market-dashboard` e737aab is pushed to the fork.
+- It is one squashed commit on board 8c5f8cf.
+- The post-commit scan finds none of the owner's funds, weights or file names, no LAN IP and no private file.
+- The gitignored local defaults header is copied into that worktree, so its default build is the owner's image.
+
+**Step 4, the final audit, is running.** It gates only on BLOCKER and MAJOR findings.
+
+**Still to do.**
+- The local work branches (`wip/market-board`, `wip/market-panel`, `wip/market-previews2`) and their worktrees keep the old history with the funds. They are deleted after the hardware test.
+- Steps 5 (OTA), 6 (the HA install, on the owner's word, after a backup) and 7 (the hardware test).
+
 ## Build status, 2026-09-15 13:50
 
 **The app is done** (`wip/market-board`, 1a3530c).
