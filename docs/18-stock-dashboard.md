@@ -208,7 +208,9 @@ NASDAQ `^IXIC`, CAC 40 `^FCHI`, DAX `^GDAXI`; entities `sensor.s_p_500`,
 integration's default, changeable per entry under Configure), and a new
 dashboard **Биржа** (`/stock-market/indices`) with the `easy-stock-card`
 (currency RAW, 1-day range, medium tiles) and four tile cards showing the
-value, the day's change and the market state. Indices work: CAC and DAX
+value, the day's change and the market state; at 09:40 a second section
+"Фонды" with VOO (`sensor.voo`, USD) and IWDA.AS (`sensor.iwda`, EUR), their
+own currencies. Indices work: CAC and DAX
 reported `REGULAR` and `price_is_live: true` during the Paris session. Not
 yet looked at in a browser. Adding a ticker is Settings → Devices &
 Services → Add integration → Easy Stock → symbol.
