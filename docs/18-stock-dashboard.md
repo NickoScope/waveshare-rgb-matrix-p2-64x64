@@ -510,6 +510,37 @@ Then on the panel, from 1.5, 3 and 4 m, by day and in the evening.
 3. **The panel page and the portal card**; flag matrix; audit gate; flash;
    measure.
 
+## Settings after the research, 2026-09-15 10:50
+
+The owner (10:15): as many settings as sensibly possible, the page still
+light. The research in [19](19-market-dashboard-research.md) inventoried 69
+settings across terminals, trackers, Portfolio Visualizer, GIPS, Vanguard and
+the Bogleheads wiki, each marked Core, Advanced or Skip with its source.
+
+**Adopted as schema, defaults equal to the approved previews.** Both helpers
+build table-driven registries (the app's `config.py`, the panel's const
+table and one NVS blob). The panel sends `config` v2; unknown keys pass
+through. What went in:
+- Core and Advanced from doc 19.
+- From its Skip list, the harmless ones, all off: withdrawals, dividend
+  withholding tax, per-trade costs, alerts as HA binary sensors, rolling
+  returns and three benchmarks for HA's own dashboard.
+- Left out as not user choices: price basis, FX source, provider, number
+  format.
+
+**Waiting on the owner:** the changes the research recommends to the approved
+pages. They are implemented as settings at the approved defaults, so each
+decision only changes a default:
+1. `LIVE` on a quote Yahoo delivers 15 min late (measured for the Paris and
+   Frankfurt indices) versus a `DELAYED`/`D` badge.
+2. The benchmark: `^GSPC` (price only, approved) versus `^SP500TR` or a blend
+   (GIPS 1.A.18).
+3. The return label: `TWR` on the window figure, and `XIRR (ann.)` since
+   inception when contributions are on.
+4. `(ann.)` figures from 1 year instead of 3.
+5. Drawdown with its dates; HOLDINGS sorted by contribution.
+6. The colour scheme default.
+
 ## The previews, 2026-09-15 10:00
 
 On `wip/market-board` (pushed): `tools/market/market_ref.py` (the ledger on
