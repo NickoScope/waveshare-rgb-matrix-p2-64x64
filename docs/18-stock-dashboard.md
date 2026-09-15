@@ -572,7 +572,47 @@ The morning's "rate limit" on the Mac may have been the same thing; the UAs
 used then were not recorded. The golden figures on the owner's allocation
 come after that fix. The maths matches the reference on the saved samples.
 
-Audit gate on the app: running.
+**Audit gate on the app, 12:46: CHANGES-REQUIRED.**
+
+**BLOCKERs:**
+- a refetch after a mismatch replaced the whole store with 60 days of
+  bars (reproduced: 6 966 bars became 44);
+- the User-Agent gets 429 from Yahoo.
+
+**MAJORs:**
+- the store path sits outside the add-on's `/config` mount;
+- the local override inside the apps tree is parsed by AppDaemon;
+- MQTT discovery is published before the connection and lost;
+- the blended benchmark ignores FX;
+- contributions distort CAGR and every risk metric (12.03 % instead of
+  6.67 %); the fix computes them from a unit-value series;
+- `px` is omitted while the panel requires it;
+- `providers/http.py` shadows the standard library's `http` in AppDaemon's
+  `legacy` import mode.
+
+**MINORs (15):**
+- stats under `market/#` register as refusals on the panel;
+- `"--"` states are sent;
+- name case differs from the panel's check;
+- the config diff handles one class only;
+- the debounce races;
+- `terminate()` does not wait for the worker;
+- errors other than `ProviderError` abort a generation;
+- needless refetches;
+- `object_id` is ignored since HA 2026.4;
+- the XIRR sensor reads the wrong key;
+- the month-end basis drops the first month;
+- the REBAL reserve for a fund not yet trading differs from this document
+  (`V × w` in the code, `(C + contributions) × w` here), an owner decision;
+- the broker IP and panel id are in public files.
+
+**Verified correct:** TWR with flows, XIRR, ann only for windows of 1 year
+or more, daily MDD with dates, the 5/25 bands, the FX direction, the single
+benchmark in EUR, HOLD and REBAL on 31 December by hand, and the rest of the
+panel contract. XIRR uses ACT/365.25 while Excel divides by 365; to be
+aligned for the golden match.
+
+The fixes are with the builder, then a delta audit.
 
 **Panel audit fixes done (12:17)**, `3024545..4727ed0`, local only:
 - knob changes settle and publish once;
