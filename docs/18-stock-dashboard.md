@@ -496,6 +496,44 @@ Then on the panel, from 1.5, 3 and 4 m, by day and in the evening.
 3. **The panel page and the portal card**; flag matrix; audit gate; flash;
    measure.
 
+## Previews v2, 2026-09-15 12:40 (the six decisions)
+
+Branch `wip/market-previews2`, local only. 32 frames: 16 changed in place,
+7 new, 9 unchanged. 56 tests pass and a rerun reproduces the same bytes.
+
+**Data fetched.**
+- `^SP500TR` monthly: 322 bars from 2000-01-01; `close` equals `adjclose`
+  (a total-return index).
+- ECB `EXR.M.USD.EUR.SP00.E`, 1999–2004. The suffix is `E`, end of period,
+  not `A`, the average: the ECB code list `CL_EXR_SUFFIX` defines both, and
+  every `E` month equals the month's last daily rate, which is what a
+  month-end close uses.
+- Yahoo `EURUSD=X` against the ECB rate over 2003-12..2004-12: differences
+  from −41 to +90 bp; the cause is not verified.
+
+**VOO, HOLD, MAX.**
+- TWR +798.01 %, bit for bit the old `chg`; ANN +8.57 %.
+- `^SP500TR` in EUR ends at 75 067.55.
+- MDD −19.82 %: peak 2020-01, trough 2020-03, recovered 2020-08.
+- With 1 000 EUR a year: 234 233.54 EUR, TWR +764.59 %, ANN +8.41 %,
+  XIRR +9.79 %.
+
+**Layout.**
+- `D15` in dim replaces `LIVE`.
+- `TWR` sits beside the change.
+- `ANN` sits under the change on PORTFOLIO and in the heading on TICKER.
+  MARKETS has no 5-px row left for it.
+- The drawdown is a third knob stop on PORTFOLIO, with a red bracket under
+  the fall.
+- With contributions the footer reads `XIRR … DIV …`, and TER~ and CASH give
+  way.
+
+**Also found.** The approved `fmt_amount` printed 10 000–999 499 in a
+4-character slot as `0.0M`; it now prints `22K`, and the firmware must copy
+the fix. The multi-position frames now use an example allocation.
+
+Waiting on the owner's approval.
+
 ## Build status, 2026-09-15 12:15
 
 **The HA app is built** on `wip/market-board` (local only; the public branch
