@@ -9,7 +9,7 @@
 | Design | done |
 | Previews | done |
 | Driver and data plumbing | built |
-| Weather-screen code | not written: the owner picks a design first |
+| Weather screen | **B chosen** by the owner (2026-09-15 19:10) and built; pixel-identical to its previews on the host |
 | Panel | nothing flashed, nothing measured |
 
 Firmware: branch `feat/onboard-climate` in the worktree
@@ -52,13 +52,12 @@ the weather clock ([09](09-upstream-contributions.md)).
   - `/api/info`;
   - an Indoor sensor card in the portal;
   - on request, two Home Assistant sensors by MQTT discovery.
-- **Weather screen.** Three designs are drawn pixel for pixel in
-  `tools/climate/preview/`: A an indoor line, B split, C a badge. No weather-screen
-  code yet.
-- **To measure on the panel:**
-  - an I2C scan and the ID;
-  - the offset against a reference thermometer after 30 minutes of normal display
-    use (plan in section 5.4).
+- **Weather screen.** Three designs were drawn pixel for pixel in
+  `tools/climate/preview/`. The owner chose **B, split "outside | inside"**
+  (2026-09-15 19:10). The firmware draws it, and a host check on the real
+  Adafruit GFX library holds its frames to the previews pixel for pixel
+  (section 7.1).
+- **To check on the panel** after an OTA flash: section 12.
 
 ## 1. Hardware and bus
 
@@ -429,11 +428,17 @@ It gets a `climate` object:
 | `sensorTempC`, `sensorHumidity` | smoothed, before the offsets: the numbers the measurement plan logs |
 | `ageS` | since the last good reading |
 | `reads`, `crcErrors`, `i2cErrors`, `softResets` | counters since boot. `i2cErrors` counts only once the sensor has been found, so an absent part's once-a-minute look does not add to it |
+| `id` | the ID register as read, `"0x...."`, whatever answered at 0x70. An SHTC3 has `id & 0x083F == 0x0807` (datasheet Table 15) |
 | `foreignDevice` | only when something that is not an SHTC3 answered |
+| `pausedS` | while `/api/climate/pause` holds the reader |
 | `ha`, `haPublishes` | with the MQTT bus |
 
 The portal's diagnostics text shows a line with the state, the reading and the
 error counters.
+
+**`GET /api/climate/pause?s=0-600`** starts no new reading for that long; `s=0`
+resumes. It is runtime only and not saved, like the display routes. It exists so
+the weather screen's stale state can be seen on a healthy board (12.4).
 
 ### 6.2 Portal: the Indoor sensor card on the Clock page
 
@@ -446,7 +451,7 @@ The card is shown only in builds whose `/api/portal` lists `climate`.
 | Humidity offset, %RH | `climateHumOffset` (tenths) | `climHOff` | 0 | ±20.0 |
 | Correct the humidity with the temperature | `climateRhFollowsT` | `climRhT` | on | |
 | Read every, seconds | `climateIntervalS` | `climIvl` | 10 | 5-300 |
-| On the weather screen | `climateShow` | `climShow` | 0 off | 1 indoor line, 2 badge, 3 split. Stored, not drawn yet |
+| On the weather screen | `climateShow` | `climShow` | 1 Outside \| inside | 0 off, 1 Outside \| inside (design B) |
 | Publish to Home Assistant | `climateHa` | `climHa` | **off** | only with the bus |
 
 **Where they live.**
@@ -490,7 +495,7 @@ The configs go out only after the sensor has been found.
 1 %RH, and at least once a minute while readings arrive. In °C always: Home
 Assistant converts.
 
-## 7. The weather screen: three designs (previews)
+## 7. The weather screen
 
 `tools/climate/render.py` draws today's screen from the firmware's own
 constants, colours and draw calls. It adds the indoor reading three ways.
@@ -515,21 +520,99 @@ Indoor values are 23.4 °C and 45 %.
 **Layout budget.** 1792 cases with the widest strings, every icon at every
 animation phase. No two parts within one pixel, nothing off the panel: clean.
 
-**The owner chooses.** Then the firmware copies the chosen `CL_*` block, and
-`climateShow` selects it.
+### 7.1 Chosen: B, built
+
+**The owner chose B on 2026-09-15 19:10.**
+
+**What the panel draws** (`drawWeatherScreen()` in `src/clocks/weather_layout.h`):
+- the time row, details row, no-WiFi icon and AM/PM exactly where today's
+  screen has them;
+- the icon at x 1 and the size-3 temperature at x 28, on today's rows;
+- a rule at x 89, rows 26-47, colour 52/60/64;
+- the indoor column from x 92:
+  - the amber house (7x7) at row 28;
+  - the indoor temperature in white 5x7 from x 101, with a thin dot and a 3x3
+    degree mark;
+  - the humidity in dim 5x7 at row 39.
+
+**When it is drawn** (`climate::weatherIndoor()`, host tested):
+
+| `/api/info` `climate.state` | "On the weather screen" | Screen |
+|---|---|---|
+| `ok` | Outside \| inside | B with the values |
+| `stale` | Outside \| inside | B with `--.-°` and `--%`, house and dashes dim |
+| `absent`, `probing`, `off` | any | today's screen |
+| any | Off | today's screen |
+
+- **`probing` counts as absent on purpose.** A board without the part would
+  otherwise show dashes for the few seconds it takes to give up.
+- **A sensor found but silent** turns `stale` after three intervals, at least
+  30 s.
+- **"Weather not set up" and "Fetching weather..."** are unchanged and have no
+  indoor column; no design was drawn for them.
+
+**The unit letter.** A three-character outdoor temperature (-10 °C and below,
+100 °F and above) would put its unit letter on the rule. The degree ring stays
+and the letter goes, exactly as `b_split_worst` shows. `b_split_edge_*` show
+both sides of the edge: -9 °C and 99 °F keep the letter.
+
+**Cost.**
+- **No heap.** The screen is a stack struct and fixed char buffers.
+- **No I2C on a frame.** `climateGet()` reads the snapshot the reader fills in
+  `loop()`.
+- **No maths on an unchanged frame.** The corrected reading is cached, so the
+  humidity compensation's two `exp()` calls run only when a reading or an
+  offset changes.
+- **Size.** Static RAM +40 B and flash +3 072 B against 3bfd10b, including the
+  ID field and the pause (section 9).
+
+**How it was matched.** `tools/climate/check_weather_screen.py` compiles
+`weather_layout.h` on the host against the real Adafruit GFX library
+(`Adafruit_GFX.cpp` and `glcdfont.c` from PlatformIO's libdeps). It draws 11
+frames:
+- `today_live`, `today_absent`, `today_worst`;
+- `b_split_live`, `b_split_stale`, `b_split_worst`;
+- B with the sensor absent, compared with `today_absent`;
+- the four edge frames.
+
+The results:
+- all 11 are pixel-identical to render.py's drawing and to the committed 1:1
+  PNGs;
+- the strings drawn equal `frames.json`;
+- the 18 layout constants, colours, glyph and dashes equal render.py's name for
+  name;
+- nothing is drawn off the panel.
+
+The pre-commit hook runs it.
+
+**What the host cannot see:**
+- the DMA library's own `drawPixel`, `fillRect` and fast lines, which draw the
+  same pixels faster;
+- the panel's colour depth, gamma and brightness;
+- the ESP32's `cosf`/`sinf` against the host's. The sun's rays truncate at
+  whole pixels, so a difference would need a value within a rounding error of
+  an integer;
+- `%.1f` at an exact .x5. The previews format a double and the panel a float:
+  23.45 is "23.4" in the preview and "23.5" on the panel.
+
+**Unchanged.** Today's screen draws the same pixels: the three `today_*` frames
+match. Its code moved from `clock_weather.cpp` into the template, and
+`drawNoWiFiIcon()` makes the same calls through `wifi_icon.h` for every clock.
 
 ## 8. Checks run
 
 | Check | Result |
 |---|---|
-| `python3 tools/climate/check_climate.py`: CRC examples (Table 16), Figure 7 to 63 %RH and 23.7 °C, conversion ends, ID mask, Magnus against the guide's 5 %RH, offsets, clamps, smoothing, staleness across the `millis()` wrap | 56 checks, 0 failed |
+| `python3 tools/climate/check_climate.py`: CRC examples (Table 16), Figure 7 to 63 %RH and 23.7 °C, conversion ends, ID mask, Magnus against the guide's 5 %RH, offsets, clamps, smoothing, staleness across the `millis()` wrap, what the weather screen shows in each state | 66 checks, 0 failed |
 | `python3 tools/climate/render.py` layout budget | clean, 1792 cases |
 | `pio run -e matrix-waveshare-rgb` | SUCCESS, no warnings from the new or touched files |
 | `python3 tools/web_assets_gen.py --check` | OK |
 | `PORTAL_JS`, taken from `web_pages.h`, through JavaScriptCore's `checkSyntax` | parses; `climateStatus()` defined and called |
 | `tools/flightboard/check_portal_js.py`, `tools/media/check_media.py` (the Panel script) | passed |
-| pre-commit hook (climate test, portal assets, clock styles) | passed on every commit |
+| pre-commit hook (climate test, weather-screen pixel check, portal assets, clock styles) | passed on every commit |
 | `python3 tools/flag_matrix.py`, rows "climate + bus" and "climate without MQTT", and CLIMATE_ENABLED in "everything" | 41/41 behaved as intended, the bring-up images included |
+| `python3 tools/climate/check_weather_screen.py`: design B's firmware drawing against the previews (7.1) | 11 frames pixel-identical, strings as `frames.json`, 18 constants name for name |
+| `python3 tools/flag_matrix.py` again, on d5e20ac (design B, the ID and the pause) | 41/41 behaved as intended, the bring-up images included |
 
 ## 9. Memory and CPU
 
@@ -540,6 +623,7 @@ animation phase. No two parts within one pixel, nothing off the panel: clean.
 | 776fc04 | 100 576 B | 2 146 893 B |
 | this branch with `CLIMATE_ENABLED` unset | 100 584 B (+8) | 2 151 569 B (+4 676) |
 | with the module | 101 104 B (+528) | 2 178 189 B (+31 296) |
+| with design B, the ID and the pause (d5e20ac) | 101 144 B (+40 against 3bfd10b) | 2 181 261 B (+3 072 against 3bfd10b) |
 
 **Where the growth comes from.**
 - The portal card, the settings and the import/export are built into every
@@ -577,7 +661,8 @@ Keralots' rules ([09](09-upstream-contributions.md)):
 - `shtc3.h`, `climate_model.h`, the reader;
 - the settings and portal card;
 - `/api/info`;
-- the weather-screen design once chosen.
+- design B: `weather_layout.h` and `clock_weather.cpp`;
+- optionally, the pause and the `id` field.
 
 Built for his `matrix-waveshare` env with the pins taken from his
 `src/display/hub75_pins.h` pattern, no flag, found by the ID check.
@@ -592,7 +677,7 @@ fork's layout. Check it before drafting.
 
 ## 11. Not verified
 
-- That the SHTC3 answers at 0x70 on our board, and its ID. Do an I2C scan.
+- That the SHTC3 answers at 0x70 on our board, and its ID: `climate.id` in `/api/info` (12.1).
 - That the corner part in the photo is U6.
 - Clean signals at 100 kHz through M2. Waveshare's own choices are 40 and 400 kHz.
 - The level on GPIO47/48 (1.8 V per the datasheet; question 6 of doc 12 wanted a
@@ -603,8 +688,107 @@ fork's layout. Check it before drafting.
 - Home Assistant picking up the discovery. Nothing was sent to a broker.
 - That the SOT-23-6 marked `02N` beside the IMU in the photo is M2. It is
   consistent with an NDC7002N, but its marking code was not looked up.
+- Design B on the panel: live, stale (with the pause) and the fallback.
+- The indoor colours as the panel shows them.
 
-## 12. Sources
+## 12. On the panel, after an OTA flash
+
+The panel runs the 32MB partition layout, which this branch's `platformio.ini`
+already has. The image is 46 % of a 4.5 MB app slot. `<panel>` below stands for
+the panel's address.
+
+### 12.1 The sensor on the bus
+
+1. Within a minute of boot, run `curl -s http://<panel>/api/info` and read
+   `climate`:
+   - `state` is `ok`;
+   - `id` is there and `(id & 0x083F) == 0x0807` (datasheet Table 15; the other
+     bits vary from part to part). Write the value down;
+   - `reads` grows by one every `intervalS` (10 s) between two requests;
+   - `crcErrors`, `i2cErrors` and `softResets` stay 0, and there is no
+     `foreignDevice`.
+2. **If `state` is `absent` and there is no `id`,** nothing answered at 0x70:
+   the bus is suspect (M2, the pull-ups), not the driver. With
+   `foreignDevice: true`, something else answers there: write down its `id`.
+3. `loopSlowPart` in `/api/info` never names `climate`, and `freeInternalHeap`
+   does not step down after boot.
+
+### 12.2 The reading
+
+- `tempC` and `humidity` are what the panel reports. `sensorTempC` and
+  `sensorHumidity` are the smoothed sensor before the offsets. With both
+  offsets at 0, `tempC == sensorTempC`.
+- `ageS` stays below `intervalS` plus a second or two.
+- **The portal:** Clock page, Indoor sensor card. The tag reads `ok`, and the
+  "Now ..." line updates with the 5 s status poll.
+- **Home Assistant:** leave "Publish to Home Assistant" off unless that is what
+  is being tested.
+
+### 12.3 Design B, live
+
+1. The weather is set up (location saved), and the clock style is Weather (14),
+   or the weather screen comes round in Cycle All.
+2. Indoor sensor card: "Read the board's sensor" on, and "On the weather screen"
+   set to Outside | inside, the default.
+3. On the panel, against `tools/climate/preview/b_split_live.png` (the values
+   will differ):
+   - the icon at the left edge, the big temperature beside it;
+   - a dim vertical rule right of its degree mark;
+   - an amber house;
+   - the indoor temperature in white with one decimal and a small degree mark;
+   - the humidity in dim under it, in whole percent;
+   - the time and the bottom row where they always were.
+4. **The unit letter.** With Fahrenheit on and 100 °F or more outside (or
+   -10 °C or less in Celsius), the letter is gone and the degree ring stays, as
+   in `b_split_worst.png`. If the weather does not oblige, the host check
+   covers it.
+
+### 12.4 Design B, stale
+
+1. Run `curl -s "http://<panel>/api/climate/pause?s=90"`. It answers
+   `{"success":true,"pausedS":90}`, and `/api/info` shows `climate.pausedS`.
+2. Within 30 s of the last reading (three intervals at 10 s), `climate.state`
+   turns `stale`. The panel then shows the house, `--.-°` and `--%`, all dim,
+   as in `b_split_stale.png`.
+3. When the 90 s are up (or on `pause?s=0`), a reading starts at once and the
+   values come back. The smoothing restarts from that reading.
+
+The pause does not survive a reboot.
+
+### 12.5 The fallback: today's screen
+
+- **"On the weather screen" set to Off, then Save:** today's screen, unchanged
+  (`today_live.png`). Set it back to Outside | inside and B returns on the next
+  frame.
+- **"Read the board's sensor" off, then Save:** `state` reads `off`, and today's
+  screen shows.
+- **True absence** (no ACK at 0x70) cannot be produced on this board without
+  removing the part. It takes the same `WeatherIndoor::None` path, checked on
+  the host: `b_split_absent` equals `today_absent`.
+
+### 12.6 The self-heating offset
+
+The full plan is section 5.4. In short:
+1. Leave the panel off for at least an hour, then power it and show the weather
+   clock at the usual brightness. Record the power path and whether the board
+   is in its case.
+2. Place a reference thermometer-hygrometer, with its stated accuracy written
+   down, at the panel's height, about 30 cm to the side, out of the rising air.
+3. Once a minute for 60 minutes, log `climate.sensorTempC` and
+   `climate.sensorHumidity` from `/api/info`, and the reference's two values.
+4. After 30 minutes, once `sensorTempC` moves less than 0.1 °C in 10 minutes,
+   take the mean of sensor minus reference over the rest: that is the
+   self-heating. Enter its negative as "Temperature offset, °C" and Save.
+   `tempC` and the panel move at once, because the offset is applied after the
+   smoothing.
+5. With "Correct the humidity with the temperature" on, compare `humidity` with
+   the reference. Set a humidity offset only for a residual larger than both
+   instruments' accuracy together.
+6. Repeat at night brightness, at full brightness, on a Lua effect page, and on
+   other days. Take five sessions or more before deciding whether one offset
+   holds (5.3).
+
+## 13. Sources
 
 1. waveshareteam/ESP32-S3-RGB-Matrix, commit 4047e4e — `example/idf_v5.5.2/components/bsp/esp32_s3_matrix/include/bsp/config.h`, and `.../esp32_s3_matrix.c` (`bsp_i2c_init`)
 2. Same repository, `hardware/schematics/ESP32-S3-RGB-Matrix-Schematics.pdf`; local copy `reference-drawings/controller/ESP32-S3-RGB-Matrix-Schematics.pdf` (U6, U2, U5, U9, M2, R10-R13, the pin table)
