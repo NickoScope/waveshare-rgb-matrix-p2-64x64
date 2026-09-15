@@ -289,6 +289,14 @@ change, and every 6 h as a keepalive (`status` only when nothing changed).
 
 ### The app
 
+- **HA entities too** (owner, 09:40: "а создания дашборда портфеля там
+  нет?"): the app publishes sensors for HA's own dashboards: portfolio
+  value, return over the default window and since inception, CAGR, max
+  drawdown, DIV, TER drag, cash share, the mode, and one sensor per holding
+  (current share, return since entry), plus the exchange states. A
+  "Портфель" view on the HA dashboard "Биржа" shows the value line from
+  the app's series, the key figures and the holdings table. The settings
+  stay in the panel's portal; HA only displays.
 - **Live loop:** every 60 s while any watched exchange is open: one spark
   request for all symbols, one chart request for the selected ticker;
   publishes `live`, `intraday/<sym>`, and `tape` when a state changes.
