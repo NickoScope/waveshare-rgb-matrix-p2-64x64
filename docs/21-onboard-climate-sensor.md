@@ -108,7 +108,9 @@ says why. The sensor takes 0-1000 kHz (datasheet Table 6 [5]). The firmware uses
 
 **The media player will share this bus** for the ES8311 ([17](17-media-player.md)).
 `TwoWire::begin` returns true if the bus is already up (Wire.cpp:300-303 [12]),
-so a second user can call it again. The datasheet recommends no bus traffic
+so the first module to call it chooses the speed for all of them. Since
+2026-09-15 the board owns the bus: `src/board/board_i2c.h` begins it once, at
+100 kHz, before any module (4.2). The datasheet recommends no bus traffic
 while the SHTC3 measures, for best repeatability (§5.5 [5]). That matters once
 the codec talks on the bus too.
 
@@ -257,24 +259,34 @@ The code lives in `src/climate/` and has three layers:
 
 ### 4.1 The cycle
 
-One transaction per `loop()` pass:
+`src/climate/climate_reader.h`, tested on the host on a mock bus and clock.
+Each `loop()` pass makes **at most one** I2C transaction; a step that needs two
+spreads over two passes.
 
-| Step | Bus | Wait |
+| Pass | Bus | Then |
 |---|---|---|
-| due | wake-up 0x3517 | 1 ms (tPU max 240 µs) |
-| after a third failure in a row | soft reset 0x805D | 1 ms (tSR max 240 µs) |
-| first contact, after a reset | read ID 0xEFC8 (3 bytes): CRC and product code | — |
-| measure | 0x7866: normal mode, T first, **stretching off** | 15 ms (tMEAS max 12.1 ms) |
-| read | 6 bytes. A NACK means still measuring: 3 more tries, 5 ms apart | — |
-| check | both CRCs | — |
-| sleep | 0xB098 | the interval, default 10 s |
+| due | none: SDA and SCL must both read high (4.2) | — |
+| wake-up | write 0x3517 | 1 ms (tPU max 240 µs) |
+| after a third failure in a row | write the soft reset 0x805D | 1 ms (tSR max 240 µs) |
+| first contact, after a reset or a stall | write read-ID 0xEFC8 | next pass |
+| | read 3 bytes: CRC and product code | next pass |
+| measure | write 0x7866: normal mode, T first, **stretching off** | 15 ms (tMEAS max 12.1 ms) |
+| read | read 6 bytes and check both CRCs. A NACK means still measuring: 3 more tries, 5 ms apart | next pass |
+| sleep | write 0xB098 | the interval, default 10 s |
+
+A first reading is six passes with a transaction; later readings are four.
+
+**Corrected 2026-09-15 after the code audit.** The first version said "one
+transaction per pass". Its ID step made three transactions and a good read
+two.
 
 **Why `loop()` and not a task.**
 - The weather needs a task because a TLS fetch blocks for seconds.
-- Here every step is a few bytes, about a millisecond at 100 kHz (estimated from
-  the bit rate; to be measured as `loopSlowPart`).
-- There is no stack to hold, and no lock: the web handlers and the MQTT bus run
-  in `loop()` too.
+- Here a healthy transaction is a few bytes, well under a millisecond at
+  100 kHz (estimated from the bit rate; to be measured as `loopSlowPart`).
+- There is no stack to hold and no lock of its own: the web handlers and the
+  MQTT bus run in `loop()` too.
+- What keeps that true on a broken bus is 4.2.
 
 **Why stretching off.** A too-early read gets a NACK and the reader comes back
 later. With stretching on, the sensor would hold SCL for up to 12 ms inside
@@ -284,9 +296,21 @@ later. With stretching on, the sensor would hold SCL for up to 12 ms inside
 normal mode. Its 10.8 ms cost nothing here, because `loop()` never waits for
 them.
 
-**Timeouts.** A transaction that is not answered in 20 ms fails. Wire's default
-is 50 ms (Wire.cpp:48 [12]). `endTransmission` returns 0 when sent, 2 for a NACK,
-5 on timeout and 4 otherwise (Wire.cpp:465-470 [12]).
+**Timeouts: what Wire's does not do.** Wire's timeout does not bound a
+transaction; the bus sets it to 50 ms, Wire's default (Wire.cpp:48 [12]).
+- ESP-IDF v4.4.7 is the IDF of arduino-esp32 2.0.17 (`tools/sdk/versions.txt`).
+  Its `i2c_master_cmd_begin()` waits for the driver's next event for at least
+  `I2C_CMD_ALIVE_INTERVAL_TICK`, 1000 ms (`components/driver/i2c.c:68` and
+  `:1480-1489` [17]).
+- A NACK is such an event and returns at once (`:1502-1508`).
+- A line held low sends none, so the call ends with `ESP_ERR_TIMEOUT` after a
+  second and a reset of the controller (`:1516-1522`). Wire returns 5
+  (`Wire.cpp:465-471` [12]).
+
+**Corrected 2026-09-15 after the code audit, verified in the source above.**
+The first version set a 20 ms timeout and took it to bound a stuck bus. It
+would have held `loop()` for about a second per transaction, two with the sleep
+command after a failure.
 
 **Logging.** Neither `CORE_DEBUG_LEVEL` nor any log level is set in
 `platformio.ini`. A NACK makes `requestFrom` log through `log_e` (Wire.cpp:512),
@@ -300,12 +324,24 @@ which this build level does not print. **Not verified on the panel.**
 | Something answers with a foreign ID | **absent**, left alone except for that look once a minute; `foreignDevice` in `/api/info` |
 | A found sensor stops answering, or its CRC fails | retried in 2 s; every third failure in a row starts with a soft reset and a new ID check; after that, once an interval. Counters `i2cErrors`, `crcErrors`, `softResets` |
 | No good reading for three intervals (never less than 30 s) | **stale**: the value is kept but marked, the panel shows dashes, Home Assistant's `expire_after` runs out |
-| The bus hangs | each transaction ends after 20 ms, so a fault costs at most that per pass, every 2 s at first and then once an interval |
-| `Wire.begin` fails | absent, and one line on the serial port |
+| SDA or SCL reads low before a cycle | looked at again 5 ms later; another module's transaction of a few bytes is over by then. Still low: no transaction at all, the cycle is skipped, the lines are looked at again in a minute (`busStuck`) |
+| A transaction takes over 100 ms, or Wire reports a timeout | the cycle ends with nothing more sent, not even the sleep command, which would stall again. Nothing goes on the bus for a minute, and the ID is read again after (`busStalls`). At worst one second of `loop()` a minute |
+| The board's bus did not start (`boardI2cBegin()`) | absent, and one line on the serial port |
 | Switched off in the portal | the sensor is put to sleep, the reading dropped, the Home Assistant entities removed |
 
-A failure after a successful wake-up sends the sensor back to sleep, so it does
-not idle at 45 µA (Table 3).
+A failure after a successful wake-up sends the sensor back to sleep on the next
+pass, so it does not idle at 45 µA (Table 3). A stall is the exception: nothing
+is sent after it.
+
+**The shared bus.** `src/board/board_i2c.h` begins the bus once, at 100 kHz,
+before any module, and records what Wire's mutex covers across two tasks on two
+cores (`CONFIG_DISABLE_HAL_LOCKS` is not set):
+- transactions never interleave on the wire;
+- a read's bytes are not protected. They stay in Wire's one `rxBuffer` after
+  the mutex is released, and `read()` takes no lock (`Wire.cpp:547-564`), so
+  another task's read can overwrite them first;
+- a transaction stuck for its second holds the other task's next Wire call
+  for as long.
 
 **Upstream** needs no flag. The module is built for the Waveshare env, and the ID
 check is the auto-detect. **In the fork** `-DCLIMATE_ENABLED` (in
@@ -427,6 +463,7 @@ It gets a `climate` object:
 | `tempC`, `humidity` | what the panel reports (smoothed, offsets, compensation), while a reading exists |
 | `sensorTempC`, `sensorHumidity` | smoothed, before the offsets: the numbers the measurement plan logs |
 | `ageS` | since the last good reading |
+| `busStuck`, `busStalls` | cycles skipped on a line read low; transactions that stalled (4.2). Both should stay 0 |
 | `reads`, `crcErrors`, `i2cErrors`, `softResets` | counters since boot. `i2cErrors` counts only once the sensor has been found, so an absent part's once-a-minute look does not add to it |
 | `id` | the ID register as read, `"0x...."`, whatever answered at 0x70. An SHTC3 has `id & 0x083F == 0x0807` (datasheet Table 15) |
 | `foreignDevice` | only when something that is not an SHTC3 answered |
@@ -613,6 +650,9 @@ match. Its code moved from `clock_weather.cpp` into the template, and
 | `python3 tools/flag_matrix.py`, rows "climate + bus" and "climate without MQTT", and CLIMATE_ENABLED in "everything" | 41/41 behaved as intended, the bring-up images included |
 | `python3 tools/climate/check_weather_screen.py`: design B's firmware drawing against the previews (7.1) | 11 frames pixel-identical, strings as `frames.json`, 18 constants name for name |
 | `python3 tools/flag_matrix.py` again, on d5e20ac (design B, the ID and the pause) | 41/41 behaved as intended, the bring-up images included |
+| `check_climate.py` with the reader's tests on a mock bus and clock: a reading with at most one transaction per pass, a held line skipped with no transaction, a low line for one look costing 5 ms, stalled writes and reads followed by a minute of silence, a slow success past 100 ms, an absent sensor | 147 checks, 0 failed |
+| `check_weather_screen.py` on 740c8e4 (the bus owner and the held-bus reader) | 11 frames still pixel-identical |
+| `python3 tools/flag_matrix.py` on 740c8e4 | 41/41 behaved as intended, the bring-up images included |
 
 ## 9. Memory and CPU
 
@@ -624,6 +664,7 @@ match. Its code moved from `clock_weather.cpp` into the template, and
 | this branch with `CLIMATE_ENABLED` unset | 100 584 B (+8) | 2 151 569 B (+4 676) |
 | with the module | 101 104 B (+528) | 2 178 189 B (+31 296) |
 | with design B, the ID and the pause (d5e20ac) | 101 144 B (+40 against 3bfd10b) | 2 181 261 B (+3 072 against 3bfd10b) |
+| with the board's bus owner and the held-bus reader (740c8e4) | 101 176 B (+32 against 7a0c49b) | 2 182 409 B (+1 148 against 7a0c49b) |
 
 **Where the growth comes from.**
 - The portal card, the settings and the import/export are built into every
@@ -705,12 +746,13 @@ the panel's address.
    - `id` is there and `(id & 0x083F) == 0x0807` (datasheet Table 15; the other
      bits vary from part to part). Write the value down;
    - `reads` grows by one every `intervalS` (10 s) between two requests;
-   - `crcErrors`, `i2cErrors` and `softResets` stay 0, and there is no
-     `foreignDevice`.
+   - `crcErrors`, `i2cErrors`, `softResets`, `busStuck` and `busStalls` stay
+     0, and there is no `foreignDevice`.
 2. **If `state` is `absent` and there is no `id`,** nothing answered at 0x70:
    the bus is suspect (M2, the pull-ups), not the driver. With
    `foreignDevice: true`, something else answers there: write down its `id`.
-3. `loopSlowPart` in `/api/info` never names `climate`, and `freeInternalHeap`
+3. `loopSlowPart` in `/api/info` never names `climate` (I2C) or `climate ha`
+   (MQTT), and `freeInternalHeap`
    does not step down after boot.
 
 ### 12.2 The reading
@@ -806,3 +848,4 @@ The full plan is section 5.4. In short:
 14. Home Assistant, *MQTT*, discovery — https://www.home-assistant.io/integrations/mqtt/
 15. `photos/2026-09-14-arrival/controller-front.jpg` — the corner part and its slot
 16. AnimatedPixelClock fork, `feature/market-dashboard` 776fc04 — `src/clocks/clock_weather.cpp`, `src/weather/weather.cpp`, `src/mqtt/mqtt_bus.cpp`, `src/media/media_ha.cpp`, `src/web/web.cpp`, `tools/web_assets_gen.py`
+17. ESP-IDF v4.4.7, `components/driver/i2c.c` — https://github.com/espressif/esp-idf/blob/v4.4.7/components/driver/i2c.c (the IDF named in arduino-esp32 2.0.17's `tools/sdk/versions.txt`)
