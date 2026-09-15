@@ -533,8 +533,21 @@ Contract choices it made:
 
 All of it is recorded in `src/market/README.md`.
 
-Nothing has run on the panel. **Next:** the audit gate on that branch
-(running); the HA app, which is still being built and must match this
+**Audit gate, 11:47: CHANGES-REQUIRED.** No blockers. The build is clean and gitleaks and cppcheck are clean.
+- **MAJOR:** every knob tick republished the ~1.9 KB `config`, and every `config` makes the app recompute. The fix has two halves: the panel debounces knob changes, and a contract rule says that when only `ticker` changes, the app switches `intraday` and does not recompute.
+- **MINOR:**
+  - the page bitmask after OTA drops the new page bits (bit 8 market, bit 7 media);
+  - a short MQTT write must disconnect;
+  - `remove` before `rename` on LittleFS opens a loss window;
+  - `intraday` must be accepted only for the selected ticker;
+  - a portal save must write NVS before publishing;
+  - JSON documents and statics must move to PSRAM;
+  - the portal JS breaks when the panel has no memory;
+  - a privacy finding for the owner.
+- **Out of scope for a static audit:** frame stalls during the flash writes, internal heap minimum at Save, stack in the MQTT callback, the retained backlog after a reconnect. These need a functional run on the panel.
+- **Fixing now** on the same branch, then a delta audit.
+
+Nothing has run on the panel. **Next:** the audit fixes; the HA app, which is still being built and must match this
 contract; then merge, OTA, the app's install on HA, and measurements.
 
 ## Settings after the research, 2026-09-15 10:50
