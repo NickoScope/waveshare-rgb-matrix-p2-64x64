@@ -37,6 +37,23 @@ His decisions, 08:41–09:14:
   closed, on every market page. The council's "no marquee" rule is
   overridden for this one row by the owner.
 
+**The owner's target allocation** (a screenshot of his spreadsheet, 09:49;
+the weights sum to 100.00 %):
+
+| Ticker | Weight | Ticker | Weight |
+|---|---|---|---|
+| VOO | 23.70 % | GLDM | 16.50 % |
+| VB | 12.00 % | SCHP | 6.50 % |
+| QQQ | 9.50 % | VCLT | 2.90 % |
+| VGK | 7.00 % | VCIT | 1.90 % |
+| PGJ | 5.00 % | VNQ | 3.00 % |
+| FXI | 4.75 % | VNQI | 2.00 % |
+| INDY | 4.00 % | ASHR | 1.25 % |
+
+SPY and GLD stand in the sheet without weights, read as the alternatives to
+VOO and GLDM, not held. All fourteen are USD funds on US exchanges. These
+are the default positions of the market app and the previews.
+
 Taken as defaults, because he did not say: the initial capital is a setting,
 10 000 in the portfolio currency; extra contributions are a setting, 0 by
 default; the inception date is a setting, default 2000-01-01.
@@ -215,7 +232,8 @@ SCHP (Schwab U.S. TIPS), VCIT and VCLT (Vanguard corporate bonds,
 intermediate and long), VB (Vanguard Small-Cap), PGJ (Invesco Golden Dragon
 China), VGK (Vanguard FTSE Europe), INDY (iShares India 50), GLDM (SPDR
 Gold MiniShares), VNQ and VNQI (Vanguard real estate, US and ex-US), as
-`sensor.<ticker lower-case>`. **This list is the owner's fund universe**;
+`sensor.<ticker lower-case>`; at 09:50 ASHR, FXI and QQQ from his allocation.
+**This list is the owner's fund universe**;
 the market app's default positions should come from it. Indices work: CAC and DAX
 reported `REGULAR` and `price_is_live: true` during the Paris session. Not
 yet looked at in a browser. Adding a ticker is Settings → Devices &
