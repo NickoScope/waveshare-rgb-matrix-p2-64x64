@@ -122,6 +122,21 @@ Nothing else reads `Serial` while `loop()` runs — the Improv window in
 `src/network` closes before it begins — and lines that do not start with `ir`
 are left alone. The portal's Remote card does the same over HTTP.
 
+## What has been checked, and how
+
+| | |
+|---|---|
+| The rules and the console grammar | `tools/ir/check_ir.py`, **150 checks, all passing**: a button that survives one dropped repeat and not two, a repeat frame that extends only the slot still held, detents drained exactly once, a learned code living in one slot only, every comparison holding across the millis() wrap, and a parser that truncates rather than overruns |
+| Every build combination | `tools/flag_matrix.py`, **53 of 53 behaved as intended** (2026-09-16 21:04). Four of those rows are this module's: it builds alone, it builds with the receiver, and the two that must be refused are refused - the receiver beside the knob, and the receiver without the module |
+| What the receiver library costs with the flag off | **Measured, not assumed:** `nm` on `firmware.elf` finds 0 `IRrecv` / `IRsend` / `decodeNEC` symbols. PlatformIO compiles the library because it is in `lib_deps`; the linker keeps none of it |
+| The panel image | builds; RAM 31.5 %, flash 48.1 % |
+
+One mistake worth recording, because the matrix is what caught it: the module's
+`#include` had been added inside the `PRESENCE_ENABLED` block in `main.cpp` and
+`web.cpp`. The panel's own build has presence, so it compiled and looked fine -
+and a build with `IR_ENABLED` alone could not see `irBegin`. Two rows of the
+matrix went red and named it. Without that script it would have shipped.
+
 ## What is not done
 
 - **The receiver has never run.** No TSOP is soldered; everything below the
