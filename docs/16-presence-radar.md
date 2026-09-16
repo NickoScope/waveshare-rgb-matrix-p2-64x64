@@ -297,7 +297,13 @@ The whole radar job moved to this session at 17:22 on the owner's instruction. I
 
 So installing an AppDaemon app needs one of: the File editor with `enforce_basepath` turned off (an add-on configuration change, and it is not confirmed that its container even mounts `/addon_configs`), the owner placing the file himself, or another channel with write access. It is the owner's call, and a backup comes first either way.
 
-**Unrelated finding, worth the owner's attention.** The SSH add-on's `init_commands` carry a base64 blob that runs on every add-on start. Decoded, it reads `apps/nickobot.py` and `apps/apps.yaml`, reads `/tmp/od`, collects AppDaemon log lines, and POSTs all of it into `sensor.nsc_diag` through the Supervisor token. It was not put there by this session. It is diagnostic, but it does push file contents into a sensor on every start.
+**Unrelated finding, traced 2026-09-16 17:40 at the owner's request.** The SSH add-on's `init_commands` carry a base64 blob that runs on every add-on start.
+
+- **What it does.** Writes itself to `/tmp/nsc_diag.sh` and runs it: the size and first two lines of `apps/nickobot.py`, the count of `^nickobot:` in `apps.yaml`, the contents of `/tmp/od`, the last eight AppDaemon log lines mentioning nickobot, and which of gunzip/gzip/zcat exist. All of it is base64-encoded and POSTed into `sensor.nsc_diag` with the Supervisor token, and the reply is saved to `/tmp/od2`.
+- **Who and when.** Not this session's work, and not part of the panel. It belongs to whoever was debugging the owner's `nickobot` Telegram app around 11-12 September: AppDaemon logged "Deletion affects apps {'nickobot'}" on 2026-09-11 19:46, the file survives only as `nickobot.py.removed-2026-09-11`, and the app was stopped for the last time on 2026-09-15 16:25.
+- **Why it looks like this.** A sensor was used as a read-back channel: the author could not read files directly, so the script shipped them out through the Home Assistant state API.
+- **It has been running dry since.** `/tmp/od2`, dated 12 Sep 07:40, holds the result of the last run: state `nb=absent has=0`, with the captured fields decoding to "head: .../nickobot.py: No such file or directory" and "cat: can't open '/tmp/od'". `sensor.nsc_diag` does not exist in Home Assistant now.
+- **Why it still matters.** It re-runs at every SSH add-on start, and if those files ever come back it will publish their contents into a sensor again, where the recorder keeps them. Removing the two `init_commands` entries is an add-on configuration change and restarts the add-on; it is the owner's call.
 
 ## One real coordinate reached the public history, 2026-09-16 17:19
 
