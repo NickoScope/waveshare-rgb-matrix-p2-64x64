@@ -280,7 +280,7 @@ class Mtr1RadarCard extends HTMLElement {
       const colour = TARGET_COLOURS[i - 1];
       const cx = px(t.x);
       const cy = py(t.y);
-      const moving = Math.abs(t.speed ?? 0) > 0;
+      const moving = Math.abs(t.speed ?? 0) / 10 > 12;   // cm/s: the panel's room_radar threshold, so both call the same person still
       ctx.globalAlpha = 0.25;
       ctx.fillStyle = colour;
       ctx.beginPath();

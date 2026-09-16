@@ -110,10 +110,10 @@ class Clock:
 
 class Rules(unittest.TestCase):
     def test_target(self):
-        self.assertIsNone(mp.target("unknown", "505.0", "0.0"))
-        self.assertIsNone(mp.target("0.0", "0.0", "240.0"))
+        self.assertIsNone(mp.target("unknown", "1200.0", "0.0"))
+        self.assertIsNone(mp.target("0.0", "0.0", "180.0"))
         self.assertIsNone(mp.target("nan", "100", "0"))
-        self.assertEqual(mp.target("-199.0", "505.0", "240.0"), [-199, 505, 240])
+        self.assertEqual(mp.target("-350.0", "1200.0", "180.0"), [-350, 1200, 180])
         self.assertEqual(mp.target("1203.6", "842.4", "-317.2"), [1204, 842, -317])
         self.assertEqual(mp.target("10", "20", "unavailable"), [10, 20, 0])
 
@@ -124,10 +124,10 @@ class Rules(unittest.TestCase):
         self.assertIsNone(mp.lux("unknown"))
 
     def test_payload_shape(self):
-        r = mp.read(states([("-199.0", "505.0", "240.0"), None, None], p=1, m=1).get, STEM)
+        r = mp.read(states([("-350.0", "1200.0", "180.0"), None, None], p=1, m=1).get, STEM)
         body = json.loads(mp.targets_payload(r, 1758035712.9))
         self.assertEqual(list(body), ["t", "p", "m", "s", "lux", "ts"])
-        self.assertEqual(body["t"], [[-199, 505, 240], None, None])
+        self.assertEqual(body["t"], [[-350, 1200, 180], None, None])
         self.assertEqual((body["p"], body["m"], body["s"], body["lux"], body["ts"]), (1, 1, 0, 12, 1758035712))
         summary = json.loads(mp.summary_payload(r, 1758035712))
         self.assertEqual(list(summary), ["p", "m", "s", "lux", "online", "ts"])
@@ -169,10 +169,10 @@ class Timing(unittest.TestCase):
         self.assertEqual(app._mq.user, ("u", "p"))
         self.assertEqual(app._mq.target, ("192.0.2.1", 1883, 30))
         self.assertEqual([e[2] for e in app.every], [1, 60])
-        self.assertFalse(any("-199" in m for _, m in app.logs))
+        self.assertFalse(any("-350" in m for _, m in app.logs))
 
     def test_present_every_tick_even_when_still(self):
-        app = make_app(states([("-199.0", "505.0", "0.0"), None, None], p=1, s=1, present="on"))
+        app = make_app(states([("-350.0", "1200.0", "0.0"), None, None], p=1, s=1, present="on"))
         self.run_ticks(app, 10)
         frames = self.published(app, "nickoscope_matrix/presence/targets")
         self.assertEqual(len(frames), 10)
