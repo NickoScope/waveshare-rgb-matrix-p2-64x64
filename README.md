@@ -138,6 +138,7 @@ If the hardware has not been powered up yet, read in this order:
 | [22-audio-visualizer-onboard-mic.md](docs/22-audio-visualizer-onboard-mic.md) | The audio visualizer driven by the two onboard microphones: the eight effects, the hardware results, and the debt list that keeps it switched off |
 | [23-mtr1-deep-research.md](docs/23-mtr1-deep-research.md) | The MTR-1 presence sensor in depth: the manufacturer's documents, the best projects on GitHub, what the numbers really mean, and what to change |
 | [24-ir-remote.md](docs/24-ir-remote.md) | The infrared remote as a second knob: the port from NickoScope32, the pin it has to share with the encoder, the pull-up the receiver needs on this board, and the serial console that tests it with no hardware |
+| [25-ma-media-player.md](docs/25-ma-media-player.md) | The panel as a Music Assistant player: the routes compared from MA's own code, why announcements with ducking do not fit, the audio chain read off the schematic, and the one constraint that shapes it all — a shared bit clock means one sample rate for playback and capture together |
 
 ## Ready-to-use configs
 
