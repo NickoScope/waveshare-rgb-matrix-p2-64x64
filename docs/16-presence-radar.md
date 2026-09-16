@@ -286,6 +286,24 @@ Y, so not these.
   and whether the HUB75 panel disturbs the radar at close range. Both are bench
   tests before idea 1 is trusted.
 
+## The panel module, 2026-09-16 17:58 (built, not flashed)
+
+`src/presence/` behind `-DPRESENCE_ENABLED`, commit `745eeb4` on `feat/presence-panel`, pushed as a backup. Nothing has touched hardware.
+
+**What it does.** Subscribes to the two topics, keeps the last samples per slot, and feeds the shipped `room_radar` scene through the same seam `fake_targets()` uses, so the scene itself is unchanged. Speed is passed as `abs(v)/10` because the scene wants cm/s and tests `> 12`. With no live data the scene keeps its scripted story, so the screen works without Home Assistant. Settings: scale (2/4/6 m, default 4), mirror X (default off), live or demo.
+
+**How presence is decided.** The newest message wins: an explicit `null` empties a slot at once, and the 5 s freshness rule covers messages *stopping* altogether. A pure age rule would have raced the contract's own 5 s empty-room heartbeat.
+
+**What the screen shows when the feed dies:** `1 IN ROOM` → `0 EMPTY` at 20 s → `0 NO FEED` at 45 s. Yesterday's preview held a frozen dot forever, which read as someone sitting still.
+
+**Costs, measured.** 764 B of internal RAM by `nm` (`s_model` is 708 B of it), so +768 B across `.data` and `.bss`; **0 IRAM and no internal heap** — the JSON is parsed from PSRAM, peak 4,142 of 8,192 B. Flash +9,616 B, image +10,336 B. Per frame with live targets, 60,013 instructions at 4 m against the previews' 61,431 (62,021 vs 63,439 at 6 m), so real targets cost slightly less than the scripted ones.
+
+**Green:** firmware build; flag matrix 49/49 with three new rows; 85 host checks; `web_assets_gen --check`; luasim parity identical on every scene; the scripted path byte-identical to before; pre-commit hook.
+
+**Not verified:** anything on hardware, and the +X direction. `StaticJsonDocument` turned out unusable: ArduinoJson 7.4.3 deprecates it into a malloc-backed shim, so the parse buffer is an explicit PSRAM one instead.
+
+**Two defects the author found in self-review and fixed:** undefined behaviour in `speedCms(INT32_MIN)`, and the retained `online` flag being cleared by every targets message.
+
 ## The publisher is installed and publishing, 2026-09-16 17:37
 
 `matrix_presence` runs on Home Assistant. What it took, and the wrong turn on the way:
