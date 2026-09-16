@@ -139,6 +139,36 @@ One mistake worth recording, because the matrix is what caught it: the module's
 and a build with `IR_ENABLED` alone could not see `irBegin`. Two rows of the
 matrix went red and named it. Without that script it would have shipped.
 
+## What the audit found, and the lesson in it
+
+The module passed 150 host checks and every build combination, and the audit
+still found two blockers. Both were the same mistake, and both would have
+fired on a panel with no remote in the room at all.
+
+| Finding | What would have happened |
+|---|---|
+| **The button had a deadline, and deadlines rot.** `okDown()` compared a signed difference against "held until", which starts at zero. Past 24.85 days of uptime that difference reads negative — "still held" | Any panel running a month would have read the knob's own button as permanently pressed. The whole interface, not just the remote |
+| **A simulated hold was unbounded.** `/api/ir/sim?slot=OK&hold=…` took the number straight from the query string | One unauthenticated GET on the LAN pins the button down for weeks |
+| **Freshness was signed too.** A repeat frame checked "was the last frame recent?" with a signed difference | A repeat arriving after a month-old press read as recent and produced a detent out of nowhere |
+
+The fix was not three patches but removing the class: a deadline is no longer
+compared at all. The button is a start plus a span, the span is zeroed the
+moment it runs out, and zero means "not held". Ages — how long ago something
+happened — are unsigned. Four host cases now run the module at 25.5 days of
+uptime.
+
+**The rule that caused it was mine, and it was wrong as an absolute.** The
+header said "every comparison against millis() is a signed difference", carried
+over from the firmware this was ported from, where it had been the fix for the
+opposite bug. Signed is right for a deadline you keep refreshing; unsigned is
+right for an age. Stating it as a law produced three bugs that all passed the
+tests written under the same law.
+
+One more, worth recording because it is a process failure rather than a code
+one: the same commit quietly deleted 85 of the 198 lines of `platformio.ini` —
+the comments recording why the flash mode is `opi_opi`, why `SPIRAM_DMA_BUFFER`
+is refused, why the platform is pinned. Restored from the previous commit.
+
 ## What is not done
 
 - **The receiver has never run.** No TSOP is soldered; everything below the
