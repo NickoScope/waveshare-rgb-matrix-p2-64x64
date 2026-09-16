@@ -36,10 +36,24 @@ Rolling record of where the work stands. Newest first.
 - **Read the datasheet of the part on our own board** (doc 24 has it): rev B1
   fits a TSOP2138 on 3V3 with the datasheet's own application circuit, landing
   on **IO4** while the NickoScope32 firmware's `PIN_IR` is 14.
-- **The audio module's scope is approved** (doc 25): a Music Assistant player
-  over Snapcast with PCM, announcements in stop-and-resume form, the visualizer
-  fed from what the panel plays, a talking speaker at about 0.68 W. Ducking,
-  microphones and wake word are out, with the numbers.
+- **The audio module is approved in scope AND written** (doc 25). The scope, put
+  to the owner in plain terms and accepted: a Music Assistant player over
+  Snapcast with PCM, announcements in stop-and-resume form, the visualizer fed
+  from what the panel itself plays, a talking speaker at about 0.68 W; ducking,
+  microphones and wake word out, with the numbers for each.
+  **The code exists too**, on `feature/ma-player` (`57e23fb`): `snap_proto.h`
+  with every layout taken from Snapcast's own `doc/binary_protocol.md`,
+  `maplayer_model.h` with the rules and the heap gate, `maplayer.cpp` with the
+  socket, the state machine, NVS and `/api/info`, a README, **136 host checks
+  passing**, and three rows in the flag matrix (the client builds; the audio
+  half and the audio flag alone are both refused). Building it caught a real
+  defect the host test had missed: the test ran under C++17, where a class with
+  member initialisers is still an aggregate, while the firmware compiles as
+  gnu++11 where it is not - so the test now builds under both standards.
+  **What is deliberately not there: the sound.** `MAPLAYER_AUDIO_ENABLED`
+  refuses to compile until debt D1 is paid, because a stream would be a third
+  consumer of the internal heap that already hangs the panel. Nothing has run on
+  hardware, and no audit has looked at it.
 
 **Open, in the order they should be taken.**
 
@@ -64,8 +78,9 @@ Rolling record of where the work stands. Newest first.
    a long-burst format, and whether `PIN_IR` moves from 14 to 4.
 4. **The second person on the radar** - parked as a debt until after the next
    tests.
-5. The audio module skeleton sits on `feature/ma-player`, unaudited. Not to be
-   merged as it stands.
+5. **The audio module wants an audit** before anything of it is merged: it is
+   written and host-tested on `feature/ma-player`, but no auditor has read it
+   and no part of it has run on the panel. Its own first step is the same D1.
 
 ## Open, across everything
 
