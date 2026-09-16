@@ -376,6 +376,10 @@ A test for the publisher carried one real reading from the living room, `[-199, 
 
 **The rule it leaves behind.** Tests and examples use invented numbers. Real recordings live in `~/panel-backups/` and never enter either repository; a script that runs against them runs outside the repo. The failure that let it through was a command chain without `set -e`, so the check that would have caught it did not stop the commit.
 
+## The deep research is in doc 23
+
+Everything behind the decisions here — the manufacturer's documents, the Hi-Link protocol, the community and its projects, our own measurements from this room, and what the sensor costs this Home Assistant install — is in [23](23-mtr1-deep-research.md). Read that before changing anything about the sensor.
+
 ## Decided 2026-09-16 17:14, and the contract both sides build to
 
 **The owner's decisions.**
