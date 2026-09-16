@@ -230,6 +230,36 @@ override each sensor's filters — the exact syntax is not verified yet.
 Seeed's own XIAO radar kits use the MR24HPC1 and the LD2410B [22][23]: no X and
 Y, so not these.
 
+## Installed, 2026-09-16
+
+- **In Home Assistant:** the device "Apollo MTR-1 53bc60" sits in the living room area (Гостиная) on the ESPHome integration.
+  - 79 entities, stem `apollo_mtr_1_53bc60`.
+  - Apollo firmware 26.3.2.1 on ESPHome 2026.3.3, LD2450 firmware 2.04.23101915.
+  - Online since 16:05:12.
+- **Settings as found:**
+  - Zone Type `Disabled`, all twelve zone corners 0;
+  - Multi Target Tracking on;
+  - Timeout 5 s;
+  - LTR390 update interval 60 s;
+  - **LD2450 Bluetooth on**. See the trap below; switching it off is the owner's call.
+- **Zone limits Home Assistant reports:** X −4860…4860 mm, Y 0…7560 mm (the number entities' min and max).
+- **First session, 16:05–16:18, from the recorder:**
+  - Target 1 X was logged 749 times in 820 s, about once a second, which matches ESPHome's default throttle [16].
+  - X ran from −1.32 to +1.35 m and Y from 0.16 to 1.76 m.
+  - At most two targets at once; target 3 appeared once.
+  - The moving and still counts changed about 330 times each in 13.7 minutes.
+  - CO2 still read `unknown` 13 minutes after boot. The `scd40_temperature` and `scd40_humidity` entities have no state.
+- **Dashboard:** "Радар MTR-1" at `/presence-radar`, view Гостиная.
+  - The live radar is `custom:mtr1-radar-card`, source [`tools/ha/mtr1-radar-card.js`](../tools/ha/mtr1-radar-card.js). It draws the 6 m / ±60° fan, up to three targets with 15 s trails, and zones when Zone Type is not `Disabled`; `range_m` is 4 on the dashboard.
+  - The card is registered as an inline module resource, because the SSH user cannot write `/config/www`.
+  - Around it: tiles for presence, counts, the three targets, light and air, and the device, plus controls for multi-target tracking, radar Bluetooth, the timeout and the zone mode.
+- **Replay page:** a private artifact "Радар гостиной" replays the first session from the recorder, with scale 2/4/6 m, speed and a timeline.
+- **Open:**
+  - radar Bluetooth;
+  - zones, once the owner decides where the sofa and the door are;
+  - the CO2 reading;
+  - stage 1 (MQTT summary for the panel).
+
 ## Firmware shape, when it is built
 
 - `src/presence/`: one state — present, moving, up to three targets with X, Y
