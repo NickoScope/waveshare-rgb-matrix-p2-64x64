@@ -2,6 +2,60 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-16, evening: the infrared remote, and what the audit found in it
+
+**Done.**
+- **`src/ir/` is in the firmware, flashed, and driven from the panel's serial
+  console.** Ported from NickoScope32's ADD-79 and reshaped to our conventions.
+  It produces what the knob produces - detents and a button level - and hands
+  them to the encoder's own state machine, so the gestures keep one
+  implementation. The seam is inside the encoder's 1 kHz task, not `loop()`, so
+  the event queue keeps its single producer. Learned codes in their own NVS
+  namespace, a portal card, `/api/ir/*`, and a serial console.
+- **Tested on hardware the only way that proves anything:** the encoder's own
+  counters moved - cw 0→4, ccw 0→2, click 0→1, long 0→1 - and the display
+  walked its pages while they did.
+- **164 host checks, 53 of 53 flag-matrix rows**, both on the final code.
+- **The audit found two blockers I had written myself**, and both would have
+  fired on a panel with no remote in the room: past 24.85 days of uptime the
+  knob's own button would have read as permanently pressed, and one
+  unauthenticated GET could pin it down for weeks. Both came from a rule I had
+  stated in the header as a law - always compare `millis()` with a signed
+  difference - and the tests were written under the same law, so they agreed
+  with the bugs. Fixed by removing the class: the button is a start plus a span,
+  the span is zeroed when it runs out, ages are unsigned. Four host cases now
+  run at 25.5 days.
+- **The same commit had silently deleted 85 of the 198 lines of
+  `platformio.ini`** - the comments recording why the flash mode is `opi_opi`
+  and why `SPIRAM_DMA_BUFFER` is refused. Restored and verified line by line.
+- **Told the upstream author**, on the owner's "публикуй": issue #3 comment
+  5703737437. He has no physical control in his firmware at all, so the letter
+  leads with that, gives the measured cost (10,832 B flash, 280 B static RAM)
+  and the pull-up any of his users will need. Two of our comments now stand
+  unanswered; the watch list says to check which one a reply answers.
+- **Read the datasheet of the part on our own board** (doc 24 has it): rev B1
+  fits a TSOP2138 on 3V3 with the datasheet's own application circuit, landing
+  on **IO4** while the NickoScope32 firmware's `PIN_IR` is 14.
+- **The audio module's scope is approved** (doc 25): a Music Assistant player
+  over Snapcast with PCM, announcements in stop-and-resume form, the visualizer
+  fed from what the panel plays, a talking speaker at about 0.68 W. Ducking,
+  microphones and wake word are out, with the numbers.
+
+**Open, in the order they should be taken.**
+1. **Debt D1** of [22](docs/22-audio-visualizer-onboard-mic.md) §12.3 - the
+   portal's ~20 KB internal-heap spike. It blocks both the visualizer and any
+   audio, because a stream would be a third consumer of that memory.
+2. **The receiver has never run.** Solder a 38 kHz part, measure the 2.2 kΩ
+   pull-up rather than trusting the arithmetic, and learn codes from the owner's
+   remote. Remember IO45 is a strapping pin.
+3. **Two decisions for the owner:** whether the next board revision swaps
+   TSOP2138 for a long-burst part (TSOP2238) now that the datasheet says NEC is
+   a long-burst format, and whether `PIN_IR` moves from 14 to 4.
+4. **The second person on the radar** - parked as a debt until after the next
+   tests.
+5. The audio module skeleton sits on `feature/ma-player`, unaudited. Not to be
+   merged as it stands.
+
 ## Open, across everything
 
 - **The audio module's scope is approved (2026-09-16 21:42).** The owner accepted what the board can actually do: a Music Assistant player over Snapcast with PCM, announcements in stop-and-resume form, the visualizer fed from what the panel itself plays, and a talking speaker at about 0.68 W. Ducking, microphones, echo cancellation and wake word are out - the numbers are in [25](docs/25-ma-media-player.md). **Order of work: debt D1 of [22](docs/22-audio-visualizer-onboard-mic.md) §12.3 first** - the portal's ~20 KB internal-heap spike - because a stream would be a third consumer of the memory that already hangs the panel.
