@@ -43,6 +43,32 @@ Rolling record of where the work stands. Newest first.
 
 ---
 
+## 2026-09-16, evening — the presence radar runs end to end
+
+**On the panel:** `feature/market-climate-audio` `377508d`, flashed over USB at the owner's request. It adds the presence radar and the D3 fix to yesterday's build.
+
+- **The radar works end to end.** The Apollo MTR-1 in the living room → an AppDaemon publisher on Home Assistant → MQTT → `src/presence/` → the `room_radar` Lua scene. `/api/info` reads `source live, targets 1, messages 3, summaries 3, parseFailures 0, people 1, lux 27, online true`.
+- **The owner confirmed +X** by walking in: the dot appeared on the side he entered from, so `mirrorX` stays off and matches the Home Assistant card.
+- **D3 is proven on hardware:** `[loop] mqtt took 308 ms`, against 3,001 ms before. Free internal heap 36.1 KB, minimum 31.5 KB, no failed allocations.
+- **Yesterday's radar rewrite holds:** the scene opens in 0.79 s, was about 2 s.
+
+**What today cost, and what it taught.**
+- **The audit of the merged tree found three MAJOR defects** (`b8a6c61`): a ninth MQTT subscription refused in silence, a false "no second task to lock against" in a header while the Lua task reads the model 19 times a frame from core 0, and a parse that accepted any int32 from the broker. All three were real.
+- **The hardware found a fourth that no host test had** (`377508d`): the retained summary was counted as a parse failure, because the parser required a targets array. It hid behind the targets payload, which carries the same counters. The host tests grew from 85 checks to 101.
+- **A permissions wrong turn.** A write test as the plain SSH user failed and this session concluded `/addon_configs` was read-only. It is not: yesterday's install had used `sudo`. The owner caught it ("вчера мог а сегодня не можешь?"). **Write to Home Assistant over SSH with `sudo`.**
+
+**Also done today.**
+- **The SSH add-on's `init_commands` blob is gone**, on the owner's word. It was a leftover from debugging the `nickobot` app on 11-12 September that POSTed file contents into `sensor.nsc_diag` at every add-on start, and had been running dry since. Previous options saved at `~/panel-backups/2026-09-16-ha/`.
+- **The music player was diagnosed and the panel cleared.** `S3 Audio NickoScope32v1b` is an ESPHome node played through Music Assistant. Music Assistant's log shows `Slow send_bytes` to that player's MAC in bursts (15 Sep 16:44-19:14, 16 Sep 09:08-09:09 and 17:51), up to 9.6 s, with the player's RSSI at −67 to −83 dBm; the panel was playing cleanly through the worst of the panel's own MQTT storms. Radio has now played 35 minutes with no stall at all, while the last stall was on Spotify. Two suspects remain, the network path to the player and the Spotify provider, and the radio run is the evidence separating them.
+- **One real coordinate reached the public KB history** in a test written by the neighbouring session; the owner decided to leave it. Tests use invented numbers from here on.
+
+**Open, in order:**
+- the audio visualizer debts D1, D2, D4-D10 from [22](docs/22-audio-visualizer-onboard-mic.md) §12.3, untouched today;
+- the delta audit's minors in [16](docs/16-presence-radar.md);
+- the player: finish the radio run, then decide between the network path and the Spotify provider.
+
+---
+
 ## 2026-09-15, late evening — the audio visualizer breaks the panel
 
 - **On the panel:** `feature/market-climate-audio` `f896605`, flashed over USB. It carries the market, the 32 MB layout, the SHTC3, the onboard mics, styles 7–14, Code EQ as style 2, the heap diagnostics (`[mem]` lines, `allocFails`), a 4 KB capture stack, the settings-save fix and the fast `room_radar`.
