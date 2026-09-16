@@ -286,6 +286,26 @@ Y, so not these.
   and whether the HUB75 panel disturbs the radar at close range. Both are bench
   tests before idea 1 is trusted.
 
+## On the panel, 2026-09-16 18:31
+
+Flashed over USB at the owner's request (`377508d`). Live targets from the MTR-1 are drawn by the room radar.
+
+`/api/info` eleven seconds after boot:
+
+```
+presence: source live, scaleM 4, mirrorX false, targets 1, lastMessageS 0,
+          messages 3, summaries 3, parseFailures 0, jsonPeak 1079 of 8192,
+          people 1, moving 1, still 0, lux 27, online true
+```
+
+- **Free internal heap 36,132 B**, minimum 31,460 B, largest block 27,636 B, no failed allocations. The module costs what it said it would.
+- **`[loop] mqtt took 308 ms`** on the first boot, against 3,001 ms before D3. The connect timeout and the backoff do what they were meant to.
+- **The room radar opens in 0.79 s** (it was about 2 s before yesterday's rewrite).
+
+**One defect the panel found that no host test had.** On the first flash `/api/info` read `messages 13, summaries 0, parseFailures 6`: `parse()` refused every document without a `"t"` array, and the retained summary carries none. The people and lux figures still showed because the targets payload carries them too, so the loss was quiet. Fixed in `377508d`: the parser takes `needTargets`, true on the targets topic and false on the summary topic, and the host tests grew both cases (101 checks now, was 85).
+
+**Still unverified: the +X direction.** `mirrorX` is false. The owner walks into the room from one side and says which side the dot appears on; the panel's switch and the Home Assistant card's `mirror_x` then have to agree.
+
 ## Audit and the three fixes, 2026-09-16 18:20
 
 The audit of the merged tree (`166e7f6`) raised three MAJOR findings, all real. Fixed in `b8a6c61`, and the delta audit approved it with no blockers.
