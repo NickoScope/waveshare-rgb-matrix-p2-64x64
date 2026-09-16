@@ -124,6 +124,21 @@ The ghost cloud beyond 2.2 m spans x from −1.86 m to +1.92 m, median +0.61 m, 
 
 **The simplest lever of all** is the module's own multi-target tracking switch. Turned off, the radar reports one target and invents no second one. The cost is that two people can no longer be counted or drawn. For a room where presence and one person's position are what matter, that removes the whole class of problem in one reversible setting.
 
+## 3c. What was changed at 19:23-19:27, and what it did
+
+- **Multi-target tracking: off** (`switch.apollo_mtr_1_53bc60_multi_target_tracking`), on the owner's word. The module now reports one target.
+- **The panel gained `GET /api/presence/mirror?on=0|1`** (`4c31d63`), because the portal's save posts the whole form and reads an absent checkbox as false, so a partial post would clear other settings. With no argument it reports the current value.
+- **Mirror X: on.** The owner watched the screen and said the picture was mirrored against the room, which reverses the "совпало" of 18:36. Set through the new route and confirmed in `/api/info`.
+
+**Immediately measured, 19:23:30 to 19:25:06** (the window since the switch, one person in the room):
+
+| | Before, 19:12-19:20 | After |
+|---|---|---|
+| Second target | present in 134 of 143 rows | **one `unknown` row; gone** |
+| Slot 1 clusters | two: 1.09 m and 2.77 m, crossed twice a minute | one cloud, 1.75-3.06 m out |
+
+So the invented target is gone with the switch, as expected. What remains is slot 1 sitting at the **far** distance, around 2.4-2.9 m at about +28°, wandering a few hundred millimetres between samples. Whether that is the people on the sofa or the window reflection now wearing slot 1 cannot be told from the data: it needs the owner to say where he is sitting relative to the sensor. If it is the window, the Filter zone from §3b is the next step; if it is the sofa, the radar is simply tracking them and only the wander remains to be smoothed.
+
 ## 4. The software landscape
 
 **ESPHome has an official `ld2450` platform**, merged February 2025 and shipped in 2025.3.0 `[ESPHome]`. It gives per target x, y, speed, angle, distance, resolution and a direction text sensor; globally the presence, moving and still binary sensors, the three counts, version and MAC, switches for Bluetooth and multi-target, selects for baud rate and zone type, and a presence timeout. It requires radar firmware 2.02 or newer.
