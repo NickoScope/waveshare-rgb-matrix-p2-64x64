@@ -1,9 +1,11 @@
 # The infrared remote
 
-**Status 2026-09-16:** the module is in the firmware and tested end to end
-through its serial console and the portal. **No receiver is soldered**, so
-nothing below the decoder has ever run on hardware. The pin it will use is the
-knob's, and that is deliberate.
+**Status 2026-09-16 21:05:** the module is written, built into the panel's
+image, and checked on the host - 150 checks and every row of the flag matrix.
+**It has not run on the panel yet:** the firmware carrying it is not flashed,
+so the serial console and the portal card have been exercised nowhere but the
+host. **No receiver is soldered** either, so nothing below the decoder has ever
+run. The pin it will use is the knob's, and that is deliberate.
 
 The owner's plan, stated on 2026-09-16: *"скоро будем переходить с энкодера на
 IR управление"*. This is the panel side of that, built in advance, as a
