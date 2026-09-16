@@ -69,6 +69,64 @@ switching amps, fit them.
 Pick a **38 kHz** part (TSOP4838 / TSOP2238 and relatives): NEC, the format of
 the owner's remote, uses a 38 kHz carrier.
 
+## The receiver on our own board, NickoScope32 rev B1
+
+Read off our own schematic on 2026-09-16 (`HARDWARE/DESIGN/NickoScope32`, sheet
+`niko_esp32`, title block rev **B1**, 2026-08-10), because a board we made
+ourselves beats any calculation:
+
+| | |
+|---|---|
+| Part | **U308 TSOP2138**, Vishay, 38 kHz, through-hole mould |
+| Supply | **+3V3** |
+| In the supply | **R313 51 Ω** in series, **C308 100 nF** to ground |
+| On the signal | **R307 2.2 kΩ** pull-up to +3V3 |
+| Lands on | **IO4** of the ESP32-S3 (label `IR_signal`; the arithmetic checks out against `espM_Boot` → IO0, `espM_Reset` → EN and `espM_IO14` → IO14 on the same symbol) |
+
+Its datasheet is **Vishay 82460** rev 2.2 (23-May-2025), which covers
+TSOP21../23../41../43../25../45.. — and the link in our own symbol points at it
+correctly. Read in full:
+
+- **Supply 2.0 V to 5.5 V**, and the supply-current row is specified at
+  V<sub>S</sub> = 3.3 V. So 3V3 is a normal operating point, not a stretch.
+- Output is an open collector with a **30 kΩ pull-up inside the package**;
+  V<sub>OSL</sub> ≤ 100 mV at 0.5 mA, I<sub>O</sub> ≤ 5 mA.
+- Pinning for TSOP21..: **1 = OUT, 2 = V<sub>S</sub>, 3 = GND** — *not* the same
+  as TSOP41../43../45.., where 2 = GND and 3 = V<sub>S</sub>. Easy to fit wrong.
+- The application circuit is exactly what our board has: R<sub>1</sub> in the
+  supply and C<sub>1</sub> to ground, "recommended in case there are strong
+  ripple or spikes on the supply line". The current revision gives no values;
+  the superseded one (82135 rev 2.9, marked *Not for New Design — replaced by
+  82460*) does: **R1 = 100 Ω, C1 = 0.1 µF**. So C308's 100 nF is the datasheet
+  value, and R313's 51 Ω is half the suggested resistor — a smaller drop, safe.
+  That older revision also draws the internal pull-up as **33 kΩ** and gives the
+  supply as 2.7 V to 5.5 V: the number moved between revisions, which is a
+  reason to quote the revision every time.
+- The same older revision adds two limits the current one leaves out: the output
+  must not be pulled below **1 V** by external circuitry, and the capacitive load
+  on the output must stay under **2 nF**. Our 2.2 kΩ to 3V3 sinks about 1.5 mA
+  when the receiver pulls down — inside the 5 mA rating, and nowhere near 1 V.
+
+**Two things this changes for us.**
+
+1. **The pin.** The board puts the receiver on **IO4**, and the NickoScope32
+   firmware's `PIN_IR` is **14** — the owner's hand-soldered receiver. Moving
+   that firmware to a rev B1 board is a one-line change, and the code already
+   anticipated it ("на плате Артёма rev.A будет GPIO4").
+2. **The part is a short-burst type, and NEC is a long-burst format.** The parts
+   table puts TSOP2138 in the **AGC1, "legacy, for short burst remote controls"**
+   column, and the note under the data-format table says in as many words: *for
+   data formats with long bursts (more than 10 carrier cycles) please see the
+   datasheet for TSOP48.., TSOP44.., TSOP22.., TSOP24..* NEC opens every frame
+   with a **9 ms leader — about 342 carrier cycles at 38 kHz**, and the AGC1
+   table wants bursts of 6 to 68 cycles with a gap longer than the burst.
+   TSOP2138 does receive NEC in practice, which is why it works on the bench,
+   but the manufacturer's own answer for an NEC remote is the other family
+   (document 82459). **Worth deciding before the next board revision**, and
+   worth knowing when a remote seems less reliable at a distance than expected.
+
+---
+
 ## The timings, and where they come from
 
 Vishay application note [80071](https://www.vishay.com/docs/80071/dataform.pdf)
