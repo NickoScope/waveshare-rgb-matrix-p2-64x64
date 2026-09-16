@@ -286,7 +286,15 @@ Y, so not these.
   and whether the HUB75 panel disturbs the radar at close range. Both are bench
   tests before idea 1 is trusted.
 
-## The publisher cannot be installed over SSH, 2026-09-16 17:35
+## The publisher is installed and publishing, 2026-09-16 17:37
+
+`matrix_presence` runs on Home Assistant. What it took, and the wrong turn on the way:
+
+- **The wrong turn.** A write test as the plain SSH user failed, and this session concluded the directories were read-only. They are not: the SSH user `hassio` is in `wheel`, and yesterday's market install had used `sudo`. The owner pushed back ("вчера мог а сегодня не можешь?") and he was right. **Write to `/addon_configs` over SSH with `sudo`.**
+- **Installed:** backups first (`/addon_configs/a0d7b954_appdaemon.bak-presence-20260916.tgz`, 1.73 MB, and `apps/apps.yaml.bak-presence-20260916`), then `apps/matrix_presence.py` copied with `sudo tee` and checked by sha256 against the Mac, then the `matrix_presence` entry appended to `apps/apps.yaml` with the broker at `192.168.4.35:1883` and the same `!secret` logins `matrix_media` uses. The YAML was parsed back before anything was restarted; AppDaemon picked the app up on its own.
+- **Running since 17:37:31**, and the log says the contract holds: `last minute 60 targets frames, 27 summaries, 0 ticks skipped with the broker down`, then 60 frames and 10 summaries the minute after. 60 frames a minute is the 1 Hz rate with someone in the room; an empty room would drop it to 12.
+
+## The first attempt over SSH looked blocked, 2026-09-16 17:35
 
 The whole radar job moved to this session at 17:22 on the owner's instruction. Installing `matrix_presence` then hit a wall that is worth writing down.
 
@@ -303,7 +311,8 @@ So installing an AppDaemon app needs one of: the File editor with `enforce_basep
 - **Who and when.** Not this session's work, and not part of the panel. It belongs to whoever was debugging the owner's `nickobot` Telegram app around 11-12 September: AppDaemon logged "Deletion affects apps {'nickobot'}" on 2026-09-11 19:46, the file survives only as `nickobot.py.removed-2026-09-11`, and the app was stopped for the last time on 2026-09-15 16:25.
 - **Why it looks like this.** A sensor was used as a read-back channel: the author could not read files directly, so the script shipped them out through the Home Assistant state API.
 - **It has been running dry since.** `/tmp/od2`, dated 12 Sep 07:40, holds the result of the last run: state `nb=absent has=0`, with the captured fields decoding to "head: .../nickobot.py: No such file or directory" and "cat: can't open '/tmp/od'". `sensor.nsc_diag` does not exist in Home Assistant now.
-- **Why it still matters.** It re-runs at every SSH add-on start, and if those files ever come back it will publish their contents into a sensor again, where the recorder keeps them. Removing the two `init_commands` entries is an add-on configuration change and restarts the add-on; it is the owner's call.
+- **Why it mattered.** It re-ran at every SSH add-on start, and if those files ever came back it would have published their contents into a sensor again, where the recorder keeps them.
+- **Removed 2026-09-16 17:46** on the owner's word ("убрать"). Both `init_commands` entries were cleared, everything else in the add-on options left as it was, and the add-on restarted. Verified after the restart: SSH logs in as `hassio` again, and `/tmp/nsc_diag.sh` and `/tmp/od2` are no longer created. The previous options, including the authorized key, are saved outside the repositories at `~/panel-backups/2026-09-16-ha/ssh-addon-options-before-20260916.json`; restoring them means setting those options again and restarting the add-on.
 
 ## One real coordinate reached the public history, 2026-09-16 17:19
 
