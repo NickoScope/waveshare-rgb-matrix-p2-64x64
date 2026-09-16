@@ -286,6 +286,26 @@ Y, so not these.
   and whether the HUB75 panel disturbs the radar at close range. Both are bench
   tests before idea 1 is trusted.
 
+## Previews on the first real session (2026-09-16 17:12)
+
+Rendered from `~/panel-backups/2026-09-16-mtr1/mtr1_frames.json` (private, stays out of both repos) through `tools/luasim/presence_feed.py` and `presence_sheet.py` in the fork, window 16:16:52-16:18:22, the richest 90 s.
+
+**What the session holds.** Essentially one person: slot 1 filled 793 of 802 s, a second target appeared for 5 s, slot 3 never. Median range 0.43 m, maximum 1.95 m. The room is empty 9 s in total; 19 s carry no sample, held rather than absent, which is how an HA state behaves between updates.
+
+**Scale.** Recommended 4 m.
+- 6 m wastes the top two thirds of the fan: people never leave the bottom 20 px.
+- 2 m looks best on this session but is a trap. `in_fan()` drops anyone past 2.0 m and the session already reached 1.95 m, so the panel would show an empty room with a person standing there. The 2 m fan is also 4,124 pixels, which crosses Lua's 4,096-slot array boundary: the table doubles to 8,192 slots and the scene's heap peak goes from 159 KB to 261 KB. At 4 m the fan is 3,969 pixels, 127 short of that cliff.
+- Cost with real targets is slightly lower than with the scripted ones: 63,439 instructions average per frame at 6 m against 64,856, 61,431 at 4 m, 60,406 at 2 m.
+
+**The mirror** changes only which side people enter from; geometry and cost are identical. Which way +X points in the room is still unknown and has to be confirmed by walking in.
+
+**Three things the real data exposed.**
+1. **Speed units and sign.** `fake_targets()` returns cm/s (mm per 0.1 s), and the scene tests `t.speed > 12`. The LD2450 gives signed mm/s. Passed through raw, everything reads as moving, and a target approaching the sensor (negative) fails the test and gets the "sitting still" ring. The feed must pass `abs(mm/s) / 10`.
+2. **No fallback when the feed stops.** The scene holds the last sample forever: a frozen dot, "1 IN ROOM", the still ring pulsing, indistinguishable from someone sitting still. The panel module needs an age limit, about 5 s, and an empty-room state after it.
+3. **Jitter.** At 1 Hz the dot teleports between samples, and the 14-step trail collapses onto one pixel while the person is still. Interpolation or smoothing is a design decision, not a bug.
+
+**For the future panel binding:** `fake_targets()` builds a fresh table per target per call and `draw()` calls it 19 times a frame. A binding must reuse one preallocated three-slot table and one position ring, and allocate nothing per frame; internal heap is the scarce resource (KB [22](22-audio-visualizer-onboard-mic.md) §12.3).
+
 ## Sources
 
 1. https://www.hlktech.net/index.php?id=1157
