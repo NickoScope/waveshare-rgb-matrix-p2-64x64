@@ -286,6 +286,31 @@ Y, so not these.
   and whether the HUB75 panel disturbs the radar at close range. Both are bench
   tests before idea 1 is trusted.
 
+## Decided 2026-09-16 17:14, and the contract both sides build to
+
+**The owner's decisions.**
+- Targets are published by an **AppDaemon app**, not by a Home Assistant automation. An automation firing about once a second would write roughly 86,000 logbook entries a day, JSON in YAML templates is awkward, and the transforms belong in code that git keeps and a test can check. AppDaemon already runs `matrix_market`, and it publishes straight to MQTT, past the logbook.
+- The panel draws the fan at **4 m**.
+- The panel **smooths** the 1 Hz jitter.
+- **Mirror X** is a panel switch, default off, until the owner walks into the room and says which side he entered from. The Home Assistant card's `mirror_x` has to be set to match.
+
+**Division of work.** The neighbouring session writes the AppDaemon publisher; this session writes the panel module. Nothing transforms the data on the Home Assistant side: `abs()`, the scene's cm/s, the mirror and the scale all happen on the panel, where the owner can change them without touching HA.
+
+**Topics.**
+
+| Topic | Retained | Rate |
+|---|---|---|
+| `nickoscope_matrix/presence/targets` | no | about 1 Hz while anyone is present, every 5 s when the room is empty |
+| `nickoscope_matrix/presence` | yes | on change, at least every 30 s |
+
+Targets are not retained on purpose: a retained frame would show yesterday's people as live after a panel reboot.
+
+**Payload, targets.** `{"t":[[x_mm,y_mm,v_mmps]|null, ...3], "p":int, "m":int, "s":int, "lux":int|null, "ts":unix}`, values raw from the sensor, about 90 bytes at worst against the panel's 2048-byte MQTT buffer. A target that is `unknown`, or reads 0/0, is `null`.
+
+**Payload, summary.** The same counters plus `"online":bool` from the sensor's own `binary_sensor`.
+
+**On the panel.** Targets older than 5 s mean an empty room, not a frozen dot; after 30 s with no message the screen says so. Speed is passed as `abs(v)/10` because the scene wants cm/s and tests `> 12`. With no live data the scene keeps its scripted story, so the screen works without Home Assistant.
+
 ## Previews on the first real session (2026-09-16 17:12)
 
 Rendered from `~/panel-backups/2026-09-16-mtr1/mtr1_frames.json` (private, stays out of both repos) through `tools/luasim/presence_feed.py` and `presence_sheet.py` in the fork, window 16:16:52-16:18:22, the richest 90 s.
