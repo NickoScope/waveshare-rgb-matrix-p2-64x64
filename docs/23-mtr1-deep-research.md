@@ -147,6 +147,16 @@ The ghost cloud beyond 2.2 m spans x from −1.86 m to +1.92 m, median +0.61 m, 
 
 So the invented target is gone with the switch, as expected. What remains is slot 1 sitting at the **far** distance, around 2.4-2.9 m at about +28°, wandering a few hundred millimetres between samples. Whether that is the people on the sofa or the window reflection now wearing slot 1 cannot be told from the data: it needs the owner to say where he is sitting relative to the sensor. If it is the window, the Filter zone from §3b is the next step; if it is the sofa, the radar is simply tracking them and only the wander remains to be smoothed.
 
+## 3d. Queued: previews must run the real model, not a copy of it
+
+**Where this went wrong.** A twin is not the mistake; a twin without an enforced comparison is. In the audio work the Python was the *reference*: `tools/audiofx/dsp.py` and `effects_wow.py` defined the behaviour, and a host test compiled the real C++ and held it to them sample by sample and pixel by pixel, 300 frames per effect. Nothing could drift without a red test. With `tools/luasim/presence_panel.py` the rules were written twice by hand and nothing compared them, so on 2026-09-16 the firmware gained two rules, the preview gained one, and the commit message claimed both. The audit found it by feeding a synthetic stall through each, not by reading the diff.
+
+**The fix, queued as its own work:** drive the previews from the real `presence::Model` through the host build that `tools/presence/check_presence.py` already compiles, and delete the Python model. Rendering stays where it is — the previews already use the shipped Lua scene. Then a rule can only exist in one place.
+
+**NickoScope32 already does this properly, and is the pattern to copy.** Its ADD-55 Full Twin compiles the **real firmware sources to WASM** rather than reimplementing them in JavaScript: `engine_core.{h,cpp}` one-to-one from the firmware, each effect copied by changing a single include line, the real Lua 5.4.8 VM and the real `beam_compile`. The concept document argues the case on numbers: Emscripten's wasm32 is ILP32 little-endian like the Cortex-M7, and the VM is built with 32-bit Lua, so the twin matches the hardware bit for bit, which is why it rejects a ready-made JS Lua. Its ASCII-graphics repo likewise has a `hostharness` that builds firmware sources.
+
+**One caveat in that project, for honesty:** its Python geometry engine (`tests/test_geometry.py` and `src/nickoscope/geometry/`) is a reimplementation whose properties were read out of the firmware by hand, and nothing compares the two automatically. Smaller blast radius, same class of risk.
+
 ## 4. The software landscape
 
 **ESPHome has an official `ld2450` platform**, merged February 2025 and shipped in 2025.3.0 `[ESPHome]`. It gives per target x, y, speed, angle, distance, resolution and a direction text sensor; globally the presence, moving and still binary sensors, the three counts, version and MAC, switches for Bluetooth and multi-target, selects for baud rate and zone type, and a presence timeout. It requires radar firmware 2.02 or newer.
