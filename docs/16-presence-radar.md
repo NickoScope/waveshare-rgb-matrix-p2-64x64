@@ -286,6 +286,22 @@ Y, so not these.
   and whether the HUB75 panel disturbs the radar at close range. Both are bench
   tests before idea 1 is trusted.
 
+## Audit and the three fixes, 2026-09-16 18:20
+
+The audit of the merged tree (`166e7f6`) raised three MAJOR findings, all real. Fixed in `b8a6c61`, and the delta audit approved it with no blockers.
+
+1. **The ninth subscription was refused in silence.** The MQTT bus held eight, and the full build now asks for nine: the presence radar takes two, its summary topic being a prefix of its targets topic. The retained summary would never have arrived, with nothing in the log. Both tables are ten now (208 B of .bss), and `presenceBegin()` reports a refusal on serial the way its neighbours already did.
+2. **The header's "no second task to lock against" was false.** The Lua effect task runs on core 0 and reads the model through the bindings 19 times a frame while the loop task on core 1 writes it. A spinlock in `presence.cpp` covers all nine entry points; `/api/info` snapshots its four values under the lock and builds the JSON outside it, since a spinlock holds off interrupts on that core. The model itself stays free of FreeRTOS, so `tools/presence/presence_host_test.cpp` still builds on the Mac.
+3. **The parse accepted any int32 from the broker.** `INT32_MIN` made `-x` undefined in `mirror()` and overflowed the interpolation in `target()`. x, y and v are now held to what an LD2450 can report.
+
+**Backlog from the delta audit** (LOW, deliberately not fixed before the flash):
+- the host tests do not cover the clamp: add `[-2147483648, 99999, 99999]` to the refusals case;
+- the y clamp allows −7560; the sensor's range is 0..7560, and only `in_fan()` (`y > 0`) saves it today;
+- `presence.h` says the lock "covers every entry point", while `presenceScaleM()` is deliberately outside it (it reads only settings);
+- a stale comment in `railboard.cpp:367` about a table of six;
+- a double blank line in `presence_parse.h`;
+- outside this work: `cards.cpp:127-129` and `fb_mqtt.cpp:88` still swallow a refused subscription silently.
+
 ## The panel module, 2026-09-16 17:58 (built, not flashed)
 
 `src/presence/` behind `-DPRESENCE_ENABLED`, commit `745eeb4` on `feat/presence-panel`, pushed as a backup. Nothing has touched hardware.
