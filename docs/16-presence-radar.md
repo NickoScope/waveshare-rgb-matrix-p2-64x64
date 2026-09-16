@@ -286,6 +286,14 @@ Y, so not these.
   and whether the HUB75 panel disturbs the radar at close range. Both are bench
   tests before idea 1 is trusted.
 
+## One real coordinate reached the public history, 2026-09-16 17:19
+
+A test for the publisher carried one real reading from the living room, `[-199, 505, 240]` at about 16:17, in `tools/ha/appdaemon/test_matrix_presence.py`. It went out in commit `71fc76a` and was replaced with invented values in `404c66f`; the working tree is clean, and both commits are on public `main`.
+
+**The owner's decision, 17:25: leave it in the history**, as with the fund allocation on 2026-09-15. One point, with no room plan to place it against, says almost nothing; rewriting public `main` would break every clone and every commit link for a coordinate of that weight.
+
+**The rule it leaves behind.** Tests and examples use invented numbers. Real recordings live in `~/panel-backups/` and never enter either repository; a script that runs against them runs outside the repo. The failure that let it through was a command chain without `set -e`, so the check that would have caught it did not stop the commit.
+
 ## Decided 2026-09-16 17:14, and the contract both sides build to
 
 **The owner's decisions.**
