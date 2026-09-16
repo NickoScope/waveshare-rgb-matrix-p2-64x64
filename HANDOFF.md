@@ -42,6 +42,17 @@ Rolling record of where the work stands. Newest first.
   microphones and wake word are out, with the numbers.
 
 **Open, in the order they should be taken.**
+
+0. **First thing to check tomorrow, five minutes:** the panel reports
+   `ir.enabled: false` in `/api/info` after the flash, and the default is on
+   (`settings.irEnabled = true`, NVS key `irEn`). Nothing is broken today
+   because no receiver is built, but with one fitted it would simply not start.
+   Find out whether a portal save wrote it off (the card's checkbox posts
+   nothing when unticked, and the page may not have ticked it from the form
+   values), or whether the setting never loaded. Watch `minFreeHeap` while
+   you are there: it sat at 7,480 B after this evening's test, against 15,060 B
+   earlier - the portal polling and the Lua scenes during the run are the
+   likely reason, and that is debt D1's territory.
 1. **Debt D1** of [22](docs/22-audio-visualizer-onboard-mic.md) §12.3 - the
    portal's ~20 KB internal-heap spike. It blocks both the visualizer and any
    audio, because a stream would be a third consumer of that memory.
