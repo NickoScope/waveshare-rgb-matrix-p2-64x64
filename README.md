@@ -130,6 +130,14 @@ If the hardware has not been powered up yet, read in this order:
 | [14-lua.md](docs/14-lua.md) | Putting a Lua interpreter on this panel, from our three existing ones |
 | [15-ulanzi-awtrix.md](docs/15-ulanzi-awtrix.md) | What the Ulanzi pixel clocks and the AWTRIX firmware got right, and what to borrow |
 | [16-presence-radar.md](docs/16-presence-radar.md) | A 24 GHz presence radar, so effects wake when someone walks in: straight onto the header with Home Assistant as the knob, or on a XIAO ESP32-C3 with ESPHome. Room radar drawn in the simulator; firmware not built |
+| [17-media-player.md](docs/17-media-player.md) | Now playing and a remote for a Home Assistant / Music Assistant player, and internet radio on the panel: design, written before anything was built |
+| [18-stock-dashboard.md](docs/18-stock-dashboard.md) | The owner's brief for a market screen: indices, chosen tickers, and the portfolio's result with dividends and holding costs |
+| [19-market-dashboard-research.md](docs/19-market-dashboard-research.md) | How professional terminals and portfolio trackers lay a market screen out, read for doc 18 |
+| [20-market-dashboard-manual.md](docs/20-market-dashboard-manual.md) | Биржевой дашборд: руководство пользователя и сопровождающего - what the panel does and how to keep it fed |
+| [21-onboard-climate-sensor.md](docs/21-onboard-climate-sensor.md) | The board's SHTC3 and the weather screen: the datasheet, the corrections, and the design the owner picked |
+| [22-audio-visualizer-onboard-mic.md](docs/22-audio-visualizer-onboard-mic.md) | The audio visualizer driven by the two onboard microphones: the eight effects, the hardware results, and the debt list that keeps it switched off |
+| [23-mtr1-deep-research.md](docs/23-mtr1-deep-research.md) | The MTR-1 presence sensor in depth: the manufacturer's documents, the best projects on GitHub, what the numbers really mean, and what to change |
+| [24-ir-remote.md](docs/24-ir-remote.md) | The infrared remote as a second knob: the port from NickoScope32, the pin it has to share with the encoder, the pull-up the receiver needs on this board, and the serial console that tests it with no hardware |
 
 ## Ready-to-use configs
 

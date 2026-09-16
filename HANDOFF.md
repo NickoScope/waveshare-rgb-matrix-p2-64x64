@@ -4,6 +4,7 @@ Rolling record of where the work stands. Newest first.
 
 ## Open, across everything
 
+- **The infrared remote is in the firmware, and no receiver is soldered (2026-09-16).** `src/ir/` behind `-DIR_ENABLED`, ported from NickoScope32 ADD-79 and reshaped to our conventions: the rules are host-tested, the receiver is a second flag, and the seam is the encoder's own sampling task. It produces detents and a button level, so the knob's state machine keeps being the only one. Two things wait for hardware: the receiver has never run, and the 2.2 kOhm pull-up it needs on IO45 is arithmetic, not a measurement ([24](docs/24-ir-remote.md)).
 - **The onboard-mic audio visualizer hangs the whole panel (2026-09-15 evening).** Capture's 10.4 KB plus a ~20 KB portal spike exhaust internal heap, Wi-Fi fails its buffers, MQTT retries freeze `loop()`. The owner keeps it off until the cause is found; the debts, in order, are in [22](docs/22-audio-visualizer-onboard-mic.md) §12.3.
 - **The hardware arrived on 2026-09-14.** Phases 1 and 2 passed (phase 1 after
   an octal-flash fix); phase 3 too — 128×64 as one canvas. Phase 4, our own
