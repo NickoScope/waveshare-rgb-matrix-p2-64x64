@@ -82,6 +82,30 @@ From one recorded session, 802 one-second frames over 820 s, essentially one per
 
 ---
 
+## 3a. The jumping dots, measured 2026-09-16 19:15
+
+The owner reported dots hopping from corner to corner on screen. Twelve minutes of live history for both target slots, 600 rows each, say what is happening, and it is not what I first assumed.
+
+| | Slot 1 | Slot 2 |
+|---|---|---|
+| Points drawn | 596 | 586 |
+| Range, median | 0.44 m | **2.66 m** |
+| Points past 2 m | 2 (0 %) | **518 (88 %)** |
+| Angle, median | +19° | +3°, spread −45°…+65° |
+| Jumps over 1 m between consecutive points | 6 | **19** |
+| Absences over 3 s | 1, longest 5 s | **20, longest 513 s** |
+
+**Slot 1 is a person:** close in, a steady track, a median step of 40 mm, one short dropout.
+
+**Slot 2 is not.** It sits almost entirely beyond 2 m, wanders the whole width of the fan, disappears and returns twenty times, and jumps more than a metre nineteen times. It is the module inventing and dropping a weak second target in the far half of its field — the failure the community calls a ghost, and the reason PondEyes splits a track when a target "teleports".
+
+**The X/Y skew is not the cause of these jumps.** Of the 25 jumps over a metre across both slots, **none** happened within 0.35 s of the previous point, which is where a mispaired X and Y would show. The skew is real and worth fixing, but it is a second-order effect; the corner-to-corner hopping is the second slot.
+
+**What follows for the panel:**
+1. **Do not draw a slot until it has proved itself** — a minimum lifetime, or a couple of consecutive updates, before a dot appears.
+2. **Drop a slot that teleports**, unless it stays at the new place.
+3. **A Filter zone over the far region** where these ghosts live is the manufacturer's own remedy, and it costs nothing on the panel side.
+
 ## 4. The software landscape
 
 **ESPHome has an official `ld2450` platform**, merged February 2025 and shipped in 2025.3.0 `[ESPHome]`. It gives per target x, y, speed, angle, distance, resolution and a direction text sensor; globally the presence, moving and still binary sensors, the three counts, version and MAC, switches for Bluetooth and multi-target, selects for baud rate and zone type, and a presence timeout. It requires radar firmware 2.02 or newer.
