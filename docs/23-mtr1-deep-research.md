@@ -141,6 +141,8 @@ The ghost cloud beyond 2.2 m spans x from −1.86 m to +1.92 m, median +0.61 m, 
 
 **That settles the direction: the display defends itself, the radar is left alone.** A Filter zone beyond 2.2 m would erase a second person walking by the window, which is exactly the case he just cared about, so it is not the answer here. The two rules belong in `src/presence/`: do not draw a slot until it has been present for two consecutive updates, and drop a slot that teleports unless it stays at the new place.
 
+**Both are in the model since 2026-09-16** (`kConfirm = 2`, `kTeleportMm = 1500`). The thresholds come from the measurements above: a person's step is 40 mm median and 537 mm at p95, the ghost jumped over a metre 25 times and as far as 3 m. The price is recorded in the host tests: a target returning after an absence appears one message later, about a second.
+
 So the invented target is gone with the switch, as expected. What remains is slot 1 sitting at the **far** distance, around 2.4-2.9 m at about +28°, wandering a few hundred millimetres between samples. Whether that is the people on the sofa or the window reflection now wearing slot 1 cannot be told from the data: it needs the owner to say where he is sitting relative to the sensor. If it is the window, the Filter zone from §3b is the next step; if it is the sofa, the radar is simply tracking them and only the wander remains to be smoothed.
 
 ## 4. The software landscape
