@@ -35,6 +35,7 @@ anything new it:
 | 6 | Review of PR #4, mbedTLS buffers in PSRAM (item 3 of #3) | https://github.com/Keralots/AnimatedPixelClock/pull/4 | `gh api`: reviews, comments, state, merged | opened 2026-09-15 18:37, no review |
 | 5 | Replies to our Show and tell post about the Waveshare board | https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/discussions/962 | GraphQL: comments, replies, upvotes | posted 2026-09-15 01:00, no replies |
 | 7 | Rafał's reply to our comment on #3: the visualizer on the board's mics, the SHTC3, the settings-save stall | https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5687555292 | `gh api`: issue #3 comments after 2026-09-15 20:22 UTC | posted 2026-09-15 22:22, no reply |
+| 8 | Rafał's reply to our comment on #3 about the infrared remote, the pull-up on IO45 and the offer to cut it down | https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5703737437 | `gh api`: issue #3 comments after 2026-09-16 20:02 UTC | posted 2026-09-16 22:02, no reply. Two of our comments now stand unanswered - if the next check finds a reply, read which one it answers |
 
 **Why item 4 is watched.** New upstream code is what our PR branches will be
 rebased onto. Changes to `web.cpp`, `web_pages.h` or `weather.cpp` collide

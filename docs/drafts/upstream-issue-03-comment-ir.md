@@ -1,7 +1,9 @@
 # Draft: comment on Keralots/AnimatedPixelClock issue #3, the infrared remote
 
-**Status: NOT POSTED.** Written 2026-09-16 at the owner's "не хочешь рассказать о
-наших наработках разработчику?". Goes nowhere until he says "отправляй".
+**Status: POSTED 2026-09-16 22:02 CEST** on the owner's "публикуй":
+https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5703737437
+Written at his "не хочешь рассказать о наших наработках разработчику?". Posted
+as drafted, 3,323 characters, verified against the posted body.
 
 - **Where:** a comment on https://github.com/Keralots/AnimatedPixelClock/issues/3 — the
   same thread where Rafał set the PR order.
