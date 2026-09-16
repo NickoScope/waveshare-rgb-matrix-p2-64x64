@@ -106,6 +106,24 @@ The owner reported dots hopping from corner to corner on screen. Twelve minutes 
 2. **Drop a slot that teleports**, unless it stays at the new place.
 3. **A Filter zone over the far region** where these ghosts live is the manufacturer's own remedy, and it costs nothing on the panel side.
 
+## 3b. The ghost is the window, and how big a filter would have to be
+
+The owner was asked what sits 2.5-3 m straight ahead of the sensor. **A window.** That matches the manufacturer's two warnings at once: large strongly reflective surfaces interfere, and a curtain moving in a draught is exactly the kind of continuously moving non-human object to avoid `[DS §7.1]`. Apollo adds that the radar sees through light walls, so people or cars beyond the glass are also candidates.
+
+Sizing a Filter zone against the same twelve minutes of live data:
+
+| Filter over everything beyond | Ghost points removed | Person points lost |
+|---|---|---|
+| y ≥ 2.2 m | 364 of 586 (62 %) | **0 of 596 (0 %)** |
+| y ≥ 2.5 m | 133 (23 %) | 0 |
+| y ≥ 2.8 m | 21 (4 %) | 0 |
+
+The ghost cloud beyond 2.2 m spans x from −1.86 m to +1.92 m, median +0.61 m, and reaches 3.75 m out. The person never went past 2.2 m in this window, and never past 1.95 m in the earlier recorded session, so a filter at 2.2 m costs nothing measurable today — **but it is tight**: a guest standing by the window would be erased. At 2.5 m the safety margin doubles and it still removes a quarter of the ghosts.
+
+**A filter alone will not fix the hopping.** The other 38 % of ghost points sit closer than 2.2 m, inside the space a person uses, where no rectangle can separate them. Those need the panel-side rules: confirm a slot before drawing it, and drop one that teleports.
+
+**The simplest lever of all** is the module's own multi-target tracking switch. Turned off, the radar reports one target and invents no second one. The cost is that two people can no longer be counted or drawn. For a room where presence and one person's position are what matter, that removes the whole class of problem in one reversible setting.
+
 ## 4. The software landscape
 
 **ESPHome has an official `ld2450` platform**, merged February 2025 and shipped in 2025.3.0 `[ESPHome]`. It gives per target x, y, speed, angle, distance, resolution and a direction text sensor; globally the presence, moving and still binary sensors, the three counts, version and MAC, switches for Bluetooth and multi-target, selects for baud rate and zone type, and a presence timeout. It requires radar firmware 2.02 or newer.
