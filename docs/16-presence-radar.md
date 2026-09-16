@@ -286,6 +286,19 @@ Y, so not these.
   and whether the HUB75 panel disturbs the radar at close range. Both are bench
   tests before idea 1 is trusted.
 
+## The publisher cannot be installed over SSH, 2026-09-16 17:35
+
+The whole radar job moved to this session at 17:22 on the owner's instruction. Installing `matrix_presence` then hit a wall that is worth writing down.
+
+- **SSH lands as `hassio` (uid 1000)** through the Advanced SSH & Web Terminal add-on. `/addon_configs`, `/addon_configs/a0d7b954_appdaemon`, its `apps/`, its `market/` and `/config` are all **read-only** for that user; the directories are `root:root drwxr-xr-x`. A `cp` into `apps/` fails with permission denied, so no file can be placed and `apps.yaml` cannot be backed up that way either. Nothing was changed.
+- **File editor** (`core_configurator`) runs with `enforce_basepath: true`, which limits it to `/config`, so as configured it cannot reach `/addon_configs` either.
+- **The MCP tools available here** manage add-on lifecycle and configuration and write dashboard resources; none of them writes a file into an add-on's config directory.
+- **Reading works fine** over SSH, which is how the market app and its backups were inspected.
+
+So installing an AppDaemon app needs one of: the File editor with `enforce_basepath` turned off (an add-on configuration change, and it is not confirmed that its container even mounts `/addon_configs`), the owner placing the file himself, or another channel with write access. It is the owner's call, and a backup comes first either way.
+
+**Unrelated finding, worth the owner's attention.** The SSH add-on's `init_commands` carry a base64 blob that runs on every add-on start. Decoded, it reads `apps/nickobot.py` and `apps/apps.yaml`, reads `/tmp/od`, collects AppDaemon log lines, and POSTs all of it into `sensor.nsc_diag` through the Supervisor token. It was not put there by this session. It is diagnostic, but it does push file contents into a sensor on every start.
+
 ## One real coordinate reached the public history, 2026-09-16 17:19
 
 A test for the publisher carried one real reading from the living room, `[-199, 505, 240]` at about 16:17, in `tools/ha/appdaemon/test_matrix_presence.py`. It went out in commit `71fc76a` and was replaced with invented values in `404c66f`; the working tree is clean, and both commits are on public `main`.
