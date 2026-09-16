@@ -127,7 +127,7 @@ are left alone. The portal's Remote card does the same over HTTP.
 | | |
 |---|---|
 | The rules and the console grammar | `tools/ir/check_ir.py`, **150 checks, all passing**: a button that survives one dropped repeat and not two, a repeat frame that extends only the slot still held, detents drained exactly once, a learned code living in one slot only, every comparison holding across the millis() wrap, and a parser that truncates rather than overruns |
-| Every build combination | `tools/flag_matrix.py`, **53 of 53 behaved as intended** (2026-09-16 21:04). Four of those rows are this module's: it builds alone, it builds with the receiver, and the two that must be refused are refused - the receiver beside the knob, and the receiver without the module |
+| Every build combination | `tools/flag_matrix.py`, **53 of 53 behaved as intended**, re-run on the fixed code (e3b5f65) at 2026-09-16 21:46. Four of those rows are this module's: it builds alone, it builds with the receiver, and the two that must be refused are refused - the receiver beside the knob, and the receiver without the module. A run in between reported 52 of 53 and named no row: it shared the build directory with an audit's own clean build, which is a known way to produce a false failure. Worth recording as a habit: **one PlatformIO build at a time, and never pipe the matrix through `tail`** - I did, and the truncated log could not say which row had gone red |
 | What the receiver library costs with the flag off | **Measured, not assumed:** `nm` on `firmware.elf` finds 0 `IRrecv` / `IRsend` / `decodeNEC` symbols. PlatformIO compiles the library because it is in `lib_deps`; the linker keeps none of it |
 | The panel image | builds; RAM 31.5 %, flash 48.1 % |
 
