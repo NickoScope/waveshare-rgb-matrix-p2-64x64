@@ -478,6 +478,20 @@ measured on an S3.
 
 ## 7. The decision
 
+**Approved by the owner, 2026-09-16 21:42**, after the scope above was put to
+him in plain terms - what the board can do, what Music Assistant will not give
+us, and how loud it will actually be. His words: the functionality suits him.
+So the shape below is settled and is no longer a proposal:
+
+- a Music Assistant player that plays, takes volume, groups with other rooms
+  and shows metadata;
+- announcements in MA's stop-and-resume form, ducking accepted as absent;
+- the visualizer fed from what the panel itself plays, which is the way to get
+  the screen dancing without the microphones that hang it today;
+- a talking speaker rather than a music one - about 0.68 W into 8 ohms;
+- no microphones, no echo cancellation, no wake word while the speaker sounds.
+
+
 **Build: a PCM player for Music Assistant, behind its own flag, feeding the
 visualizer from what it plays.**
 
