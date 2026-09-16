@@ -304,7 +304,7 @@ presence: source live, scaleM 4, mirrorX false, targets 1, lastMessageS 0,
 
 **One defect the panel found that no host test had.** On the first flash `/api/info` read `messages 13, summaries 0, parseFailures 6`: `parse()` refused every document without a `"t"` array, and the retained summary carries none. The people and lux figures still showed because the targets payload carries them too, so the loss was quiet. Fixed in `377508d`: the parser takes `needTargets`, true on the targets topic and false on the summary topic, and the host tests grew both cases (101 checks now, was 85).
 
-**Still unverified: the +X direction.** `mirrorX` is false. The owner walks into the room from one side and says which side the dot appears on; the panel's switch and the Home Assistant card's `mirror_x` then have to agree.
+**The +X direction is confirmed, 2026-09-16 18:36.** The owner walked into the room and the dot appeared on the side he came from: "совпало". So `mirrorX` stays **false** on the panel, which is also the Home Assistant card's default, and the two agree without any change. Nothing about the sensor's mounting needs to be mirrored in software.
 
 ## Audit and the three fixes, 2026-09-16 18:20
 
