@@ -1,10 +1,8 @@
 # The infrared remote
 
-**Status 2026-09-16 21:05:** the module is written, built into the panel's
-image, and checked on the host - 150 checks and every row of the flag matrix.
-**It has not run on the panel yet:** the firmware carrying it is not flashed,
-so the serial console and the portal card have been exercised nowhere but the
-host. **No receiver is soldered** either, so nothing below the decoder has ever
+**Status 2026-09-16 21:33:** flashed and **working on the panel**, driven from
+the serial console. **No receiver is soldered**, so everything below the decoder
+- the receiver, real NEC frames, learning from a real remote - has still never
 run. The pin it will use is the knob's, and that is deliberate.
 
 The owner's plan, stated on 2026-09-16: *"скоро будем переходить с энкодера на
@@ -138,6 +136,31 @@ One mistake worth recording, because the matrix is what caught it: the module's
 `web.cpp`. The panel's own build has presence, so it compiled and looked fine -
 and a build with `IR_ENABLED` alone could not see `irBegin`. Two rows of the
 matrix went red and named it. Without that script it would have shipped.
+
+## What it did on the panel, 2026-09-16 21:33
+
+Flashed as 2.4.0 and driven from the serial console at 115200. The proof is not
+that the module answered - it is that the **encoder's own counters** moved, and
+they are incremented inside the encoder's `push()`, past the seam:
+
+| Typed | The encoder's counters | The display |
+|---|---|---|
+| `ir cw` | cw 0 → 1 | opened the football clock |
+| `ir cw 3` | cw 1 → 4 | walked on to the snake clock |
+| `ir ccw 2` | ccw 0 → 2 | back to minecraft |
+| `ir ok` | click 0 → 1 | |
+| `ir ok 1200` | long 0 → 1 | a long press, from the same state machine as the knob's |
+| `ir ok 99999999999` | long 1 → 2, held true, then released on its own | the audit's clamp: five seconds, not weeks |
+| `ir sim bright_up` | nothing moved, and the panel said so | a reserved slot is accepted and does nothing |
+| `ir sim nope` | refused with a readable line | |
+| `ir learn ok` | window opened, 13.5 s left, and the panel said there is no receiver to hear it | |
+
+Hit counts after the run matched exactly what was typed: CCW 2, CW 4, OK 3,
+BRIGHT_UP 1. Free internal heap 35.2 KB after boot, `loopMaxMs` 6, no failed
+allocations, no crash.
+
+The two long-lived bugs the audit found cannot be reproduced on a bench - they
+need 25 days of uptime - so this run is not what closes them. The host test is.
 
 ## What the audit found, and the lesson in it
 
