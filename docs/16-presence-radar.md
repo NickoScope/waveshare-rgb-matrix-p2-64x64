@@ -241,7 +241,7 @@ Y, so not these.
   - Multi Target Tracking on;
   - Timeout 5 s;
   - LTR390 update interval 60 s;
-  - **LD2450 Bluetooth on**. See the trap below; switching it off is the owner's call.
+  - **LD2450 Bluetooth: off.** The owner switched it off on 2026-09-16 at 16:55:14 (the entity's own history: one `on` → `off` transition, by hand). It is the radar module's own radio with its own antenna, not the ESP32-C3's, and it costs nothing in Home Assistant: five state rows in the entity's whole life. The real cost of leaving it on is access, not power — with it on, anyone within Bluetooth range can reconfigure the radar from the HLKRadarTool app. Off is the right setting. The current draw with and against it is **not verified**: the device has no current sensor and Hi-Link's PDF is not readable.
 - **Zone limits Home Assistant reports:** X −4860…4860 mm, Y 0…7560 mm (the number entities' min and max).
 - **First session, 16:05–16:18, from the recorder:**
   - Target 1 X was logged 749 times in 820 s, about once a second, which matches ESPHome's default throttle [16].
