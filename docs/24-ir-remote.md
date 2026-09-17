@@ -59,6 +59,20 @@ Those two in series divide the supply:
 | what the ESP32-S3 needs to read a one | 0.75 × VDD = **2.48 V** |
 | with an external **2.2 kΩ** from OUT to 3V3 | 3.3 × 10 / (10 + 2.05) = **2.74 V**; 1.6 mA sunk when the receiver pulls down, inside its 5 mA rating |
 
+**The owner's inspection, 2026-09-17: on his board the pull resistors at IO45
+and IO46 are not fitted at all, so both pins are free GPIO and anything can be
+connected to the header.** If that holds for the pull-downs as well, the
+division below does not happen: a receiver's own 30 kΩ internal pull-up takes
+the idle line to the full 3V3 and **no external resistor is needed**. It
+contradicts the schematic line above, which gave R59 and R60 as fitted 10 kΩ
+pull-downs, so one of the two is wrong for this batch of boards: the row above
+was read off the schematic, this one off the board itself. **Not yet measured**
+- the check is a meter across IO45-GND and IO46-GND with the board off (~10 kΩ
+means the pull-down is there; open means it is not), or a build that turns on
+the internal pull-up and watches for a one while the knob turns, which a fitted
+10 kΩ pull-down makes impossible. Either way the strapping rule stands: IO45 and
+IO46 are sampled at reset, so whatever is connected must not hold them at boot.
+
 **CALCULATED, NOT MEASURED.** Without the pull-up the line would sit low for
 ever and the decoder would see one endless burst. This is the first thing to put
 a meter on when a receiver is soldered. The datasheet's own application circuit
@@ -254,7 +268,7 @@ is refused, why the platform is pinned. Restored from the previous commit.
 
 - **The receiver has never run.** No TSOP is soldered; everything below the
   decoder is verified by the host test and the simulator only.
-- **The pull-up above is arithmetic, not a measurement.**
+- **The pull-up above is arithmetic, not a measurement**, and the owner's 2026-09-17 look at the board says the pull resistors are not fitted there at all, which would remove the need for it. Measure before either claim is used.
 - The reserved slots do nothing yet.
 - **RC5/RC6 toggle bit.** Those remotes flip a bit in the code on every press,
   so such a remote would answer every other press. NEC — the owner's — does
