@@ -1,6 +1,6 @@
 # Draft: upstream PR 4 to Keralots/AnimatedPixelClock, the last crash in /api/info
 
-**Status: NOT POSTED. Audit running.** Written 2026-09-17 at the owner's "делаем?", the next item in
+**Status: NOT POSTED. First audit 19:38: CHANGES-REQUIRED, one MAJOR (abort() and the task watchdog read as StoreProhibited at 0, and the watchdog's task is the interrupted one) - fixed in `52f1879` with four of the LOWs; final re-audit running.** Written 2026-09-17 at the owner's "делаем?", the next item in
 Rafał's order (issue #3: "the crash report half of 4",
 https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5682483397). Goes nowhere until
 the owner says "отправляй".
@@ -17,10 +17,10 @@ no `verifyRollbackLater()`, no `esp_ota_mark_app_valid_cancel_rollback()`, no `"
 
 - Branch `feat/crash-report` (pushed to the fork, not proposed), from `upstream/main` at `9fa9ba4`,
   which already has PR #5 and PR #6.
-- One commit, `7022c15`: `feat(diagnostics): report the last crash in /api/info`.
+- One commit, `52f1879` (amended from `7022c15` after the audit): `feat(diagnostics): report the last crash in /api/info`.
 - Files: new `src/utils/crash_report.h` and `src/utils/crash_report.cpp`; `src/main.cpp` (include,
   `crashReportBegin()` after `Serial.begin`, `crashReportLoop()` after `weatherLoop()`);
-  `src/web/web.cpp` (include, `crashReportToJson(doc)` after `resetReason`). +221 -0.
+  `src/web/web.cpp` (include, `crashReportToJson(doc)` after `resetReason`). +263 -0.
 - Worktree: `/Users/apple/AnimatedPixelClock-crash-report`.
 
 **Changed from the fork's `8ec3045`:**
@@ -30,6 +30,8 @@ no `verifyRollbackLater()`, no `esp_ota_mark_app_valid_cancel_rollback()`, no `"
 - pseudo causes get names, the interrupt watchdog among them;
 - up to 16 backtrace addresses instead of 8;
 - `bootTime` (when the boot that found the crash started) instead of `seenUtc`;
+- an `abort()` and the task watchdog are named as such when the crash came from the running image, and `sameFirmware` says whether it did;
+- the dump is erased only after the record is saved to NVS, and kept when the summary cannot be read;
 - `isKey()` before reading NVS;
 - the NVS namespace is `crash` instead of `health`.
 
@@ -73,7 +75,9 @@ no `verifyRollbackLater()`, no `esp_ota_mark_app_valid_cancel_rollback()`, no `"
 | The fork's crash report in use since 14 September | fork commit `8ec3045`, 2026-09-14 23:47 |
 | The deliberate abort read as `StoreProhibited` at 0 with `pc` in `panic_abort` | docs/03-firmware.md, "Crash reports" (the rollback test image, 2026-09-14) |
 | `IntegerDivideByZero` in `lfs_alloc`, called from `lfs_file_write`, when an 87,260-byte record did not fit on a LittleFS with 12,288 bytes free | docs/18-stock-dashboard.md, incident 2026-09-15 16:31-16:53 |
-| Builds | `pio run` on 9fa9ba4 and 7022c15 in the same directory, 2026-09-17, espressif32@6.12.0. The matrix-waveshare "before" came out 16 bytes different from the same commit in the PR 3 worktree (1,627,517 here, 1,627,533 there) |
+| `panic_abort()` is 26 bytes and its address changes between builds | `xtensa-esp32s3-elf-nm -S firmware.elf`: 0x1a in all three envs; 0x40377ac8 in 7022c15 and 0x40377148 in 52f1879 (matrix-s3) |
+| The task watchdog aborts from its interrupt, so the dump's task is the interrupted one | `task_wdt.c` 172-176, v4.4.7; first audit of 7022c15 |
+| Builds | `pio run` on 9fa9ba4 and 52f1879 in the same directory, 2026-09-17, espressif32@6.12.0. The matrix-waveshare "before" came out 16 bytes different from the same commit in the PR 3 worktree (1,627,517 here, 1,627,533 there) |
 
 ## English (to post)
 
@@ -92,10 +96,11 @@ What it does: on the S3 the SDK already writes a core dump to the coredump parti
 
 What's in lastCrash:
 - task: the task that crashed
-- cause and causeName: the exception cause, with the name ESP-IDF 4.4 prints in the panic output. Watchdog and double exception causes get their names too.
+- cause and causeName: the exception cause, with the name ESP-IDF 4.4 prints in the panic output. Watchdog and double exception causes get their names too, and so do abort() and the task watchdog, see below.
 - pc and addr: the program counter and the address that faulted
 - backtrace: up to 16 addresses, plus backtraceCorrupted when the SDK says the backtrace is corrupted
 - elfSha256: the first 16 hex digits of the SHA-256 of the firmware.elf that crashed
+- sameFirmware: true if that is the firmware running now
 - resetReason: esp_reset_reason() of the boot that found the crash, the same numbers as your resetReason
 - bootTime: Unix time when that boot started, added once NTP has synced
 - thisBoot: true if the crash was found on this boot
@@ -105,21 +110,21 @@ xtensa-esp32s3-elf-addr2line -pfiaC -e firmware.elf <pc> <backtrace addresses>
 So it's worth keeping the firmware.elf of every release. Without it, a user's report is just addresses.
 
 A few things you should know:
-- An abort() or a failed assert shows up as StoreProhibited at address 0, with pc in panic_abort. That's how abort() works in IDF 4.4: it writes to address 0 on purpose. The backtrace is what tells you where it came from.
-- Your task watchdog panics (esp_task_wdt_init(15, true)), so a stuck loop() goes the same way, through abort(). resetReason 6 instead of 4 tells the watchdog from a real crash.
-- The first boot after flashing this can report an old dump that is still in the partition from older firmware. Its elfSha256 won't match the new build.
+- In IDF 4.4, abort() writes to address 0 on purpose, so the CPU reports an abort() or a failed assert as StoreProhibited at address 0. When pc is inside panic_abort, causeName says "abort()" instead, and the backtrace shows where it was called from. That check needs the same build, since panic_abort moves between builds, so it only applies when sameFirmware is true.
+- Your task watchdog panics (esp_task_wdt_init(15, true)), so a stuck loop() also ends in abort(), and causeName says "Task watchdog" (resetReason 6). The watchdog aborts from its interrupt, though, so task and backtrace belong to whatever the interrupt stopped, not to the task that hung. Which task didn't feed the watchdog is only printed on serial.
+- The first boot after flashing this can report an old dump that is still in the partition from older firmware. sameFirmware is false for that one.
 - If the firmware crashes on every boot before loop() runs, /api/info never comes up, and only the serial line shows the crash.
 - A factory reset doesn't clear lastCrash, it's in its own NVS namespace, "crash". Only the next crash replaces it.
-- On a normal boot the cost is a few NVS reads and reading 4 bytes of the partition. The checksum check and the erase only run on the boot after a crash.
+- On a normal boot the cost is a few NVS reads and reading 4 bytes of the partition. The checksum check and the erase only run on the boot after a crash, and the dump is only erased once the summary is saved in NVS.
 - I left the Diagnostics panel in the portal alone. It's only in the JSON.
 
-How it was tested: on this branch, only the three builds. I haven't flashed this branch to any board. The same reading has been running in my fork on the Waveshare board since 14 September, without two things this PR adds: the checksum check before reading the summary, and names for the watchdog causes. There it read my deliberate abort() test correctly, and on 15 September it caught a real bug: IntegerDivideByZero in lfs_alloc, called from lfs_file_write, when a record in my fork didn't fit on an almost full LittleFS. Your upload checks free space before it writes, so this is only an example of what the report shows, not a bug report for your tree. Not tested: any of your three boards, and a crash on this tree.
+How it was tested: on this branch, only the three builds. I haven't flashed this branch to any board. A simpler version of the same reading has been running in my fork on the Waveshare board since 14 September. It doesn't check the checksum before reading the summary, and it has no names for the watchdog and abort() cases. There it read my deliberate abort() test correctly, and on 15 September it caught a real bug: IntegerDivideByZero in lfs_alloc, called from lfs_file_write, when a record in my fork didn't fit on an almost full LittleFS. Your upload checks free space before it writes, so this is only an example of what the report shows, not a bug report for your tree. Not tested: any of your three boards, and a crash on this tree.
 
 Builds, espressif32@6.12.0, upstream main 9fa9ba4 before, this branch after, built in the same directory:
 
-matrix-s3: Flash 1,624,729 -> 1,629,233 bytes (+4,504), 82.6% -> 82.9% of 1,966,080. RAM 89,228 -> 89,584 bytes (+356).
-matrix-s3-wroom: Flash 1,639,617 -> 1,644,125 bytes (+4,508), 25.0% -> 25.1%. RAM 89,360 -> 89,708 bytes (+348).
-matrix-waveshare: Flash 1,627,517 -> 1,632,057 bytes (+4,540), 34.5% -> 34.6%. RAM 89,492 -> 89,840 bytes (+348).
+matrix-s3: Flash 1,624,729 -> 1,629,529 bytes (+4,800), 82.6% -> 82.9% of 1,966,080. RAM 89,228 -> 89,608 bytes (+380).
+matrix-s3-wroom: Flash 1,639,617 -> 1,644,421 bytes (+4,804), 25.0% -> 25.1%. RAM 89,360 -> 89,732 bytes (+372).
+matrix-waveshare: Flash 1,627,517 -> 1,632,353 bytes (+4,836), 34.5% -> 34.6%. RAM 89,492 -> 89,864 bytes (+372).
 
 Nikolay
 ```
@@ -135,10 +140,11 @@ Nikolay
 
 Что в lastCrash:
 - task: задача, которая упала
-- cause и causeName: причина исключения с тем названием, которое ESP-IDF 4.4 печатает при панике. Причины от сторожевого таймера и двойного исключения тоже названы.
+- cause и causeName: причина исключения с тем названием, которое ESP-IDF 4.4 печатает при панике. Причины от сторожевого таймера и двойного исключения тоже названы, как и abort() и сторожевой таймер задач, см. ниже.
 - pc и addr: счётчик команд и адрес, на котором произошёл сбой
 - backtrace: до 16 адресов, и backtraceCorrupted, если SDK считает трассу испорченной
 - elfSha256: первые 16 шестнадцатеричных цифр SHA-256 того firmware.elf, который упал
+- sameFirmware: true, если это та прошивка, что работает сейчас
 - resetReason: esp_reset_reason() той загрузки, которая нашла падение, те же номера, что в твоём resetReason
 - bootTime: Unix-время начала этой загрузки, добавляется после синхронизации NTP
 - thisBoot: true, если падение найдено в этой загрузке
@@ -148,21 +154,21 @@ xtensa-esp32s3-elf-addr2line -pfiaC -e firmware.elf <pc> <адреса backtrace
 Поэтому стоит хранить firmware.elf каждого релиза. Без него отчёт пользователя — просто адреса.
 
 Что стоит знать:
-- abort() или сработавший assert выглядят как StoreProhibited по адресу 0, pc в panic_abort. Так abort() устроен в IDF 4.4: он нарочно пишет по адресу 0. Откуда он вызван, показывает backtrace.
-- Твой сторожевой таймер задач вызывает панику (esp_task_wdt_init(15, true)), так что зависший loop() идёт тем же путём, через abort(). resetReason 6 вместо 4 отличает сторожевой таймер от настоящего падения.
-- Первая загрузка после прошивки этой версии может показать старый дамп, оставшийся в разделе от прежней прошивки. Его elfSha256 не совпадёт с новой сборкой.
+- В IDF 4.4 abort() нарочно пишет по адресу 0, поэтому процессор сообщает об abort() или сработавшем assert как о StoreProhibited по адресу 0. Когда pc внутри panic_abort, causeName пишет "abort()", а откуда он вызван, показывает backtrace. Для этой проверки нужна та же сборка, ведь panic_abort от сборки к сборке переезжает, поэтому она работает, только когда sameFirmware равно true.
+- Твой сторожевой таймер задач вызывает панику (esp_task_wdt_init(15, true)), так что зависший loop() тоже заканчивается в abort(), и causeName пишет "Task watchdog" (resetReason 6). Но таймер вызывает abort() из своего прерывания, поэтому task и backtrace относятся к тому, что прерывание застало, а не к зависшей задаче. Какая задача не сбросила таймер, печатается только в порт.
+- Первая загрузка после прошивки этой версии может показать старый дамп, оставшийся в разделе от прежней прошивки. У него sameFirmware будет false.
 - Если прошивка падает при каждой загрузке ещё до loop(), /api/info так и не поднимется, и падение видно только по строке в порту.
 - Сброс к заводским настройкам lastCrash не очищает, он лежит в своём пространстве имён NVS, "crash". Заменяет его только следующее падение.
-- При обычной загрузке это стоит нескольких чтений NVS и чтения 4 байт раздела. Проверка контрольной суммы и стирание выполняются только в загрузке после падения.
+- При обычной загрузке это стоит нескольких чтений NVS и чтения 4 байт раздела. Проверка контрольной суммы и стирание выполняются только в загрузке после падения, и дамп стирается только после того, как сводка сохранена в NVS.
 - Панель Diagnostics в портале я не трогал. Отчёт есть только в JSON.
 
-Как проверено: на этой ветке — только три сборки. Эту ветку я ни на одну плату не прошивал. То же чтение работает в моём форке на плате Waveshare с 14 сентября, без двух вещей, которые добавляет этот PR: проверки контрольной суммы перед чтением сводки и названий причин от сторожевых таймеров. Там оно правильно прочитало мой намеренный тест с abort(), а 15 сентября поймало настоящий баг: IntegerDivideByZero в lfs_alloc, вызванном из lfs_file_write, когда запись в моём форке не поместилась на почти полную LittleFS. Твоя загрузка файлов проверяет свободное место перед записью, так что это только пример того, что показывает отчёт, а не сообщение о баге в твоём дереве. Не проверено: ни одна из твоих трёх плат и падение на этом дереве.
+Как проверено: на этой ветке — только три сборки. Эту ветку я ни на одну плату не прошивал. Упрощённая версия того же чтения работает в моём форке на плате Waveshare с 14 сентября. Она не проверяет контрольную сумму перед чтением сводки и не называет случаи сторожевого таймера и abort(). Там оно правильно прочитало мой намеренный тест с abort(), а 15 сентября поймало настоящий баг: IntegerDivideByZero в lfs_alloc, вызванном из lfs_file_write, когда запись в моём форке не поместилась на почти полную LittleFS. Твоя загрузка файлов проверяет свободное место перед записью, так что это только пример того, что показывает отчёт, а не сообщение о баге в твоём дереве. Не проверено: ни одна из твоих трёх плат и падение на этом дереве.
 
 Сборки, espressif32@6.12.0, до — upstream main 9fa9ba4, после — эта ветка, в одном каталоге:
 
-matrix-s3: флеш 1 624 729 -> 1 629 233 байта (+4 504), 82,6 % -> 82,9 % от 1 966 080. RAM 89 228 -> 89 584 байта (+356).
-matrix-s3-wroom: флеш 1 639 617 -> 1 644 125 байт (+4 508), 25,0 % -> 25,1 %. RAM 89 360 -> 89 708 байт (+348).
-matrix-waveshare: флеш 1 627 517 -> 1 632 057 байт (+4 540), 34,5 % -> 34,6 %. RAM 89 492 -> 89 840 байт (+348).
+matrix-s3: флеш 1 624 729 -> 1 629 529 байт (+4 800), 82,6 % -> 82,9 % от 1 966 080. RAM 89 228 -> 89 608 байт (+380).
+matrix-s3-wroom: флеш 1 639 617 -> 1 644 421 байт (+4 804), 25,0 % -> 25,1 %. RAM 89 360 -> 89 732 байта (+372).
+matrix-waveshare: флеш 1 627 517 -> 1 632 353 байта (+4 836), 34,5 % -> 34,6 %. RAM 89 492 -> 89 864 байта (+372).
 
 Николай
 ```
