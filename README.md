@@ -139,6 +139,7 @@ If the hardware has not been powered up yet, read in this order:
 | [23-mtr1-deep-research.md](docs/23-mtr1-deep-research.md) | The MTR-1 presence sensor in depth: the manufacturer's documents, the best projects on GitHub, what the numbers really mean, and what to change |
 | [24-ir-remote.md](docs/24-ir-remote.md) | The infrared remote as a second knob: the port from NickoScope32, the pin it has to share with the encoder, the pull-up the receiver needs on this board, and the serial console that tests it with no hardware |
 | [25-ma-media-player.md](docs/25-ma-media-player.md) | The panel as a Music Assistant player: the routes compared from MA's own code, why announcements with ducking do not fit, the audio chain read off the schematic, and the one constraint that shapes it all — a shared bit clock means one sample rate for playback and capture together |
+| [26-mtr1-direct-link.md](docs/26-mtr1-direct-link.md) | The MTR-1 straight to the panel or through Home Assistant: what the current chain really costs HA (measured), the recorder exclusion, and every direct option - UDP, ESP-NOW, UART, I2C, MQTT, the API - with a pin audit and a bench procedure |
 
 ## Ready-to-use configs
 
