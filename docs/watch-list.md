@@ -60,6 +60,7 @@ not depend on this check.
 
 ## Log
 
+- 2026-09-17 20:05: item 3, Keralots (u/AdvertisingFormal746). He replied to our note in the S3 boards thread (`p9wbf0r`, written 2026-09-15 04:38 UTC, only readable now after several 429s): he has already bought a Waveshare board and is waiting for it to arrive, and thanks us for the note. No question asked, so nothing was drafted. The checker also re-emitted upstream `9fa9ba4`, already logged at 19:16; no new commit, no new comment on #3. Nothing sent.
 - 2026-09-17 19:52: PR #7 opened on the owner's "отправляй" - the crash report half of issue #3, without the rollback. Head `52f1879`, audit APPROVED 19:44 after one MAJOR was fixed. Not tested on hardware, said so in the body. Item 11 added.
 
 Newest first. One line per event: date, item, who, the gist, what was done.
