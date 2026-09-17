@@ -70,13 +70,11 @@ Rolling record of where the work stands. Newest first.
 1. **Debt D1** of [22](docs/22-audio-visualizer-onboard-mic.md) §12.3 - the
    portal's ~20 KB internal-heap spike. It blocks both the visualizer and any
    audio, because a stream would be a third consumer of that memory.
-2. **The receiver has never run.** **The owner looked at the board on 2026-09-17:
-   the pull resistors at IO45 and IO46 are not fitted, so both pins are free GPIO
-   and anything can go on the header.** That contradicts the schematic row in
-   [24](docs/24-ir-remote.md), which has R59/R60 as 10 kΩ pull-downs; if the board
-   wins, a receiver needs no external resistor at all. Measure it before telling
-   anyone: meter across IO45-GND with the board off, or the internal-pull-up probe.
-   Then solder a 38 kHz part, measure the 2.2 kΩ
+2. **The receiver has never run.** The header is genuinely free, restated by the
+   owner on 2026-09-17: the pull-up positions at IO45/IO46 are empty and nothing on
+   the board claims those GPIOs. The fitted 10 kΩ pull-downs and the strapping roles
+   decide only how a device is wired ([11](docs/11-control-and-pins.md),
+   [24](docs/24-ir-remote.md)). Solder a 38 kHz part, measure the 2.2 kΩ
    pull-up rather than trusting the arithmetic, and learn codes from the owner's
    remote. Remember IO45 is a strapping pin.
 3. **Two decisions for the owner:** whether the next board revision swaps
