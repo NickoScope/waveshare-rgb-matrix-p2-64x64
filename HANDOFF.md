@@ -2,6 +2,84 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-17: five upstream PRs, five merged, and the panel's own crash report
+
+**Done.**
+- **Upstream: five offered, five merged, not one review comment.** Today's four:
+  `bbb861c` the settings `isKey()` fix (PR #5), `9fa9ba4` the weather fetch in a
+  task that deletes itself (#6), `eb43f15` the crash report in `/api/info` (#7),
+  `517b37d` keeping the crash cause name across a firmware update (#8). Each was
+  merged within ten minutes to an hour of being opened. **His release is still
+  v2.3.1**, so none of it has reached users yet.
+- **The crash report is now one module in both trees.** `src/utils/crash_report.{h,cpp}`
+  in the fork is byte for byte the file upstream merged, so a later merge is a
+  no-op instead of two modules fighting over the same core dump; `src/health`
+  keeps only the OTA rollback. What the fork gained: the dump's checksum is
+  checked before it is parsed, `abort()` and the task watchdog are named instead
+  of reading as `StoreProhibited` at address 0, `sameFirmware`, sixteen backtrace
+  addresses, the dump erased only after the record is saved, and no NVS error on
+  a board that never crashed.
+- **Verified on the panel, end to end.** A build with a deliberate `abort()` was
+  flashed, crashed, and the next boot printed `task loopTask, abort(), pc
+  0x40377886, addr 0x00000000, ELF 458f86d0c9eb2166`; `addr2line` resolved the
+  five backtrace addresses to `panic_abort`, `esp_system_abort`, `abort`,
+  `loop()` and `loopTask`. That test then found the bug behind PR #8: the cause
+  name was decided when the JSON was built, so a firmware update lost it.
+- **The portal says whose firmware it is.** Bottom of the menu: version, our
+  repository, upstream under it. The version pill in the topbar no longer
+  disappears on a phone. Flashed over the air; the image confirmed itself as
+  valid after 60 s and the unconfirmed one before it was rolled back by the
+  bootloader - the rollback path proved itself by accident.
+- **The header question is closed with numbers, not drawings.** Owner's meter:
+  the pull-up pads at IO45/IO46 are open, and both pins read 10 kΩ to GND.
+  `espefuse.py summary` on our own board: `VDD_SPI_FORCE = True`, `VDD_SPI_TIEH = 0`,
+  "Flash voltage (VDD_SPI) set to 1.8V by efuse" - so GPIO45's strapping role is
+  dead here and a receiver holding that line high at reset is harmless. Told
+  Keralots on issue #3, twice (comments 5721338404 and 5721465891), with a
+  marked-up photo served from this repository.
+- **A study of the playable screens**, `docs/drafts/28-playable-screens-study.md`:
+  four screens are already games with the AI holding the controller, the cheapest
+  proof is Arkanoid, and the architecture is one guarded hook per screen rather
+  than an engine. Seven questions for the owner at the end, two of them
+  architectural.
+
+**Judgement.**
+- The upstream relationship is now a channel, not an experiment: four changes in
+  one evening, each one small, each one with its numbers in the description.
+  What he has never done is comment on the code, so the review bar is ours, not
+  his - which is exactly why the audits keep earning their keep.
+- The hardware test is what found the real bug. Three builds and an audit had
+  passed the same code; a deliberate crash on a real board found what none of
+  them could.
+
+**Debts, in the order they block things.**
+1. **Audio D1** - the portal's ~20 KB internal-heap spike, [22](docs/22-audio-visualizer-onboard-mic.md) §12.3.
+   Still the first item: nothing audio moves until it is paid.
+2. **The IR receiver has never run.** Everything electrical is now known and
+   measured, so the next step is purely physical: solder a 38 kHz part on IO45
+   with 2.2 kΩ into the empty pull-up pad, measure the idle voltage, and send
+   Keralots the number he asked for on 2026-09-16.
+3. **`ir.enabled` read false after a flash** although the default is on - never explained.
+4. **The fork's weather scheduler still compares a signed difference against a
+   deadline** (`6e91d54`), the class of bug the IR audit killed. Fix it the way
+   upstream PR #6 does.
+5. **Crash report, tail case:** `resetReason` is taken from the boot that found
+   the dump, so if the NVS save fails the next boot can relabel a task watchdog
+   as `abort()`.
+6. **The audio module skeleton** on `feature/ma-player` is unaudited.
+7. **The second person on the radar** - parked until the next tests.
+8. **The owner's e-mail is public on GitHub** and sits in the upstream history;
+   that is almost certainly where today's cold-sales mail came from. Two clicks
+   in his account settings, which only he can make.
+
+**Next.**
+- The **gzip portal** is the last item in Keralots' queue and the biggest: he
+  measured 144,451 bytes of literals gzipping to 32,956, matrix-s3 from 82.6 %
+  to about 77 %, and he asked for the generator and a loud failure when the
+  generated header goes stale. Our fork already does all of it.
+- Then the owner's call on the playable screens: "a game that is also the clock"
+  or "games on the panel", and whether the minute change interrupts a session.
+
 ## 2026-09-16, evening: the infrared remote, and what the audit found in it
 
 **Done.**
