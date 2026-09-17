@@ -3,7 +3,7 @@
 **Status: NOT POSTED. Audit APPROVED 2026-09-17 17:44**, six LOW findings taken (two in code, three in this text, one in the model). Written 2026-09-17 at the owner's "давай следующий", the next item in
 Rafał's order (issue #3: "the weather task lifetime ... the one I am waiting for next",
 https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5716011106). Waiting for the
-audit and the owner's "отправляй".
+owner's "отправляй".
 
 ## What he agreed to, and what he did not
 
