@@ -1,6 +1,6 @@
 # Draft: note to Keralots, the Waveshare board's GPIO header is free
 
-**Status: POSTED 2026-09-17 23:19** on the owner's "отправь": https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5721338404 - a comment on issue #3, with the marked-up photo embedded from this repository (`photos/2026-09-14-arrival/gpio-header-resistors-en.png`, English labels at his request). Every electrical claim in it was metered on our board first.
+**Status: POSTED 2026-09-17 23:19** on the owner's "отправь": https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5721338404 - a comment on issue #3, with the marked-up photo embedded from this repository (`photos/2026-09-14-arrival/gpio-header-resistors-en.png`, English labels at his request). Every electrical claim in it was metered on our board first. **Follow-up posted 23:31** (comment 5721465891) with the eFuse read that the first message said was missing: `VDD_SPI_FORCE = True`, so GPIO45's strap is dead on this board, plus the internal ~45 kΩ pull-downs and why a receiver goes on IO45.
 
 ## Why it is news for him
 

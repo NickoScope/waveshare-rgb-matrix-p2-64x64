@@ -61,6 +61,8 @@ not depend on this check.
 
 ## Log
 
+- 2026-09-17 23:31: follow-up to Keralots on #3 (comment 5721465891): the eFuse read off our board - VDD_SPI_FORCE True, TIEH 0, esptool's "set to 1.8V by efuse" - so GPIO45's strapping role is dead here and a receiver pulling that line high at reset is harmless. Added that the S3's own ~45 kΩ pull-downs already set the level, and why the receiver belongs on IO45 rather than IO46.
+
 - 2026-09-17 23:19: told Keralots on #3 that the Waveshare header is free, with the numbers he asked for on 2026-09-16: pull-up pads open, 10 kΩ from IO45 and IO46 to GND, both metered on our board, plus the knob's common-to-3V3 rule and where an IR pull-up goes. Photo embedded from our repository. Comment 5721338404; nothing else sent.
 
 - 2026-09-17 22:00: item 4, no news. The checker re-emitted `517b37d` (PR #8) and `eb43f15` (PR #7), both already logged by hand at 21:55 and 20:40: its stored head was still `9fa9ba4` from the 19:16 run, because those two merges were written up in live sessions the checker did not run in. Nothing else moved - no new comment on #3 (last is Keralots, 14:25 UTC), no new commit, release still `v2.3.1`, Reddit quiet. Nothing sent.
