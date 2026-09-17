@@ -59,9 +59,12 @@ Those two in series divide the supply:
 | what the ESP32-S3 needs to read a one | 0.75 × VDD = **2.48 V** |
 | with an external **2.2 kΩ** from OUT to 3V3 | 3.3 × 10 / (10 + 2.05) = **2.74 V**; 1.6 mA sunk when the receiver pulls down, inside its 5 mA rating |
 
-**The header pins are free, and the owner restated it on 2026-09-17: the
-pull-up positions at IO45 and IO46 are empty, so nothing on the board claims
-those two GPIOs and anything may be hung on U8.** What is fitted is the pair of
+**The header pins are free. MEASURED on 2026-09-17: the owner put a meter on
+his board and the pull-up positions at IO45 and IO46 are open - nothing is
+fitted there, so no external part fights a device hung on U8.** The schematic
+says the same (R57, R58 to 3V3 are NC), which is what the meter now confirms.
+Still to measure on the same board: IO45-GND and IO46-GND, where ~10 kΩ means
+the pull-downs are fitted as the drawing says. What is fitted is the pair of
 10 kΩ pull-downs, found on the bench on 2026-09-14, and they decide only *how*
 a device is wired, not *whether* it can be: a device must drive the line up or
 bring its own pull-up, which is exactly the 2.2 kΩ below. Neither pin is

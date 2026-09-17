@@ -17,6 +17,7 @@ paid for by our evening of debugging.
 |---|---|
 | Header U8 is GND, 3V3, IO46, IO45 | board silkscreen, `photos/2026-09-14-arrival/controller-front.jpg` |
 | Four resistor positions sit next to the connector: **two fitted, two empty** | the same photo, marked up in `photos/2026-09-14-arrival/controller-gpio-pull-resistors.png` |
+| **The pull-up positions are open on our board** | the owner's meter, 2026-09-17 23:05 |
 | The fitted pair are 10 kΩ pull-downs (R59, R60); the empty pair are the pull-up positions (R57, R58) | `reference-drawings/controller/ESP32-S3-RGB-Matrix-Schematics.pdf`, and [11](../11-control-and-pins.md) |
 | A knob wired common-to-GND reads zero on both lines at rest and gives no steps; common to 3V3 and active-high reading works | our bench, 2026-09-14 ([11](../11-control-and-pins.md)) |
 | GPIO45 does not select VDD_SPI on this module: the N32R16V carries an ESP32-S3R16V whose VDD_SPI is set by eFuse | ESP32-S3-WROOM-2 datasheet §1.2, §8; ESP32-S3 hardware design guidelines. **Documented, not read off our own board** - `espefuse.py summary` is still to be run |
@@ -30,7 +31,7 @@ Some good news about the Waveshare board, since it is one of your three targets 
 
 Its four-pin header (GND, 3V3, IO46, IO45) is genuinely free. Nothing on the board claims those two GPIOs, and both strapping roles are harmless here. GPIO45 selects VDD_SPI only on a bare chip - the WROOM-2 module has it set by eFuse, so its level at reset does not matter (module datasheet and the S3 hardware design guidelines; I have not read the eFuse off my own board yet). GPIO46 gates the ROM log and, with GPIO0, the download mode, so the single rule is: do not hold it high at reset, or "hold BOOT through reset" stops working.
 
-Two practical things, both visible on the board right next to that connector. There is a block of four resistor positions there: the two pull-downs are fitted, 10k each, and the two pull-up positions are empty.
+Two practical things, both visible on the board right next to that connector. There is a block of four resistor positions there: the two pull-downs are fitted, 10k each, and the two pull-up positions are empty - the schematic says so and I put a meter on the pull-up pads to be sure.
 
 1. A rotary encoder needs no extra parts, but its common goes to 3V3, not to GND, and the firmware has to read A and B active high. Wired common-to-GND it reads zero on both lines at rest and gives no steps. That cost me an evening before I read the schematic.
 
@@ -51,7 +52,7 @@ Nikolay
 
 Её четырёхпиновый разъём (GND, 3V3, IO46, IO45) действительно свободен. На плате эти две ноги ничем не заняты, и обе роли strapping здесь безобидны. GPIO45 выбирает напряжение VDD_SPI только у голого чипа — у модуля WROOM-2 оно прошито в eFuse, так что уровень на этой ноге при сбросе не имеет значения (даташит модуля и руководство Espressif по схемотехнике S3; на своей плате eFuse я пока не читал). GPIO46 управляет выводом ROM-лога и вместе с GPIO0 выбором режима загрузки, поэтому правило одно: не держать его в единице при сбросе, иначе перестанет работать вход в загрузчик удержанием BOOT.
 
-Две практические вещи, и обе видно на плате прямо у разъёма. Там стоит блок из четырёх мест под резисторы: две подтяжки вниз по 10 кОм запаяны, два места под подтяжки вверх пустые.
+Две практические вещи, и обе видно на плате прямо у разъёма. Там стоит блок из четырёх мест под резисторы: две подтяжки вниз по 10 кОм запаяны, два места под подтяжки вверх пустые — так на схеме, и площадки подтяжек вверх я прозвонил, чтобы не гадать.
 
 1. Энкодер работает без единой лишней детали, но его общий провод идёт на 3,3 В, а не на землю, и прошивка читает A и B активными в единице. С общим на земле обе линии в покое читаются нулём и шагов нет вообще. Мне это стоило вечера, пока не открыл схему.
 

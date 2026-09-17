@@ -70,8 +70,8 @@ Rolling record of where the work stands. Newest first.
 1. **Debt D1** of [22](docs/22-audio-visualizer-onboard-mic.md) §12.3 - the
    portal's ~20 KB internal-heap spike. It blocks both the visualizer and any
    audio, because a stream would be a third consumer of that memory.
-2. **The receiver has never run.** The header is genuinely free, restated by the
-   owner on 2026-09-17: the pull-up positions at IO45/IO46 are empty and nothing on
+2. **The receiver has never run.** The header is genuinely free, and the pull-up
+   positions were **metered open by the owner on 2026-09-17**: the pull-up positions at IO45/IO46 are empty and nothing on
    the board claims those GPIOs. The fitted 10 kΩ pull-downs and the strapping roles
    decide only how a device is wired ([11](docs/11-control-and-pins.md),
    [24](docs/24-ir-remote.md)). Solder a 38 kHz part, measure the 2.2 kΩ
