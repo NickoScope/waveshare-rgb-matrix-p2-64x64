@@ -37,6 +37,7 @@ anything new it:
 | 7 | Rafał's reply to our comment on #3: the visualizer on the board's mics, the SHTC3, the settings-save stall | https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5687555292 | `gh api`: issue #3 comments after 2026-09-15 20:22 UTC | posted 2026-09-15 22:22; **answered 2026-09-17 14:25 UTC** (comment 5716011106), together with item 8 - see docs/09 |
 | 8 | Rafał's reply to our comment on #3 about the infrared remote, the pull-up on IO45 and the offer to cut it down | https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5703737437 | `gh api`: issue #3 comments after 2026-09-16 20:02 UTC | posted 2026-09-16 22:02; **answered 2026-09-17 14:25 UTC** in the same comment as item 7 - see docs/09 |
 | 9 | Review of PR #5, the settings-save fix Rafał asked for | https://github.com/Keralots/AnimatedPixelClock/pull/5 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 16:53; **merged 2026-09-17 15:30 UTC** as `bbb861c`, no review comments |
+| 11 | Review of PR #7, the last crash in `/api/info` | https://github.com/Keralots/AnimatedPixelClock/pull/7 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 19:52, mergeable, no review |
 | 10 | Review of PR #6, the weather fetch in a task that deletes itself | https://github.com/Keralots/AnimatedPixelClock/pull/6 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 18:17; **merged 2026-09-17 16:38 UTC** as `9fa9ba4`, no review comments |
 
 **Why item 4 is watched.** New upstream code is what our PR branches will be
@@ -58,6 +59,8 @@ not depend on this check.
 | The issue is closed without an answer | Tell the owner. Do not reopen it or comment |
 
 ## Log
+
+- 2026-09-17 19:52: PR #7 opened on the owner's "отправляй" - the crash report half of issue #3, without the rollback. Head `52f1879`, audit APPROVED 19:44 after one MAJOR was fixed. Not tested on hardware, said so in the body. Item 11 added.
 
 Newest first. One line per event: date, item, who, the gist, what was done.
 

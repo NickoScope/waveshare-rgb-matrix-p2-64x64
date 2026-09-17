@@ -1,6 +1,6 @@
 # Draft: upstream PR 4 to Keralots/AnimatedPixelClock, the last crash in /api/info
 
-**Status: NOT POSTED, ready for the owner's "отправляй".** First audit 19:38: CHANGES-REQUIRED, one MAJOR - abort() and the task watchdog read as StoreProhibited at 0, and the watchdog's task is the interrupted one. Fixed in `52f1879` together with four LOWs. **Re-audit 19:44: APPROVED** (code quality; not tested on hardware). Written 2026-09-17 at the owner's "делаем?", the next item in
+**Status: POSTED 2026-09-17 19:52** on the owner's "отправляй": https://github.com/Keralots/AnimatedPixelClock/pull/7 - head `NickoScope:feat/crash-report` at `52f1879` onto upstream main `9fa9ba4`, 4 files, +263 -0, mergeable. The body ends with the Claude Code attribution line, as #4, #5 and #6 did. First audit 19:38: CHANGES-REQUIRED, one MAJOR - abort() and the task watchdog read as StoreProhibited at 0, and the watchdog's task is the interrupted one. Fixed in `52f1879` together with four LOWs. **Re-audit 19:44: APPROVED** (code quality; not tested on hardware). Written 2026-09-17 at the owner's "делаем?", the next item in
 Rafał's order (issue #3: "the crash report half of 4",
 https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5682483397). Goes nowhere until
 the owner says "отправляй".
