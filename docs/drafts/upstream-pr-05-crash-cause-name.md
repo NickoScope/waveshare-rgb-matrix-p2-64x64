@@ -1,6 +1,6 @@
 # Draft: upstream PR 5 to Keralots/AnimatedPixelClock, keep the crash cause name across an update
 
-**Status: NOT POSTED. Audit running.** Written 2026-09-17 at the owner's "сделай", after PR #7 was
+**Status: NOT POSTED, ready for the owner's "отправляй". Audit 20:43: APPROVED**, three LOWs - the `case` indentation taken (`3889b79`), the note about the dropped record already in the text, the `resetReason` tail case parked. Written 2026-09-17 at the owner's "сделай", after PR #7 was
 merged (18:27 UTC as `eb43f15`) and the hardware test found what the audit had predicted.
 
 ## Why there is a fifth PR
@@ -19,12 +19,12 @@ only while the crashed image is the one running; the next build moves the functi
 
 - Branch `fix/crash-cause-name` (pushed to the fork, not proposed), from `upstream/main` at
   `eb43f15`, which is PR #7 merged.
-- One commit, `860618d`: `fix(diagnostics): keep the crash cause name across a firmware update`.
+- One commit, `3889b79`: `fix(diagnostics): keep the crash cause name across a firmware update`.
 - One file, `src/utils/crash_report.cpp`, +27 -10: `CrashRecord` gains `uint8_t kind`,
   `CRASH_MAGIC` is bumped so a record written by #7 is ignored instead of read wrong,
   `crashKind()` decides once in `crashReportBegin()`, `crashName()` becomes a switch.
 - Worktree: `/Users/apple/AnimatedPixelClock-cause-name`.
-- The same file, byte for byte, is in the fork (`a9b7a26`) and running on the panel.
+- The same file, byte for byte, is in the fork (`459c0b7`) and running on the panel.
 
 ## His rules, checked
 
@@ -48,7 +48,8 @@ only while the crashed image is the one running; the next build moves the functi
 | The five backtrace addresses resolve to `panic_abort` (panic.c:408), `esp_system_abort` (esp_system.c:137), `abort` (abort.c:46), `loop()` (main.cpp:1330), `loopTask` | `xtensa-esp32s3-elf-addr2line -pfiaC` with `~/AnimatedPixelClock-elf/15b5e3e4f4d29b7e-crash-selftest.elf` |
 | Before the fix, after flashing the next build: `causeName` StoreProhibited, `sameFirmware` false | panel `/api/info`, 2026-09-17 20:26 |
 | After the fix, same situation: `causeName` abort(), `sameFirmware` false, `resetReason` 4, `bootTime` set | panel `/api/info`, 2026-09-17 20:35 |
-| Builds | `pio run` on eb43f15 and 860618d in the same directory, 2026-09-17, espressif32@6.12.0 |
+| Builds | `pio run` on eb43f15 and 3889b79 in the same directory, 2026-09-17, espressif32@6.12.0. The audit's own clean copy differed by ±16 bytes of Flash, RAM to the byte |
+| The record grows 124 -> 128 bytes, so an old one is rejected by its length before the magic is even read | audit of 3889b79, measured with the same toolchain |
 
 ## English (to post)
 
