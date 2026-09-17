@@ -59,6 +59,7 @@ not depend on this check.
 
 Newest first. One line per event: date, item, who, the gist, what was done.
 
+- 2026-09-17 16:35: items 1, 7 and 8, Keralots. Answered #3 at 14:25 UTC (comment 5716011106): no new features in main for now, so the mic source, eight styles, IR remote and SHTC3 stay in the fork. The list is unchanged: weather task, crash report half, gzip portal last. The settings isKey() fix is welcome as a small PR, may go first. Asks for the measured IO45 idle voltage if we solder a receiver. Reply drafted in `docs/drafts/upstream-issue-01-reply.md`. Reddit answered 429. Nothing sent.
 - 2026-09-15 22:22: item 7 added. A comment on #3 about the visualizer on the board's microphones, eight new styles, the SHTC3 and the settings-save stall, posted on the owner's "отправляй". Draft: `docs/drafts/upstream-issue-03-comment-mics.md`.
 - 2026-09-15 22:01: item 6, Keralots. PR #4 (mbedTLS buffers in PSRAM) merged at 20:35 local time, with no review comments. Nothing sent.
 - 2026-09-15 22:01: item 4, Keralots. Upstream `a091505`, the merge of PR #4: `src/main.cpp`, `src/network/tls_psram.{cpp,h}`. Touches no `src/web/*`, `src/weather/*` or `platformio.ini`; release still `v2.3.1`. Reddit answered 429. Nothing sent.
