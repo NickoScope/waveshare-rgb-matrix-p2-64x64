@@ -1,6 +1,6 @@
 # Draft: upstream PR 2 to Keralots/AnimatedPixelClock, skip removing settings keys that do not exist
 
-**Status: NOT POSTED.** Written 2026-09-17 at the owner's "готовь", after Rafał asked for this one
+**Status: NOT POSTED. Audit APPROVED 2026-09-17 16:47**, one MEDIUM and three LOW text fixes applied. Written 2026-09-17 at the owner's "готовь", after Rafał asked for this one
 on issue #3 ("The settings bug is different, this one please send",
 https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5716011106). Goes nowhere until
 the owner says "отправляй".
@@ -50,9 +50,9 @@ Body:
 ```text
 This is the settings bug from #3.
 
-What it does: in saveSettings(), the loops for the metric labels and names removed the key whenever the label or name was empty. Now they check preferences.isKey() first, so only a key that exists is removed. Two lines in src/config/settings.cpp, the ones you found at 889 and 899. Nothing else changes: a set label is still written with putString(), and an empty label whose key exists is still removed as before. No flag, no setting.
+What it does: in saveSettings(), the loops for the metric labels and names removed the key whenever the label or name was empty. Now they check preferences.isKey() first, so only a key that exists is removed. Two lines in src/config/settings.cpp: the else branches in front of the remove() calls you found at 889 and 899. Nothing else changes: a set label is still written with putString(), and an empty label whose key exists is still removed as before. No flag, no setting.
 
-Why: with MAX_METRICS at 20, every save tried to erase label0..19 and name0..19 whenever they were empty, which on a config without custom labels is all 40. Each missing key is a failed nvs_erase_key and an error line on serial:
+Why: with MAX_METRICS at 20, every save tried to erase label0..19 and name0..19 whenever they were empty. On a config with no custom labels and no metric names saved from the companion, like mine, that is all 40. Each missing key is a failed nvs_erase_key and an error line on serial:
 
 [E][Preferences.cpp:96] remove(): nvs_erase_key fail: label0 NOT_FOUND
 
@@ -64,7 +64,9 @@ matrix-s3: Flash 1,624,481 -> 1,624,529 bytes (+48), 82.6% of 1,966,080 before a
 matrix-s3-wroom: Flash 1,639,361 -> 1,639,405 bytes (+44), 25.0%. RAM 89,352 bytes, unchanged.
 matrix-waveshare: Flash 1,627,353 -> 1,627,349 bytes (-4), 34.5%. RAM 89,484 bytes, unchanged.
 
-How it was tested: on this branch, only the three builds above. I haven't flashed this branch to any board. The same fix, written as an if inside the else, has been running in my fork on the Waveshare board since 15 September, and the numbers above come from there. Not tested: any of your three boards.
+The flash differences are alignment noise: a clean rebuild in another directory gave +60 instead of +44 for matrix-s3-wroom.
+
+How it was tested: on this branch, only the three builds above. I haven't flashed this branch to any board. The same fix, written as an if inside the else, has been running in my fork on the Waveshare board since 15 September, and the timings above come from there. Not tested: any of your three boards.
 
 Nikolay
 ```
@@ -76,9 +78,9 @@ Nikolay
 
 Это тот баг с настройками из #3.
 
-Что делает: в saveSettings() циклы для подписей и имён метрик удаляли ключ всякий раз, когда подпись или имя пустые. Теперь они сначала вызывают preferences.isKey(), и удаляется только существующий ключ. Две строки в src/config/settings.cpp — те самые, что ты нашёл на 889 и 899. Больше ничего не меняется: заданная подпись по-прежнему пишется через putString(), а пустая подпись, у которой ключ есть, удаляется как раньше. Ни флага, ни настройки.
+Что делает: в saveSettings() циклы для подписей и имён метрик удаляли ключ всякий раз, когда подпись или имя пустые. Теперь они сначала вызывают preferences.isKey(), и удаляется только существующий ключ. Две строки в src/config/settings.cpp: ветки else перед вызовами remove(), которые ты нашёл на 889 и 899. Больше ничего не меняется: заданная подпись по-прежнему пишется через putString(), а пустая подпись, у которой ключ есть, удаляется как раньше. Ни флага, ни настройки.
 
-Зачем: при MAX_METRICS = 20 каждое сохранение пыталось стереть label0..19 и name0..19, если они пустые, — а в конфигурации без своих подписей это все 40. Каждый отсутствующий ключ — это неудачный nvs_erase_key и строка ошибки в порту:
+Зачем: при MAX_METRICS = 20 каждое сохранение пыталось стереть label0..19 и name0..19, если они пустые. В конфигурации без своих подписей и без имён метрик, сохранённых от компаньона, — как у меня, — это все 40. Каждый отсутствующий ключ — это неудачный nvs_erase_key и строка ошибки в порту:
 
 [E][Preferences.cpp:96] remove(): nvs_erase_key fail: label0 NOT_FOUND
 
@@ -90,7 +92,9 @@ matrix-s3: флеш 1 624 481 -> 1 624 529 байт (+48), 82,6 % от 1 966 080
 matrix-s3-wroom: флеш 1 639 361 -> 1 639 405 байт (+44), 25,0 %. RAM 89 352 байта, без изменений.
 matrix-waveshare: флеш 1 627 353 -> 1 627 349 байт (−4), 34,5 %. RAM 89 484 байта, без изменений.
 
-Как проверено: на этой ветке — только три сборки выше. Эту ветку я ни на одну плату не прошивал. Та же правка, записанная как if внутри else, работает в моём форке на плате Waveshare с 15 сентября, цифры выше оттуда. Не проверено: ни одна из твоих трёх плат.
+Разница во флеше — шум выравнивания: чистая пересборка в другом каталоге дала для matrix-s3-wroom +60 вместо +44.
+
+Как проверено: на этой ветке — только три сборки выше. Эту ветку я ни на одну плату не прошивал. Та же правка, записанная как if внутри else, работает в моём форке на плате Waveshare с 15 сентября, замеры времени выше оттуда. Не проверено: ни одна из твоих трёх плат.
 
 Николай
 ```
