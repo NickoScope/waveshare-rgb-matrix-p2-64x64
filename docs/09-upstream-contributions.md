@@ -60,6 +60,8 @@ answering both our updates - the microphones (2026-09-15) and the infrared remot
   it in their hardware notes with the owner's name.
 - He thanked us for always asking first instead of sending big PRs, and wants to keep it so.
 
+**Sent:** the settings fix as PR #5, 2026-09-17 16:53 (https://github.com/Keralots/AnimatedPixelClock/pull/5).
+
 **Consequence:** the upstream queue is now four small items - the settings fix, the weather
 task, the boot_health crash report, the gzip portal. Nothing else is offered upstream unless he
 asks. Every text is drafted in `docs/drafts/` in the owner's voice and posted only on his word.

@@ -1,6 +1,6 @@
 # Draft: upstream PR 2 to Keralots/AnimatedPixelClock, skip removing settings keys that do not exist
 
-**Status: NOT POSTED. Audit APPROVED 2026-09-17 16:47**, one MEDIUM and three LOW text fixes applied. Written 2026-09-17 at the owner's "готовь", after Rafał asked for this one
+**Status: POSTED 2026-09-17 16:53** on the owner's "да" ("отлично написано, по-человечески, без следов ИИ"): https://github.com/Keralots/AnimatedPixelClock/pull/5 - head `NickoScope:fix/settings-skip-absent-keys` at `02138de` onto upstream main `a091505`, 1 file, +2 -2, mergeable. Audit APPROVED 16:47, one MEDIUM and three LOW text fixes applied before posting. The body ends with the Claude Code attribution line, as #4 did. Written 2026-09-17 at the owner's "готовь", after Rafał asked for this one
 on issue #3 ("The settings bug is different, this one please send",
 https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5716011106). Goes nowhere until
 the owner says "отправляй".
