@@ -38,6 +38,32 @@ Source: https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-568
 
 **Consequence for our fork:** his 32MB partition table would give LittleFS 23MB, against our 3.4MB. That removes the market record's "no space" (doc 18). Switching needs a USB flash of the new partition table and erases LittleFS, animations included. That is the owner's decision.
 
+## Keralots' second answer on issue #3 (2026-09-17 14:25 UTC)
+
+Source: https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5716011106 (Rafał),
+answering both our updates - the microphones (2026-09-15) and the infrared remote (2026-09-16).
+
+- **No new features in the main repo for now** - not the microphone source, not the eight
+  visualizer styles, not the IR remote, not the SHTC3. His reason is time, not code quality:
+  he works on it in the evenings, and whatever lands he has to understand, test on three
+  boards and maintain for years. The SHTC3 was interest, not a request, and he says he
+  should have written that clearly. **Everything stays in our fork.**
+- **The PR list is unchanged:** the weather task lifetime (the one he is waiting for next),
+  then the crash-report half of boot_health, then the gzip portal.
+- **The settings-save bug: please send.** He checked his tree himself: `settings.cpp:889` and
+  `:899` call `preferences.remove()` without a check for `label0..19` and `name0..19`, so up to
+  40 erases of never-written keys on every save with `MAX_METRICS = 20`. A bug fix, not a
+  feature - a small PR is welcome, same rules as before, and it may go **before** the weather
+  task because it is smaller.
+- **The IO45/IO46 note was useful to him** beyond the receiver. When we solder one and
+  **measure the real idle level**, he asks for the number in the issue; he would probably put
+  it in their hardware notes with the owner's name.
+- He thanked us for always asking first instead of sending big PRs, and wants to keep it so.
+
+**Consequence:** the upstream queue is now four small items - the settings fix, the weather
+task, the boot_health crash report, the gzip portal. Nothing else is offered upstream unless he
+asks. Every text is drafted in `docs/drafts/` in the owner's voice and posted only on his word.
+
 ## The binding constraint: flash on the 4MB board
 
 Measured on commit `74f964b`, arduino-esp32 2.0.17 via espressif32@6.12.0:
