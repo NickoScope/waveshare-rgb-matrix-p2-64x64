@@ -1,7 +1,6 @@
 # Draft: note to Keralots, the Waveshare board's GPIO header is free
 
-**Status: NOT POSTED.** Written 2026-09-17 at the owner's "напиши об этом хорошую новость Рафалю".
-Goes on issue #3, the running thread, only on his "отправляй".
+**Status: POSTED 2026-09-17 23:19** on the owner's "отправь": https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5721338404 - a comment on issue #3, with the marked-up photo embedded from this repository (`photos/2026-09-14-arrival/gpio-header-resistors-en.png`, English labels at his request). Every electrical claim in it was metered on our board first.
 
 ## Why it is news for him
 
