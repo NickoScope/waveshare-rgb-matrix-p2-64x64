@@ -61,6 +61,8 @@ not depend on this check.
 
 ## Log
 
+- 2026-09-17 22:00: item 4, no news. The checker re-emitted `517b37d` (PR #8) and `eb43f15` (PR #7), both already logged by hand at 21:55 and 20:40: its stored head was still `9fa9ba4` from the 19:16 run, because those two merges were written up in live sessions the checker did not run in. Nothing else moved - no new comment on #3 (last is Keralots, 14:25 UTC), no new commit, release still `v2.3.1`, Reddit quiet. Nothing sent.
+
 - 2026-09-17 21:55: item 12, Keralots. PR #8 merged at 19:03 UTC as `517b37d`. **Five offered upstream, five merged, not one review comment**, every one within about ten minutes. Release still v2.3.1, so none of the five has shipped to users yet. No new comment on #3. Left in his queue: the gzip portal, which he asked for last.
 
 - 2026-09-17 20:53: PR #8 opened on the owner's "отправляй" - the crash cause name kept across a firmware update, head `3889b79`, audit APPROVED 20:43. First upstream PR carrying a hardware result: the deliberate abort() on the Waveshare board, the decoded backtrace, and the record read back after reflashing. Item 12 added.
