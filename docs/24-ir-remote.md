@@ -49,7 +49,7 @@ Then the electrical catch. Read off the sources on 2026-09-16:
 | Fact | Source |
 |---|---|
 | A Vishay receiver's OUT is an open collector with a **30 kΩ pull-up inside the package**; supply 2.0–5.5 V, so 3V3 is in range; V<sub>OSL</sub> ≤ 100 mV at 0.5 mA; I<sub>O</sub> ≤ 5 mA | Vishay datasheet [82459](https://www.vishay.com/docs/82459/tsop48.pdf) rev 2.4, block diagram and the electrical table, read in full |
-| This board pulls IO45 and IO46 **down** with 10 kΩ (R59, R60; the pull-up positions R57, R58 are not fitted) | Waveshare schematic, via `src/control/control.cpp` |
+| This board pulls IO45 and IO46 **down** with 10 kΩ (R59, R60; the pull-up positions R57, R58 to 3V3 are marked NC) | Waveshare schematic page 1, read off the drawing on 2026-09-17 and cropped to `reference-drawings/controller/io45-io46-pull-resistors-schematic.png`. The board photo shows the matching block of four positions by the header, two fitted and two empty (`photos/2026-09-14-arrival/controller-gpio-pull-resistors.png`); **which pad is which designator is not derivable from our drawings** - the 2D drawing is mechanical only |
 
 Those two in series divide the supply:
 
