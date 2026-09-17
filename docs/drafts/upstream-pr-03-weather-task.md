@@ -1,6 +1,6 @@
 # Draft: upstream PR 3 to Keralots/AnimatedPixelClock, the weather fetch in a task that deletes itself
 
-**Status: NOT POSTED. Audit APPROVED 2026-09-17 17:44**, six LOW findings taken (two in code, three in this text, one in the model). Written 2026-09-17 at the owner's "давай следующий", the next item in
+**Status: POSTED 2026-09-17 18:17** on the owner's "да": https://github.com/Keralots/AnimatedPixelClock/pull/6 - head `NickoScope:fix/weather-fetch-task` at `7a76883` onto upstream main `bbb861c`. Audit APPROVED 17:44, six LOW findings taken before posting. Not bench-tested on the panel, by the owner's choice. Written 2026-09-17 at the owner's "давай следующий", the next item in
 Rafał's order (issue #3: "the weather task lifetime ... the one I am waiting for next",
 https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5716011106). Waiting for the
 owner's "отправляй".
