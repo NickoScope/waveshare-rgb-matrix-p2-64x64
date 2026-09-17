@@ -63,8 +63,10 @@ Those two in series divide the supply:
 his board and the pull-up positions at IO45 and IO46 are open - nothing is
 fitted there, so no external part fights a device hung on U8.** The schematic
 says the same (R57, R58 to 3V3 are NC), which is what the meter now confirms.
-Still to measure on the same board: IO45-GND and IO46-GND, where ~10 kΩ means
-the pull-downs are fitted as the drawing says. What is fitted is the pair of
+**The other half is measured too: 10 kΩ from IO45 to GND and from IO46 to GND**,
+so R59 and R60 are fitted exactly as the drawing says. Every electrical claim
+about this header is now off our own board; only the receiver's own pull-up
+remains arithmetic, because no receiver is soldered. What is fitted is the pair of
 10 kΩ pull-downs, found on the bench on 2026-09-14, and they decide only *how*
 a device is wired, not *whether* it can be: a device must drive the line up or
 bring its own pull-up, which is exactly the 2.2 kΩ below. Neither pin is
