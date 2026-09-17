@@ -1,6 +1,6 @@
 # Draft: upstream PR 5 to Keralots/AnimatedPixelClock, keep the crash cause name across an update
 
-**Status: POSTED 2026-09-17 20:53** on the owner's "отправляй": https://github.com/Keralots/AnimatedPixelClock/pull/8 - head `NickoScope:fix/crash-cause-name` at `3889b79` onto upstream main `eb43f15`, 1 file, +27 -10. The body ends with the Claude Code attribution line.  Audit 20:43: APPROVED**, three LOWs - the `case` indentation taken (`3889b79`), the note about the dropped record already in the text, the `resetReason` tail case parked. Written 2026-09-17 at the owner's "сделай", after PR #7 was
+**Status: POSTED 2026-09-17 20:53** on the owner's "отправляй": https://github.com/Keralots/AnimatedPixelClock/pull/8 - head `NickoScope:fix/crash-cause-name` at `3889b79` onto upstream main `eb43f15`, 1 file, +27 -10. **Merged 19:03 UTC as `517b37d`**, no review comments. The body ends with the Claude Code attribution line.  Audit 20:43: APPROVED**, three LOWs - the `case` indentation taken (`3889b79`), the note about the dropped record already in the text, the `resetReason` tail case parked. Written 2026-09-17 at the owner's "сделай", after PR #7 was
 merged (18:27 UTC as `eb43f15`) and the hardware test found what the audit had predicted.
 
 ## Why there is a fifth PR
