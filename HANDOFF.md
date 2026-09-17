@@ -72,7 +72,8 @@ Rolling record of where the work stands. Newest first.
    audio, because a stream would be a third consumer of that memory.
 2. **The receiver has never run.** The header is genuinely free, and the whole header was
    **metered by the owner on 2026-09-17: pull-up pads open, 10 kΩ from each pin to
-   GND**: the pull-up positions at IO45/IO46 are empty and nothing on
+   GND**, and the eFuse read the same evening confirms `VDD_SPI_FORCE = True`, so
+   GPIO45's strapping role is dead on this board: the pull-up positions at IO45/IO46 are empty and nothing on
    the board claims those GPIOs. The fitted 10 kΩ pull-downs and the strapping roles
    decide only how a device is wired ([11](docs/11-control-and-pins.md),
    [24](docs/24-ir-remote.md)). Solder a 38 kHz part, measure the 2.2 kΩ

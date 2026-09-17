@@ -27,10 +27,21 @@ Both header pins are strapping pins, and both are survivable:
   The WROOM-2 datasheet (§1.2, §8) puts an ESP32-S3R16V in the N32R16V and says
   its VDD_SPI is set to 1.8 V by eFuse; the ESP32-S3 hardware design guidelines
   say GPIO45 then no longer affects VDD_SPI. Its level at reset does not matter,
-  whatever is wired to it. **Documented, not yet read off our board:**
-  `espefuse.py summary` is read-only and should show `VDD_SPI_FORCE = True`.
-  (Settled 2026-09-14 from the module datasheet; before that this line said
-  UNVERIFIED.)
+  whatever is wired to it. **Read off our own board on 2026-09-17** with
+  `espefuse.py summary` (read-only): `VDD_SPI_FORCE = True (0b1)`,
+  `VDD_SPI_TIEH = 0` (VDD_SPI on the 1.8 V LDO), `VDD_SPI_XPD = True`, and
+  esptool's own line "Flash voltage (VDD_SPI) set to 1.8V by efuse". So the
+  strapping role of GPIO45 is genuinely dead here, and a device that holds that
+  pin high at reset - a receiver with a pull-up, or a 2.2 kΩ in the empty pad -
+  changes nothing. (Settled 2026-09-14 from the module datasheet, measured 2026-09-17.)
+- **The defaults are internal.** The S3 holds GPIO45 and GPIO46 low at reset by
+  its own weak pull-downs when nothing external is connected, about 45 kΩ
+  (TRM ch. 8, Table 8.1-1; esptool's boot-mode page for the 45 kΩ figure). The
+  board's 10 kΩ only make that level strong. Removing them would not change how
+  the chip boots on its own; what changes is that a part which idles high, like
+  an IR receiver's 30 kΩ internal pull-up, then wins at reset. On IO45 that is
+  now proven harmless; on IO46 it would cost the "hold BOOT through reset" way
+  into download mode, so **the receiver belongs on IO45**.
 - **GPIO46** gates ROM message printing at boot, and together with GPIO0 picks
   the boot mode: normal boot ignores it, but download mode needs it low or
   floating (esptool, *Boot Mode Selection*). So anything that holds it high at
