@@ -124,8 +124,20 @@ Checked before recommending it:
 **The price:** the 10-day history of coordinates goes, and it was what the
 second-person investigation of 2026-09-16 ran on. Re-include for the length of
 an investigation when one is needed. Old rows age out over 10 days; the file does
-not shrink without a repack. **Not applied - it is a `configuration.yaml`
-change, owner's word and a backup first.**
+not shrink without a repack.
+
+**Written 2026-09-17 09:09 on the owner's "да", not yet in force.** It lives in
+its own file, `/config/packages/mtr1_recorder.yaml` - no recorder block existed
+anywhere, and the shared `configuration.yaml` is left untouched (a dated copy of
+it was taken anyway, `configuration.yaml.bak-mtr1-recorder-20260917-090736`).
+The file excludes `sensor.apollo_mtr_1_53bc60_target_*` (21 entities, checked
+against the live registry) plus `moving_target_count`, `still_target_count` and
+`uptime`; the 47 other MTR-1 entities stay. SHA-256 of the written file matches
+the local copy; Home Assistant's own config check returned **valid, no errors**.
+The recorder has no reload action (its services are purge, purge_entities,
+enable, disable, get_statistics), so **it takes effect at the next Home Assistant
+restart** - which interrupts every automation in the house for a minute or two,
+so it waits for the owner's timing. To undo: delete the file and restart.
 
 ## 3. What a radio link needs on the sensor
 
