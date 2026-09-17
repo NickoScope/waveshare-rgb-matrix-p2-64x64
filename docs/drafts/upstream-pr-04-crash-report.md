@@ -1,6 +1,6 @@
 # Draft: upstream PR 4 to Keralots/AnimatedPixelClock, the last crash in /api/info
 
-**Status: NOT POSTED. First audit 19:38: CHANGES-REQUIRED, one MAJOR (abort() and the task watchdog read as StoreProhibited at 0, and the watchdog's task is the interrupted one) - fixed in `52f1879` with four of the LOWs; final re-audit running.** Written 2026-09-17 at the owner's "делаем?", the next item in
+**Status: NOT POSTED, ready for the owner's "отправляй".** First audit 19:38: CHANGES-REQUIRED, one MAJOR - abort() and the task watchdog read as StoreProhibited at 0, and the watchdog's task is the interrupted one. Fixed in `52f1879` together with four LOWs. **Re-audit 19:44: APPROVED** (code quality; not tested on hardware). Written 2026-09-17 at the owner's "делаем?", the next item in
 Rafał's order (issue #3: "the crash report half of 4",
 https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5682483397). Goes nowhere until
 the owner says "отправляй".
@@ -39,6 +39,26 @@ no `verifyRollbackLater()`, no `esp_ota_mark_app_valid_cancel_rollback()`, no `"
 - the fork reads the summary without the checksum check;
 - the fork names an interrupt watchdog "other";
 - the fork calls `getBytesLength()` without `isKey()`, which logs an error when the key is missing.
+
+## Left on the backlog, not in this PR
+
+Both from the audits, neither gating:
+
+- **[MINOR] The cause is named when the JSON is built, not when the crash is found.** After an OTA
+  or a reflash `sameFirmware` goes false, so a stored `abort()` or `Task watchdog` shows as
+  `StoreProhibited` at address 0 again - exactly when the maintainer has just updated to a fix and
+  looks at `/api/info`. Fix: classify once in `crashReportBegin()`, keep the result in the record,
+  bump `CRASH_MAGIC`. Frozen because the branch is audited and the addresses of an older image
+  cannot be decoded with the new ELF anyway, and `sameFirmware` says so.
+- **[LOW] `resetReason` belongs to the boot that found the dump.** If the NVS save fails, the dump
+  stays and the next boot stores its own reset reason for the same crash, which can turn a
+  `Task watchdog` into `abort()`. Tail case.
+- **Keeping the full dump** (deduplicate by its CRC instead of erasing) - worth it only if someone
+  reads dumps with `espcoredump`, which needs the board on a desk.
+
+**Not tested on hardware.** The auditor asks for a run with a panic, an `abort()` and a `loop()`
+hang over 15 s, then `/api/info`. That needs the panel flashed with an upstream build, which is the
+owner's call: the panel currently runs the fork.
 
 ## His rules, checked
 
