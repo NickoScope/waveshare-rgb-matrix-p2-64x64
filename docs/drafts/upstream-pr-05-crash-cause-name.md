@@ -68,7 +68,7 @@ The bug: the cause name was worked out when /api/info was built. That comparison
 
 The fix: decide it once, when the dump is found and panic_abort() is still where the crashed image had it, and keep it in the record as one byte. crashName() is then a switch on that byte. The record's magic is bumped, so a record written by the version you just merged is ignored instead of read wrong: on a board that already holds one crash, that one record is dropped, and nothing else changes.
 
-How I tested it, on hardware this time. I put the module from #7 into my fork on the Waveshare board, byte for byte, built an image that calls abort() on purpose in loop(), and let it crash:
+How I tested it, on hardware this time. The board is a Waveshare ESP32-S3-RGB-Matrix, the same target as your matrix-waveshare env. I put the module from #7 into my fork on that board, this file byte for byte, built an image that calls abort() on purpose in loop(), and let it crash:
 
 Crash report: the last run crashed in task loopTask, abort(), pc 0x40377886, addr 0x00000000, ELF 458f86d0c9eb2166
 
@@ -80,7 +80,7 @@ matrix-s3: Flash 1,629,513 -> 1,629,569 bytes (+56), 82.9% of 1,966,080 before a
 matrix-s3-wroom: Flash 1,644,421 -> 1,644,481 bytes (+60), 25.1%. RAM 89,732 bytes, unchanged.
 matrix-waveshare: Flash 1,632,337 -> 1,632,393 bytes (+56), 34.6%. RAM 89,864 bytes, unchanged.
 
-Not tested: any of your three boards.
+What I did not test: a build from your tree on any board. The module ran inside my fork's image, which does a lot more than yours; the file itself is identical. And no watchdog timeout, only abort() - the watchdog path names itself from the reset reason and I have not made loop() hang on purpose.
 
 Nikolay
 ```
@@ -96,7 +96,7 @@ Nikolay
 
 Исправление: решать один раз, когда дамп найден и panic_abort() ещё там, где он был у упавшего образа, и хранить результат в записи одним байтом. crashName() после этого — просто switch. Магия записи поднята, поэтому запись, сделанная только что смерженной версией, игнорируется, а не читается неверно: на плате, где уже лежит одно падение, эта запись пропадёт, и больше ничего.
 
-Как проверено, на этот раз на железе. Я положил модуль из #7 в свой форк на плате Waveshare, побайтово, собрал образ, который нарочно вызывает abort() в loop(), и дал ему упасть. В порт пришло:
+Как проверено, на этот раз на железе. Плата — Waveshare ESP32-S3-RGB-Matrix, та же, что твоё окружение matrix-waveshare. Я положил модуль из #7 в свой форк на этой плате, этот файл побайтово, собрал образ, который нарочно вызывает abort() в loop(), и дал ему упасть. В порт пришло:
 
 Crash report: the last run crashed in task loopTask, abort(), pc 0x40377886, addr 0x00000000, ELF 458f86d0c9eb2166
 
@@ -108,7 +108,7 @@ matrix-s3: флеш 1 629 513 -> 1 629 569 байт (+56), 82,9 % от 1 966 080
 matrix-s3-wroom: флеш 1 644 421 -> 1 644 481 байт (+60), 25,1 %. RAM 89 732 байта, без изменений.
 matrix-waveshare: флеш 1 632 337 -> 1 632 393 байта (+56), 34,6 %. RAM 89 864 байта, без изменений.
 
-Не проверено: ни одна из твоих трёх плат.
+Чего я не проверял: сборку из твоего дерева ни на одной плате. Модуль работал внутри образа моего форка, который делает куда больше твоего; сам файл идентичен. И не проверял сторожевой таймер, только abort(): путь сторожевого таймера называет себя по причине перезагрузки, а зависание loop() я нарочно не устраивал.
 
 Николай
 ```
