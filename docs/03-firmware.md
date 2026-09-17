@@ -339,23 +339,39 @@ itself.
 **No authentication.** `/update` takes a firmware from anyone on the home
 network, like every other route of this portal. **Not changed.**
 
+**Reaching the panel.** `http://NickoScope-64x128.local/` - the portal, `/api/info`,
+`/api/diagnostics` and `/update`. The IP moves (192.168.4.43 in the older notes,
+192.168.4.62 on 2026-09-17), so use the name.
+
 **Crash reports.** On a panic the SDK writes an ELF core dump to flash
-(`CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH`). At the next boot `src/health` reads
-its summary, logs it, keeps it in NVS `health`, and erases the dump.
+(`CONFIG_ESP_COREDUMP_ENABLE_TO_FLASH`). At the next boot `src/utils/crash_report.cpp`
+checks its checksum, reads the summary, keeps it in NVS `crash` and erases the
+dump. **Since 2026-09-17 this is the module sent upstream as PR #7**, copied
+here byte for byte so a later merge from upstream is a no-op; `src/health` keeps
+only the OTA rollback. The old record in the NVS namespace `health`, written by
+the version before it, stays there unread.
 
 `/api/info` → `lastCrash` holds:
 - `task`;
 - `cause` and `causeName`: the Xtensa EXCCAUSE, named after ESP-IDF's
-  `panic_arch.c`;
+  `panic_arch.c`, the pseudo causes (interrupt watchdog, double exception)
+  included;
 - `pc` and `addr`;
-- up to eight backtrace addresses;
-- `image`: the first 16 hex digits of the crashed image's ELF SHA-256;
-- `bootReason` and `seenUtc`, for the boot that found it.
+- up to sixteen backtrace addresses, and `backtraceCorrupted` when the SDK
+  says so;
+- `elfSha256`: the first 16 hex digits of the crashed image's ELF SHA-256,
+  and `sameFirmware`: whether that is the firmware running now;
+- `resetReason` and `bootTime`, for the boot that found it, and `thisBoot`.
 
 **An `abort()` or failed assert reads as `StoreProhibited` at address 0, with
 `pc` in `panic_abort`.** The panic path writes to address 0 on purpose. The
 rollback test image confirms it: its `pc` resolved to `panic_abort` at
-`panic.c:408`, called from the deliberate abort in `boot_health.cpp`.
+`panic.c:408`, called from the deliberate abort in `boot_health.cpp`. **The
+report now names those cases itself**: `abort()`, or `Task watchdog` when the
+reset reason is the task watchdog - but only when `sameFirmware` is true, since
+`panic_abort` moves between builds. For the task watchdog, `task` and the
+backtrace belong to whatever its interrupt stopped, not to the task that hung;
+which task failed to feed it is only in the serial log.
 
 Decoding a backtrace needs the ELF whose SHA-256 starts with `image`. Keep
 the ELF of every image that goes onto the panel: `~/AnimatedPixelClock-elf/`.
