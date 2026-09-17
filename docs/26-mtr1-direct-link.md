@@ -139,6 +139,21 @@ enable, disable, get_statistics), so **it takes effect at the next Home Assistan
 restart** - which interrupts every automation in the house for a minute or two,
 so it waits for the owner's timing. To undo: delete the file and restart.
 
+**In force since 2026-09-17 09:24:44**, when Home Assistant restarted on the
+owner's word (recorder run 75). Verified straight from the database, rows per
+minute for the MTR-1:
+
+| Minute | Excluded set (24 sensors) | Kept set |
+|---|---|---|
+| 09:19-09:23, before | 333-462 | 6-18 |
+| 09:24, the restart | 160 | 112 |
+| **09:25-09:32, after** | **0** | 6-19 |
+
+The last row for `target_1_x` is 09:24:36, before the restart; the kept sensors
+kept writing (binary presence 09:27:45, `presence_target_count` 09:28:15,
+DPS310 pressure 09:32:54). The panel came back on its own: `/api/info` shows
+the radar `live`, `lastMessageS` 0, `parseFailures` 0.
+
 ## 3. What a radio link needs on the sensor
 
 - **Rebuild on ESPHome >= 2026.6.4, better 2026.8.x.** Two bugs in the 2026.3.3
