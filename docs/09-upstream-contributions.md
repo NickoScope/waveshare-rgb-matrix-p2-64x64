@@ -60,7 +60,7 @@ answering both our updates - the microphones (2026-09-15) and the infrared remot
   it in their hardware notes with the owner's name.
 - He thanked us for always asking first instead of sending big PRs, and wants to keep it so.
 
-**Sent:** the settings fix as PR #5, 2026-09-17 16:53 (https://github.com/Keralots/AnimatedPixelClock/pull/5), **merged by Rafał the same day at 15:30 UTC**; the weather task as PR #6, 2026-09-17 18:17 (https://github.com/Keralots/AnimatedPixelClock/pull/6), **merged at 16:38 UTC the same day** as `9fa9ba4`, no review comments. the crash report as PR #7, 2026-09-17 19:52 (https://github.com/Keralots/AnimatedPixelClock/pull/7), head `52f1879`, awaiting review. Left: the gzip portal, which he asked for last.
+**Sent:** the settings fix as PR #5, 2026-09-17 16:53 (https://github.com/Keralots/AnimatedPixelClock/pull/5), **merged by Rafał the same day at 15:30 UTC**; the weather task as PR #6, 2026-09-17 18:17 (https://github.com/Keralots/AnimatedPixelClock/pull/6), **merged at 16:38 UTC the same day** as `9fa9ba4`, no review comments. the crash report as PR #7, 2026-09-17 19:52 (https://github.com/Keralots/AnimatedPixelClock/pull/7), **merged at 18:27 UTC** as `eb43f15`. **Four offered, four merged, not one review comment.** A fifth is drafted but not posted: the cause name is lost after a firmware update, found on the panel (`docs/drafts/upstream-pr-05-crash-cause-name.md`). Left after that: the gzip portal, which he asked for last.
 
 **Consequence:** the upstream queue is now four small items - the settings fix, the weather
 task, the boot_health crash report, the gzip portal. Nothing else is offered upstream unless he
