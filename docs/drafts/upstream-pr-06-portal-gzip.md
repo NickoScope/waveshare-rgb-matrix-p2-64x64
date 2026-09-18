@@ -1,6 +1,6 @@
 # Draft: upstream PR 6 to Keralots/AnimatedPixelClock, the lighter portal
 
-**Status: NOT POSTED.** Written 2026-09-18 at the owner's "запускай" and "сделай полностью".
+**Status: POSTED 2026-09-18 09:43** on the owner's "отправляй": https://github.com/Keralots/AnimatedPixelClock/pull/9 - head `NickoScope:perf/portal-gzip` at `5898d8a` onto upstream main `517b37d`, two commits. Rewritten as prose at his word ("пиши по человечески в моем стиле") before posting; the body ends with the Claude Code attribution line, as the earlier ones did. Written 2026-09-18 at the owner's "запускай" and "сделай полностью".
 The last item in Rafał's own order (issue #3, comment 5682483397: "Lighter portal - yes, most
 interesting item on the list ... Please send it last"). Goes nowhere until the owner says
 "отправляй".

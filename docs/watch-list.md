@@ -37,6 +37,7 @@ anything new it:
 | 7 | Rafał's reply to our comment on #3: the visualizer on the board's mics, the SHTC3, the settings-save stall | https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5687555292 | `gh api`: issue #3 comments after 2026-09-15 20:22 UTC | posted 2026-09-15 22:22; **answered 2026-09-17 14:25 UTC** (comment 5716011106), together with item 8 - see docs/09 |
 | 8 | Rafał's reply to our comment on #3 about the infrared remote, the pull-up on IO45 and the offer to cut it down | https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5703737437 | `gh api`: issue #3 comments after 2026-09-16 20:02 UTC | posted 2026-09-16 22:02; **answered 2026-09-17 14:25 UTC** in the same comment as item 7 - see docs/09 |
 | 9 | Review of PR #5, the settings-save fix Rafał asked for | https://github.com/Keralots/AnimatedPixelClock/pull/5 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 16:53; **merged 2026-09-17 15:30 UTC** as `bbb861c`, no review comments |
+| 13 | Review of PR #9, the lighter portal - the last item in his own order | https://github.com/Keralots/AnimatedPixelClock/pull/9 | `gh api`: reviews, comments, state, merged | opened 2026-09-18 09:43, two commits, no review yet |
 | 12 | Review of PR #8, the crash cause name after a firmware update | https://github.com/Keralots/AnimatedPixelClock/pull/8 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 20:53; **merged 2026-09-17 19:03 UTC** as `517b37d`, no review comments, ten minutes after it was opened |
 | 11 | Review of PR #7, the last crash in `/api/info` | https://github.com/Keralots/AnimatedPixelClock/pull/7 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 19:52; **merged 2026-09-17 18:27 UTC** as `eb43f15`, no review comments, ten minutes after it was opened |
 | 10 | Review of PR #6, the weather fetch in a task that deletes itself | https://github.com/Keralots/AnimatedPixelClock/pull/6 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 18:17; **merged 2026-09-17 16:38 UTC** as `9fa9ba4`, no review comments |
@@ -60,6 +61,8 @@ not depend on this check.
 | The issue is closed without an answer | Tell the owner. Do not reopen it or comment |
 
 ## Log
+
+- 2026-09-18 09:43: PR #9 opened on the owner's "отправляй" - the lighter portal, the last item Keralots asked for. matrix-s3 82.9% -> 76.1% (-133,212 B), the four assets gzip to 32,965 against his predicted 32,956, and the on-device before/after (160,713 B / ~0.47 s -> 39,478 B / ~0.19 s, reload a 304) went in the body. Item 13 added.
 
 - 2026-09-18 08:01: item 1, no news. The checker emitted comments 5721338404 and 5721465891 on #3, but both are ours (NickoScope, 21:16 and 21:26 UTC), already logged at 23:19 and 23:31. Last word from Keralots is still 14:25 UTC on 2026-09-17; no new upstream commit or release reported. Reddit answered 429. Nothing sent.
 
