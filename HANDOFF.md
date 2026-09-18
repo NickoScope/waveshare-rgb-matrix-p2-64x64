@@ -117,6 +117,18 @@ Rolling record of where the work stands. Newest first.
   passed the same code; a deliberate crash on a real board found what none of
   them could.
 
+**2026-09-18, evening (fx3d).** Four rounds on the panel in one evening, each after a clean
+audit: `264d6f1`, `3d2a1c5`, `80eb788`, `0f3b2c7` (the last one flashed twice - see below).
+Where it ended: **seven of the eight looks hold 30 Hz** (was: none), `card` alone at 26.3.
+The glasses profile now survives a reboot - NVS namespace `fx3d`, write under 10 ms, all four
+steps verified on the panel. Reports in `docs/drafts/27-fx3d-panel-measurements-*.md`.
+Three things learned that outlive fx3d: **overlapping HTTP requests starve the internal heap**
+(new debt below, it took the radio down once); **`NickoScope-64x128.local` costs 5 s a request**
+on this Mac, so measure by IP; and **after an OTA, wait for `ota.state` = `valid` before any
+reboot** - a reboot at 45 s rolled the image back and cost a confusing half hour.
+Next from the fx3d session: one image with `tunnel`, `blobs`, `voxel` and `globe` made cheaper.
+Waiting on the owner: the glasses.
+
 **Debts, in the order they block things.**
 1. **Audio D1** - the portal's ~20 KB internal-heap spike, [22](docs/22-audio-visualizer-onboard-mic.md) §12.3.
    Still the first item: nothing audio moves until it is paid.
