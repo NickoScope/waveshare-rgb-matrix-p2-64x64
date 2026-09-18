@@ -2,6 +2,37 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-18, morning: the lighter portal, and how the work is split from here
+
+**Done.**
+- **The last item in Keralots' queue is out: PR #9, the lighter portal**
+  (https://github.com/Keralots/AnimatedPixelClock/pull/9). The page, the style,
+  the script and the icon are gzipped into a generated header by
+  `tools/web_assets_gen.py`; the page had to become static for that, so its 232
+  `%TOKEN%`s are gone and its values come from a new `/api/portal` keyed by his
+  own form control names. `matrix-s3` goes **82.9 % -> 76.1 %**, -133,212 bytes;
+  the four assets gzip to 32,965 against the 32,956 he predicted himself.
+- **Measured on the panel, both firmwares.** This branch, then his `517b37d`,
+  then the fork back: a first load goes from 160,713 B / ~0.47 s to 39,478 B /
+  ~0.19 s, and a reload to a 304 with no body. The portal was then driven in a
+  browser against the panel's own settings - 57 timezone regions with ours
+  selected, 69 colour pickers, 15 rotation rows, no console errors.
+- **Both audits earned their keep.** The first found that the generator would
+  write CRLF on Windows - and his `upload_port` is `COM9`. The second found a
+  blocker: the layout editor was built before the values arrived, so a metric
+  outside row mode 0's grid fell back to "None" and the next Save would have
+  written that back. Both fixed before the PR was opened.
+- **How the work is split from here:** [00](docs/00-how-we-work.md). One
+  repository, one worktree per line of work, one session per worktree, and only
+  the integration session flashes. `tools/new-feature.sh` starts a feature with
+  its worktree, its module behind its own flag, a flag-matrix row and a
+  knowledge-base stub.
+- **First feature started this way: the 3D effect.** Worktree
+  `/Users/apple/AnimatedPixelClock-fx3d`, branch `feat/fx3d`, module `src/fx3d/`
+  behind `-DFX3D_ENABLED`, notes in [27](docs/27-fx3d.md). The skeleton builds
+  both with the flag and without it; nothing is designed yet - that is the next
+  session's first job, and the owner's words go at the top of doc 27.
+
 ## 2026-09-17: five upstream PRs, five merged, and the panel's own crash report
 
 **Done.**
