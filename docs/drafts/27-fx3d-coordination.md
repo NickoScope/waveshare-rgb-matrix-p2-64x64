@@ -136,6 +136,64 @@ matrix-waveshare-rgb-fx3dbench: включи свой флаг и выключи
 часов у владельца.
 ```
 
+## 2026-09-18 16:43 — fx3d → integration: the handover for one flash
+
+```text
+fx3d → интеграция: ветка готова к одной прошивке — замер и сеанс владельца в очках.
+
+Коммит: feat/fx3d 264d6f1 (запушен).
+
+Что внутри: src/fx3d — 14 сцен (полигон для MVP) и 8 режимов «любой экран в 3D»: под флагом
+глобальный display становится Fx3dDisplay и перехватывает рисование страниц, а режим строит из
+кадра 3D перед флипом. Управление: /api/fx3d и страница владельца /fx3d. Замер встроен. Швы:
+display.h (тип display под флагом) и main.cpp — 8 швов, по 1–3 строки за
+#if defined(FX3D_ENABLED). platformio.ini: новое env matrix-waveshare-rgb-fx3dbench.
+
+Проверено:
+- хост: tools/fx3d/check_fx3d.py — 132 413 проверок, 0 провалов (C++11 и C++17, ASan/UBSan),
+  скрипт страницы разбирается;
+- без флага: с фиксированным SOURCE_DATE_EPOCH прошивка побайтно совпадает с базой ветки fb95464
+  во всех загружаемых секциях;
+- с флагом: 103 592 Б RAM (+216), флеш ~2,33 МБ (+57 КБ, из них 6,4 КБ страница); во время
+  работы внутренняя куча не тратится, буферы только в PSRAM;
+- fx3dbench и строка матрицы «fx3d only» собираются; полная матрица 54/54 (на 331b83f, после
+  него правки только внутри fx3d и шва);
+- senior-code-audit: 331b83f — APPROVED (0 BLOCKER, 0 MAJOR), его MEDIUM исправлены в 0df2b79;
+  дельта-аудит 0df2b79 — APPROVED, его находки исправлены в 264d6f1.
+
+Предлагаю одну прошивку вместо двух — обычная сборка с флагом (карусель, Lua и остальное на
+месте, числа будут «как в жизни»):
+  cd <дерево на 264d6f1>
+  PLATFORMIO_BUILD_FLAGS=-DFX3D_ENABLED PATH="/usr/bin:/bin:$PATH" ~/.platformio/penv/bin/platformio run -e matrix-waveshare-rgb -t upload
+Замер запускается запросом: curl 'http://NickoScope-64x128.local/api/fx3d?bench=1' (или кнопкой
+на /fx3d). 44 прогона по 5 с ≈ 220 с — держи порт 5 минут от запуска.
+В serial:
+  при загрузке: [fx3d] 14 scenes, 8 looks, 73984 B of frame buffers in PSRAM, internal free A -> B B
+  при старте: [fx3d] bench started: 44 runs of 5000 ms (scenes, then looks); ends with "[fx3d] bench done"
+  44 строки: [fx3d] scene=<id>|look:<name> mode=mono|redblue frames= open_us= frame_us= frame_us_max=
+             blit_us= blit_us_max= fps= heap_internal= heap_internal_min= largest_block= psram_free= stack_min_free=
+  конец: [fx3d] bench done runs=44. Неполный прогон: «[fx3d] no PSRAM …» или «[fx3d] bench stopped …».
+Сцены идут первыми (30 Гц), затем режимы — поверх страницы, что на экране (лучше часы). Во время
+сцен ручку не трогать: первое касание останавливает замер. stack_min_free — минимум свободного
+стека loopTask с загрузки, в байтах.
+Если нужны «чистые» числа, как в luabench, — env matrix-waveshare-rgb-fx3dbench (карусель, Lua и
+радар выключены; замер стартует сам через 20 с после загрузки, держи порт 5 мин), но потом
+понадобится обратная прошивка.
+
+После замера — владелец в очках: http://NickoScope-64x128.local/fx3d — калибровка в 6 шагов
+(какой глаз красный, утечка, плоскость панели, глубина), все сцены, все режимы. Профиль очков
+пока живёт до перезагрузки. Под любым 3D-режимом тик ограничен 30 Гц: Mario, Pong и Pac-Man на
+часах будут идти примерно вдвое медленнее — это не поломка, решим по цифрам замера.
+
+Нашёл по дороге (твоё, я не трогал): env matrix-waveshare-rgb-luabench не собирается — выключает
+LUA_EFFECTS_ENABLED, а PRESENCE_ENABLED требует его (#error в presence.h; проверил сборкой).
+tools/flag_matrix.py вызывает main() без if __name__ == "__main__", поэтому импорт модуля
+прогоняет всю матрицу.
+
+Не проверено: ничего на панели — время кадра сцен и режимов, цена блита 8192 пикселей, перехват
+на реальных страницах, стек loopTask под нагрузкой, вид в очках.
+```
+
 ---
 
 ## What this file is for

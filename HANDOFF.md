@@ -2,6 +2,23 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-18, afternoon: 3D on the panel (feature session, `feat/fx3d`)
+
+- **Where:** worktree `/Users/apple/AnimatedPixelClock-fx3d`, branch `feat/fx3d` `264d6f1`,
+  module `src/fx3d/` behind `-DFX3D_ENABLED`; everything in [27](docs/27-fx3d.md).
+- **Done:** two layers on one model - 14 scenes (the training ground, the brief's anaglyph MVP
+  first) and 8 looks that show any page in 3D without touching it (the owner, 15:22), both mono
+  and red-blue; the capture of any page's frame; `/api/fx3d`; the owner's remote at `/fx3d`;
+  a bench on demand. Host 132,413 checks; flag off byte-identical to the branch's base with a
+  fixed build date; two audits APPROVED (0 blocker, 0 major), their findings fixed.
+- **Unfinished:** nothing has run on the panel. Next: the integration session flashes the
+  ordinary firmware with the flag once, runs `/api/fx3d?bench=1`, and the owner looks with the
+  glasses at `/fx3d` (his words at 15:44: «все, но нужно смотреть с очками»). Then: the profile
+  in NVS, the chosen scenes as pages and clock styles, the visualizer's bands into the sound
+  hills, and the 30 Hz ceiling under a look revisited with the bench's numbers.
+- **Found for the integration session:** `env:matrix-waveshare-rgb-luabench` does not build
+  (presence needs the Lua effects it turns off); importing `tools/flag_matrix.py` runs the matrix.
+
 ## 2026-09-18, morning: the lighter portal, and how the work is split from here
 
 **Done.**
