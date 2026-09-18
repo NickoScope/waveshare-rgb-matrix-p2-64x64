@@ -120,6 +120,15 @@ Rolling record of where the work stands. Newest first.
 **Debts, in the order they block things.**
 1. **Audio D1** - the portal's ~20 KB internal-heap spike, [22](docs/22-audio-visualizer-onboard-mic.md) §12.3.
    Still the first item: nothing audio moves until it is paid.
+1. **Overlapping HTTP requests starve the internal heap, and on 2026-09-18 they
+   took the radio down with them.** Measured on `80eb788`
+   ([drafts/27-heap-block-experiment-2026-09-18.md](drafts/27-heap-block-experiment-2026-09-18.md)):
+   a heavy frame alone costs nothing, sequential requests cost nothing, but requests that
+   overlap step the largest free internal block down for good - 23,540 -> 21,492 -> 20,468 B,
+   no recovery. Pushed further the panel reported `minFreeHeap` 1,648 B, `allocFails` 7,
+   314 B each, task `wifi`, and went off the network for ~25 s until its own link recovery
+   brought it back. No reboot, no crash, the clock stayed on screen. Same family as D1 and
+   it blocks the same things: any third consumer of internal RAM.
 2. **The IR receiver has never run.** Everything electrical is now known and
    measured, so the next step is purely physical: solder a 38 kHz part on IO45
    with 2.2 kΩ into the empty pull-up pad, measure the idle voltage, and send
