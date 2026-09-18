@@ -71,6 +71,13 @@ Not in a chat. A session that starts tomorrow reads files:
 Opening line for a new session: *"read docs/NN-x.md and HANDOFF.md, the branch
 is feat/x, the worktree is -x"*. That is the whole handover.
 
+**Messages between sessions are not memory.** They are delivered into a session's
+context, not into the visible transcript and not into any repository - the owner
+cannot see them in either window, and they die with the session. Use them to
+coordinate; copy anything agreed into the feature's document, or into a
+`docs/drafts/NN-<feature>-coordination.md` alongside it, in the words it was sent.
+If it is not in a file, it did not happen.
+
 ## Getting work back into the panel
 
 1. The feature session takes the module to green host tests and its own build,
