@@ -2,6 +2,23 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-18, evening: 3D on the panel, measured and three times faster (feature session, `feat/fx3d`)
+
+- **Done:** `feat/fx3d` `80eb788` is on the panel (OTA, by the integration session). Three
+  rounds of measure-and-fix on the panel's own numbers: the blit writes runs of one colour
+  (14.3 ms -> 6.3-9.7); blobs march a ray per 2 x 2 (111.8 -> 41.7 ms mono); the landscape
+  opens in 0.45 s instead of 1.08; the looks lost a per-frame linear copy of the page and relief
+  writes bytes directly - six of eight looks now hold 30 Hz, none did before. Every change is
+  host-tested (138,454 checks), the glasses looks byte-for-byte against the old walk; flag off
+  byte-identical to the branch's base; four audits APPROVED.
+- **Left, by price:** card 46 ms and drum 31.5 ms a frame; heavy scenes in red-blue (blobs 82,
+  globe 88, tunnel 69, voxel 62 ms), which also dip the largest free internal block to 14.8 KB
+  while they run (hypothesis: the network queues under a slow loop - a 30 s no-request check is
+  proposed in the coordination record); the landscape's 0.45 s open; the glasses profile in NVS.
+- **Next step:** the owner's word. He last spoke at 15:44 («все, но нужно смотреть с очками»);
+  whether the glasses session happened is not known here. Ask what matters more: faster heavy
+  scenes, or the profile kept across reboots.
+
 ## 2026-09-18, afternoon: 3D on the panel (feature session, `feat/fx3d`)
 
 - **Where:** worktree `/Users/apple/AnimatedPixelClock-fx3d`, branch `feat/fx3d` `264d6f1`,
