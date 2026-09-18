@@ -1,0 +1,372 @@
+[
+ {
+  "what": "calib / mono",
+  "frameUs": 2502,
+  "blitUs": 14292,
+  "fps": 30.2,
+  "openUs": 8,
+  "heap": 33248,
+  "block": 24564,
+  "psram": 16090543
+ },
+ {
+  "what": "cube / mono",
+  "frameUs": 1819,
+  "blitUs": 14406,
+  "fps": 30.2,
+  "openUs": 11,
+  "heap": 32116,
+  "block": 23540,
+  "psram": 16090543
+ },
+ {
+  "what": "layers / mono",
+  "frameUs": 2590,
+  "blitUs": 14346,
+  "fps": 30.3,
+  "openUs": 9,
+  "heap": 31684,
+  "block": 23540,
+  "psram": 16090423
+ },
+ {
+  "what": "stars / mono",
+  "frameUs": 2907,
+  "blitUs": 14371,
+  "fps": 29.6,
+  "openUs": 116,
+  "heap": 31704,
+  "block": 22516,
+  "psram": 16088743
+ },
+ {
+  "what": "helix / mono",
+  "frameUs": 3880,
+  "blitUs": 14343,
+  "fps": 30.2,
+  "openUs": 10,
+  "heap": 31676,
+  "block": 22516,
+  "psram": 16090423
+ },
+ {
+  "what": "rings / mono",
+  "frameUs": 4655,
+  "blitUs": 14394,
+  "fps": 30.3,
+  "openUs": 9,
+  "heap": 31684,
+  "block": 22516,
+  "psram": 16090407
+ },
+ {
+  "what": "dial / mono",
+  "frameUs": 3055,
+  "blitUs": 14384,
+  "fps": 30.2,
+  "openUs": 11,
+  "heap": 31396,
+  "block": 22516,
+  "psram": 15949691
+ },
+ {
+  "what": "torus / mono",
+  "frameUs": 9760,
+  "blitUs": 14404,
+  "fps": 30.2,
+  "openUs": 135,
+  "heap": 31420,
+  "block": 22516,
+  "psram": 15942163
+ },
+ {
+  "what": "vclock / mono",
+  "frameUs": 6002,
+  "blitUs": 14365,
+  "fps": 30.3,
+  "openUs": 15,
+  "heap": 31404,
+  "block": 22516,
+  "psram": 15949643
+ },
+ {
+  "what": "voxel / mono",
+  "frameUs": 32751,
+  "blitUs": 14381,
+  "fps": 20.2,
+  "openUs": 1081490,
+  "heap": 31412,
+  "block": 22516,
+  "psram": 15622011
+ },
+ {
+  "what": "tunnel / mono",
+  "frameUs": 34947,
+  "blitUs": 14315,
+  "fps": 19.4,
+  "openUs": 14,
+  "heap": 31424,
+  "block": 22516,
+  "psram": 15851323
+ },
+ {
+  "what": "blobs / mono",
+  "frameUs": 111819,
+  "blitUs": 14193,
+  "fps": 7.7,
+  "openUs": 80,
+  "heap": 31412,
+  "block": 22516,
+  "psram": 15949603
+ },
+ {
+  "what": "globe / mono",
+  "frameUs": 44767,
+  "blitUs": 14196,
+  "fps": 16.4,
+  "openUs": 55,
+  "heap": 31420,
+  "block": 22516,
+  "psram": 15948967
+ },
+ {
+  "what": "terrain / mono",
+  "frameUs": 19751,
+  "blitUs": 14381,
+  "fps": 27.4,
+  "openUs": 71,
+  "heap": 31400,
+  "block": 22516,
+  "psram": 16025535
+ },
+ {
+  "what": "calib / redblue",
+  "frameUs": 2497,
+  "blitUs": 14292,
+  "fps": 30.2,
+  "openUs": 10,
+  "heap": 31420,
+  "block": 22516,
+  "psram": 16031063
+ },
+ {
+  "what": "cube / redblue",
+  "frameUs": 4596,
+  "blitUs": 14283,
+  "fps": 30.3,
+  "openUs": 13,
+  "heap": 31412,
+  "block": 22516,
+  "psram": 16031067
+ },
+ {
+  "what": "layers / redblue",
+  "frameUs": 5689,
+  "blitUs": 14245,
+  "fps": 30.2,
+  "openUs": 11,
+  "heap": 31416,
+  "block": 22516,
+  "psram": 16031071
+ },
+ {
+  "what": "stars / redblue",
+  "frameUs": 6473,
+  "blitUs": 14243,
+  "fps": 30.3,
+  "openUs": 114,
+  "heap": 31436,
+  "block": 22516,
+  "psram": 16029391
+ },
+ {
+  "what": "helix / redblue",
+  "frameUs": 8002,
+  "blitUs": 14259,
+  "fps": 30.2,
+  "openUs": 11,
+  "heap": 31412,
+  "block": 22516,
+  "psram": 16031071
+ },
+ {
+  "what": "rings / redblue",
+  "frameUs": 9706,
+  "blitUs": 14276,
+  "fps": 30.2,
+  "openUs": 10,
+  "heap": 31412,
+  "block": 22516,
+  "psram": 16031063
+ },
+ {
+  "what": "dial / redblue",
+  "frameUs": 6826,
+  "blitUs": 14340,
+  "fps": 30.2,
+  "openUs": 11,
+  "heap": 31404,
+  "block": 22516,
+  "psram": 16008319
+ },
+ {
+  "what": "torus / redblue",
+  "frameUs": 20030,
+  "blitUs": 14278,
+  "fps": 27.5,
+  "openUs": 140,
+  "heap": 31404,
+  "block": 22516,
+  "psram": 16000791
+ },
+ {
+  "what": "vclock / redblue",
+  "frameUs": 12828,
+  "blitUs": 14252,
+  "fps": 30.2,
+  "openUs": 15,
+  "heap": 31416,
+  "block": 22516,
+  "psram": 16005947
+ },
+ {
+  "what": "voxel / redblue",
+  "frameUs": 62507,
+  "blitUs": 14285,
+  "fps": 12.6,
+  "openUs": 1081330,
+  "heap": 31424,
+  "block": 22516,
+  "psram": 15680639
+ },
+ {
+  "what": "tunnel / redblue",
+  "frameUs": 69274,
+  "blitUs": 14297,
+  "fps": 11.6,
+  "openUs": 15,
+  "heap": 31412,
+  "block": 22516,
+  "psram": 15909951
+ },
+ {
+  "what": "blobs / redblue",
+  "frameUs": 217789,
+  "blitUs": 14189,
+  "fps": 4.2,
+  "openUs": 80,
+  "heap": 31404,
+  "block": 22516,
+  "psram": 16008243
+ },
+ {
+  "what": "globe / redblue",
+  "frameUs": 88453,
+  "blitUs": 14203,
+  "fps": 9.5,
+  "openUs": 55,
+  "heap": 31412,
+  "block": 22516,
+  "psram": 16007595
+ },
+ {
+  "what": "terrain / redblue",
+  "frameUs": 38520,
+  "blitUs": 14260,
+  "fps": 18.1,
+  "openUs": 76,
+  "heap": 31412,
+  "block": 22516,
+  "psram": 16058855
+ },
+ {
+  "what": "look:flat",
+  "frameUs": 0,
+  "blitUs": 0,
+  "fps": 0.0,
+  "openUs": 0,
+  "heap": 31416,
+  "block": 22516,
+  "psram": 15944643
+ },
+ {
+  "what": "look:pop",
+  "frameUs": 40440,
+  "blitUs": 14761,
+  "fps": 16.9,
+  "openUs": 0,
+  "heap": 31408,
+  "block": 22516,
+  "psram": 15662995
+ },
+ {
+  "what": "look:layers",
+  "frameUs": 43885,
+  "blitUs": 14724,
+  "fps": 16.0,
+  "openUs": 0,
+  "heap": 31400,
+  "block": 22516,
+  "psram": 15713519
+ },
+ {
+  "what": "look:float",
+  "frameUs": 34804,
+  "blitUs": 14885,
+  "fps": 18.6,
+  "openUs": 0,
+  "heap": 31392,
+  "block": 22516,
+  "psram": 15719919
+ },
+ {
+  "what": "look:dome",
+  "frameUs": 37466,
+  "blitUs": 14743,
+  "fps": 17.8,
+  "openUs": 0,
+  "heap": 31428,
+  "block": 22516,
+  "psram": 15707439
+ },
+ {
+  "what": "look:wiggle",
+  "frameUs": 30220,
+  "blitUs": 14368,
+  "fps": 20.6,
+  "openUs": 0,
+  "heap": 31424,
+  "block": 22516,
+  "psram": 15714543
+ },
+ {
+  "what": "look:card",
+  "frameUs": 67698,
+  "blitUs": 14559,
+  "fps": 11.6,
+  "openUs": 0,
+  "heap": 31396,
+  "block": 22516,
+  "psram": 15697419
+ },
+ {
+  "what": "look:relief",
+  "frameUs": 81425,
+  "blitUs": 14439,
+  "fps": 9.9,
+  "openUs": 0,
+  "heap": 31396,
+  "block": 22516,
+  "psram": 15674455
+ },
+ {
+  "what": "look:drum",
+  "frameUs": 32006,
+  "blitUs": 14885,
+  "fps": 19.7,
+  "openUs": 0,
+  "heap": 31416,
+  "block": 22516,
+  "psram": 15661703
+ }
+]
