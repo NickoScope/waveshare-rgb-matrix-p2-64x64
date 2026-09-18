@@ -81,8 +81,33 @@ be visible) and driven in a real browser:
 | Form state | stays "All saved" while it fills; Save enabled only after the values are in |
 | Console | no errors |
 
-**Not done: the panel itself.** This branch has not been flashed to any board. The owner's panel
-runs the fork; flashing an upstream build on it is his call.
+## On the panel, both versions, same board and network
+
+Flashed over the air on the owner's Waveshare board on 2026-09-18: first this branch, then
+upstream main `517b37d` for the comparison, then the fork back.
+
+| Request | main `517b37d` | this branch |
+|---|---|---|
+| `/` | 93,167 B, 0.222 s (0.213 s warm) | **12,060 B, 0.059 s** |
+| `/portal.css` | 23,290 B, 0.071 s | **5,605 B, 0.025 s** |
+| `/portal.js` | 44,256 B, 0.179 s (0.101 s warm) | **15,252 B, 0.061 s** |
+| `/api/portal` | - | 6,561 B, 0.043 s |
+| **a full first load** | **160,713 B, ~0.47 s** | **39,478 B, ~0.19 s** |
+
+The page is 93,167 B on main and 72,701 B in the repository: the difference is what the template
+used to write into it on every load. A reload now costs a 304 and nothing else - the ETag was
+checked on the device (`If-None-Match` -> `304 Not Modified`).
+
+Headers off the device: `Content-Encoding: gzip`, `Content-Length: 12060`, `Cache-Control:
+no-cache` on the page; the assets keep `immutable`.
+
+The portal itself, opened in a browser against the panel with its real settings: version v2.3.1 in
+the topbar and the title, device name NickoScope-64x128, 57 timezone regions with the owner's
+selected, weather coordinates, dim start 22:00, ambient start 20, the Mario subcard shown for
+clock style 0, 69 colour pickers built from the tables, 15 rotation rows, 10 drop cells for row
+mode 0, save button enabled, "All saved", no console errors.
+
+The fork was flashed back afterwards and confirmed itself valid.
 
 ## His rules, checked
 
