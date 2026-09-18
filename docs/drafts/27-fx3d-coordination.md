@@ -456,7 +456,7 @@ wifi. Записал долгом рядом с аудио-D1. Твой пунк
 
 ---
 
-## 2026-09-18 20:58 — fx3d → integration: the glasses profile in NVS (5bdc8e0)
+## 2026-09-18 20:42 — fx3d → integration: the glasses profile in NVS (5bdc8e0)
 
 ```text
 fx3d → интеграция: профиль очков в NVS готов — 5bdc8e0 в feat/fx3d, запушено (пункт 1 твоего порядка).
