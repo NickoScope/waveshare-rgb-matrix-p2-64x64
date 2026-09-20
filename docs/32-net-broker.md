@@ -201,3 +201,50 @@ While the other three modules still start their own fetch tasks, the broker wait
 rail-board fetch can delay an interactive weather request. It is transitional by construction - the
 lock has no other holder once step 6 lands - but it is real until then, and it is the reason the
 remaining consumers should move quickly rather than sit half-migrated for a week.
+
+---
+
+## The panel said no, 2026-09-20 23:25, and it is the same mistake as `net_reserve`
+
+The broker build was flashed over the cable and measured against the known-good build on the
+same board, minutes apart:
+
+| | `fix/panel-tonight` | `feat/net-broker` |
+|---|---|---|
+| free internal | **34,888 B** | 19,624 → 18,492 B |
+| **largest contiguous block** | **16,372 B** | 11,252 → **9,716 B** |
+
+And the three modules that have not moved still need a contiguous internal block for their own
+task stacks, checked before they even try: **flight 13,312 B, rail 10,240 B, world clock 9,216 B.**
+At a largest block of 9,716 the flight board cannot fetch at all, and the other two are at the
+edge. The panel was put back on `fix/panel-tonight` the same minute, before the owner had to find
+it.
+
+This is **exactly the `net_reserve` failure again** (`src/net/net_reserve.h`): take a large
+contiguous block at boot, and the modules that still need one starve. The difference is that
+`net_reserve` bought nothing, while this buys an end state where *nobody* needs a contiguous
+stack - but that end state does not exist until all four have moved. **In between, the panel is
+worse, and "in between" is where a one-consumer-at-a-time migration lives.** The staged order in
+this document was written without that arithmetic in it. It is wrong as written.
+
+Two ways out, and they are not exclusive:
+
+1. **Size the stack from a measurement instead of from the largest of the four.** 12 KB was
+   chosen so no caller could be worse off; it is not a measured figure and nothing has measured
+   it yet. The rail board's own task turned out to use 6,152 B of 12,288. A 6 KB broker stack
+   would return ~6 KB of contiguity and put the flight board back above its threshold on its own.
+2. **Land all four at once**, so the three thresholds disappear at the same moment the 12 KB does.
+
+### And the first consumer was the wrong one
+
+`served` stayed at **0** for the whole test: the broker was never asked. The weather page was on
+screen - the owner confirmed it - and the settings are good (enabled, 43.5513/7.0127, no key). So
+something between `weatherOnScreen()` and `nbSubmitRequest()` did not fire, and **I do not yet
+know what**; the next session starts by turning the remote log on (`/api/log?on=1`) and reading
+it, not by reasoning about it.
+
+But the deeper point does not need that answer. This panel has reported `weatherValid:false`
+since boot for days, on the old firmware too - it is in doc 29's broken list. **A consumer that
+does not work cannot validate the thing it is the first consumer of.** "Least visible if it
+breaks" was the wrong criterion; "actually fetches today, so the test means something" is the
+right one. That points at the world clock's lookup, or the rail board with the owner watching.
