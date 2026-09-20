@@ -28,16 +28,16 @@ anything new it:
 
 | # | What | Where | How it is read | At the start (2026-09-15 00:45) |
 |---|---|---|---|---|
-| 1 | Keralots' answer to our issue | https://github.com/Keralots/AnimatedPixelClock/issues/3 | `gh api`: comments, reactions, labels, state | open, 0 comments, 0 reactions |
+| 1 | Keralots' answer to our issue | https://github.com/Keralots/AnimatedPixelClock/issues/3 | `gh api`: comments, reactions, labels, state | open, 0 comments, 0 reactions; **closed as completed 2026-09-18 20:36:32 UTC** by Keralots, no closing comment |
 | 2 | Replies to our top-level comment | https://old.reddit.com/r/esp32/comments/1w8vc0j/i_may_have_gone_a_bit_overboard_with_this_esp32s3/p9uhmk6/ | Atom feed of the comment (`.rss`) | no replies |
 | 3 | Replies to our note in the S3 boards thread | https://old.reddit.com/r/esp32/comments/1w8vc0j/i_may_have_gone_a_bit_overboard_with_this_esp32s3/p9uhspe/ | Atom feed of the comment | no replies |
-| 4 | New upstream commits and releases | https://github.com/Keralots/AnimatedPixelClock | `gh api`: commits, latest release | `946ed42`, release `v2.3.0` |
+| 4 | New upstream commits and releases | https://github.com/Keralots/AnimatedPixelClock | `gh api`: commits, latest release | `946ed42`, release `v2.3.0`; **six new commits by 2026-09-19, `1555601` is head** |
 | 6 | Review of PR #4, mbedTLS buffers in PSRAM (item 3 of #3) | https://github.com/Keralots/AnimatedPixelClock/pull/4 | `gh api`: reviews, comments, state, merged | opened 2026-09-15 18:37, no review |
 | 5 | Replies to our Show and tell post about the Waveshare board | https://github.com/mrcodetastic/ESP32-HUB75-MatrixPanel-DMA/discussions/962 | GraphQL: comments, replies, upvotes | posted 2026-09-15 01:00, no replies |
 | 7 | Rafał's reply to our comment on #3: the visualizer on the board's mics, the SHTC3, the settings-save stall | https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5687555292 | `gh api`: issue #3 comments after 2026-09-15 20:22 UTC | posted 2026-09-15 22:22; **answered 2026-09-17 14:25 UTC** (comment 5716011106), together with item 8 - see docs/09 |
 | 8 | Rafał's reply to our comment on #3 about the infrared remote, the pull-up on IO45 and the offer to cut it down | https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5703737437 | `gh api`: issue #3 comments after 2026-09-16 20:02 UTC | posted 2026-09-16 22:02; **answered 2026-09-17 14:25 UTC** in the same comment as item 7 - see docs/09 |
 | 9 | Review of PR #5, the settings-save fix Rafał asked for | https://github.com/Keralots/AnimatedPixelClock/pull/5 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 16:53; **merged 2026-09-17 15:30 UTC** as `bbb861c`, no review comments |
-| 13 | Review of PR #9, the lighter portal - the last item in his own order | https://github.com/Keralots/AnimatedPixelClock/pull/9 | `gh api`: reviews, comments, state, merged | opened 2026-09-18 09:43, two commits, no review yet |
+| 13 | Review of PR #9, the lighter portal - the last item in his own order | https://github.com/Keralots/AnimatedPixelClock/pull/9 | `gh api`: reviews, comments, state, merged | opened 2026-09-18 09:43; **merged 2026-09-18 20:36:30 UTC** as `00df919`, no review comments |
 | 12 | Review of PR #8, the crash cause name after a firmware update | https://github.com/Keralots/AnimatedPixelClock/pull/8 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 20:53; **merged 2026-09-17 19:03 UTC** as `517b37d`, no review comments, ten minutes after it was opened |
 | 11 | Review of PR #7, the last crash in `/api/info` | https://github.com/Keralots/AnimatedPixelClock/pull/7 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 19:52; **merged 2026-09-17 18:27 UTC** as `eb43f15`, no review comments, ten minutes after it was opened |
 | 10 | Review of PR #6, the weather fetch in a task that deletes itself | https://github.com/Keralots/AnimatedPixelClock/pull/6 | `gh api`: reviews, comments, state, merged | opened 2026-09-17 18:17; **merged 2026-09-17 16:38 UTC** as `9fa9ba4`, no review comments |
@@ -61,6 +61,10 @@ not depend on this check.
 | The issue is closed without an answer | Tell the owner. Do not reopen it or comment |
 
 ## Log
+
+- 2026-09-20 08:00: items 13 and 1, Keralots. PR #9, the gzip portal, merged 2026-09-18 20:36:30 UTC as `00df919` with no review comments - and **two seconds later he closed issue #3 as completed**, without a closing comment. His whole list is delivered: **six PRs offered upstream, six merged, not one review comment**, every one within minutes. Release is still `v2.3.1` (2026-09-15), so none of the six has shipped to users yet. Nothing sent.
+
+- 2026-09-20 08:00: item 4, Keralots. Five new upstream commits, all after the merge, and the first two build straight on top of ours: `f5aad74` three minutes later pins `src/web/web_assets.h` to LF in `.gitattributes` (our generator writes LF, `core.autocrlf=true` on Windows broke the staleness check), then `e2ffe57` draws the rain in real katakana with its own generator `scripts/gen_matrix_glyphs.py`, `6eeda69` fixes export not backing up the four Matrix Rain settings (`src/web/web.cpp`), `3d46171` makes the rain's leading character fall by the pixel, and `1555601` adds a small corner clock. The last two touch `src/web/web.cpp`, `web_assets.h`, `web_pages.h` and `src/config/settings.cpp`, so a rebase of the fork's branches onto main will meet them there. Reddit answered 429. Nothing sent.
 
 - 2026-09-18 09:43: PR #9 opened on the owner's "отправляй" - the lighter portal, the last item Keralots asked for. matrix-s3 82.9% -> 76.1% (-133,212 B), the four assets gzip to 32,965 against his predicted 32,956, and the on-device before/after (160,713 B / ~0.47 s -> 39,478 B / ~0.19 s, reload a 304) went in the body. Item 13 added.
 
