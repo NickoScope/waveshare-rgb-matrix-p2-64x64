@@ -4,7 +4,7 @@
 updated every time something is learned, added or broken. If you are about to work out how to
 change a page, read a log or test a mode, the answer is here - do not rediscover it.
 
-Panel: `NickoScope-64x128.local`, **192.168.4.62** (measure by IP: the mDNS name costs 5.0 s of
+Panel: firmware **2.5.0**, `NickoScope-64x128.local`, **192.168.4.62** (measure by IP: the mDNS name costs 5.0 s of
 name lookup per request on this Mac against 0.0008 s by IP). Firmware 2.4.0, branch `feat/fx3d`
 `26a1be4` at the time of writing. Serial: `/dev/cu.usbmodem2101`, 115200.
 
@@ -89,6 +89,38 @@ project two wasted test sweeps.
 | `resetReason` | 1 = power-on, 3 = software, 4 = panic, 5 = interrupt watchdog, 6 = task watchdog |
 | `ota` | `partition`, `state` (`pending` until 60 s, then `valid`), `rolledBackFrom` |
 
+## The log over the network (firmware 2.5.0)
+
+The panel keeps its own log and hands it out over HTTP. **Off by default and
+free while off** - no buffer, no hook. On, it uses 32 KB + 1 KB of **PSRAM**,
+never internal RAM, so turning it on cannot change what it is there to observe.
+The switch is kept in NVS and survives a reboot, which is the point: an
+intermittent fault is caught across the restart it causes.
+
+```bash
+curl -s "http://192.168.4.62/api/log?on=1"                 # on
+curl -s "http://192.168.4.62/api/log?since=0"              # read from the start
+curl -s "http://192.168.4.62/api/log?clear=1"              # empty it, in place
+curl -s "http://192.168.4.62/api/log?on=0"                 # off, buffer freed
+```
+
+Read with a cursor: `X-Log-From` is where the answer really starts (larger than
+you asked means lines were dropped while you were away), `X-Log-Bytes` is the
+body's length **in bytes** - never measure it as a string length - `X-Log-Seq`
+is the panel's total, `X-Log-Dropped` what it threw away. A read is capped at
+1 KB, so drain a burst in a loop rather than in one request.
+
+In the portal: **Device status → Log over the network** - the switch, Follow,
+Clear, and a view that reports a gap rather than hiding it.
+
+**What it captures:** everything written through `dbgLogf`/`dbgLogWrite` - the
+`[mem]`, `[loop]` and `[net]` lines - and the IDF's own `ESP_LOGx`.
+**What it does not:** Arduino's `log_e`/`log_w`. In this build those expand to
+`ets_printf` and never reach the hook, so a line like `WebServer.cpp:638
+request handler not found` goes to the cable only. Capturing them needs the
+whole firmware built with `-DUSE_ESP_IDF_LOG`, which rewrites every log line's
+format - a change of its own.
+
 ## Serial
 
 `/dev/cu.usbmodem2101` at 115200. The lines worth grepping: `[mem]` (heap minimum falling,
@@ -103,7 +135,7 @@ build - see the broken list below.
 
 | What | Symptom | Where |
 |---|---|---|
-| Concurrent portal requests | the radio starves of 1,626 B DMA buffers and the panel leaves the network for minutes, firmware still running | fixed on `fix/portal-heap`, not yet flashed |
+| ~~Concurrent portal requests~~ | **fixed in 2.5.0** (`fix/portal-heap`): 8 KB of contiguous internal RAM is held for the radio's recovery and given up the moment it starts failing, and the expensive routes are refused while it is. 30 of 30 rounds of the test that used to wedge the panel; worst response 0.17-0.31 s against 25 s and death | `drafts/28-portal-hang-2026-09-20.md` |
 | The audio visualizer | starting it costs 9.4 KB internal and the memory is **not** released when the mode is left | debt D1 |
 | `/api/ir/sim`, and `ir cw`/`ir ok` on serial | answer success, change nothing (IR `enabled:false`, `receiver:"not built"`) | - |
 | `/api/notify?text=..&seconds=..` | HTTP error, serial says `request handler not found` - the parameters are not these | - |
