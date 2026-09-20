@@ -5,8 +5,9 @@ updated every time something is learned, added or broken. If you are about to wo
 change a page, read a log or test a mode, the answer is here - do not rediscover it.
 
 Panel: firmware **2.5.0**, `NickoScope-64x128.local`, **192.168.4.62** (measure by IP: the mDNS name costs 5.0 s of
-name lookup per request on this Mac against 0.0008 s by IP). Firmware 2.4.0, branch `feat/fx3d`
-`26a1be4` at the time of writing. Serial: `/dev/cu.usbmodem2101`, 115200.
+name lookup per request on this Mac against 0.0008 s by IP). Branch `fix/portal-heap`, which is
+`feat/fx3d` plus the portal-hang fix and the network log. Serial: `/dev/cu.usbmodem2101`, 115200 -
+now optional, see the log over the network below.
 
 ## How to change what is on the screen
 
