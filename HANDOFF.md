@@ -2,6 +2,40 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-20, night: the network broker is built and audited, and the panel rejected it (integration session, `feat/net-broker`)
+
+- **Done:** `feat/net-broker` `21e6adc`, pushed. One task owns the outbound socket, with its
+  stack in `.bss` - confirmed in the map at 12,288 B, 0x3fca52f0, internal DRAM, 16-aligned - so
+  it is taken at link time and can neither fail to be allocated at the worst moment nor leave a
+  hole when a fetch ends. The queue (`src/net/nb_queue.h`) is a pure model with a host test:
+  27 checks, 0 failed, at c++11 and c++17 under ASan/UBSan. Weather migrated as the first
+  consumer. Two audit rounds: **APPROVED**, no BLOCKER, no MAJOR, clean rebuild 0 warnings,
+  cppcheck 0 defects, gitleaks clean.
+- **And then the panel said no.** Flashed over the cable and measured against the known-good
+  build minutes apart on the same board: largest contiguous internal block **16,372 B before,
+  9,716 B after**. The flight board refuses to fetch below 13,312 B, the rail board below
+  10,240. It is the `net_reserve` mistake again - take a large contiguous block at boot and the
+  modules that still need one starve - and it is inherent to migrating one consumer at a time,
+  because that whole window is *after* the 12 KB is gone and *before* the three thresholds are.
+  Panel returned to `fix/panel-tonight` the same minute; rail board verified working after
+  (London Waterloo, synced, three trains).
+- **Also learned:** `served` stayed 0 - the broker was never asked, with the weather page on
+  screen and the settings good. Cause not known, and not guessed at. Separately, weather was the
+  wrong first consumer: it has reported `weatherValid:false` on this panel for days, on the old
+  firmware too, so it could not have validated anything. The doc's criterion ("least visible if
+  it breaks") should have been "actually fetches today".
+- **Next, in order:** (1) turn the remote log on (`/api/log?on=1`) and find out why weather never
+  submitted - read it, do not reason about it; (2) get one real `stackFreeMin` reading and size
+  the broker's stack from it instead of from the largest of the four - 12 KB is unmeasured, and
+  the rail board's own task used 6,152 B of 12,288, so ~6 KB may return enough contiguity on its
+  own; (3) then either land all four consumers together or confirm the smaller stack keeps every
+  un-migrated threshold satisfied. Nothing goes on the panel until the arithmetic is checked
+  first, on paper, against `largestHeapBlock`.
+- **Open debts unchanged:** yacht radar 17.5 KB outside the lock; MQTT blocking connect; OTA not
+  taking the lock; `rttDirectOnScreen` deriving "on screen" from a render timestamp; station and
+  airport selection still to move onto the knob; the redundant `WiFi.begin()` on a genuine
+  disconnect.
+
 ## 2026-09-20, morning: the glasses profile, and everything on the panel at 30 Hz but the blobs (feature session, `feat/fx3d`)
 
 - **Done:** `feat/fx3d` `26a1be4`. The glasses profile lives in NVS (namespace `fx3d`, one
