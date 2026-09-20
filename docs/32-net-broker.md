@@ -146,3 +146,58 @@ The yacht radar's AIS websocket is a long-lived session, not a fetch, and holds 
 page is shown - measured. It does not belong in the broker's queue and needs its own answer.
 The web server's own per-request cost stays as it is; today's measurements say it is not the
 binding constraint once the fetchers stop fragmenting the heap.
+
+---
+
+## What was actually built, 2026-09-20, and where it differs from the sketch above
+
+Steps 2 and 3 are done (`feat/net-broker`, `1dc96fb` the queue, `f8e044c` the task and the
+weather). Three things came out different from the interface sketched above, and the differences
+matter more than the agreements do.
+
+**There is no shared response buffer, and no `NB_TOO_BIG`.** The sketch had the answer copied into
+the caller's PSRAM buffer. That was wrong: not one of the four consumers works that way today -
+every one of them parses straight off the socket (`deserializeJson(doc, http.getStream())`), so a
+buffer would have *added* a full second copy of every response and a size ceiling that does not
+exist now. The broker hands the caller the live stream instead:
+
+```c
+struct NbReply { int code; Stream *body; bool tls; void *ctx; };
+typedef bool (*NbParseFn)(const NbReply &reply);
+bool nbSubmitRequest(uint8_t who, const NbRequest &req, bool interactive);
+bool nbTake(uint8_t who, bool *ok);     // the outcome, once, on the loop task
+```
+
+**The parse therefore runs on the broker task, not on the loop task.** It has to: the body is only
+on the wire during the call. This is not a regression - it is exactly where the parse runs today,
+on the fetch task the module started itself - but it means the contract is now explicit, and it is
+written on `NbParseFn` in the header: touch only your own module's published data, under your own
+lock. What the loop task gets is the *outcome*, through `nbTake()`.
+
+**One URL, not host/path/port.** `HTTPClient::begin(client, url)` is what all four already build.
+
+**The per-request deadline is the library's, not a hard abort.** The sketch promised a deadline
+"enforced by the broker, not by the caller". What is actually enforced is `setConnectTimeout`,
+`setTimeout` and a 12 s TLS handshake timeout (against the library's own default of 120 s). A
+genuinely hard deadline would mean closing the socket from a second task while the first is inside
+mbedTLS, and that is not safe. So: a stuck host holds the wire for up to the timeout, and no
+longer - but it does hold it. Say it that way rather than claim more.
+
+### The numbers, from the map file rather than from hope
+
+`s_stack` is **12,288 B at 0x3fca5290** - `.bss`, internal DRAM, confirmed with `nm` on the
+firmware image, plus 36 B for the queue and 40 B for the job table. It is 12 KB the heap never
+gets back, and that is the trade: against it, the *peak contiguous internal demand of a fetch*
+falls from 8-12 KB, needed at an unpredictable moment, to nothing at all - there is no longer a
+task to create. 12 KB because it is the largest of the four stacks it replaces (flight 12, rail 9,
+weather 8, world clock 8), so no caller can be worse off than today. It is deliberately not
+tightened yet: the broker prints its own stack high-water mark on every fetch, and the number comes
+down when there is a distribution to cut it from, the way the rail board's 12 KB became 9.
+
+### The transitional risk, named
+
+While the other three modules still start their own fetch tasks, the broker waits on the old
+`netLock` for up to 30 s **with its queue slot marked on-air**. So during the migration a stalled
+rail-board fetch can delay an interactive weather request. It is transitional by construction - the
+lock has no other holder once step 6 lands - but it is real until then, and it is the reason the
+remaining consumers should move quickly rather than sit half-migrated for a week.
