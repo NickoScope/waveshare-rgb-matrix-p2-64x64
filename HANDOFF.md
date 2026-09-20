@@ -2,6 +2,38 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-20, morning: the glasses profile, and everything on the panel at 30 Hz but the blobs (feature session, `feat/fx3d`)
+
+- **Done:** `feat/fx3d` `26a1be4`. The glasses profile lives in NVS (namespace `fx3d`, one
+  typed key per value, described in [27](docs/27-fx3d.md)): the owner's calibration survives a
+  reboot, a write costs under 10 ms of `loop()`, and reading never refuses - a missing, foreign
+  or out-of-range key costs that value's default, never the boot. Then the looks card and drum
+  and the four heavy scenes, on the panel's own numbers: drum 2.0x and card 1.7x; tunnel 5.5x,
+  globe 3.9x, the landscape 2.5x with its map opening in 258 ms instead of 452; blobs 1.25x and
+  more since. In mono every scene but the blobs holds 30 Hz; with the glasses every scene but
+  the blobs and the landscape; seven looks of eight.
+- **What made the difference, and it is the project's to keep:** on this firmware the S3's FPU
+  adds, multiplies, compares and converts inline, and nothing else. A float division calls
+  `__divsf3` in ROM (69 cycles, Espressif's own measurement), `sqrtf`, `floorf`, `ceilf`,
+  `sinf`, `cosf`, `atan2f` and `asinf` are newlib calls, and `x / 255.0f` is a call too. The
+  table with the sources is in `src/fx3d/README.md`, "What floats cost on the S3"; the row in
+  [27](docs/27-fx3d.md) points at it. Every scene was made cheap by taking those out of the
+  per-pixel loops - tables where the geometry does not change, reciprocals worked out once,
+  integer floors - and each one is held to what it drew before by the host test, which keeps
+  the old code verbatim.
+- **Checked:** 140,293 host checks, 0 failed (C++11 and C++17, ASan/UBSan); the `/fx3d` page's
+  request queue runs in JavaScriptCore, 26 checks, with five broken queues as the controls;
+  three audits, all APPROVED with no blocker or major, their findings answered; flag off
+  byte-identical; the bench env and the two flag-matrix rows build.
+- **Waiting for the owner:** the session with the glasses has not happened. Two things wait on
+  him: where the chosen scenes and looks go, and whether the blobs may change to hold 30 Hz
+  with the glasses (fewer rays, or a march that carries on from the last frame). Everything
+  that could be made cheaper without changing a pixel is done.
+- **Lesson, paid for twice:** the Mac is not the panel. It said the drum was 3.6x and the card
+  about even; the panel said 2.0x and 1.7x. It says the globe's table would be bound by PSRAM;
+  the panel says the gain is the same in both modes. Time the change on the panel, or say it is
+  not measured.
+
 ## 2026-09-18, evening: 3D on the panel, measured and three times faster (feature session, `feat/fx3d`)
 
 - **Done:** `feat/fx3d` `80eb788` is on the panel (OTA, by the integration session). Three
