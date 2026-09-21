@@ -157,6 +157,28 @@ build - see the broken list below.
 | Yacht radar | failed a 12,288 B internal allocation under memory pressure | - |
 | Lua clock styles | `tetris_clock` 286 ms worst frame, `snake_clock` 180 ms, `snooker_clock` 325 ms to open - each one freezes the portal while it runs | - |
 | MQTT | 528 ms worst pass, 1,001 ms every pass once the link is wedged | - |
+| The radio under load | `allocFails` climbs steadily (task `wifi`, 1,626 B DMA buffers) whenever the panel is driven hard - 8 to 89 over two functional sweeps. Nothing fails visibly and the link never drops, but the shortage is real and its cause is the 131 KB HUB75 framebuffer that cannot move | docs/32 |
+
+## Driving it from a script instead of by hand
+
+`tools/nsc/nsc.py` - one command, one JSON object on stdout, an exit code that
+means something (0 done · 1 retryable · 2 bad call · 3 **a person must look** ·
+4 pointless to retry). `nsc status`, `nsc budget`, `nsc page N`, `nsc style N`,
+`nsc doctor --firmware <checkout>`. The shape is MicroPixel's, and why is
+docs/33-one-cli-json.md.
+
+Two things it does that reading this file cannot: **a command that changes
+something reads the state back** (which is how the `{"styleId"}` no-op above
+was finally caught), and an "ok" that only means "it was already in that state"
+raises an `already_in_state` warning, because a verification that cannot fail
+is not a verification.
+
+`tools/nsc/functional.py` is this document as an executable sweep: all 16
+pages set and confirmed, the clock styles, every board's data, the portal's six
+assets, the four diagnostics routes, and the link-recovery and crash counters
+compared before and after. **41 checks, all passing, 2026-09-21** on
+`feat/net-broker`. Run it without a pipe - `python3 functional.py` - because a
+pipeline hands you the exit code of the last command in it, not of the test.
 
 ## Mistakes this file exists to prevent
 
