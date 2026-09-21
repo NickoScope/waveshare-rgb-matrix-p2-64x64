@@ -30,6 +30,55 @@ verification and discovery every 30 s), and that share is not being disclaimed.
 **It needs a power cycle, which is a person's job.** Nothing here reflashes a
 wall-mounted panel.
 
+### Why the watchdog did not save it — a hypothesis with a line number
+
+Read out of `src/network/network.cpp` while waiting, and it fits every number
+the panel last gave.
+
+The link watchdog has a last resort: `netRecover()` reboots the board if the
+link has stayed bad for `NET_REBOOT_AFTER_MS` = 6 minutes
+(`network.cpp:405-413`). **That backstop is armed by `netBadSinceMs`, which is
+set only inside `netRecover()` itself.** So nothing reboots unless something
+first decides the link is bad.
+
+Two paths through `netHealthTick()` decide nothing at all, and both are the
+paths a memory-starved panel takes:
+
+1. **`netStartProbe()` cannot create the ping session** (`network.cpp:395-398`).
+   It needs a 3,072-byte task stack plus the session struct. Under pressure
+   `esp_ping_new_session` fails, the function returns false, and the tick simply
+   returns. Nothing counted, nothing armed.
+2. **The session exists but nothing left the board** — `sent == 0`, the branch
+   at `network.cpp:454-462`. This one is deliberate and the comment explains
+   why: on 2026-09-20 the watchdog counted "ping_sock: send error=0" as
+   *gateway unreachable*, restarted a Wi-Fi link that was working, and became
+   the outage it exists to prevent. The root cause was on the line above it in
+   the log — the Wi-Fi task could not get its **1,626 B** buffer.
+
+That reasoning is right as far as it goes. But it stopped one step short: the
+branch declines to blame the gateway **and** declines to arm any backstop. A
+panel whose Wi-Fi task cannot get a buffer therefore cannot probe, cannot count
+a failure, cannot recover and cannot reboot — it just sits there, unreachable,
+for as long as the power is on.
+
+The last reading before it vanished says exactly that state:
+
+    allocFails 109   allocFailBytes 1626   allocFailTask "wifi"
+    largestHeapBlock 8692
+
+1,626 bytes is the same figure as in the comment, and it is also the web
+back-off threshold. Not proof — that needs the serial log — but the hypothesis
+has a line number and the arithmetic agrees.
+
+**The shape of a fix, not to be written without the owner.** Keep refusing to
+blame the gateway; add a separate, slower backstop on the state itself: nothing
+has reached this panel from outside in N minutes *and* it cannot even raise a
+probe. In that state the device is useless to everyone regardless of whose fault
+it is, and a reboot cannot make it worse. N wants to be generous — fifteen
+minutes, not six — precisely because this path has already caused one outage by
+acting too eagerly. This is also directly relevant to PR 7 upstream, which is
+the link watchdog.
+
 ### What was built
 
 - **The panel is now `NickoSha-64x128`.** Each panel gets its own name; the MAC
