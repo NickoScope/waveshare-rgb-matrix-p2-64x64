@@ -11,12 +11,20 @@ now optional, see the log over the network below.
 
 ## How to change what is on the screen
 
-**`POST /api/panel {"showPage": N}`** - this is the way. 16 pages, listed below.
+**`POST /api/panel {"show":{"page": N}}`** - this is the way. 16 pages, listed below.
 `GET /api/panel` returns everything: `now` (the page and style showing right now), `pages`,
 `styles`, `carousel`.
 
+**Not `{"showPage":N}`**, which this file said until 2026-09-21 while printing the right shape
+four paragraphs down and never noticing. The handler reads `in["show"]["page"]`
+(`src/web/web_panel.cpp:385-392`) and `/api/panel` keeps no whitelist of keys: one it does not
+know is simply never read, so `{"showPage":7}` answers `HTTP 200` with `success:true` and the
+whole state, and nothing moves - the same silent no-op this file already documents below for
+`{"styleId":N}`. Both were sent to the live panel on 2026-09-21: page 1 before, page 1 after,
+`success:true` each time.
+
 ```bash
-curl -s -X POST -H 'Content-Type: application/json' -d '{"showPage":7}' http://192.168.4.62/api/panel
+curl -s -X POST -H 'Content-Type: application/json' -d '{"show":{"page":7}}' http://192.168.4.62/api/panel
 curl -s http://192.168.4.62/api/panel | python3 -c 'import sys,json;print(json.load(sys.stdin)["now"])'
 ```
 
@@ -43,10 +51,24 @@ curl -s http://192.168.4.62/api/panel | python3 -c 'import sys,json;print(json.l
 
 **Clock styles: `POST /api/panel {"style": N}`** - the key is `style`, not `styleId`, and this
 file said `styleId` until 2026-09-21. **`{"styleId":N}` answers `HTTP 200` and does nothing**,
-exactly like `{"showPage":N}` before it. The firmware's own header is the authority:
-`src/web/web_panel.cpp:10` reads `POST /api/panel {"show":{"page":i[,"card":"name"]}} | {"style":id}`.
-There is no `POST /api/clock/style` - that route answers 404 to a POST. `styles[]` in the same
-reply gives the ids and names (0 = MARIO ... 14 = WEATHER).
+for the same reason `{"showPage":N}` does: an unrecognised key on this route is never read.
+The handler body is the authority - `src/web/web_panel.cpp:374-450`, which reads `show.page`,
+`style`, `enable` and `carousel` and nothing else. There is no `POST /api/clock/style` - that
+route answers 404 to a POST.
+
+`styles[]` in the same reply gives the ids and names. **Read it rather than assuming a range.**
+There are 15 styles and the ids run to 16, but 4 and 13 do not exist - 4 is a legacy alias of 3
+and 13 was retired - and 9, CUSTOM ROTATION, sits last rather than in numeric order
+(`src/control/clock_styles.h:12-30`). `{"style":N}` is checked against that list and an id not
+on it is refused with a 400 (`src/web/web_panel.cpp:396-398`).
+
+**Two routes set the style and they disagree; use `/api/panel`.** `POST /api/panel {"style":N}`
+validates against the real list, switches to the clock page, and marks the choice for saving,
+which `clockStyleTick` writes to NVS 2.5 s later (`src/main.cpp:832-835`,
+`src/control/clock_style.cpp:43-50, 136-143`). `GET /api/clock/style?id=N` takes any 0..16,
+including the two ids that do not exist, writes `settings.clockStyle` straight through, and
+calls neither `saveSettings()` nor `panelShowStyle()` (`src/web/web.cpp:588-603`) - so it does
+not bring the clock page up and the choice is gone at the next reboot.
 
 ```bash
 curl -s -X POST -H 'Content-Type: application/json' -d '{"style":14}' http://192.168.4.62/api/panel
@@ -71,20 +93,23 @@ project two wasted test sweeps.
 |---|---|
 | `/` `/portal.css` `/portal.js` `/panel.css` `/panel.js` `/favicon.*` | the portal, gzip from PROGMEM |
 | `/api/info` `/api/diagnostics` `/api/status` `/metrics` | **the diagnostics - start here** |
-| `/api/panel` | pages, styles, carousel; `showPage`, `styleId` |
+| `/api/log` | the log over the network: `?on=0\|1`, `?since=N`, `?clear` (no value needed - only its presence is tested, `src/web/web.cpp:177`), and the cursor in the `X-Log-*` headers - its own section below |
+| `/api/panel` | pages, styles, carousel; the keys are `show.page` and `style`, **not** `showPage` or `styleId` |
 | `/api/knob` | the knob's *settings* (reverse, lockout, debounce, detent) - **not** knob actions |
 | `/api/mode/clock` `/ambient` `/viz` `/auto` | force a mode, or give it back |
-| `/api/display/on` `/off` `/brightness?value=0..255` | the screen |
-| `/api/clock/style` | the clock style |
-| `/api/fx3d` `/fx3d` | the 3D scenes and looks (docs/27) |
+| `/api/display/on` `/off` `/brightness?value=0..100` | the screen. The brightness is a **percent**, not 0..255, and out of range is clamped in silence rather than refused - the reply echoes the percent actually used (`src/web/web.cpp:535-547`) |
+| `/api/clock/style` | the clock style - GET only, and the weaker of the two routes that set it; see above |
+| `/api/fx3d` `/fx3d` | the 3D scenes and looks (docs/27) - **bench build only.** Both are registered inside `#if defined(FX3D_ENABLED)` (`src/fx3d/fx3d.cpp:524-525`), and that flag is set in `env:matrix-waveshare-rgb-fx3dbench` alone (`platformio.ini:253-257`), not in the shipping `env:matrix-waveshare-rgb`. HTTP 404 on the live panel, 2026-09-21 |
 | `/api/lua` | the Lua effects |
-| `/api/worldclock` `/api/flightboard` `/api/railboard` `/api/market` `/api/yachtradar` `/api/media` | each data page's own settings |
+| `/api/worldclock` `/api/flightboard` `/api/market` `/api/yachtradar` `/api/media` | each data page's own settings |
+| `/api/railboard` | the rail page's settings, and the knob's station list. `POST {"favourites":[...]}` takes at most eight codes of three capital letters, **all or nothing** - one bad code is a 400 and the stored list is left exactly as it was, because a list half applied would have the knob walking through a mixture of the old and the new (`src/web/web_panel.cpp:636-651`) |
 | `/api/anim/list` `/play` `/upload` `/delete` | the animation player |
 | `/api/clips` `/api/clips/frame` `/api/clips/upload` | SD clips |
 | `/api/notify` `/api/notify/dismiss` | the notification overlay |
 | `/api/climate/pause` `/api/presence/mirror` `/api/ntptest` | the sensors, the clock's sync |
 | `/api/ir/sim` `/learn` `/clear` `/cancel` | the IR slots |
-| `/api/portal` `/save` `/api/export` `/api/import` `/api/rename` `/reset` | settings |
+| `/api/portal` `/save` `/api/export` `/api/import` `/reset` | settings |
+| `/api/rename` | the device name: `POST {"name":"..."}`, 1 to 31 characters, letters, digits and hyphens only, and it must begin with a letter; anything else is a 400 that names the rule. It saves and re-announces mDNS, so the name in this file's header stops being true (`src/web/web.cpp:613-649`) |
 | `/update` | OTA - **wait for `ota.state` to read `valid` before any reboot** |
 | `/api/reboot` | restart |
 
@@ -120,8 +145,10 @@ curl -s "http://192.168.4.62/api/log?on=0"                 # off, buffer freed
 Read with a cursor: `X-Log-From` is where the answer really starts (larger than
 you asked means lines were dropped while you were away), `X-Log-Bytes` is the
 body's length **in bytes** - never measure it as a string length - `X-Log-Seq`
-is the panel's total, `X-Log-Dropped` what it threw away. A read is capped at
-1 KB, so drain a burst in a loop rather than in one request.
+is the panel's total, `X-Log-Dropped` what it threw away, and `X-Log-On` the
+switch's own state - so one read says both what the log holds and whether it is
+still running (`src/web/web.cpp:181-193`). A read is capped at 1 KB, so drain a
+burst in a loop rather than in one request.
 
 In the portal: **Device status → Log over the network** - the switch, Follow,
 Clear, and a view that reports a gap rather than hiding it.
@@ -247,8 +274,15 @@ pipeline hands you the exit code of the last command in it, not of the test.
 - **Grepping only `server.on` for the route list.** Half the API is registered through `route()`
   in `src/web/web_panel.cpp`. Because of that, `docs/drafts/28-portal-hang-2026-09-20.md` first
   claimed the knob-only pages could not be driven over HTTP. **That was wrong** - `POST
-  /api/panel {"showPage":N}` drives every one of them, and all 16 were swept that way afterwards
-  with no new allocation failures.
+  /api/panel {"show":{"page":N}}` drives every one of them, and all 16 were swept that way
+  afterwards with no new allocation failures.
+- **Reading `HTTP 200` from `/api/panel` as proof that anything happened.** The route keeps no
+  whitelist of keys, so a wrong one - `{"showPage":N}`, `{"styleId":N}` - is never read at all,
+  and the answer is the same 200 with `success:true` and the full state that a command which
+  worked would give (`src/web/web_panel.cpp:374-450`). Both were sent to the live panel on
+  2026-09-21 and it did not move. On this route the only verification worth the name is to read
+  `now.page` (or `now.style`) back out of the reply and compare it with what was asked;
+  `tools/nsc/nsc.py` does exactly that, which is how the no-op was caught.
 - **Driving the panel through `/api/ir/sim`.** It reports success and does nothing. Two sweeps
   were lost to it.
 - **Measuring through the mDNS name.** Five seconds a request.
