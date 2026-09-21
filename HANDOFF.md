@@ -91,6 +91,41 @@ demand.
    NetGate. Its unbounded read is safe *there* because `netTask` carries a 30 s
    watchdog that restarts the chip - three files away from what I copied.
 
+### Later the same day, after the migration landed
+
+- **The knob picks the station.** Click walks LISTS -> STATION -> out, a turn in
+  STATION changes the station at once and reaches the broker as an interactive
+  request. It follows the media and market pages rather than inventing a long
+  press, which this firmware folds into a click on purpose. The list is data in
+  NVS - up to eight, `POST /api/railboard {"favourites":[...]}` - because the
+  portal's station controls were removed on the owner's instruction and this
+  replaces them. **His five: GLD, WAT, CLJ, WOK, SUR.** Verified end to end over
+  the serial knob console, reading the station back after every step.
+- **`-fstack-usage` is on**, our sources only (in the libraries it is eight
+  permanent "unbounded" warnings from variable-length arrays, and permanent
+  warnings are how a real one gets skimmed). `-Wstack-usage=2048` is a ratchet
+  set from the distribution - 9,407 functions, median 32 B, 99th percentile 256,
+  worst 2,000 - so it warns about nothing today and about anything worse than
+  anything we have ever had. `tools/nsc/stackreport.py` prints the list.
+- **The indoor sensor reads its own heat.** 32.3 C against a room at 24, so a
+  -8.7 C offset, set through the portal. One point of calibration, not a model:
+  it tracks screen brightness and will be wrong at night. Recorded in doc 29
+  because it lives only in NVS.
+- **PR 7 sent to Keralots**: https://github.com/Keralots/AnimatedPixelClock/pull/10
+  The first one upstream that fixes a bug in his code rather than offering ours -
+  the link watchdog restarting Wi-Fi over a probe the driver never sent. Also the
+  first without the Claude Code attribution line, on the owner's instruction.
+- **MicroPixel**: not forked and not cloned - read through the API, and watched
+  by two files (`tools/manager/micropixel_manager.py`, `AGENTS.md`) plus releases.
+  What was taken and what it caught is `docs/33-one-cli-json.md`; the delta was
+  written back into the NickoScope32 v1b project's own HANDOFF, where that
+  session had already proposed the same CLI and was waiting on the owner's word.
+- **Doc 29 carried three false claims**, all found in one day: `{"showPage":N}`,
+  `{"styleId":N}` (both answer HTTP 200 and do nothing), and "the serial knob
+  console does nothing" - it works, and the whole station picker was verified
+  with it. The document was written to be read by a person and there was nothing
+  that could check it. Now there is: `tools/nsc/functional.py`, 41 checks.
+
 ### Not done, and it matters
 
 **The flight board has never once fetched through the broker.** It was at its
