@@ -103,10 +103,26 @@ the bootloader header's flash size matches the board, both OTA slots sit at the
 expected offsets and the firmware fits them. The rest - the cable, the port
 dialog, Install - was the owner's, and it worked.
 
-**Still to be written down here:** which board entry he picked, and whether the
-Improv "Configure WiFi" step in the same dialog carried the credentials over.
-Those two decide what exactly is proven: a install of one of the three images,
-or the whole path including provisioning.
+**He picked the Waveshare entry, and the Improv "Configure WiFi" step worked.**
+That is the whole path proven, and it is the strongest of the three it could
+have been:
+
+  * The Waveshare entry is the one that did not exist before tonight. Its
+    `matrix-waveshare-rgb` merged image had never been written to a board - the
+    panel's own flashes were app-only OTAs, which never touch the bootloader or
+    the partition table.
+  * **It booted.** That is the `opi_opi` question answered by the hardware.
+    The failure mode that made this entry worth building - a quad-flash image
+    on a WROOM-2 module installing cleanly and then dying in `do_core_init`
+    every boot, which cost us 2026-09-14 - did not happen, so the octal
+    bootloader and the 32 MB flash size in the published header are right.
+  * **Improv carried the credentials over USB in the same dialog**, so the
+    `new_install_improv_wait_time: 15` in the generated manifest and the
+    firmware's first-boot Improv window line up. No access point, no captive
+    portal, no app switching.
+
+Page, manifest, images, bootloader, partition table and provisioning: all of it
+is now proven on hardware rather than verified on paper.
 
 **And the published image is two firmware changes behind main.** It was
 packaged at 23:06; `a4d8004` (twelve slots, 50 KB a script) landed at 00:09 and
