@@ -150,7 +150,7 @@ build - see the broken list below.
 |---|---|---|
 | ~~Concurrent portal requests~~ | **fixed in 2.5.0** (`fix/portal-heap`): 8 KB of contiguous internal RAM is held for the radio's recovery and given up the moment it starts failing, and the expensive routes are refused while it is. 30 of 30 rounds of the test that used to wedge the panel; worst response 0.17-0.31 s against 25 s and death | `drafts/28-portal-hang-2026-09-20.md` |
 | The audio visualizer | starting it costs 9.4 KB internal and the memory is **not** released when the mode is left | debt D1 |
-| `/api/ir/sim`, and `ir cw`/`ir ok` on serial | answer success, change nothing (IR `enabled:false`, `receiver:"not built"`) | - |
+| ~~`ir cw`/`ir ok` on serial~~ | **they work — corrected 2026-09-21.** `ir cw 1` turned the knob and changed the clock style; the whole station picker below was verified with them and nothing else. Only `/api/ir/sim` over HTTP is inert (IR `enabled:false`, `receiver:"not built"`); the serial console is not | `src/ir/ir_console.h` |
 | `/api/notify?text=..&seconds=..` | HTTP error, serial says `request handler not found` - the parameters are not these | - |
 | The animation player | `/api/anim/play?name=...` answers ok, `animationPlaying` stays false | needs eyes on the screen |
 | ~~The weather~~ | **not broken - corrected 2026-09-21.** Measured after a power cycle on `fix/panel-tonight`: `weatherValid:true`, `weatherAgeSeconds:140`, a fresh fetch two minutes after boot. The earlier `weatherValid:false` entry was a state, recorded as a fault | - |
@@ -158,6 +158,44 @@ build - see the broken list below.
 | Lua clock styles | `tetris_clock` 286 ms worst frame, `snake_clock` 180 ms, `snooker_clock` 325 ms to open - each one freezes the portal while it runs | - |
 | MQTT | 528 ms worst pass, 1,001 ms every pass once the link is wedged | - |
 | The radio under load | `allocFails` climbs steadily (task `wifi`, 1,626 B DMA buffers) whenever the panel is driven hard - 8 to 89 over two functional sweeps. Nothing fails visibly and the link never drops, but the shortage is real and its cause is the 131 KB HUB75 framebuffer that cannot move | docs/32 |
+
+## The knob on the rail page, and the station list
+
+**Click walks the stops, turn acts where you stopped** - the same shape the media
+and market pages use. There is no long press anywhere in this firmware:
+main.cpp folds `CTRL_LONG` into `CTRL_PRESS` deliberately, "held a little too
+long, it is still a click". A second thing to control is another stop, never
+another gesture.
+
+| click | stop | what a turn does |
+|---|---|---|
+| 1 | LISTS | departures → arrivals → diagnostics |
+| 2 | STATION | steps through the favourites, **changing the station at once** |
+| 3 | out | walks pages |
+
+The STATION stop does not exist while the list is empty - a stop where the knob
+does nothing is worse than one fewer stop.
+
+**The list is data in NVS, not code.** Up to eight, surviving reboots and
+reflashes. There is no portal for it: the owner had the station controls removed
+from the portal on 2026-09-20, and this replaces them.
+
+```bash
+curl -s -X POST -H 'Content-Type: application/json' \
+  -d '{"favourites":["GLD","WAT","CLJ","WOK","SUR"]}' http://192.168.4.62/api/railboard
+```
+
+**The owner's five, set 2026-09-21:** `GLD` Guildford (home), `WAT` London
+Waterloo, `CLJ` Clapham Junction, `WOK` Woking, `SUR` Surbiton. Written down
+here because an NVS wipe loses them and nothing else records what they were.
+
+Read them back with `GET /api/railboard` → `favourites`. **Do read them back**:
+the first POST of this list answered `HTTP 200` and looked like it had stored
+nothing, because the reporting field was in the wrong file. The store had worked.
+
+**Testing it without hands:** the serial console drives the knob for real -
+`ir ok` for the button, `ir cw 1` / `ir ccw 1` for detents. The whole picker was
+verified that way.
 
 ## Driving it from a script instead of by hand
 
