@@ -243,8 +243,18 @@ something between `weatherOnScreen()` and `nbSubmitRequest()` did not fire, and 
 know what**; the next session starts by turning the remote log on (`/api/log?on=1`) and reading
 it, not by reasoning about it.
 
-But the deeper point does not need that answer. This panel has reported `weatherValid:false`
-since boot for days, on the old firmware too - it is in doc 29's broken list. **A consumer that
-does not work cannot validate the thing it is the first consumer of.** "Least visible if it
-breaks" was the wrong criterion; "actually fetches today, so the test means something" is the
-right one. That points at the world clock's lookup, or the rail board with the owner watching.
+**Corrected the next morning, 2026-09-21.** The paragraph that stood here said this panel had
+reported `weatherValid:false` for days on the old firmware too, and concluded that weather was the
+wrong first consumer because a module that does not work cannot validate anything. **That was
+wrong.** After the panel was power-cycled and came back on `fix/panel-tonight`, `/api/info`
+reports `weatherValid: true` with `weatherAgeSeconds: 140` - a fresh fetch, two minutes after
+boot, through weather's own task. The weather works.
+
+Which sharpens the finding rather than softening it: weather fetches perfectly well on its own
+path, so **`served: 0` on the broker build was a defect in the broker path, not a pre-existing
+fault in weather**. Doc 29's "broken" entry for the weather is stale and has been corrected too.
+The original criterion in this document - weather first, because it is the simplest and least
+visible if it breaks - stands. It was my reasoning about it that did not.
+
+The cause is still not known, and the next session still starts by turning the remote log on and
+reading it. But it is now a search for my own bug, with a known-good control to compare against.

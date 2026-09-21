@@ -141,7 +141,7 @@ build - see the broken list below.
 | `/api/ir/sim`, and `ir cw`/`ir ok` on serial | answer success, change nothing (IR `enabled:false`, `receiver:"not built"`) | - |
 | `/api/notify?text=..&seconds=..` | HTTP error, serial says `request handler not found` - the parameters are not these | - |
 | The animation player | `/api/anim/play?name=...` answers ok, `animationPlaying` stays false | needs eyes on the screen |
-| The weather | `weatherValid:false` since boot; retries every 60 s, each a TLS handshake from internal RAM | `feat/tls-buffers-psram` unmerged |
+| ~~The weather~~ | **not broken - corrected 2026-09-21.** Measured after a power cycle on `fix/panel-tonight`: `weatherValid:true`, `weatherAgeSeconds:140`, a fresh fetch two minutes after boot. The earlier `weatherValid:false` entry was a state, recorded as a fault | - |
 | Yacht radar | failed a 12,288 B internal allocation under memory pressure | - |
 | Lua clock styles | `tetris_clock` 286 ms worst frame, `snake_clock` 180 ms, `snooker_clock` 325 ms to open - each one freezes the portal while it runs | - |
 | MQTT | 528 ms worst pass, 1,001 ms every pass once the link is wedged | - |
