@@ -86,6 +86,33 @@ negative answer there makes the rest of the document moot. It also sits
 downstream of D1 and D2, because it needs TX DMA buffers in the internal heap
 that is already the binding constraint.
 
+### The flasher has never flashed anything — and it is now stale
+
+**Nobody has installed a board from that page.** Everything testable without a
+cable was checked and passed: the page serves, `VERSION` reads v2.5.0, the
+image downloads at 2,373,392 B with a SHA-256 matching the published checksum
+exactly, the ESP Web Tools manifest points at our file at offset 0x0 with
+chipFamily ESP32-S3, and the image's own header reads magic 0xE9, chip id 9,
+32 MB flash, with an application at 0x10000. `release.py`'s checks passed too:
+the bootloader header's flash size matches the board, both OTA slots sit at the
+expected offsets and the firmware fits them. But **the end of it needs a USB
+cable, a real board and a person pressing Install** and choosing the port in
+the browser's own dialog, and that has not happened. Until it does, the page is
+verified, not proven.
+
+**And the published image is two firmware changes behind main.** It was
+packaged at 23:06; `a4d8004` (twelve slots, 50 KB a script) landed at 00:09 and
+`e3d99e1` (reload the running effect on upload) at 01:02. So a board installed
+from the page today would come up with four slots, a 24 KB cap and the upload
+bug — **while calling itself v2.5.0, exactly like the panel, whose bytes are
+different.** The same version on two different binaries is the part that will
+mislead somebody.
+
+The fix is one pass: bump `FIRMWARE_VERSION` to 2.5.1 in `src/config/config.h`,
+`python release.py` (it builds all three boards, repackages `docs/firmware/latest`
+and refuses a version that does not match the header), commit, push. Do this
+before anyone is pointed at the page.
+
 ### Two things left open
 
 - **Night mode is off.** The window was 00:00-06:00 and the screen went dark at
