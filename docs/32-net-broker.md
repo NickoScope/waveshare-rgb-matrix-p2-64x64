@@ -282,6 +282,38 @@ document, "16,372 B before, 9,716 B after", paired a *settled* good-build
 reading with a *pressured* broker-build one. The direction may well be right;
 the magnitude was not established.
 
+### The measurement, done properly - and the model was wrong
+
+Seven boots of the good build, one reading each at T+25 s, nothing driven
+(`scratchpad/paired.py`):
+
+```
+24,564 · 24,564 · 23,540 · 23,540 · 22,516 · 22,516 · 16,372
+```
+
+Free internal heap was 34,456-34,568 B in every one of them.
+
+Two things fall out, and both contradict what this document assumed.
+
+**The largest block does not decay.** Sampled at T+20, 60, 120 and 180 s within
+one boot it did not move by a single byte - 23,540 four times in one run,
+16,372 four times in the next. What varies is the **boot**, not the elapsed
+time. Everything earlier that was read as "it falls over hours of use" was
+different boots being compared.
+
+**The variation is a boot-time layout lottery, and it is quantised.** Free heap
+is the same to within 112 B across all seven, so nothing is being consumed -
+the same bytes simply end up arranged differently. The values land on 1,024-byte
+steps, and one boot in seven produced 16,372, more than 6 KB below the usual
+band.
+
+That last figure is the one that matters. The flight board needs 13,312 B
+contiguous before it will attempt a fetch, so its margin is 9,204-11,252 B on a
+normal boot and **3,060 B on an unlucky one** - on the build with no broker at
+all. Any change that takes a few kilobytes of contiguity is therefore fine six
+boots out of seven and fails on the seventh, which is exactly the shape of
+fault that gets called intermittent and chased for weeks.
+
 **What a real measurement of this needs:** both builds read at the same point
 in the same sequence - fixed time after boot, same page on screen, no HTTP
 traffic in the preceding two seconds (the panel stands aside for a web client
