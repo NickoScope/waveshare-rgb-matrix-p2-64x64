@@ -456,3 +456,66 @@ broker + 1 consumer:  16372 14324 14324 11764  7668  (one boot did not return)
 Two of five below the flight board's 13,312 B threshold, one below the rail
 board's 10,240, and one boot that never came back. The migration has to land
 whole.
+
+---
+
+## The thing it was all for, measured side by side, 2026-09-21
+
+One portal visit, the way a browser does it: six concurrent requests for the
+page and its assets, then the idle polling a left-open tab does, three rounds
+at five seconds. Both builds, fresh boot, rail page on screen
+(`scratchpad/visit.py`).
+
+**`fix/panel-tonight` - the build that has been on the wall:**
+
+```
+200  19801 B  /            200   5709 B  /portal.css     200  18504 B  /portal.js
+200   2440 B  /panel.css   200  39100 B  /panel.js       200    176 B  /favicon.ico
+--- then ---
+0  /api/info    0  /api/panel    0  /api/railboard        (x3, all timed out)
+```
+
+The portal loads beautifully. **Then the panel dies.** It did not answer again
+for the two minutes it was polled, and needed a reflash. That is the owner's
+complaint, word for word - *"открыл вэб портал… управление виснет, пока не
+нажмешь ресет"* - reproduced deliberately, on demand, for the first time.
+
+**`feat/net-broker`, all four consumers migrated:**
+
+```
+200  19801 B  /            200   5709 B  /portal.css     200  18504 B  /portal.js
+200   2440 B  /panel.css   200  39100 B  /panel.js       200    176 B  /favicon.ico
+--- then ---
+200  /api/info   200  /api/panel   200  /api/railboard    (x3, all fine)
+```
+
+Free internal 21,540 B afterwards, largest block 12,276, ten allocation
+failures, **zero link recoveries**. The panel kept working.
+
+### What that costs, stated plainly
+
+The broker build is worse on every memory number: free internal heap around
+23,300 B against 34,500, largest contiguous block a median 13,812 B against
+23,540 (seven boots each, `paired.py`). It uses 8 KB of `.bss` for the stack
+and about 3 KB more besides.
+
+And it is better at the only thing that was ever the complaint. The numbers got
+worse and the panel stopped dying, because what killed it was never the
+quantity of free RAM - it was four modules each demanding 8-13 KB of it
+*contiguous* at a moment nobody chose, while a browser held six connections
+open. The broker does not make the heap bigger. It removes the demand.
+
+### And under deliberate abuse
+
+250 requests, ten at a time, every two seconds for a hundred seconds, with the
+rail board fetching 93 KB through it: 88 served, 162 refused with 503,
+`allocFails` climbing to 133 - all of them the Wi-Fi driver's 1,626 B DMA
+buffers - and **`linkRecoveries` still zero**. The panel never left the network
+and never needed a reset. The refusals are the back-off doing its job: a burst
+starves the radio, the radio's failure raises the back-off, and the back-off
+refuses the rest of the burst rather than letting it finish the job. Degraded,
+deliberately, and alive.
+
+That remaining behaviour is a portal problem, not a broker problem, and it has
+its own answer: fewer, smaller things in a browser's first burst. It is also
+much smaller than the one that was there this morning.
