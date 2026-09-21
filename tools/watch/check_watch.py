@@ -140,6 +140,7 @@ def check_tools(state, events):
 # review comments, and the state including merged.
 PULLS = {
     4: "PR #4 mbedTLS buffers in PSRAM",
+    10: "PR #10 link watchdog: a probe that never left",
 }
 
 

@@ -1,7 +1,11 @@
 # Draft: upstream PR 7 to Keralots/AnimatedPixelClock, the link watchdog
 
-**Status: NOT SENT.** Branch is committed locally and builds; nothing is pushed and no pull
-request exists. Goes nowhere until the owner says "отправляй".
+**Status: POSTED 2026-09-21 12:43** on the owner's "отправляй":
+https://github.com/Keralots/AnimatedPixelClock/pull/10 - head
+`NickoScope:fix/link-watchdog-unsent-probe` at `b674699` onto upstream main `1555601`, one
+commit, +20 -1 in one file. Rewritten twice before posting at his word ("напиши по человечески
+моим языком и чуть короче") - the posted body is about half the first draft. **First PR without
+the Claude Code attribution line**, on his instruction of the same day; PRs 1-6 carry it.
 
 ## The bug, in his code
 

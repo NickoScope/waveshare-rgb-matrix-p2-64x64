@@ -128,3 +128,10 @@ idea, not of their code, and we found no fault in what we read. An issue filed
 to say hello is noise. If their CLI contract changes in a way that breaks the
 reasoning in doc 33, that is worth a question - drafted here first, posted only
 on the owner's "отправляй", like everything else on this list.
+
+## PR 7 — сторож связи, отправлен 2026-09-21
+
+https://github.com/Keralots/AnimatedPixelClock/pull/10 — единственный PR наверх, который чинит
+**его** ошибку, а не предлагает нашу функциональность: сторож перезапускает Wi-Fi из-за пинга,
+который драйвер не смог отправить. Ждём ответа Рафаля: комментарии, ревью, состояние, merge.
+Черновик и разбор — `docs/drafts/upstream-pr-07-link-watchdog.md`.
