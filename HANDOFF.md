@@ -2,6 +2,63 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-21: the network broker lands, and one portal visit stops killing the panel (integration session, `feat/net-broker`)
+
+- **The complaint is fixed, and was reproduced first.** One portal visit - six
+  concurrent requests, the way a browser opens it - on `fix/panel-tonight`, the
+  build that had been on the wall: every asset served perfectly, and then the
+  panel stopped answering altogether and needed a reflash. That is the owner's
+  *"открыл вэб портал… виснет, пока не нажмешь ресет"*, on demand, for the
+  first time. The same visit on `feat/net-broker`: every asset served, panel
+  still working, zero link recoveries.
+- **All four consumers are on the broker.** Weather, world clock, rail board,
+  flight board. No module creates a fetch task at run time any more. One 10 KB
+  stack in `.bss` replaces four run-time allocations of 8-13 KB, and the demand
+  for a *contiguous* internal block at an unchosen moment - which is what was
+  actually killing the panel - is gone.
+- **Its shape is NickoScope32's NetGate** (v1B Main-S3 v33.64.0, ADD-62), read
+  from the source at the owner's direction: one permanent worker, per-request
+  TLS client destroyed before the answer is published, a PSRAM mailbox
+  published by a `seq`, the parse on the loop task. What we did not take, and
+  why, is in docs/32.
+- **The memory numbers got worse and the panel stopped dying.** Free internal
+  ~19-23 KB against ~34.5; largest contiguous block a median 13,812 B against
+  23,540 (seven boots each). Both true, and the second is the one that was ever
+  the complaint.
+- **A measurement method was wrong for two days.** `largestHeapBlock` does not
+  decay over hours - it is identical to the byte within a boot and varies
+  *between* boots, on 1,024-byte steps, one in seven landing 6 KB low. Every
+  "before and after" in this project that paired single readings was therefore
+  worthless. Protocol and figures: docs/32, `scratchpad/paired.py`.
+- **Two silent no-op payloads found.** `{"styleId":N}` answers HTTP 200 and does
+  nothing; the key is `{"style":N}`. Doc 29 had documented the wrong one, and it
+  cost a night of believing the broker was never being asked for data, when in
+  truth the weather page had never once reached the screen. `{"showPage":N}` was
+  the same class, found earlier.
+- **Tooling:** `tools/nsc/nsc.py` (one JSON object, meaningful exit codes,
+  verification by read-back, `doctor` that catches its own table drifting) and
+  `tools/nsc/functional.py` (41 checks, all passing). docs/33 explains the
+  shape and what it is *not* worth - the estate's famous "counter instead of
+  effect number" bug would not have been prevented by JSON at all.
+- **Audits:** four rounds. The last found three MAJOR, of which the real one was
+  mine: having taken 12 KB off the broker's stack I had put 4,784 B on the loop
+  task's, in three 2 KB token buffers - 58% of an 8 KB stack, measured from the
+  object file. Largest frame in that file is now 224 B.
+- **Next, in order:** (1) **the flight board has never fetched through the
+  broker** - it was at its daily API cap all day, so its path and its 192 KB
+  mailbox are inherited, not measured; do it tomorrow when the cap rolls.
+  (2) Rail behaviour on 429 and at daily-budget exhaustion, where two of
+  today's MAJOR findings lived. (3) A station change *during* a fetch sequence.
+  (4) The 30->10 minute history cut against real delays: a thrice-delayed train
+  now leaves the board where it used to stay. (5) `-fstack-usage` in
+  `platformio.ini` - NickoScope32 enforces it at build time and we have it
+  nowhere; it is what catches an oversized stack before a flash.
+- **Open and unchanged:** the radio's `allocFails` climb under load (task
+  `wifi`, 1,626 B DMA buffers) - harmless so far, cause is the 131 KB
+  framebuffer; yacht radar's 17.5 KB outside the lock; MQTT blocking connect;
+  OTA not taking the lock; station/airport selection still to move to the knob.
+- **Panel:** running `feat/net-broker` on the owner's instruction, healthy.
+
 ## 2026-09-20, night: the network broker is built and audited, and the panel rejected it (integration session, `feat/net-broker`)
 
 - **Done:** `feat/net-broker` `21e6adc`, pushed. One task owns the outbound socket, with its
