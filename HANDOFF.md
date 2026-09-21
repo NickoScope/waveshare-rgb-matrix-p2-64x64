@@ -160,6 +160,27 @@ removed (the page only ever serves what `VERSION` names), and checked on the
 live site: it reports v2.5.1, the Waveshare image downloads at 2,373,568 B and
 its SHA-256 matches the published checksum.
 
+### The panel finished the night on v2.5.1, with night mode back on
+
+Flashed over the air at 01:19, `app0 -> app1`, waited for `ota.state` to read
+`valid` before touching anything. Night mode was restored by the same
+procedure as turning it off: all 122 form fields snapshotted, all sent, diffed
+after - exactly one changed, `enableScheduledOff` False -> True. The window is
+00:00-06:00, so the screen went dark within the minute, which is what was
+wanted. Link counters clean: `linkBlindS 0`, `linkRecoveries 0`,
+`allocFails 0`, ~18 KB internal free.
+
+**One thing to look at with fresh eyes.** When I went to flash at 01:17 the
+panel had an uptime of 43 s - it had restarted on its own about fourteen
+minutes after the 01:03 boot, with `resetReason 3` (software reset). Nothing
+crashed: the `lastCrash` record on the panel is from 2026-09-21 11:12 and
+reports `sameFirmware: false`, `thisBoot: false`, so it belongs to an older
+image and not to this. A software reset roughly fifteen minutes after a boot
+is suspiciously close to `NET_BLIND_REBOOT_MS` (900 000 ms) in
+`src/network/network.cpp`, but the panel was answering HTTP throughout that
+window, so if that watchdog fired it fired on something other than HTTP
+reachability. Worth one look; not worth a theory tonight.
+
 ### Two things left open
 
 - **Night mode is off.** The window was 00:00-06:00 and the screen went dark at
