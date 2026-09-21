@@ -159,6 +159,30 @@ build - see the broken list below.
 | MQTT | 528 ms worst pass, 1,001 ms every pass once the link is wedged | - |
 | The radio under load | `allocFails` climbs steadily (task `wifi`, 1,626 B DMA buffers) whenever the panel is driven hard - 8 to 89 over two functional sweeps. Nothing fails visibly and the link never drops, but the shortage is real and its cause is the 131 KB HUB75 framebuffer that cannot move | docs/32 |
 
+## The indoor sensor reads its own heat, and the offset that corrects it
+
+The SHTC3 sits inside the enclosure beside the LED matrix and the ESP32, so it
+reads the panel, not the room. Measured 2026-09-21: sensor **32.3 °C** against a
+room at **24**, an offset of **-8.7 °C**, set in the portal under Display ->
+Indoor sensor -> "Temperature offset, °C" (`climateTempOffset`, tenths, in NVS).
+
+Humidity corrects itself and should be left alone: `climateRhFollowsT` is on by
+default, so the same air recomputed at 23.6 °C reads **69.6 %RH** where the
+sensor said 41.9 - the water in the air did not change, only the temperature it
+is measured at.
+
+**This is one point of calibration, not a model, and it will drift.** Self-heating
+depends on screen brightness, on what is being drawn and on the room itself.
+Calibrated at one minute, at one brightness: at night with the screen dimmed the
+panel will read COLDER than the room, and in a hot room the offset will be too
+small. Doing it properly means readings at several brightnesses and, if the
+offset tracks brightness, computing it rather than storing a number.
+
+Written down because it lives only in NVS: a wipe loses it and nothing else
+records what it was or why.
+
+Read it back: `GET /api/info` -> `climate` -> compare `sensorTempC` with `tempC`.
+
 ## The knob on the rail page, and the station list
 
 **Click walks the stops, turn acts where you stopped** - the same shape the media

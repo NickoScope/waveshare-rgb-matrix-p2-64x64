@@ -157,9 +157,23 @@ def main():
         note(st == 200 and len(body) > 0, f"портал {path}", f"HTTP {st}, {len(body)} B")
 
     print("\n=== диагностика ===")
+    # Retried, with a bound, and the count reported. **Not to make it go green**:
+    # a 503 here is the panel's designed back-off, and the sweep's own traffic -
+    # six portal assets including a 39 KB file, moments earlier - is what raises
+    # it. A test that fails on designed behaviour tests the wrong thing; one that
+    # retries without a bound hides a panel that is genuinely stuck. So: bounded,
+    # and a run that needed three attempts reads differently from one that needed
+    # none, instead of both saying "ok".
     for path in ("/api/info", "/api/diagnostics", "/api/status", "/metrics"):
-        st, body = get(host, path)
-        note(st == 200 and len(body) > 0, f"диагностика {path}", f"HTTP {st}")
+        tries = 0
+        st, body = 0, b""
+        for tries in range(1, 5):
+            st, body = get(host, path)
+            if st == 200:
+                break
+            time.sleep(5)
+        note(st == 200 and len(body) > 0, f"диагностика {path}",
+             f"HTTP {st}" if st != 200 else (f"со {tries}-й попытки" if tries > 1 else ""))
 
     print("\n=== после прогона ===")
     st, after = retrying(lambda: get_json(host, "/api/info"))
