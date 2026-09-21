@@ -326,3 +326,79 @@ broker's `.bss` stack unquestionably removes that many bytes from the heap, and
 the flight board unquestionably refuses to fetch below 13,312 B contiguous -
 but *how much* contiguity the broker actually costs, against the noise of
 normal operation, has not been measured properly yet.
+
+---
+
+## What NetGate gave us, and what copying it cost, 2026-09-21
+
+The owner pointed at NickoScope32's own network layer - **v1B Main-S3 v33.64.0**, the baseline
+running in U301 since 2026-09-12, under
+`Electronic-Engeneering-Schema-PPCB/work/repos/NikoScope32/baseline firmware/`, **not** under
+`NickoSClock/`, whose newest S3 tree is nine releases behind at v33.55.0. The network layer barely
+differs between the two: a diff of `netgate.cpp` is two lines.
+
+Its organising idea, from reading it rather than from the ADD: **one permanent worker task
+draining a two-level priority queue, for request/response HTTP(S) only, surrounded by long-lived
+socket tasks that are named as exceptions.** `netTask`, core 0, priority 1, 16 KB stack, created
+once. **Zero `vTaskDelete` in the entire firmware** - no transient tasks at all. loop() posts a
+job, the worker does one blocking TLS transaction, streams the body into a per-owner PSRAM
+mailbox, and publishes by incrementing a `seq`. Single producer, single consumer, no lock, no
+callbacks. The anti-storm rule is one byte of state per owner rather than a discipline.
+
+### Taken, in order of what it was worth
+
+1. **The TLS client lives one request** (`netgate.cpp:128`, and the closing brace at `:198`:
+   *"~HTTPClient/~WiFiClientSecure: TLS-память освобождена ДО seq++"*). We had held one from boot.
+   Measured cost of holding it: 2,048 B of contiguous internal block, and two thirds of the flight
+   board's margin.
+2. **The mailbox, and the parse on loop().** This is the structural one. With a parse callback the
+   broker's stack has to be big enough for whatever the deepest consumer's parser needs - unknowable
+   in advance. With the mailbox it has to be big enough for a handshake and a memcpy, which is a
+   property of one file. On a board whose entire problem is contiguous internal SRAM that is the
+   difference between a bounded quantity and a hostage.
+3. **`NgSink`** - a `Stream` that writes into the buffer with a cap and a truncation flag
+   (`netgate.cpp:81-103`). Ours is that with 32-bit lengths.
+4. **A shared "is the internet actually up" flag** every consumer must consult before touching
+   DNS. Not taken yet; it should be. Their incident is recorded at `netgate.h:113-118`:
+   `hostByName()` with a dead gateway freezes ~14 s per attempt, and `WiFi.status()==CONNECTED`
+   does not mean the internet works.
+
+### Not taken, deliberately
+
+Their queue copies a ~1 KB job struct by value, twelve slots, **~12 KB of internal SRAM** - their
+own ADD-62 prices it at "+4.6 KB" against a budget of 2.5 KB and admits the URL growth blew it
+roughly fivefold. Ours keeps the URL and credential in PSRAM: four slots, ~2 KB of PSRAM and
+almost no internal RAM.
+
+### And the part worth remembering: copying it cost two MAJOR findings
+
+Both were in code taken from NetGate without checking what the Arduino library underneath does.
+
+- **`writeToStream` returns negative with bytes already delivered** when a connection dies
+  mid-body with a `Content-Length` set (`HTTPClient.cpp:1365-1460`). We were only overriding the
+  status when *nothing* had arrived, so a half-received answer reached the caller wearing a 200.
+- **`writeToStreamDataBlock` has no deadline at all**: `while (connected() && ...) { if
+  (available()) {...} else delay(1); }`. `setTimeout` does not help - `SO_RCVTIMEO` expires,
+  mbedTLS turns `EAGAIN` into `WANT_READ`, `connected()` stays true. A server that sends headers
+  and then goes quiet holds that loop for ever, and in a single permanent worker that holds the
+  network lock, that is the panel's whole outbound network, silently: the task watchdog does not
+  fire either, because `delay(1)` yields.
+
+**NetGate is not wrong to use it** - it carries a 30 s task watchdog on `netTask`
+(`netgate.cpp:317`) that panics and restarts the chip, which is a real answer. It is simply not
+the answer for something on a wall, so here the body is read in our own loop against our own
+deadline, under HTTP/1.0 so there is no chunked framing to decode by hand.
+
+The lesson is narrower than "verify what you copy": **a design borrowed from a working system
+carries that system's mitigations, and those do not come across in the code you copy.** Their
+unbounded read is safe because of a watchdog three files away.
+
+### Also worth stealing from their `AGENTS.md`
+
+> *"Do not bypass stack-frame checks or simply increase task stacks to accommodate work buffers."*
+> *"Host builds enforce stack-frame limits and emit GCC `.su` reports … measure task minimum free stack on the selected board after success and failure paths."*
+
+They catch oversized stacks **at build time** with `-fstack-usage`. **We have that flag in no
+environment** - checked 2026-09-21 - and it is exactly the failure that produced the 12 KB broker
+stack. Also theirs: identify the board **by MAC, not by a re-enumerating port name**, which would
+have saved a diagnosis on the night `/dev/cu.usbmodem2101` vanished mid-test.
