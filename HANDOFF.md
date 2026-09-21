@@ -132,13 +132,33 @@ bug — **while calling itself v2.5.0, exactly like the panel, whose bytes are
 different.** The same version on two different binaries is the part that will
 mislead somebody.
 
-That makes the staleness below the more urgent of the two: the page works, so
-what it serves matters.
+### It cannot fall behind quietly again
 
-The fix is one pass: bump `FIRMWARE_VERSION` to 2.5.1 in `src/config/config.h`,
-`python release.py` (it builds all three boards, repackages `docs/firmware/latest`
-and refuses a version that does not match the header), commit, push. Do this
-before anyone is pointed at the page.
+The page had come to serve bytes built at 23:06 while main had moved twice, and
+to call all of it v2.5.0 - which is also what the panel called its different
+bytes. Asked whether to fix it now or tomorrow, the owner's answer was the
+right one: **this should not be a thing anyone remembers.**
+
+So it is a hook, in the house pattern. `release.py` stamps
+`docs/firmware/latest/SOURCE.sha` with the version it packaged *and* a hash of
+everything that can change a binary - `src/`, `platformio.ini`, the partition
+tables it names. `tools/firmware_stamp.py --check` compares that against the
+tree whenever a commit touches those files:
+
+  * it **fails** when the sources have moved while `FIRMWARE_VERSION` has not,
+    because that is the actual defect - two binaries under one name, and a
+    person comparing versions being told they match when they do not;
+  * it only **notes** that the page is behind, because lagging is normal
+    between a change and a release, and a hook that demands a three-board
+    build on every commit is a hook people switch off.
+
+Both paths were exercised, not assumed: stamped, it exits 0; append one line to
+a header and it exits 1 with the message.
+
+**v2.5.1 is published and live.** All three boards rebuilt, the v2.5.0 images
+removed (the page only ever serves what `VERSION` names), and checked on the
+live site: it reports v2.5.1, the Waveshare image downloads at 2,373,568 B and
+its SHA-256 matches the published checksum.
 
 ### Two things left open
 
