@@ -30,7 +30,29 @@ verification and discovery every 30 s), and that share is not being disclaimed.
 **It needs a power cycle, which is a person's job.** Nothing here reflashes a
 wall-mounted panel.
 
-### Why the watchdog did not save it — a hypothesis with a line number
+### Why the watchdog did not save it — CONFIRMED after the power cycle
+
+**Confirmed 2026-09-21 18:20, from the panel itself after the owner pulled the
+power.** Three readings settle it:
+
+- **`resetReason` is 1, `ESP_RST_POWERON`.** The firmware's own portal maps 1 to
+  "Power on" and 3 to "Software restart" (`web_pages.h:2004`). `netRecover()`'s
+  last resort calls `ESP.restart()`, which gives 3. **It gave 1.** So in more
+  than an hour unreachable, the six-minute reboot backstop never fired once.
+- **`lastCrash.thisBoot` is false**, and the stored record is from 11:12 today
+  with `sameFirmware: false` — an earlier build of this morning, superseded by
+  the 12:25 one. Nothing crashed during the outage.
+- **The loop task was running the whole time.** `main.cpp:592-593` subscribes it
+  to the task watchdog with a 15-second timeout and panic enabled, and
+  `main.cpp:996` feeds it every pass. Had `loop()` hung for fifteen seconds the
+  board would have panicked and come back with `resetReason` 6. It did not.
+
+So the panel was alive, looping, feeding its watchdog and almost certainly still
+drawing the clock on the wall — and `netHealthTick()` ran some thousands of
+times across that hour without ever deciding the link was bad. That is the blind
+spot below, and this is no longer a hypothesis.
+
+### The blind spot, with line numbers
 
 Read out of `src/network/network.cpp` while waiting, and it fits every number
 the panel last gave.
