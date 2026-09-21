@@ -54,7 +54,8 @@ Read it in `on_ping_end` and treat that case as "try again later".
 ## Notes for when it is sent
 
 - His house style, from the six PRs before this: prose rather than bullet lists, the owner's
-  voice, the Claude Code attribution line at the end of the body.
+  voice. **No Claude Code attribution line** - the owner's instruction of 2026-09-21, "убери из
+  всех будующих". PRs 1-6 carry it; this one and everything after do not.
 - Worth offering alongside, but **not** in the PR - two measurements that cost us days and may
   save him the same:
   - a 128x64 HUB75 panel holds **131,072 B** of DMA framebuffer in internal RAM
