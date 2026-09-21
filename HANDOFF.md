@@ -2,62 +2,122 @@
 
 Rolling record of where the work stands. Newest first.
 
-## 2026-09-21: the network broker lands, and one portal visit stops killing the panel (integration session, `feat/net-broker`)
+## 2026-09-21: the network broker lands, and one portal visit stops killing the panel
 
-- **The complaint is fixed, and was reproduced first.** One portal visit - six
-  concurrent requests, the way a browser opens it - on `fix/panel-tonight`, the
-  build that had been on the wall: every asset served perfectly, and then the
-  panel stopped answering altogether and needed a reflash. That is the owner's
-  *"открыл вэб портал… виснет, пока не нажмешь ресет"*, on demand, for the
-  first time. The same visit on `feat/net-broker`: every asset served, panel
-  still working, zero link recoveries.
-- **All four consumers are on the broker.** Weather, world clock, rail board,
-  flight board. No module creates a fetch task at run time any more. One 10 KB
-  stack in `.bss` replaces four run-time allocations of 8-13 KB, and the demand
-  for a *contiguous* internal block at an unchosen moment - which is what was
-  actually killing the panel - is gone.
-- **Its shape is NickoScope32's NetGate** (v1B Main-S3 v33.64.0, ADD-62), read
-  from the source at the owner's direction: one permanent worker, per-request
-  TLS client destroyed before the answer is published, a PSRAM mailbox
-  published by a `seq`, the parse on the loop task. What we did not take, and
-  why, is in docs/32.
-- **The memory numbers got worse and the panel stopped dying.** Free internal
-  ~19-23 KB against ~34.5; largest contiguous block a median 13,812 B against
-  23,540 (seven boots each). Both true, and the second is the one that was ever
-  the complaint.
-- **A measurement method was wrong for two days.** `largestHeapBlock` does not
-  decay over hours - it is identical to the byte within a boot and varies
-  *between* boots, on 1,024-byte steps, one in seven landing 6 KB low. Every
-  "before and after" in this project that paired single readings was therefore
-  worthless. Protocol and figures: docs/32, `scratchpad/paired.py`.
-- **Two silent no-op payloads found.** `{"styleId":N}` answers HTTP 200 and does
-  nothing; the key is `{"style":N}`. Doc 29 had documented the wrong one, and it
-  cost a night of believing the broker was never being asked for data, when in
-  truth the weather page had never once reached the screen. `{"showPage":N}` was
-  the same class, found earlier.
-- **Tooling:** `tools/nsc/nsc.py` (one JSON object, meaningful exit codes,
-  verification by read-back, `doctor` that catches its own table drifting) and
-  `tools/nsc/functional.py` (41 checks, all passing). docs/33 explains the
-  shape and what it is *not* worth - the estate's famous "counter instead of
-  effect number" bug would not have been prevented by JSON at all.
-- **Audits:** four rounds. The last found three MAJOR, of which the real one was
-  mine: having taken 12 KB off the broker's stack I had put 4,784 B on the loop
-  task's, in three 2 KB token buffers - 58% of an 8 KB stack, measured from the
-  object file. Largest frame in that file is now 224 B.
-- **Next, in order:** (1) **the flight board has never fetched through the
-  broker** - it was at its daily API cap all day, so its path and its 192 KB
-  mailbox are inherited, not measured; do it tomorrow when the cap rolls.
-  (2) Rail behaviour on 429 and at daily-budget exhaustion, where two of
-  today's MAJOR findings lived. (3) A station change *during* a fetch sequence.
-  (4) The 30->10 minute history cut against real delays: a thrice-delayed train
-  now leaves the board where it used to stay. (5) `-fstack-usage` in
-  `platformio.ini` - NickoScope32 enforces it at build time and we have it
-  nowhere; it is what catches an oversized stack before a flash.
-- **Open and unchanged:** the radio's `allocFails` climb under load (task
-  `wifi`, 1,626 B DMA buffers) - harmless so far, cause is the 131 KB
-  framebuffer; yacht radar's 17.5 KB outside the lock; MQTT blocking connect;
-  OTA not taking the lock; station/airport selection still to move to the knob.
-- **Panel:** running `feat/net-broker` on the owner's instruction, healthy.
+Integration session, branch `feat/net-broker`, running on the panel by the
+owner's instruction.
+
+### What was done
+
+- **All four network consumers moved onto one broker.** Weather, world clock,
+  rail board, flight board. **No module creates a fetch task at run time any
+  more.** One 10 KB stack in `.bss` replaces four run-time allocations of
+  8-13 KB, and the demand for a *contiguous* internal block at a moment nobody
+  chose - which is what was actually taking the panel off the network - is gone.
+- **Built to NickoScope32's NetGate design** (v1B Main-S3 v33.64.0, ADD-62),
+  read from its source at the owner's direction: one permanent worker task, a
+  TLS client built per request and destroyed *before* the answer is published,
+  the body copied into a per-caller PSRAM mailbox and published by bumping a
+  `seq`, the parse on the loop task. The broker never runs consumer code, which
+  is what makes its stack a knowable quantity. What was deliberately **not**
+  taken - its queue costs ~12 KB of internal RAM copying job structs by value -
+  and what copying it cost us, is in `docs/32-net-broker.md`.
+- **The rail board stopped downloading half an hour of history.** It was
+  fetching 110 services and 120,619 B to fill eight rows. The request now asks
+  for 10 minutes of past instead of 30; the forward reach is untouched at 60
+  minutes, because that is what decides whether a quiet station can fill the
+  board at all.
+- **Two operator tools**, `tools/nsc/`: `nsc.py` (one JSON object per command,
+  meaningful exit codes, every state change verified by reading it back) and
+  `functional.py` (the control map as an executable sweep). `docs/33-one-cli-json.md`
+  explains the shape, and is honest that JSON alone would not have prevented the
+  estate's famous "counter instead of effect number" bug.
+- **Four audit rounds**, every finding closed.
+
+### What was verified, and how
+
+- **The complaint itself, reproduced before it was fixed.** One portal visit -
+  six concurrent requests, the way a browser opens it - against both builds,
+  fresh boot, same script (`scratchpad/visit.py`).
+- **Seven boots of each build**, one reading each at a fixed point, nothing
+  driven between (`scratchpad/paired.py`). Not single readings: the method
+  itself had been wrong for two days, see below.
+- **Deliberate abuse:** 250 requests, ten at a time, every two seconds for a
+  hundred seconds, with the rail board fetching 93 KB through it
+  (`scratchpad/stress.py`).
+- **A functional sweep of everything doc 29 lists** (`tools/nsc/functional.py`):
+  all 16 pages set *and confirmed by reading the state back*, seven clock
+  styles, all five boards' data, the weather, the portal's six assets, four
+  diagnostics routes, and the link-recovery and crash counters compared before
+  and after.
+- **Stack frames measured from the object file**, not estimated, the way the
+  audit measured them.
+- **Every new host test broken on purpose** to confirm it could fail.
+
+### Results
+
+| | `fix/panel-tonight` (was on the wall) | `feat/net-broker` |
+|---|---|---|
+| One portal visit | every asset served, **then the panel died** and needed a reflash | every asset served, **panel kept working** |
+| Link recoveries during that | n/a - it was gone | **0** |
+| Under 250-request abuse | not attempted | 88 served, 162 refused by design, **0 link recoveries, never needed a reset** |
+| Functional sweep | - | **41 checks, all passed** |
+| Free internal heap | ~34,500 B | ~19,000-23,000 B |
+| Largest contiguous block | 16,372-24,564 (median 23,540) | 8,692-14,836 (median 13,812) |
+| Rail body | 120,619 B | **85,677 B** |
+| Broker stack use | - | 5,780 B of 10,240 measured worst |
+
+**The memory numbers got worse and the panel stopped dying.** Both are true.
+What killed it was never the quantity of free RAM - it was four modules each
+demanding 8-13 KB of it contiguous, at unchosen moments, while a browser held
+six connections open. The broker does not make the heap bigger. It removes the
+demand.
+
+### Three things worth remembering that are not about code
+
+1. **A measurement method was wrong for two days.** `largestHeapBlock` does not
+   decay over hours - it is identical to the byte within one boot and varies
+   *between* boots, in 1,024-byte steps, with one boot in seven landing 6 KB
+   low. Every "before and after" in this project built from single readings was
+   therefore worthless, including several of mine.
+2. **Three verifications that could not fail, all found the same day** - a
+   documented payload key that was wrong (`{"styleId"}` answers HTTP 200 and
+   does nothing; it is `{"style"}`), a host test whose sweep stopped exactly at
+   the precondition so the one dangerous input was never offered, and an exit
+   code taken from `head` instead of from the test. All three surfaced only
+   because each was broken deliberately to see whether it would notice.
+3. **A borrowed design carries its own mitigations, and they do not come across
+   in the code you copy.** Two MAJOR findings were in code taken verbatim from
+   NetGate. Its unbounded read is safe *there* because `netTask` carries a 30 s
+   watchdog that restarts the chip - three files away from what I copied.
+
+### Not done, and it matters
+
+**The flight board has never once fetched through the broker.** It was at its
+daily API cap all day, so its broker path and its 192 KB mailbox are
+**inherited from its old buffer, not measured**. Until it has fetched, this is
+not finished.
+
+### Next, in order
+
+1. The flight board, when the daily cap rolls over.
+2. Rail behaviour on HTTP 429 and at daily-budget exhaustion - two of today's
+   three MAJOR findings lived exactly there.
+3. A station change *during* a fetch sequence (the two-step token flow).
+4. The 30->10 minute history cut against real delays: a thrice-delayed train now
+   leaves the board where it used to stay. Only a live timetable shows this.
+5. `-fstack-usage` in `platformio.ini`. NickoScope32 enforces stack frames at
+   build time; we have it in no environment, and it is what catches an oversized
+   stack before a flash rather than after one.
+
+### Open debts, unchanged
+
+The radio's `allocFails` climb under load (task `wifi`, 1,626 B DMA buffers) -
+nothing fails visibly and the link holds, but the shortage is real and its cause
+is the 131 KB HUB75 framebuffer, which cannot move to PSRAM (tried 2026-09-14:
+stripes and TLS failures) and whose colour depth the owner has ruled out cutting.
+Yacht radar's 17.5 KB outside the lock; MQTT's blocking connect; OTA not taking
+the lock; station and airport selection still to move onto the knob.
 
 ## 2026-09-20, night: the network broker is built and audited, and the panel rejected it (integration session, `feat/net-broker`)
 
