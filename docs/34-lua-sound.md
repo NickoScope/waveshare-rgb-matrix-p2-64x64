@@ -5,9 +5,16 @@ a noise. It can, and the board is ready for it, but nothing in the firmware is.
 This says what is known, what has to be measured before a line is written, in
 what order, and where it will hurt.
 
-**Status: not started.** Nothing here has been built. Section 2 is what was read
-off the tree tonight; section 3 is what is not known and has to be found before
-any of it is designed.
+**Status: not started, and deliberately queued.** Nothing here has been built.
+The owner put it in the queue as a debt on 2026-09-22 at 01:04 - "звук запиши
+долгом, займемся завтра" - so it is registered as **D11** in
+[22 §12.3](22-audio-visualizer-onboard-mic.md#123-debts-in-the-order-to-work-them-from-2026-09-16)
+with the rest, in the order they are to be worked.
+
+Section 2 is what was read off the tree; section 3 is what is not known and has
+to be found before any of it is designed. **Start at Q1** - whether there is a
+speaker on the board at all, or only a pad - because a negative answer there
+makes the rest of this document moot.
 
 ---
 

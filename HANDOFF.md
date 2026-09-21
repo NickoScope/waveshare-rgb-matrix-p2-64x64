@@ -2,6 +2,105 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-22 (to 01:04): our own flasher, twelve slots, a planted aquarium — and three tools caught lying
+
+Everything below is on `main` in both repositories and pushed. The panel is on
+firmware built tonight, flashed **over the air**, showing AQUARIUM at 15 fps
+with the screen on and night mode off.
+
+### What the panel has now
+
+    12 upload slots (was 4), 50 KB a script (was 24 KB) — needs the flash it got
+    5 slots used: aquarium 31.4 KB, pb_ferrari, pb_red_hat, red_hat, starship
+    brightness 70%, scheduled power off DISABLED (see below), carousel off
+    LittleFS 20.3 MB free, internal heap ~20 KB, largest block ~11 KB
+
+### The four things worth remembering
+
+**1. We have our own web flasher.** `pixelclock.stolaris.dev` is the *upstream
+author's* domain — it resolves to `keralots.github.io`, and `docs/CNAME` in our
+fork carried it as a fork artifact. Removed; GitHub Pages enabled on our own
+repo at **<https://nickoscope.github.io/AnimatedPixelClock/>**, serving three
+boards with the Waveshare RGB-Matrix as the default. Before this, a person with
+our board would have picked the nearest button — the 16 MB WROOM image — and
+got a board that installs cleanly and then dies in `do_core_init` on every
+boot. `release.py` builds all three and its bootloader-header check is what
+would catch a mislabelled image at packaging rather than on a wall.
+
+**2. More colour is the wrong thing to spend bytes on, and the panel says so.**
+A photograph at 24-bit colour and the same one at 256 dithered colours are
+plainly different in a PNG and **indistinguishable on the panel**. The owner
+looked and said so; the hardware agrees. The panel has no colour depth of its
+own — FM6124 drivers are constant-current sources behind a latch, a LED is on
+or off — all greyscale is the ESP32 library's BCM where **every extra bit
+halves the refresh**, its own `doc/BuildOptions.md` says 24-bit at 64x64 and up
+either flickers or loses the shadows, and a CIE 1931 table then folds each
+channel's 256 inputs onto **174 distinct outputs**. The rule that came out of
+it — *spend the budget on TIME, not colour* — is in `effect_api` and in
+AGENTS.md §9 with the derivation and with what to spend it on instead.
+
+**3. Uploading over the running effect did nothing until tonight.** Replace the
+script behind the effect on screen and the old compiled chunk kept running
+until you left the page and came back. `luaEffectsSelect` returns early when
+the index has not changed, which is right for a knob and wrong for an upload:
+the file moved under an index that did not. `luaEffectsReload()` bumps the
+sequence word the effect task keys its reload off. Proved by uploading a copy
+of the aquarium whose only difference was `FPS = 6` and watching the panel go
+from 14 to 6 with no page change.
+
+**4. Three tools were measuring against remembered constants.** `validate.py`
+cached its host binary against the `.cpp`'s mtime while every limit it enforces
+is a `#define` in the **header**, so raising the cap left it rejecting scripts
+by the old number. `photo_to_lua.py` printed "N% of the panel's limit" against
+a hard-coded 24576. And `photo_to_lua.py` resized straight to 128x64, squashing
+a 1007x1078 portrait **2.14x flat** — invisible in a thumbnail, obvious on a
+wall. All three fixed; the first two now read the firmware.
+
+### AQUARIUM
+
+`gallery/aquarium.lua`, 31.4 KB of the 50 KB a script may be, 12-15 fps.
+
+Seven species over a **continuous depth**: each fish carries a depth from 0 at
+the back glass to 1 at the front, drifting on its own 20-40 s cycle, which
+picks its body from five precomputed sizes, sets the haze, sets the apparent
+speed and decides what is drawn over what. A turn is a turn — `face` crosses
+zero over a third of a second while the body foreshortens.
+
+Two corrections from the owner that are now rules in the file: **the room
+nudges a heading, it never tows a fish** (making the person the target dragged
+the whole tank after them like iron filings), and **there is glass on all four
+sides** — an aquarium is not a window on the sea.
+
+It reads the room through `presence`, the same MTR-1 feed over MQTT that ROOM
+RADAR draws, with every reaction damped in *seconds*: six to turn toward
+somebody, one and a half to scatter, thirty to settle, forty-five of an empty
+room before it sleeps.
+
+### What is owed
+
+**D11, sound for Lua effects** — registered tonight in
+[22 §12.3](docs/22-audio-visualizer-onboard-mic.md) with the rest, written up
+in full in [34-lua-sound.md](docs/34-lua-sound.md). Nothing built.
+**Start at Q1: is there a speaker on the board at all, or only a pad.** A
+negative answer there makes the rest of the document moot. It also sits
+downstream of D1 and D2, because it needs TX DMA buffers in the internal heap
+that is already the binding constraint.
+
+### Two things left open
+
+- **Night mode is off.** The window was 00:00-06:00 and the screen went dark at
+  midnight. There is no narrow API for it, so it went through `/save` — the
+  whole-form replace that silently clears every boolean it does not carry. All
+  122 fields were snapshotted first and diffed after: exactly one changed.
+  Turning it back on is the same procedure. The separate *dimming* schedule
+  (22:00-07:00 down to brightness 11) was not touched.
+- **`/api/log` could not be read reliably.** `?clear` did not appear to clear
+  and paging by `from`/`X-Log-Seq` returned stale windows, so the panel's own
+  30-second effect reports were never captured tonight. Frame rates here are
+  from `/api/panel`'s `hz` with the panel left alone — polling it steals core 0
+  from the effect and makes it read 4-5 fps, which is a measurement disturbing
+  the thing it measures.
+
 ## 2026-09-21 (afternoon): the panel gets a name, an SDK and an MCP server — and then drops off the network
 
 Branch `feat/net-broker` in the fork, pushed. Nothing was flashed.

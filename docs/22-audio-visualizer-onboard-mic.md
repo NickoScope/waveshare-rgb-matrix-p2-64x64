@@ -826,6 +826,7 @@ Serial logs: `~/panel-backups/2026-09-15-monitor/serial.log` (host timestamps, p
 | D8 | **The portal served from `loop()` freezes the display 0.2-0.3 s per page** | `web / took 211-324 ms` | pre-existing; after D1 |
 | D9 | **SHTC3 self-heating offset** | 31-32 C in the case | reference thermometer, 30-60 min |
 | D10 | **Audit minors** | `src/audio/README.md`, `src/climate/README.md` backlogs | after D1-D4 |
+| D11 | **Sound for Lua effects** — the owner asked for it on 2026-09-21 and again put it in the queue on 2026-09-22 at 01:04, explicitly as a debt for the next day. The whole task is written up in [34-lua-sound.md](34-lua-sound.md): what is known, the six things that are not, the design that looks right and the order to work it | nothing built; the board has an ES8311 on I2C and IO21 is its data line, and I2S0's clocks look shared with the ES7210, which would make it duplex and therefore coupled to the mics | **Answer Q1 first: is there a speaker at all, or only a pad.** That is the Waveshare schematic and then eyes on the board, and it decides whether any of the rest is worth designing. **Sound sits downstream of D1 and D2** - it needs its own TX DMA buffers in internal RAM, and the panel runs with ~21 KB free and a 7,344 B minimum under load |
 
 ## 13. Upstream
 
