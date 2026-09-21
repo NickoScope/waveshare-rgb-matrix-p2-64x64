@@ -41,8 +41,20 @@ curl -s http://192.168.4.62/api/panel | python3 -c 'import sys,json;print(json.l
 | 14 | YACHTS | |
 | 15 | MEDIA | |
 
-Clock styles: `POST /api/panel {"styleId": N}`, or `/api/clock/style`. `styles[]` in the same
+**Clock styles: `POST /api/panel {"style": N}`** - the key is `style`, not `styleId`, and this
+file said `styleId` until 2026-09-21. **`{"styleId":N}` answers `HTTP 200` and does nothing**,
+exactly like `{"showPage":N}` before it. The firmware's own header is the authority:
+`src/web/web_panel.cpp:10` reads `POST /api/panel {"show":{"page":i[,"card":"name"]}} | {"style":id}`.
+There is no `POST /api/clock/style` - that route answers 404 to a POST. `styles[]` in the same
 reply gives the ids and names (0 = MARIO ... 14 = WEATHER).
+
+```bash
+curl -s -X POST -H 'Content-Type: application/json' -d '{"style":14}' http://192.168.4.62/api/panel
+```
+
+**What the wrong key cost:** a whole night of believing the network broker was not being asked
+for data (`served: 0`), when in truth the weather page had never once reached the screen, because
+every attempt to select its clock style was a silent no-op that reported success.
 
 **The carousel** walks pages and styles on its own: `carousel` = `{enabled, idleS, slotS,
 allStyles, running, holdS, pageS, secs}`. Measured live: `idleS` 165, `slotS` 60, `allStyles`

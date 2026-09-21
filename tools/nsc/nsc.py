@@ -218,13 +218,20 @@ def cmd_page(host: str, args, warnings: list) -> dict:
         raise Failure("verification_failed",
                       f"asked for page {want}, panel reports {got} - it answered "
                       f"politely and did not change", 3)
+    if before.get("page") == want:
+        warnings.append({"code": "already_in_state", "field": "page", "value": want,
+                         "note": "it was already there, so nothing was proved"})
     return result
 
 
 def cmd_style(host: str, args, warnings: list) -> dict:
     want = args.n
     before = get_json(host, "/api/panel").get("now", {})
-    status, text = post(host, "/api/panel", {"styleId": want})
+    # {"style": N}, NOT {"styleId": N}. The firmware's own header says so -
+    # web_panel.cpp:10 - and {"styleId":N} answers HTTP 200 and does nothing,
+    # which is how docs/29 came to document the wrong one and how an entire
+    # night went by without the weather page ever reaching the screen.
+    status, text = post(host, "/api/panel", {"style": want})
     if status != 200:
         raise Failure("execution_failed", f"/api/panel answered HTTP {status}", 1)
     after = _verify(host, {"style": want}, "style")
@@ -234,6 +241,13 @@ def cmd_style(host: str, args, warnings: list) -> dict:
     if got != want:
         raise Failure("verification_failed",
                       f"asked for style {want}, panel reports {got}", 3)
+    # An "ok" that only means "it was already like that" is how a broken
+    # command passes for a working one: `nsc style 14` reported success for
+    # hours against a panel that happened to be on style 14 already, while the
+    # payload it sent did nothing at all. Say which kind of success this is.
+    if before.get("style") == want:
+        warnings.append({"code": "already_in_state", "field": "style", "value": want,
+                         "note": "it was already there, so nothing was proved"})
     return result
 
 
