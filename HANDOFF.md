@@ -30,6 +30,48 @@ verification and discovery every 30 s), and that share is not being disclaimed.
 **It needs a power cycle, which is a person's job.** Nothing here reflashes a
 wall-mounted panel.
 
+### Closed the same day: merged to main, and the fix is on the panel
+
+**`main` carries it all.** `feat/net-broker` was a strict superset of `main` —
+241 commits ahead, 0 behind — so it went in by fast-forward and was pushed.
+Anyone, or any agent, arriving at `github.com/NickoScope/AnimatedPixelClock`
+now lands on `AGENTS.md` instead of a repository with no map. Before merging,
+the diff was scanned for secrets: every hit was the provisioning *mechanism*
+(templates, gitignored file names, the literal string `"mqtt-password"`), and
+the apparent list of MAC addresses was the hex of the TLS root fingerprints in
+`rtt_roots.h` and `aero_roots.h`. Two things worth knowing rather than fixing:
+the panel's own MAC stands as the worked example for `--mac` in three files,
+and `192.168.4.35` — the AppDaemon host — appears in five example configs. Both
+were already public on the branch; the merge exposed nothing new.
+
+**The watchdog fix is running on the panel**, flashed over the air at 18:50
+because the USB cable is off the wall. 2,289,600 B into 4,718,592 B free,
+checked on paper first; 86 seconds to upload; booted from `app1` with
+`resetReason` 3, and `ota.state` reached `valid` at the 60-second mark before
+anything else was done to it. `linkBlindS` reads 0 in `/api/info`, which is the
+new field doing its job. After it: `linkRecoveries 0`, `allocFails 0`,
+`webRefused 0`, largest block 12,276, weather in, clock synced.
+
+**The SDK was driven end to end**, not just the panel half of it: a Lua effect
+written through `effect_write` (the schema refused `bad-name` and the tool
+refused a script with no `draw()`), rendered through `effect_preview`, and the
+frame looked right — ring, hand, glow, and `14:37` from the simulator's
+`--start`. The test script was removed afterwards rather than left to change
+`LUA_EFFECT_COUNT`.
+
+**Still not verified, and saying so:**
+
+- `evaluation.xml` for the MCP server is not written. The house pattern wants
+  read-only question-and-answer pairs taken from live hardware.
+- `bringup.py`'s switch-off branch has been exercised across four cases of its
+  decision table but never against a panel that genuinely has no broker.
+- `effect_check` (`fx_parity.py`) was not run through the MCP tool; it needs a
+  full PlatformIO build first and takes minutes.
+- The blind timer cannot be proven in the field without reproducing the Wi-Fi
+  task's buffer starvation. What can be said is that the field it exposes is
+  live and reads 0, and that the arithmetic and the code path are right.
+- The flight board has still never fetched through the broker.
+
 ### Why the watchdog did not save it — CONFIRMED after the power cycle
 
 **Confirmed 2026-09-21 18:20, from the panel itself after the owner pulled the
