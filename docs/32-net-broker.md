@@ -258,3 +258,39 @@ visible if it breaks - stands. It was my reasoning about it that did not.
 
 The cause is still not known, and the next session still starts by turning the remote log on and
 reading it. But it is now a search for my own bug, with a known-good control to compare against.
+
+---
+
+## A correction about the measurements themselves, 2026-09-21
+
+Several numbers in this document were obtained by comparing one reading of
+`largestHeapBlock` against another. **That comparison is much weaker than it
+looks**, and I got it wrong twice in one morning before noticing.
+
+The same firmware, on the same board, reports:
+
+| when | good build | broker build |
+|---|---|---|
+| seconds after boot | 23,540 – 25,588 | 16,372 |
+| settled, after the transport pages have run | **16,372** | 16,372 |
+| under pressure, portal open or a fetch running | 9,716 – 12,276 | 10,228 – 12,276 |
+
+So the good build's own largest block falls from 25,588 to 16,372 to under
+10,000 depending only on what has been running - a swing of more than 15 KB,
+larger than the entire change being measured. The figure quoted earlier in this
+document, "16,372 B before, 9,716 B after", paired a *settled* good-build
+reading with a *pressured* broker-build one. The direction may well be right;
+the magnitude was not established.
+
+**What a real measurement of this needs:** both builds read at the same point
+in the same sequence - fixed time after boot, same page on screen, no HTTP
+traffic in the preceding two seconds (the panel stands aside for a web client
+for 1,500 ms, `net_turns.h`, so the tool that measures perturbs the thing) -
+and several readings each, not one. That is the project's own rule about
+distributions, applied to a number I had been treating as a constant.
+
+Until that is done, the honest statement is narrower than the earlier one: the
+broker's `.bss` stack unquestionably removes that many bytes from the heap, and
+the flight board unquestionably refuses to fetch below 13,312 B contiguous -
+but *how much* contiguity the broker actually costs, against the noise of
+normal operation, has not been measured properly yet.
