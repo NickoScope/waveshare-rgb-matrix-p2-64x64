@@ -402,3 +402,57 @@ They catch oversized stacks **at build time** with `-fstack-usage`. **We have th
 environment** - checked 2026-09-21 - and it is exactly the failure that produced the 12 KB broker
 stack. Also theirs: identify the board **by MAC, not by a re-enumerating port name**, which would
 have saved a diagnosis on the night `/dev/cu.usbmodem2101` vanished mid-test.
+
+
+---
+
+## Why we have 34 KB of internal heap and NickoScope32 has 104 KB
+
+Asked directly by the owner, 2026-09-21, and worth the answer being here because
+it reframes every comparison with v1b in this document.
+
+**It is the screen.** For a 128x64 HUB75 matrix the DMA framebuffer lives in
+internal RAM, and the arithmetic is the library's own: 32 row-pairs x 128 pixels
+x 8 bits of colour depth x 2 bytes = 65,536 B per frame buffer, and
+`double_buff = true` (matrix_display.h:54) makes that **131,072 B**, held from
+boot, for ever.
+
+NickoScope32 draws on a CRT through a DAC. **It has no framebuffer at all.**
+That, not tidier code, is the whole of the difference - we in fact use *less*
+static RAM than it does (112,560 B against 125,664 B).
+
+The obvious lever has already been pulled and put back. From `platformio.ini`:
+
+> *NOT -DSPIRAM_DMA_BUFFER. Tried 2026-09-14: it frees 130 KB of internal heap,
+> but every page showed stripes and flicker, and TLS certificate checks failed
+> (-9984) on both pinned hosts while the DMA read from PSRAM.*
+
+The 130 KB there and the 131,072 B computed above are the same number.
+
+**Lowering the colour depth from 8 bits to 6 would free 32 KB** without touching
+PSRAM and without either of those failures. **The owner has ruled it out**
+(2026-09-21): the picture is not being traded for headroom. Recorded so it is
+not proposed again.
+
+### What follows from this for the broker
+
+The comparison that matters is not "they manage with five permanent tasks, so
+should we". They can afford five permanent stacks - about 48 KB of them -
+because they are not holding 131 KB of framebuffer. Four permanent fetch stacks
+here would be 37 KB against a free heap of 34 KB: it does not fit, and no amount
+of care makes it fit.
+
+So one permanent 8 KB broker stack replacing four run-time allocations of 8-12 KB
+is the right shape *because* our budget is the tighter one. And it is also why
+migrating one consumer at a time makes the panel worse at every intermediate
+step: the permanent cost arrives immediately and the run-time costs leave only
+at the end. Measured, 2026-09-21, seven boots each:
+
+```
+no broker:            24564 24564 23540 23540 22516 22516 16372
+broker + 1 consumer:  16372 14324 14324 11764  7668  (one boot did not return)
+```
+
+Two of five below the flight board's 13,312 B threshold, one below the rail
+board's 10,240, and one boot that never came back. The migration has to land
+whole.
