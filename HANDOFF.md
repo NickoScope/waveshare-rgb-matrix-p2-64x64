@@ -2,6 +2,105 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-21 (afternoon): the panel gets a name, an SDK and an MCP server — and then drops off the network
+
+Branch `feat/net-broker` in the fork, pushed. Nothing was flashed.
+
+### Where it stands right now
+
+**The panel has been off the network since about 14:50 CEST.** It answers
+neither HTTP nor ping, and its MAC `90:E5:B1:D2:0E:C8` is not in the ARP table
+anywhere on 192.168.4.0/24. The gateway is up and every other device on the
+subnet is reachable, so this is the panel and not the access point. The link
+watchdog has not brought it back in 25 minutes.
+
+The last reading it gave, at 14:46, through the new `panel_health` tool:
+
+    largestHeapBlock 8692   freeInternalHeap 19496   minFreeHeap 972
+    allocFails 109 (task wifi)   webRefused 4   wifiFailAgeS 918
+    linkRecoveries 2   lastLinkRecovery "gateway unreachable"
+    uptime 3249 s   loopMaxMs 7
+
+`linkRecoveries: 2` with "gateway unreachable" says the watchdog had already
+rescued the link twice in that boot, and the last time was fifteen minutes
+before the heavy testing began. So the trouble did not start with the test
+traffic — but the test traffic was heavy (a full MCP sweep, a live doc-29
+verification and discovery every 30 s), and that share is not being disclaimed.
+
+**It needs a power cycle, which is a person's job.** Nothing here reflashes a
+wall-mounted panel.
+
+### What was built
+
+- **The panel is now `NickoSha-64x128`.** Each panel gets its own name; the MAC
+  is what identifies it. The configuration portal did *not* take the new name —
+  it saved, rebooted, and came back unchanged — so it went through
+  `POST /api/rename`, which writes NVS and restarts mDNS with no reboot. All
+  other settings were checked afterwards and are intact.
+- **`tools/agent/bringup.py`** — bringing a new panel to life. Without `--name`
+  it **asks for one and exits 3**; it will not invent a name. Then it probes
+  MQTT and switches off only the pages that have no source without Home
+  Assistant: cards, media and the four market pages are MQTT-only; flights and
+  trains are left alone when they hold a direct API key of their own; yachts,
+  the clock, the world clock, the Lua effects and the indoor sensor never needed
+  Home Assistant at all. The decision table was exercised across four cases.
+- **`tools/agent/mcp_server.py`** — eighteen MCP tools over stdio, with
+  `panel.py` as the transport. Works from any machine against any panel; every
+  tool takes an optional `panel` (MAC, name or address), and with several on the
+  network it lists them and asks rather than guessing. Driving, debugging, and
+  the whole effect-writing loop. **No flashing tool, and there will not be one.**
+- **`AGENTS.md`** gained the "bringing a new panel to life" section (the name,
+  the no-Home-Assistant case, and the rule that configuration lives in the
+  user's own fork while issues and PRs come back upstream) and a finished
+  section 8 on adding a screen, both routes, written from a source survey that
+  was re-verified line by line before anything was written down.
+
+### Two real faults found by testing, not by reading
+
+- **`discover.py` treated any HTTP error as "not there".** A panel answering 503
+  is unambiguously present — 503 is its designed back-off — yet it vanished from
+  the list at exactly the moment it was being used. Fixed: an answer is an
+  answer, marked busy.
+- **On macOS, Local Network access is granted per binary.** A Python that an MCP
+  client launches can be denied it while identical code from a terminal works.
+  It does not look like a denial: a `192.168.x.x` address gives
+  `[Errno 65] No route to host` **instantly**, which reads exactly like a panel
+  that is switched off. Measured: under `uv run python`, example.com answered in
+  0.54 s and the panel's own IP gave Errno 65 in 0.00 s; the system Python
+  reached both. mDNS still works under `uv` because it shells out to `dns-sd`,
+  so the panel is found and then appears dead. `panel.py` now tells the two
+  apart and says which; register the server with a venv, not with `uv run`.
+
+### Documents caught stating numbers the source contradicts
+
+Three in one afternoon, which is the whole argument for reading the handler
+rather than the prose:
+
+- **`docs/29-panel-control-map.md`** — five errors, all fixed. The headline
+  instruction `POST /api/panel {"showPage":N}` does nothing at all and answers
+  200; brightness is a percent, not 0..255; `/api/fx3d` is 404 on the shipping
+  build; the clock style ids are not a contiguous range (4 and 13 do not exist);
+  and the route table was missing `/api/rename`'s rules and `/api/railboard`'s
+  `favourites` entirely.
+- **`AGENTS.md` §2.e** described fx3d as a working screen. 404, confirmed
+  against the panel.
+- **`src/lua/README.md`** claimed a 16 KB Lua task stack where `kStackBytes` is
+  `12 * 1024`, and listed four effects where `LUA_EFFECT_COUNT` is 6.
+
+### Next
+
+1. **The panel.** Power-cycle it, then read `/api/info` for `resetReason` and
+   `linkRecoveries`. "gateway unreachable" twice in one boot before any load is
+   the thread worth pulling.
+2. **`evaluation.xml` for the MCP server** — the house pattern wants read-only
+   question-and-answer pairs taken from live hardware, and there is no live
+   hardware right now.
+3. **The flight board has still never fetched through the broker.** It was at
+   its daily API cap; its path and its 192 KB mailbox are inherited, not
+   measured.
+4. Rail behaviour on HTTP 429 and at daily-budget exhaustion; a station change
+   *during* a fetch sequence; the 30→10 minute history cut against real delays.
+
 ## 2026-09-21: the network broker lands, and one portal visit stops killing the panel
 
 Integration session, branch `feat/net-broker`, running on the panel by the
