@@ -86,19 +86,27 @@ negative answer there makes the rest of the document moot. It also sits
 downstream of D1 and D2, because it needs TX DMA buffers in the internal heap
 that is already the binding constraint.
 
-### The flasher has never flashed anything — and it is now stale
+### The flasher works — the owner installed a board from it
 
-**Nobody has installed a board from that page.** Everything testable without a
-cable was checked and passed: the page serves, `VERSION` reads v2.5.0, the
+**It was flashed end to end, from the page, on 2026-09-21 night.** The owner
+did it and said so at 01:08. I had written "nobody has installed a board from
+that page" as a fact when it was only something I had not seen; the record is
+corrected, and the lesson is the wording - *not observed here* is not *did not
+happen*, and the person with the hardware sees more than the logs do.
+
+Everything I could check without a cable was checked and passed: the page serves, `VERSION` reads v2.5.0, the
 image downloads at 2,373,392 B with a SHA-256 matching the published checksum
 exactly, the ESP Web Tools manifest points at our file at offset 0x0 with
 chipFamily ESP32-S3, and the image's own header reads magic 0xE9, chip id 9,
 32 MB flash, with an application at 0x10000. `release.py`'s checks passed too:
 the bootloader header's flash size matches the board, both OTA slots sit at the
-expected offsets and the firmware fits them. But **the end of it needs a USB
-cable, a real board and a person pressing Install** and choosing the port in
-the browser's own dialog, and that has not happened. Until it does, the page is
-verified, not proven.
+expected offsets and the firmware fits them. The rest - the cable, the port
+dialog, Install - was the owner's, and it worked.
+
+**Still to be written down here:** which board entry he picked, and whether the
+Improv "Configure WiFi" step in the same dialog carried the credentials over.
+Those two decide what exactly is proven: a install of one of the three images,
+or the whole path including provisioning.
 
 **And the published image is two firmware changes behind main.** It was
 packaged at 23:06; `a4d8004` (twelve slots, 50 KB a script) landed at 00:09 and
@@ -107,6 +115,9 @@ from the page today would come up with four slots, a 24 KB cap and the upload
 bug — **while calling itself v2.5.0, exactly like the panel, whose bytes are
 different.** The same version on two different binaries is the part that will
 mislead somebody.
+
+That makes the staleness below the more urgent of the two: the page works, so
+what it serves matters.
 
 The fix is one pass: bump `FIRMWARE_VERSION` to 2.5.1 in `src/config/config.h`,
 `python release.py` (it builds all three boards, repackages `docs/firmware/latest`
