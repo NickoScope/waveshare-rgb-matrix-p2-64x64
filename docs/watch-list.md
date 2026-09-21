@@ -106,3 +106,25 @@ Newest first. One line per event: date, item, who, the gist, what was done.
   board, published on the owner's "отправляй".
 - 2026-09-15 00:45 — watch started. Issue #3 and both Reddit comments are
   published; nothing has come back yet.
+
+## MicroPixel, added 2026-09-21
+
+`github.com/78/micropixel` - a WebAssembly runtime for Espressif MCUs by the
+author of xiaozhi-esp32. **We do not use it and have not cloned it.** What we
+took is the shape of its command-line tool, and `docs/33-one-cli-json.md`
+records exactly what and what we deliberately left.
+
+Watched: commits touching **two files only** -
+`tools/manager/micropixel_manager.py` (the CLI contract we copied) and
+`AGENTS.md` (where its build-time disciplines are written, one of which,
+enforced `-fstack-usage`, we adopted the same day) - plus releases. Baseline
+taken 2026-09-21 at `firmware-v0.9.4`.
+
+Watching the whole repository would be a firehose from a project we do not run,
+and a watch that reports things nobody reads is a watch nobody reads.
+
+**On contributing back.** We have nothing to send them: we are consumers of an
+idea, not of their code, and we found no fault in what we read. An issue filed
+to say hello is noise. If their CLI contract changes in a way that breaks the
+reasoning in doc 33, that is worth a question - drafted here first, posted only
+on the owner's "отправляй", like everything else on this list.

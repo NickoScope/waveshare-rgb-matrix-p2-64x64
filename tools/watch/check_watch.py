@@ -32,6 +32,20 @@ import xml.etree.ElementTree as ET
 
 STATE = os.path.expanduser("~/.local/state/nickoscope-watch/state.json")
 REPO = "Keralots/AnimatedPixelClock"
+
+# MicroPixel (github.com/78/micropixel), added 2026-09-21. We do not use its
+# runtime and we have not cloned it; what we took is the shape of its CLI - one
+# JSON object per command, a symbolic code in the payload and a coarse integer
+# as the exit status, and the exit-code ladder where 3 means "a person must
+# decide". docs/33-one-cli-json.md says what we took and what we deliberately
+# did not.
+#
+# Two paths are worth knowing about when they move, and only two. The manager
+# is the contract we copied; AGENTS.md is where its build-time disciplines are
+# written down, and one of them (-fstack-usage, enforced) we adopted the same
+# day after an afternoon lost to a stack we could not see.
+TOOLS_REPO = "78/micropixel"
+TOOLS_PATHS = ("tools/manager/micropixel_manager.py", "AGENTS.md")
 ISSUE = 3
 OWNER_REDDIT = "No-Recording-8313"
 REDDIT_FEEDS = {
@@ -92,6 +106,32 @@ def check_github(state, events):
         if state.get("upstream_release") and rel["tag_name"] != state["upstream_release"]:
             events.append(("upstream-release", rel["html_url"], "-", rel["tag_name"]))
         state["upstream_release"] = rel["tag_name"]
+    except RuntimeError:
+        pass
+
+
+# MicroPixel: only commits that touch the two files we actually learn from, plus
+# releases. Watching the whole repository would be a firehose of a project we do
+# not run - and a watch that reports things nobody reads is a watch nobody reads.
+def check_tools(state, events):
+    for path in TOOLS_PATHS:
+        key = "tools_head_" + path.replace("/", "_")
+        commits = gh(f"repos/{TOOLS_REPO}/commits?path={path}&per_page=10")
+        last = state.get(key)
+        if last and commits and commits[0]["sha"] != last:
+            for c in commits:
+                if c["sha"] == last:
+                    break
+                events.append(("tools-commit", c["html_url"],
+                               c["commit"]["author"]["name"],
+                               f"{path}: {first_line(c['commit']['message'])}"))
+        if commits:
+            state[key] = commits[0]["sha"]
+    try:
+        rel = gh(f"repos/{TOOLS_REPO}/releases/latest")
+        if state.get("tools_release") and rel["tag_name"] != state["tools_release"]:
+            events.append(("tools-release", rel["html_url"], "-", rel["tag_name"]))
+        state["tools_release"] = rel["tag_name"]
     except RuntimeError:
         pass
 
@@ -195,7 +235,7 @@ def main():
             state = json.load(f)
     baseline = not state
     events, failures = [], []
-    for name, fn in (("github", check_github), ("pulls", check_pulls), ("discussions", check_discussions), ("reddit", check_reddit)):
+    for name, fn in (("github", check_github), ("pulls", check_pulls), ("tools", check_tools), ("discussions", check_discussions), ("reddit", check_reddit)):
         try:
             fn(state, events)
         except Exception as ex:  # a source down is reported, not fatal
