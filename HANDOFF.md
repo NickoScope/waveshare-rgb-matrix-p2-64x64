@@ -2,6 +2,40 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-22 (23:10): NickoScopeMatrix-64x128-01 is the main panel now
+
+The owner gave the first panel, **NickoSha-64x128, to his son** for remote
+testing. The second controller, **`NickoScopeMatrix-64x128-01`**
+(`90:E5:B1:D2:0E:2C`, 192.168.4.89), is the main panel.
+
+It was provisioned from **the same file the first panel was provisioned from
+on 2026-09-14** - `~/AnimatedPixelClock/provision_secrets.ini` - through
+`env:provision` over USB, then v2.5.2 flashed back over USB. All eight values
+written (the sketch prints key names and lengths, never values), and after
+boot: MQTT `connected: true`, AeroAPI key present, RTT token present,
+aisstream key present. The copy made for the build was deleted; the original
+stays where it was.
+
+**A mistake to not repeat.** I first gathered the secrets from the NickoScope32
+flagship's source tree and from Home Assistant's secrets.yaml, because
+provision_secrets.py offers both. The owner stopped it: another project is not
+this one's to read from just because a tool can. That file was deleted before
+anything was flashed. The rule: a panel's secrets come from this project's own
+provisioning file, and nowhere else without being asked.
+
+**Still to do:**
+
+  * **Home Assistant publishes to the OLD panel.** Media, markets and the other
+    per-device topics are `nickoscope_matrix/<dev>/...`, where `dev` is the
+    last three MAC bytes: the old panel was `d20ec8`, the new one is `d20e2c`.
+    MQTT connects but reports NO DATA until HA's publishers target `d20e2c`.
+    That is Home Assistant's side, not the panel's.
+  * **NickoSha left the house with the owner's credentials in its NVS** - the
+    HA MQTT login, the paid FlightAware AeroAPI key, the RTT token and the
+    aisstream key. It cannot receive HA data on another network, but the values
+    can be read off its flash over USB in a minute. Rotating the MQTT password
+    and the AeroAPI key is the reliable answer now that the panel is gone.
+
 ## 2026-09-22 (evening): a second panel, v2.5.2, and no broker by default
 
 **A second controller** was installed from the web flasher on 2026-09-21 and
