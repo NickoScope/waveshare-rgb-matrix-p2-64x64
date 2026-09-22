@@ -25,9 +25,39 @@ came back clean: active/running, port 18789 listening, `/health` answering
 re-established and all 14 openclaw processes back. It has now read the config
 containing `mcp.servers.ledmatrix`.
 
+### The agent exists, and the SDK updates itself at night
+
+Done at 09:10 on the owner's word, all of it on the Pi:
+
+  * **Agent `ledmatrix`** created (15 agents now), sonnet-5 with an opus-4-8
+    fallback like the others, and the MCP server is scoped to exactly that id.
+    Config backed up and diffed each time: nothing outside the agent list moved.
+  * **Its brief** is `~/.openclaw/agents/ledmatrix/workspace/AGENTS.md` - what
+    it must not do (flash anything, invent a panel name, change what is on
+    screen without reason), what the hardware will teach it the hard way
+    otherwise, and that the panel hangs on a wall in a room where somebody
+    lives.
+  * **The launcher moved out of the clone** to `~/ledmatrix-run/`, so
+    `git pull` can never argue with our own files and the clone stays something
+    you can delete and remake. The clone was also unshallowed, because a
+    rollback needs history to roll back to.
+  * **Nightly update at 03:40**, `~/ledmatrix-run/update.sh`. It pulls, then
+    **starts the server and counts its tools** - the only check that means
+    anything, since whether an agent gets its tools is the question, not
+    whether the files parse. If that fails it resets the clone to the previous
+    commit and verifies *that* too, and reports through the fleet's own
+    `mq.py` to the owner's Telegram. It is silent when nothing changed, because
+    a message every night for no news is one nobody reads by the third week.
+    Exercised on the spot: "no change (be67df1)".
+
 **One step still needs a person:** `sudo apt install avahi-utils`, which needs
 a password. Until then the SDK works by name rather than by discovery, which
 is what the fallback added this morning is for.
+
+One operational note for next time: `nickol.local` stopped resolving from the
+Mac mid-session and an SSH command silently did nothing. Nothing was half-done
+- the connection failed before it ran, and the config was checked afterwards to
+prove it. The Pi is 192.168.4.37.
 
 ### What the Pi taught the SDK
 
