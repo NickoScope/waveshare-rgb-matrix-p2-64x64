@@ -21,8 +21,8 @@ Left:
   first (photos/<date>/, EXIF stripped), then the README beside the renders.
   Useful: the whole panel on the wall, the aquarium, the world clock, the flight
   board, a clock style. No people in frame, and markets only on the indices page.
-- Owner to decide: `.github/FUNDING.yml` is `ko_fi: keralots` (the Sponsor
-  button pays upstream), and the repo description and homepage are still
+- Sponsor button removed (FUNDING.yml with `ko_fi: keralots` deleted, 3dc00f5,
+  owner's call). Still to decide: the repo description and homepage are
   upstream's (pixelclock.stolaris.dev). A proposed description is in the
   session reply.
 - From before: flasher points 2 and 3 (name at setup, AP "<name>-Setup"),
