@@ -1,6 +1,6 @@
 # GitHub Release v2.5.3 (NickoScope/AnimatedPixelClock): draft
 
-Status: NOT PUBLISHED. The owner chose no release page (2026-09-23 00:09); the draft was deleted. Tag v2.5.3 stays. Kept as a record of the text.
+Status: PUBLISHED 2026-09-23 00:13 on the owner's "делай как автор, публикуй релиз": https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.5.3 (tag at 9e9ee88). An earlier choice of "no release page" was reversed after he saw upstream publishes them.
 
 Title: AnimatedPixelClock v2.5.3
 
