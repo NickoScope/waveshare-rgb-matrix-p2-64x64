@@ -2,6 +2,27 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (00:40): yacht radar is dark, and the fix that lit it was rolled back
+
+State: the panel runs v2.5.3 as published (e40be2f/9e9ee88), no yacht change.
+
+- The yacht page shows "no memory for the AIS stream task": the task wants a
+  12,288 B stack in one internal block, and the largest block is 7-11 KB now
+  (`allocation failed: 12288 B, caps 0x804, before yacht radar`). It gives up
+  until the page is left and re-entered.
+- Tried (git stash "yacht-retry-8k" in ~/AnimatedPixelClock-netbroker): an 8 KB
+  stack (three connected readings left 9,232-9,268 B of 12 KB free, a ~3 KB
+  peak; this run left 5,168 of 8,192) and a retry every 5 s while the page is up.
+  The task then started, 7 vessels arrived, **and the TLS session to aisstream
+  took the DMA-capable pool to 1,012 B largest / 756 B minimum: the radio failed
+  its 1,626 B buffers, the portal answered 503 throughout, and the panel left
+  the network.** Rolled back by USB within minutes.
+- tlsUsePsram() is in main.cpp, yet the drain happened with the session open:
+  find out what of the websocket/TLS path still lands in internal DMA memory
+  before the yacht radar may run again. The stack fix alone is not safe.
+- Cyrillic: the ledmatrix agent on nickol.local wrote the design and generator
+  on 2026-09-22; copied to docs/drafts/cyrillic-from-openclaw/.
+
 ## 2026-09-23 (00:25): release like upstream, flasher and README cleaned of upstream leftovers
 
 Done:
