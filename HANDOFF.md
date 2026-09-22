@@ -25,11 +25,30 @@ provisioning file, and nowhere else without being asked.
 
 **Still to do:**
 
-  * **Home Assistant publishes to the OLD panel.** Media, markets and the other
-    per-device topics are `nickoscope_matrix/<dev>/...`, where `dev` is the
-    last three MAC bytes: the old panel was `d20ec8`, the new one is `d20e2c`.
-    MQTT connects but reports NO DATA until HA's publishers target `d20e2c`.
-    That is Home Assistant's side, not the panel's.
+  * ~~Home Assistant publishes to the OLD panel~~ - **done 23:20.** Presence
+    and the rail board publish to device-independent topics and needed
+    nothing. Media: one line in AppDaemon's apps.yaml (`matrix_media.device`).
+    Markets: `device` lives in the app's private `local.json`, which overrides
+    apps.yaml.
+
+    **The markets move had a trap, and it is worth knowing.** The app builds
+    each sensor's `unique_id` from the panel id but its `default_entity_id`
+    without it. Change the id and HA sees 44 new unique_ids that want names
+    already taken - and hands out `..._2` to all of them, blinding every
+    dashboard. The app cannot withdraw its old discovery itself: it remembers
+    what it sent only in process memory, and turning `ha.discovery` off
+    withdraws nothing. So the order was: withdraw the 44 retained `d20ec8`
+    configs by hand (an empty retained message is how MQTT discovery removes
+    an entity; HA then removed the old device and freed the names), change
+    `device`, then restart only that app by touching its module. Result: the
+    same 44 entity_ids, no `_2`, device `matrix_market_d20e2c`, and the panel
+    accepting market payloads under the new id.
+
+    Two things learned on the way that cost a minute each: AppDaemon resolves
+    `!secret` from **its own** secrets.yaml in the add-on directory, not
+    `/config/secrets.yaml`; and an unauthenticated `mosquitto_sub` returns an
+    empty list rather than an error - "nothing retained" looked exactly like
+    "not allowed to look" until the credential lengths came out as 0.
   * **NickoSha left the house with the owner's credentials in its NVS** - the
     HA MQTT login, the paid FlightAware AeroAPI key, the RTT token and the
     aisstream key. It cannot receive HA data on another network, but the values
