@@ -18,10 +18,16 @@ tools, and the panel answers from the Pi - v2.5.1, ~18 KB internal free. The
 config was backed up first (`openclaw.json.bak-20260922-084506`) and diffed
 after: the only change anywhere in it is `+ mcp.servers.ledmatrix`.
 
-**Two steps deliberately left to a person**, both because they touch a live
-system on a Tuesday morning: `systemctl --user restart openclaw-gateway`, since
-the gateway has been up since 20 September and read the config before the entry
-existed; and `sudo apt install avahi-utils`, which needs a password.
+**The gateway was restarted at 08:56**, on the owner's word rather than on my
+own initiative - it carries his Telegram bots and the rest of the fleet. It
+came back clean: active/running, port 18789 listening, `/health` answering
+`{"ok":true,"status":"live"}`, the outbound connection to `api.telegram.org`
+re-established and all 14 openclaw processes back. It has now read the config
+containing `mcp.servers.ledmatrix`.
+
+**One step still needs a person:** `sudo apt install avahi-utils`, which needs
+a password. Until then the SDK works by name rather than by discovery, which
+is what the fallback added this morning is for.
 
 ### What the Pi taught the SDK
 
