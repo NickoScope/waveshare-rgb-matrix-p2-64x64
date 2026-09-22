@@ -2,6 +2,42 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-22 (morning): the SDK handed to the OpenClaw fleet on nickol.local
+
+The panel SDK is installed and registered on the Raspberry Pi, and the task of
+building the agent itself is in the fleet's inbox:
+`~/agents-vault/00-Входящее/2026-09-22-агент-светодиодной-панели.md`.
+
+    ~/ledmatrix-mcp/                     clone of the public repo, updates with git pull
+    ~/ledmatrix-mcp/tools/agent/.venv    Python 3.13 + mcp, pydantic
+    ~/ledmatrix-mcp/tools/agent/run.sh   in the house pattern, like nickoscope-mcp
+    ~/.openclaw/openclaw.json            mcp.servers.ledmatrix, scoped to agent id `ledmatrix`
+
+Verified rather than assumed: the server starts over stdio and lists its 23
+tools, and the panel answers from the Pi - v2.5.1, ~18 KB internal free. The
+config was backed up first (`openclaw.json.bak-20260922-084506`) and diffed
+after: the only change anywhere in it is `+ mcp.servers.ledmatrix`.
+
+**Two steps deliberately left to a person**, both because they touch a live
+system on a Tuesday morning: `systemctl --user restart openclaw-gateway`, since
+the gateway has been up since 20 September and read the config before the entry
+existed; and `sudo apt install avahi-utils`, which needs a password.
+
+### What the Pi taught the SDK
+
+It reported "no panels found on this network" while the panel answered
+perfectly well by name - and that was the worst kind of wrong, because it had
+not looked. Raspberry Pi OS runs `avahi-daemon`, so glibc resolves `.local`
+through nss-mdns, but it does not install `avahi-utils`, where `avahi-browse`
+lives. Browsing for services and resolving a name are different abilities and
+the SDK had conflated them.
+
+`can_browse()` now separates "searched and found nothing" from "could not
+search", and says which apt package and which env var. `by_name()` resolves one
+panel through `socket.getaddrinfo` and confirms it by asking `/api/info`, and
+`resolve()` falls back to it - so the SDK works on a box with no avahi-utils
+and no sudo, which is exactly the box it was being handed to.
+
 ## 2026-09-22 (to 01:04): our own flasher, twelve slots, a planted aquarium — and three tools caught lying
 
 Everything below is on `main` in both repositories and pushed. The panel is on
