@@ -2,6 +2,37 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-22 (23:55): opening the portal no longer drops the panel off the network
+
+Firmware commit e40be2f (v2.5.3, flashed over USB to NickoScopeMatrix-64x128-01;
+**not yet on the flasher page**, that still serves 2.5.2: `python3 release.py`).
+
+**Cause, measured over the cable.** The Wi-Fi task allocates its 1,626 B receive
+buffers from the *DMA-capable* internal pool (caps 0x80c = INTERNAL|DMA|8BIT).
+One portal visit issued 48 requests, many at once; each one waiting in the
+synchronous web server holds such buffers. The DMA pool's largest block fell
+11,252 -> 5,108 -> 3,572 -> 1,396 B and the radio failed. The portal guard read
+the *general* internal pool, which still showed 7,668 B, so it let everything
+through.
+
+**Why the watchdog did not revive it.** A probe that cannot even be sent was
+deliberately "not counted against the gateway", and the only other path was a
+15-minute blind timer. Now two unsendable rounds in a row restart Wi-Fi: seen
+recovering in about 3 minutes, no reboot.
+
+**Fixes.** portal.js queues every same-origin request, one on the wire at a time
+(duplicates shared, 503 retried after Retry-After); the guard also reads the DMA
+pool (radio 1,626 B + TCP send buffer 5,760 B from sdkconfig); /api/info has
+dmaFree/dmaLargest/dmaMin and [mem] prints `dma free/largest`.
+
+**Verified.** Every page clicked through twice, fast clicks, six Save & apply,
+three reloads, two browsers at once: 109/109 pings, 0 radio allocation failures.
+
+**Left.** A page *reload* still loads HTML/CSS/JS in parallel through the browser
+(not the queue); once it took the DMA block to 1,588 B without a failure. If it
+ever fails there, inline portal.css into the page. Watchdog escalation and the
+queue are the two things to check first if the drop comes back.
+
 ## 2026-09-22 (23:10): NickoScopeMatrix-64x128-01 is the main panel now
 
 The owner gave the first panel, **NickoSha-64x128, to his son** for remote
