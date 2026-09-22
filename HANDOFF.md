@@ -2,6 +2,29 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (00:52): next — Cyrillic as a system font (owner's go, not started)
+
+The owner's decision: build Cyrillic by the ledmatrix agent's plan
+(docs/drafts/cyrillic-from-openclaw/cyrillic-font-design.md, generator mkcyr.py),
+plus the additions from the review (review-2026-09-23.md):
+
+1. Second range U+0400-045F (PicopixelCyr) beside PicopixelFB; case folded
+   like the Latin one.
+2. One shared UTF-8 decoder and one draw/width helper (`pxfbNextCp`,
+   `pxfbGlyph`, `pxfbDrawText`, `pxfbTextWidth`) used by Lua px.text/px.width
+   and by every C++ page that prints user strings (worldclock, flightboard,
+   media, cards, railboard...). Latin output must stay byte-for-byte.
+3. **Added:** a visible missing-glyph box instead of a silent space; strict
+   decoding (reject C0/C1 overlong leads and broken continuations); undrawn
+   slots of U+0400-045F point at the missing glyph.
+4. luasim.c and gen_font.py changed in the same commit, or fx_parity lies;
+   mkbdf.py skips codes >= 0x80.
+5. Checks: fx_parity 0 px on a Cyrillic test effect and on the whole gallery
+   (Latin regression); px.width folds case; on the wall, by eye, И Й Л Д У Ж Щ.
+6. Flash only on the owner's word.
+
+Order: generator and header -> Lua path + luasim -> fx_parity -> C++ pages.
+
 ## 2026-09-23 (00:40): yacht radar is dark, and the fix that lit it was rolled back
 
 State: the panel runs v2.5.3 as published (e40be2f/9e9ee88), no yacht change.
