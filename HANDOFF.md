@@ -5,7 +5,9 @@ Rolling record of where the work stands. Newest first.
 ## 2026-09-22 (23:55): opening the portal no longer drops the panel off the network
 
 Firmware commit e40be2f (v2.5.3, flashed over USB to NickoScopeMatrix-64x128-01;
-**not yet on the flasher page**, that still serves 2.5.2: `python3 release.py`).
+published on the flasher page 2026-09-22 as release commit 9e9ee88, image
+sha256 6c7a11c0… verified byte-for-byte from GitHub Pages). `release.py` needs
+Python 3.10+ (`python3.12 release.py`), the system 3.9 fails at SHA256SUMS.
 
 **Cause, measured over the cable.** The Wi-Fi task allocates its 1,626 B receive
 buffers from the *DMA-capable* internal pool (caps 0x80c = INTERNAL|DMA|8BIT).
