@@ -2,6 +2,52 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-22 (evening): a second panel, v2.5.2, and no broker by default
+
+**A second controller** was installed from the web flasher on 2026-09-21 and
+checked tonight over USB and the network: `90:E5:B1:D2:0E:2C`, now named
+**`NickoScopeMatrix-64x128-01`** (192.168.4.89). Its image landed cleanly -
+32 MB octal flash booted, no crash history, 31 KB internal free. **No secrets
+in it at all**, as it should be: AeroAPI key, RTT token and aisstream key all
+report not set; only Wi-Fi arrived, through Improv.
+
+It was on **v2.5.0** - flashed during the window before v2.5.1 was published at
+01:12, so it had four slots, a 24 KB cap and the upload bug. Now on v2.5.2 by
+OTA, `app1 valid`, twelve slots, 50 KB.
+
+**v2.5.2 fixes a default broker.** The firmware carried
+`homeassistant.local` as the MQTT host for every panel, and `configured()`
+only asked whether the host string was empty. So a freshly erased panel with
+nothing entered reported `configured: true` and knocked on whatever Home
+Assistant answered to that name - with no credentials. It also inverted last
+night's bringup.py rule, which reads "configured but not connected" as a broker
+that is down: on a new panel that meant refusing to switch off the MQTT pages
+on the very board the rule was written for.
+
+Now there is no default. Neither a host nor a user stored means NO BROKER. The
+single exception keeps old panels alive through an OTA: credentials with no
+host means one provisioned while the default existed, and it keeps
+`homeassistant.local`. Proved on the new board: `configured: false`, and
+`bringup.py --check` now offers to switch off media, markets, flights and
+trains instead of refusing.
+
+**The web flasher now offers one board** - the Waveshare, the only one ever
+installed from it and seen to boot - and serves v2.5.2. The other two images
+are gone from `docs/`, so not even a direct link reaches them.
+
+**The wall panel (`NickoSha-64x128`) is still on v2.5.1** and was not touched.
+It is safe to take to v2.5.2 whenever: its broker is connected with
+credentials, so whether its host is stored or defaulted, the legacy fallback
+covers it.
+
+**Checked tonight, and clean: no secrets are compiled into the published
+firmware.** The strings in the image hold only generic defaults, and the
+provisioning secrets live in `[env:provision]`, which builds a separate one-shot
+sketch, never the firmware. The real gap is the opposite of a leak: a panel from
+the page has no way to receive AeroAPI, RTT, aisstream or MQTT credentials
+short of PlatformIO and a USB cable. That is the owner's point 4, still to do,
+with points 2 (name at setup) and 3 (the AP called `<name>-Setup`).
+
 ## 2026-09-22 (morning): the SDK handed to the OpenClaw fleet on nickol.local
 
 The panel SDK is installed and registered on the Raspberry Pi, and the task of
