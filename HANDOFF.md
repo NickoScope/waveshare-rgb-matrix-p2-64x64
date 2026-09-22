@@ -2,6 +2,33 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (00:25): release like upstream, flasher and README cleaned of upstream leftovers
+
+Done:
+- GitHub Release v2.5.3 published on the fork (tag at 9e9ee88), the way
+  upstream does it; every flasher version gets one from now on.
+  `gh` in the firmware repo defaults to upstream Keralots: always
+  `-R NickoScope/AnimatedPixelClock`.
+- Flasher: companion and release-notes links point at our releases/latest;
+  the wiring-guide link (jumper-wire boards) and "flashed from a phone" removed.
+- Issues enabled on the fork, so "report a bug" works.
+- README rewritten for the fork (0fc4b59): a 3x3 grid of host renders
+  (img/screens.png), Waveshare-only hardware, a table of pages, Lua, the knob,
+  Home Assistant, the SDK, our flasher and releases, credit to upstream.
+
+Left:
+- **Owner takes live photos of the screen on 2026-09-23.** Put them in the KB
+  first (photos/<date>/, EXIF stripped), then the README beside the renders.
+  Useful: the whole panel on the wall, the aquarium, the world clock, the flight
+  board, a clock style. No people in frame, and markets only on the indices page.
+- Owner to decide: `.github/FUNDING.yml` is `ko_fi: keralots` (the Sponsor
+  button pays upstream), and the repo description and homepage are still
+  upstream's (pixelclock.stolaris.dev). A proposed description is in the
+  session reply.
+- From before: flasher points 2 and 3 (name at setup, AP "<name>-Setup"),
+  4 (secrets in the portal), sound D11, rotating the MQTT password and AeroAPI
+  key after NickoSha left.
+
 ## 2026-09-22 (23:55): opening the portal no longer drops the panel off the network
 
 Firmware commit e40be2f (v2.5.3, flashed over USB to NickoScopeMatrix-64x128-01;
