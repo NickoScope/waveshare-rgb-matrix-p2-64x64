@@ -20,6 +20,16 @@ State: the panel runs v2.5.3 as published (e40be2f/9e9ee88), no yacht change.
 - tlsUsePsram() is in main.cpp, yet the drain happened with the session open:
   find out what of the websocket/TLS path still lands in internal DMA memory
   before the yacht radar may run again. The stack fix alone is not safe.
+- **DEBT (owner, 2026-09-23 00:43): the yacht radar used to run freely here.**
+  It was a working page after its own task landed (bfe7375, 2026-09-14) and
+  through the week after; now it cannot even start. So this is a regression:
+  something since then took the internal and DMA-capable memory it lived on.
+  Candidates in time order, none proven: Lua effects over the air (82e32f8,
+  2026-09-21, a 12 KB task stack plus its heap), the net broker, the market
+  and media stores, and v2.5.3's portal queue and DMA guard (the guard now
+  refuses the portal while the TLS session is open, where before it served it).
+  Start by bisecting on the panel: the last build where the page shows vessels
+  with the portal open, then the first where it does not.
 - Cyrillic: the ledmatrix agent on nickol.local wrote the design and generator
   on 2026-09-22; copied to docs/drafts/cyrillic-from-openclaw/.
 
