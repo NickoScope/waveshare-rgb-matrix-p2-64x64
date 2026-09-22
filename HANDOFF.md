@@ -22,9 +22,9 @@ Left:
   Useful: the whole panel on the wall, the aquarium, the world clock, the flight
   board, a clock style. No people in frame, and markets only on the indices page.
 - Sponsor button removed (FUNDING.yml with `ko_fi: keralots` deleted, 3dc00f5,
-  owner's call). Still to decide: the repo description and homepage are
-  upstream's (pixelclock.stolaris.dev). A proposed description is in the
-  session reply.
+  owner's call). The repo description and homepage are ours now
+  ("128x64 RGB LED wall panel on the Waveshare ESP32-S3-RGB-Matrix: ...",
+  homepage = our flasher).
 - From before: flasher points 2 and 3 (name at setup, AP "<name>-Setup"),
   4 (secrets in the portal), sound D11, rotating the MQTT password and AeroAPI
   key after NickoSha left.
