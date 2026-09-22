@@ -26,13 +26,15 @@ common failures), the esp-hub75 troubleshooting guide, and the ESPHome component
 | Boot loop: `assert failed: do_core_init startup.c:328 (flash_ret == ESP_OK)` right after `Octal Flash Mode Enabled` | the image was built for quad flash, and the module's flash is octal (`qio_opi` on a WROOM-2) | `board_build.arduino.memory_type = opi_opi`. Hit on our board on 2026-09-14 |
 | Upload fails with "No serial data received" while the board boot-loops | the USB port drops with every reboot | `esptool.py --port <port> --after no_reset --connect-attempts 15 chip_id` catches it in the bootloader, then upload; or hold BOOT while plugging in |
 | Colours washed out, pastel | an advanced HUB75 option was changed | reset to factory settings |
-| **The panel vanishes from the network for minutes and comes back on its own** | **look at `resetReason` before blaming anything else.** `1` is `ESP_RST_POWERON` - it lost power and came back, and nothing in the firmware did it. `3` is a software reset, which is what an OTA does. A crash would leave a `lastCrash` record whose `thisBoot` and `sameFirmware` are both true; ours on 2026-09-22 was from an older image and a previous day, so it was not this. | The supply, the connector, the contact - not the firmware and not Wi-Fi. Measured 2026-09-22: absent 09:13-09:19, back at 09:19:13 with `uptime 19 s` and `resetReason 1`, then uptime climbing cleanly. RSSI was -65..-74 throughout, so the radio was not the story |
+| **The panel vanishes from the network for minutes and comes back** | **look at `resetReason` before blaming anything else.** `1` is `ESP_RST_POWERON` - power was removed and restored, and nothing in the firmware did it. `3` is a software reset, which is what an OTA does. A crash would leave a `lastCrash` whose `thisBoot` and `sameFirmware` are both true; the one sitting in `/api/info` on 2026-09-22 was from an older image and a previous day, so it was not this. | Follow the number. It is right often enough to be trusted: on 2026-09-22 the panel was absent 09:13-09:19 and came back with `uptime 19 s` and `resetReason 1`. I had begun writing up a fault - and the owner said "that was me, I switched the power". The reading was correct and there was nothing to fix. **A reset reason of 1 with no other symptom usually means a person, a socket or a switch, not a defect.** |
 
 ## Reading a disappearance honestly
 
 Three things look identical from a laptop - a panel that has lost power, one
-whose Wi-Fi dropped, and one that crashed - and they need different fixes. The
-cheap way to tell them apart, in this order:
+whose Wi-Fi dropped, and one that crashed - and they need different fixes.
+A fourth looks identical too and is the most common: **somebody unplugged it.**
+Ask before writing an incident report; on 2026-09-22 the answer to a six-minute
+disappearance was "that was me". The cheap way to tell them apart, in order:
 
 1. **Is it really gone, or is your own resolver ill?** On 2026-09-22
    `nickol.local` stopped resolving from the Mac mid-session while everything
