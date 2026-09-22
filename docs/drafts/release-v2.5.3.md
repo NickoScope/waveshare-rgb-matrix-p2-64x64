@@ -1,7 +1,6 @@
 # GitHub Release v2.5.3 (NickoScope/AnimatedPixelClock): draft
 
-Status: tag v2.5.3 pushed at 9e9ee88; release created as a DRAFT (https://github.com/NickoScope/AnimatedPixelClock/releases, gh -R NickoScope/AnimatedPixelClock: the local gh default pointed at upstream Keralots) with the
-assets attached. Published only on the owner's "отправляй".
+Status: NOT PUBLISHED. The owner chose no release page (2026-09-23 00:09); the draft was deleted. Tag v2.5.3 stays. Kept as a record of the text.
 
 Title: AnimatedPixelClock v2.5.3
 
