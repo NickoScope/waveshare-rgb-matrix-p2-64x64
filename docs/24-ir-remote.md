@@ -23,6 +23,36 @@ download mode (another reset recovers); the receiver's own power-up transient
 against the ~10 ms reset delay (not in the datasheets we read: power-cycle it
 20 times); the portal lets the debounce be set lower - clamp it above 9 ms.
 
+### Wiring it (2026-09-23)
+
+![IR receiver wiring on GPIO0](../reference-drawings/controller/ir-receiver-wiring.svg)
+
+The same receiver and supply parts as NickoScope32 v1b, read off its BOM
+(`BOM_NickoScope32_v1b.xlsx`, order of 2026-08-21):
+
+| Ref | Part | LCSC | Here |
+|---|---|---|---|
+| U308 | Vishay **TSOP2138**, 38 kHz | C7128385 | the receiver |
+| R313 | 51 Ω, YAGEO | C23197 | in series with VS, from 3V3 |
+| C308 | 100 nF, Samsung | C1591 | VS to GND, at the receiver's pins |
+| R307 | 2.2 kΩ, FOJAN | C2907005 | **not needed**: the board's R8 10 kΩ already pulls the line up |
+
+| Receiver pin | Goes to |
+|---|---|
+| **1 OUT** | the BOOT button pad on the IO0 side (the side reading ~10 kΩ to 3V3 through R8; the other side reads 0 Ω to GND) |
+| **2 VS** | 3V3 through R313 51 Ω - the header U8's 3V3 pin is the easy one |
+| **3 GND** | GND - the header U8's GND pin |
+
+TSOP21.. is **1 OUT, 2 VS, 3 GND**; TSOP41../43../45.. and TSOP48.. put GND on 2
+and VS on 3. Check the marking before soldering. The knob stays as it is: A/B on
+IO45/IO46, its switch on the same BOOT pad (owner, 2026-09-23: the knob is the
+backup control). Photos of the finished wiring: to come from the owner.
+
+First checks after soldering, in this order: the panel boots normally 20 times
+out of 20 power cycles; `[ir] receiver on IO0, listening` in the serial log;
+the BOOT button still clicks; a remote's frame shows in the portal's Remote
+card; flashing over USB still works.
+
 The section below is the earlier plan on IO45, kept for its sources.
 
 **Status 2026-09-16 21:33:** flashed and **working on the panel**, driven from
