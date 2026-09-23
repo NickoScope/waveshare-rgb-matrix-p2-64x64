@@ -2,6 +2,29 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (17:55): 2.5.7 effects done and on main; agent gallery publishing ready but waiting on write access
+
+Done and tested on the panel (details, tests, incidents: docs/35-effects-carousel-and-gallery.md):
+- each Lua effect switches in or out of the carousel on its own; delete; add
+  from the GitHub gallery. The gate audit's findings are fixed, including the
+  HIGH one (a switch-off was lost after a reboot).
+- the panel runs main's source over the air (3bc280ca…). Self-test --effects
+  PASS; 14 effects, all in the walk. **2.5.7 is not released.**
+- `gallery_publish` / `gallery_unpublish` (MCP) and `gallery.py
+  publish/unpublish`. On nickol the MCP now has 30 tools; the clone was fixed
+  (fetch over https, push over ssh). The agent's unpushed commits are kept in
+  branch `openclaw/unpushed-2026-09-23`.
+
+Waiting on the owner:
+1. Write access for nickol. A: the existing key with write access to
+   AnimatedPixelClock (it can then push anything, the flasher included). B,
+   recommended: a separate gallery repository. The owner chooses.
+2. The agent's "Screen of the Day" plan, a daily publication.
+3. "отправляй" for the 2.5.7 release.
+
+Next: after the answer on 1, the first real publish is FLIP DOT CLOCK, by the
+agent itself.
+
 ## 2026-09-23 (16:35): v2.5.6 published; next: per-effect carousel switches, delete, gallery in the portal
 
 v2.5.6 is released on the owner's "отправляй релиз": tag v2.5.6 at d955227
