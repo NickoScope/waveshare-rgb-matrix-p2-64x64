@@ -8,9 +8,9 @@ first. Started 2026-09-23 at the owner's request: "запиши в долги и
 
 | # | What | Status | Detail |
 |---|---|---|---|
-| P1 | **System corners on every screen.** Left: A/M, the carousel on (auto) or the pages changed by hand (manual). Right: a Wi-Fi icon coloured by signal level. While the remote is received, the right corner blinks a red dot instead of the icon. | in work 2026-09-23 | owner, 2026-09-23 21:19 |
+| P1 | **System corners on every screen.** Left: A/M, the carousel on (auto) or the pages changed by hand (manual). Right: a Wi-Fi icon coloured by signal level. While the remote is received, the right corner blinks a red dot instead of the icon. | **done** 2026-09-23 21:34, the owner: "работает". main b0684a4, in 2.5.8 (dev). The "entered" mark moved into the left corner as an amber arrow | AGENTS.md "The system corners"; `src/display/sys_corners.h` |
 | P2 | **The panel in Home Assistant over MQTT discovery.** One device with its availability (LWT) and these entities: <ul><li>`light`: display on/off and brightness</li><li>`select`: page and clock style</li><li>`switch`: carousel</li><li>`number`: slot time</li><li>`button`: next and previous</li><li>`text`: notification</li><li>sensors: now showing, mode</li><li>diagnostics: version, uptime, RSSI, heap, DMA free, link recoveries, alloc fails, reset reason</li><li>`update`: `latest_version` published by the panel</li></ul> The firmware already knows every one of these values (`/api/status`, `/api/panel`, `/api/info`). The HA dashboard `/led-panel/panel` has sections waiting for them. | **later**, the owner's word 2026-09-23 21:19 ("так сделаем, но позже") | HANDOFF 2026-09-23 21:15; the dashboard agent's report |
-| P3 | **Release 2.5.8.** Contents so far: the remote's arrows and brightness step once per press; the remote's brightness is kept across a reboot; brightness readings in `/api/info`. P1 goes in too. | not released | [24](24-ir-remote.md) "Soldered and tried" |
+| P3 | **Release 2.5.8.** Contents so far: the remote's arrows and brightness step once per press; the remote's brightness is kept across a reboot; brightness readings in `/api/info`. P1 is in it. | not released | [24](24-ir-remote.md) "Soldered and tried" |
 
 ## Debts: open, known, not forgotten
 

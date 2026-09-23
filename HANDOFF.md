@@ -2,6 +2,27 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (21:35): system corners on every page (2.5.8 dev)
+
+The owner asked for them, and confirmed on his panel ("работает"):
+- **Top left:** A/M, green A while walking, dim A while held, amber M when off.
+  An amber arrow shows while a click has entered a page. The old 3x3 amber
+  mark, top right, was invisible against bright headers.
+- **Top right:** the Wi-Fi icon coloured by RSSI (MetaGeek's table), a red
+  cross offline, and a blinking red 6x6 dot while the remote is heard.
+- The clocks' own no-Wi-Fi icon is now a no-op.
+- main b0684a4.
+
+Also this evening:
+- The owner learned a remote key for the carousel toggle (button 7).
+- docs/36 is the new single debts-and-plan list. MQTT discovery for HA is P2,
+  "later".
+
+2.5.8 is not released yet. In it so far:
+- the remote's arrows and brightness step once per press;
+- the remote's brightness is kept;
+- the system corners.
+
 ## 2026-09-23 (21:15): rail stations restored; the HA dashboard exists but the panel has no HA entities
 
 **Rail stations.** The owner could not switch stations: the favourites list in
