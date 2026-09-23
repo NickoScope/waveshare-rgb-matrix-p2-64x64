@@ -16,9 +16,12 @@ Rolling record of where the work stands. Newest first.
     Every one opened "ok": 31 to 841 ms, heap 21 to 110 KB, 7972 B stack free.
   - Until the firmware drops them, the portal lists them as "On the panel",
     and an upload under their own name is refused.
-- **Before taking them out of the firmware.** The panel has 12 upload slots
-  and 9 are in use now. Seven more built-ins would need 16 slots. Either raise
-  LUA_USER_MAX or keep only the ones wanted.
+- **The owner's decision, 19:58.** They stay in the firmware and also sit in
+  the gallery; the firmware is not to change. While both exist,
+  `gallery_index --check` refuses a gallery copy that differs from its source
+  in tools/luasim/scripts. The hook runs it on script edits too.
+- **If they ever leave the firmware.** 12 upload slots, 9 in use: seven more
+  would need 16 slots.
 
 ## 2026-09-23 (19:35): v2.5.7 published
 
