@@ -2,6 +2,46 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (15:30): radar and sensor only on screen (flashed), gallery screens uploaded, weather set
+
+**Firmware on the panel: 2.5.6 = feat/offscreen-quiet d51f983** (USB). It carries the
+PSRAM state, the RAM guard, and now the radar feed and the SHTC3 only while a
+screen needs them. Two gate audits: the second APPROVED. Measured after
+flashing:
+- clock for 60 s: radar 19 -> 19 messages, sensor 0 reads;
+- aquarium: subscribed, +25 messages in 25 s;
+- weather clock: +3 reads in 30 s;
+- back to the clock: both stop.
+0 failed allocations, pool about 48 KB.
+
+**Finding (MTR-1 / Home Assistant side, not fixed):** the retained
+`nickoscope_matrix/presence` summary says `online: false` while targets
+arrive every 5 s. The first flash believed it and showed NO FEED for 3 s on
+each visit; d51f983 ignores it. Why the publisher reports offline is open
+(the AppDaemon app's online source; docs/16).
+
+**Uploaded to the panel's script store, owner's request:**
+- AQUARIUM (gallery);
+- AUTUMN and AUTUMN_PHOTO (the OpenClaw agent's living_autumn and
+  picture_day_photo, from nickol ~/ledmatrix-mcp, 2026-09-22);
+- LADY_WITH_DOG and LADY_RED_HAT (converted from the owner's photos
+  IMG_8225/IMG_8158 in nickol ~/nickophoto with photo_to_lua.py, 24-bit, fill);
+- LADY_DOG_LINES (the agent's 2026-09-01 oscilloscope line art).
+The "lady" material the agent made was all for NickoScope32, not the LED panel.
+Personal photos are on the panel only, in no repository. picture_day (the same
+photo in 256 colours) and living_ocean were not uploaded.
+
+**Location.** The panel sits in Mandelieu-la-Napoule. IP geolocation had said
+Montpellier (the ISP's exit, not the house). Weather was off with 0,0. It is
+set through the portal to 43.5458, 6.9373 (Open-Meteo geocoding, the portal's
+own search). The world clock's home follows the weather location when none is
+chosen, and is now CANNES.
+
+**Cyrillic in notifications: not supported yet.** Notifications draw with
+display.print() in the 8-bit 5x7 font. The 2.5.4 Cyrillic is in Picopixel only
+(Lua px.text, world-clock names). A test alphabet was sent at 15:30 for the
+owner to see. The debt "5x7 Cyrillic for media/notifications" stands.
+
 ## 2026-09-23 (11:55): 2.5.6 — page and effect state in PSRAM, flashed and measured (double buffering kept)
 
 Owner (11:26): "да, делай и прошивай". Branch `feat/state-in-psram`, commit
