@@ -2,6 +2,25 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (19:25): the agent's screens on GitHub, photos without people allowed, 4 thumbs up
+
+Owner: "публикуй сам", "фото без людей пускай", "поставь на них лайки".
+- The agent had published nothing to its gallery (the tools were new; its
+  routine does not mention them). I published for it, marked `by openclaw`:
+  AUTUMN (living_autumn.lua), LIVING OCEAN, SOTD 0923 EVENING, PICTURE DAY
+  PHOTO. `picture_day` (the same photo in 256 colours) was left out.
+- New rule, main fc2a919: a photograph goes in only with `photo_no_people`,
+  and is tagged `-- @photo no-people`; photographs of people never. The 21:00
+  task was told to look at each preview for people.
+- Scoreboard: 👍 on the four, September 👍 4 · 👎 0. FLIP DOT CLOCK stays the
+  unrated pilot.
+- sync skips entries whose script and text are unchanged: a real-time clock's
+  preview differs on every run.
+- GitHub b4deb2e.
+
+Open: the agent's own routine does not publish yet. It needs telling (the
+owner's call).
+
 ## 2026-09-23 (19:22): Delete in the portal is two presses, not confirm()
 
 The owner's "не удаляются с панели": the browser he used suppresses native
