@@ -1,6 +1,6 @@
 # Comment on Keralots/AnimatedPixelClock#3: showing the Lua effects and the gallery (draft)
 
-Status: DRAFT. It is posted only on the owner's "отправляй".
+Status: POSTED 2026-09-23 19:47 on the owner's "рафалю отправляй": https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5799935344
 
 Where: https://github.com/Keralots/AnimatedPixelClock/issues/3. Rafał closed
 it as completed on 2026-09-18; a comment on it still reaches him.

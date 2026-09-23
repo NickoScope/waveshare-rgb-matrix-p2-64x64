@@ -2,6 +2,24 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (19:55): comment to Rafał posted; the built-ins are in the gallery
+
+- **Rafał.** The show-and-tell comment is posted on Keralots#3:
+  https://github.com/Keralots/AnimatedPixelClock/issues/3#issuecomment-5799935344.
+  The owner rewrote the angle: the SDK, and a gallery that anyone can load
+  and send to. No request is made. The keralots-watch task will see any answer.
+- **The built-ins in the gallery.** The owner asked to put them there, test
+  loading, and later take them out of the firmware. Six were added: football,
+  minecraft, room radar, snake, snooker, tetris. LA GIOCONDA was already
+  there. The gallery now has 15 effects (main 21dc8fe).
+  - Each one was loaded on the panel under a test name, shown and deleted.
+    Every one opened "ok": 31 to 841 ms, heap 21 to 110 KB, 7972 B stack free.
+  - Until the firmware drops them, the portal lists them as "On the panel",
+    and an upload under their own name is refused.
+- **Before taking them out of the firmware.** The panel has 12 upload slots
+  and 9 are in use now. Seven more built-ins would need 16 slots. Either raise
+  LUA_USER_MAX or keep only the ones wanted.
+
 ## 2026-09-23 (19:35): v2.5.7 published
 
 On the owner's "отправляй":
