@@ -2,6 +2,41 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (11:40): 2.5.5 self-test, and where else the radio's memory can come from
+
+**Owner (11:21):** keep double buffering (it matters), do not touch colour
+depth, fast page flipping is not a real-life case.
+
+**Self-test on 2.5.5, normal pace (a page every 2 s): WARN.** Ping 24/24,
+controls fine. 5 of 15 portal requests answered 503. One Wi-Fi allocation
+failed during the test (206 B). The radio's pool (DMA-capable internal heap)
+was 13.8 KB free at the end. Its lowest point since boot, 172 B, was reached
+**before** the test started, in 1 h 40 min of ordinary running: the pool
+empties in normal life, not only under fast switching.
+Logs: firmware repo health-logs/20260923-112108.
+
+**Levers checked against the sources:**
+- Frames in PSRAM (the library's SPIRAM_DMA_BUFFER): rejected. The library
+  drops the bus clock to 8-13 MHz and, in its own words, drops colour depth
+  "slightly" (ESP32-HUB75-MatrixPanel-I2S-DMA.cpp, begin(); gdma_lcd_parallel16.cpp).
+- mbedTLS in PSRAM: **already done** (ed201cf, src/network/tls_psram.cpp,
+  linked in the Waveshare build).
+- Task stacks in PSRAM: not possible. The prebuilt config lacks
+  CONFIG_SPIRAM_ALLOW_STACK_EXTERNAL_MEMORY and the kernel asserts that a stack
+  is internal (noted in net_broker.cpp and lua_effects.cpp).
+- Static .bss in PSRAM (EXT_RAM_ATTR): not available, because
+  CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY is off in the prebuilt sdkconfig.
+- **Open lever: our own static state.** 66.8 KB of our code's .bss/.data sits in
+  internal RAM. 48 arrays of 256 B or more add up to 54 KB. Of that, about
+  33 KB is page and effect state that runs only from loop(): world clock
+  s_colour 4 KB, custom ambient pcaBufA/B 8 KB, tron 2 KB, starfields 2.3 KB,
+  the UDP buffer 2 KB, flight board, rail, yachts, cards and the clock games.
+  Moving it to PSRAM would raise the pool from 14-24 KB free to roughly
+  45-55 KB, still with two DMA frames. PSRAM is not in the heap until
+  initArduino() (CONFIG_SPIRAM_BOOT_INIT is off), so the allocations must happen
+  after that: either lazily at first use, or by calling psramInit() from a
+  high-priority constructor. Awaiting the owner's go-ahead.
+
 ## 2026-09-23 (09:45): the radio's memory — single-frame experiment parked as a debt, panel back on 2.5.5
 
 **The owner's call (09:37):** back to double buffering, keep the single frame
