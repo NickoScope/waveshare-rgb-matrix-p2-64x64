@@ -8,7 +8,6 @@
   <text x="135" y="185" text-anchor="middle" font-weight="bold">U308</text>
   <text x="135" y="207" text-anchor="middle">TSOP2138</text>
   <text x="135" y="227" text-anchor="middle" fill="#555" font-size="13">38 kHz, Vishay</text>
-  <text x="135" y="247" text-anchor="middle" fill="#555" font-size="13">(lens facing you)</text>
   <line x1="210" y1="275" x2="250" y2="275" stroke="#111" stroke-width="2"/>
   <line x1="210" y1="300" x2="250" y2="300" stroke="#111" stroke-width="2"/>
   <line x1="210" y1="325" x2="250" y2="325" stroke="#111" stroke-width="2"/>
@@ -84,7 +83,7 @@
   <circle cx="690" cy="255" r="4" fill="#111"/>
 
   <!-- notes -->
-  <text x="24" y="500" font-size="14" fill="#111">• TSOP21xx pinout is 1 OUT, 2 VS, 3 GND - not the TSOP48xx order (2 GND, 3 VS). Check the part before soldering.</text>
+  <text x="24" y="500" font-size="14" fill="#111">• TSOP21xx pinout is 1 OUT, 2 VS, 3 GND - not the TSOP48xx order (2 GND, 3 VS). Pin order: see the part's datasheet drawing before soldering.</text>
   <text x="24" y="522" font-size="14" fill="#111">• No pull-up of your own: R8 10 kΩ is on the board. R307 2.2 kΩ from v1b may be added, not needed. IO45/IO46 stay free.</text>
   <text x="24" y="544" font-size="14" fill="#111">• Find the IO0 side of the BOOT button with a meter: ~10 kΩ to 3V3 (through R8); the other side reads 0 Ω to GND.</text>
 </svg>
