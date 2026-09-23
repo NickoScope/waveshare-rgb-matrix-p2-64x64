@@ -1,6 +1,6 @@
 # GitHub Release v2.5.5 (NickoScope/AnimatedPixelClock): draft
 
-Status: DRAFT, not published. Tag v2.5.5 at 48d3665 (not pushed yet). Published only on the owner's "отправляй".
+Status: PUBLISHED 2026-09-23 08:40 on the owner's "отправляй": https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.5.5 (tag at 48d3665).
 
 Title: AnimatedPixelClock v2.5.5
 
