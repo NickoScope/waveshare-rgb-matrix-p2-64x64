@@ -57,6 +57,26 @@ out of 20 power cycles; `[ir] receiver on IO0, listening` in the serial log;
 the BOOT button still clicks; a remote's frame shows in the portal's Remote
 card; flashing over USB still works.
 
+### Soldered and tried (2026-09-23, evening)
+
+The owner soldered the TSOP2138 on GPIO0 as drawn above and learned his
+remote (NEC, codes 0xFF....). Checked from the Mac through `/api/ir`:
+- **Receiver:** listening on IO0, 0 overflows, hundreds of frames.
+- **Boots:** three power cycles by the owner and several `/api/reboot`
+  restarts. Every one came back normally, reset reason power-on.
+- **Firmware 2.5.8 (dev), from his trial:**
+  - The arrows and brightness now step **once per press**. Before, each 108 ms
+    repeat was a step, and one press of "right" went from the clock to
+    page 22.
+  - The remote's brightness is **saved** 3 s after the last press. Measured:
+    11 % set, 28/255 in NVS, 11 % after a reboot.
+- **A learning pitfall:** relearning a code moves it to the new button. The
+  owner's "-" key ended up on button 9 (carousel), and button 7 (brightness
+  down) was left empty, so "-" toggled the carousel. The fix was to swap the
+  functions of 7 and 9 (`/api/ir/fn`), not to relearn.
+- **Still to do:** photos of the wiring; the "remote pressed during a reset
+  lands in download mode" case, which was not provoked.
+
 The section below is the earlier plan on IO45, kept for its sources.
 
 **Status 2026-09-16 21:33:** flashed and **working on the panel**, driven from

@@ -2,6 +2,20 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (21:10): IR receiver soldered; remote fixed in 2.5.8 (dev)
+
+The owner soldered the receiver on GPIO0; it works. On his trial:
+- the arrows and brightness now step once per press;
+- the remote's brightness survives a reboot (NVS, 3 s after the last press);
+- the "-" key had been relearned into the carousel button, so the functions
+  were swapped on his panel.
+
+main 70c7cf3; the panel runs it. Details: docs/24 "Soldered and tried". 2.5.8
+is not released.
+
+In the background: the HA/MA manager is building a panel dashboard in HA (the
+owner's request).
+
 ## 2026-09-23 (19:55): comment to Rafał posted; the built-ins are in the gallery
 
 - **Rafał.** The show-and-tell comment is posted on Keralots#3:
