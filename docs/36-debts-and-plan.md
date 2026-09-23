@@ -15,6 +15,18 @@ first. Started 2026-09-23 at the owner's request: "запиши в долги и
 | P5 | **Release 2.5.9.** In it: the upload trial (the panel refuses a Lua file that would not run); the world clock's home city from the knob and the remote. | **released** 2026-09-23 22:38: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.5.9 | HANDOFF 2026-09-23 22:25 |
 | P6 | **The agent's gallery and ours are two different things.** OpenClaw keeps its screens in its own `~/screens-gallery` (with SCOREBOARD.md) and believes "Nikolay copies the best to GitHub himself". It does not use `gallery_publish`, so the 21:00 sync finds nothing. Choose one: tell the agent to publish through `gallery_publish` (sent via AgentMQ 22:31), or teach `sync` to read `~/screens-gallery` | open, the owner to choose | HANDOFF 2026-09-23 |
 
+## Decided, not to reopen without a reason
+
+- **2026-09-23, the owner: native screens stay native.** The idea of moving
+  the author's clock styles and the data boards to Lua was weighed and
+  dropped.
+  - They work, and there is room: the image is 2.2 MB of a 4.5 MB OTA slot.
+  - Rewriting working code risks speed (px calls, docs/AGENTS.md costs),
+    knob and remote controls, and looks, for little gain.
+  - **New screens are Lua**, through the gallery and the upload trial.
+  - An existing native screen moves only if there is a concrete reason to
+    change that screen.
+
 ## Debts: open, known, not forgotten
 
 | # | Debt | Where it is written |
