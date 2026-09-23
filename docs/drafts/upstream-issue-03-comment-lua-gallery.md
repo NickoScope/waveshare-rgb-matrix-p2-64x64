@@ -15,6 +15,11 @@ Why there, and why nothing is asked:
 So the comment is only a show-and-tell. It asks for nothing, offers no PR, and
 says no reply is needed.
 
+Rewritten 19:45 on the owner's correction: the point is the SDK (any AI agent
+writes its own effects and puts them on its own panel) and our gallery that
+anyone can load and propose to. The Raspberry Pi agent is another story and is
+left out.
+
 Facts checked:
 - **Release v2.5.7:** published today.
 - **raw.githubusercontent.com CORS:** answers `*`, measured 2026-09-23.
@@ -31,14 +36,15 @@ Facts checked:
 
 Hi Rafał,
 
-no request in this one and nothing to merge. You wrote that the fork reads like a different product built on the same base, and I wanted to show you one piece of it that turned out better than I expected. Only if you have a spare minute.
+no request in this one and nothing to merge, just something from the fork I think you might enjoy seeing.
 
-It is the Lua effects in the portal. Every effect has its own switch for whether the knob and the carousel visit it, the uploaded ones can be deleted, and an "Add from the gallery" list shows the scripts in the fork's gallery folder with a preview and sends the one you pick to the panel. The browser fetches the script from raw.githubusercontent.com, which answers any origin, and posts it to the panel, so the panel itself never goes to the internet for it. The switches are kept in NVS by effect name rather than by index, so uploads and deletes do not shift them, and each click carries the name it saw, so if the list changed in between the panel answers 409 instead of switching the neighbour.
+The fork now has an SDK for Lua effects: an MCP server and a few command line tools in tools/agent. With it any AI agent can write effects by itself. It reads what a script may call, writes the script, checks it against the panel's own rules, previews it in a simulator of the same runtime with no hardware at all, and puts it on the panel over Wi-Fi in about a second, with no build and no flash.
 
-The part I enjoy most is where the gallery screens come from. An agent on a Raspberry Pi here writes new screens against a host build of the same Lua runtime, checks them with the panel's own validator compiled for the host, and publishes them into a branch on its own machine. It has no write access to GitHub. Every evening my Mac takes only its gallery entries from that branch, runs every check again, renders the previews itself and pushes them. There are nine screens now, among them a flip-disc clock and the sea at sunset.
+Around that we started a gallery of effects. In the portal, "Add from the gallery" lists them with a preview and puts the one you pick on your panel, and every effect has its own switch for whether the knob and the carousel visit it. There are nine so far, among them a flip-disc clock, the sea at sunset and an aquarium whose fish notice people in the room. Anyone can load them, and anyone who makes something really beautiful can send it to us as a pull request to the gallery folder.
 
 Release: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.5.7
 Gallery: https://github.com/NickoScope/AnimatedPixelClock/tree/main/gallery
+SDK: https://github.com/NickoScope/AnimatedPixelClock/tree/main/tools/agent
 
 As agreed, it all stays in the fork, and there is no need to answer.
 
@@ -49,14 +55,15 @@ Nikolay
 
 Привет, Рафал,
 
-в этот раз никаких просьб и ничего для слияния. Ты писал, что форк выглядит как другой продукт на той же основе, и мне захотелось показать тебе одну его часть, которая получилась лучше, чем я ожидал. Только если найдётся свободная минута.
+в этот раз никаких просьб и ничего для слияния, просто хочу показать кое-что из форка, думаю, тебе будет интересно.
 
-Это Lua-эффекты в портале. У каждого эффекта свой переключатель: заходят ли на него ручка и карусель. Загруженные можно удалять. А список «Add from the gallery» показывает скрипты из папки gallery форка с превью и отправляет выбранный на панель. Скрипт загружает браузер с raw.githubusercontent.com, который отвечает любому источнику, и передаёт панели, так что сама панель за ним в интернет не ходит. Переключатели хранятся в NVS по имени эффекта, а не по номеру, поэтому загрузки и удаления их не сдвигают. Каждый клик несёт имя, которое видел, и если список за это время изменился, панель отвечает 409, а не переключает соседа.
+В форке теперь есть SDK для Lua-эффектов: MCP-сервер и несколько утилит командной строки в tools/agent. С ним любой ИИ-агент может сам писать эффекты. Он узнаёт, что скрипту можно вызывать, пишет скрипт, проверяет его правилами самой панели, смотрит результат в симуляторе того же рантайма вообще без железа и ставит на панель по Wi-Fi примерно за секунду, без сборки и прошивки.
 
-Больше всего мне нравится, откуда берутся экраны галереи. Агент на Raspberry Pi здесь пишет новые экраны под хост-сборку того же Lua-рантайма, проверяет их собственным валидатором панели, собранным для хоста, и публикует в ветку на своей же машине. Права на запись в GitHub у него нет. Каждый вечер мой Mac забирает из этой ветки только его записи галереи, заново прогоняет все проверки, сам делает превью и пушит. Экранов уже девять, среди них часы из переворачивающихся дисков и море на закате.
+Вокруг этого мы начали собирать галерею эффектов. В портале «Add from the gallery» показывает их с превью и ставит выбранный на твою панель, а у каждого эффекта есть свой переключатель: заходят ли на него ручка и карусель. Пока их девять, среди них часы из переворачивающихся дисков, море на закате и аквариум, рыбы в котором замечают людей в комнате. Загрузить их может любой, а кто сделает что-то действительно красивое, может прислать нам пул-реквестом в папку gallery.
 
 Релиз: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.5.7
 Галерея: https://github.com/NickoScope/AnimatedPixelClock/tree/main/gallery
+SDK: https://github.com/NickoScope/AnimatedPixelClock/tree/main/tools/agent
 
 Как договаривались, всё остаётся в форке, и отвечать не нужно.
 
