@@ -11,6 +11,19 @@ luasim the same; fx_parity identical on every script + cyrillic_test.lua + the
 world clock page; missing glyph = solid block (the hollow box read as 0).
 Flash +2,340 B, RAM 0. SDK effect_api and AGENTS.md updated. All three envs build.
 
+Gate audit (senior-code-audit, after the fact): APPROVED, 0 critical/high.
+ASCII identical on 600k strings, decoder 381k exhaustive cases under ASan,
+no out-of-bounds for any code point, RAM 116,936 B before and after. Two lows
+fixed (737caa0). Open lows: const tables in a header are copied per file
+(Cyrillic twice, ~870 B each; Latin already 11 times, ~9.4 KB, older debt);
+З equals the digit 3 pixel for pixel (decide on the wall); mkcyr needs one
+build for Picopixel.h; lua_effects.cpp drawMessage still print()s the effect
+name and Lua error text (Cyrillic would vanish there).
+Quick panel test 07:15 on v2.5.3: API brightness/display/notify/pages all 200,
+portal 15 sections + 3x Save & apply "Saved", 29/29 pings, radio 0 failures
+(the one failure was the yacht page's 12 KB stack, known). Uploaded Lua slots
+on this panel are empty: the aquarium lives on the old panel only.
+
 Waiting for: the owner's word to flash, then the wall check of И Й Л Д У Ж Щ Ё
 (test card: upload tools/luasim/scripts/cyrillic_test.lua after flashing), and
 the release (release.py + GitHub Release, notes drafted first).
