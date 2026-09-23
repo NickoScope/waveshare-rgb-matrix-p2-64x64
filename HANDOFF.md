@@ -2,6 +2,33 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (21:55): day's close. Done, left, next
+
+**Done today.**
+- Releases:
+  - v2.5.6: radio memory, Cyrillic, on-screen feeds.
+  - v2.5.7: the per-effect carousel switch, delete, the gallery.
+  - v2.5.8: the remote steps once per press, remote brightness is kept, the
+    system corners (A/M, Wi-Fi, IR dot, the "entered" arrow).
+- The IR receiver is soldered on GPIO0 and works.
+- The gallery has 15 effects, the built-ins included. The drift check guards
+  them.
+- OpenClaw publishes only into its staging branch. A nightly 21:00 task (a
+  Claude scheduled task) syncs it to GitHub after review.
+- Rafał was told about the SDK and the gallery (Keralots#3).
+- The HA dashboard /led-panel/panel is built. It has no panel tiles yet.
+- The rail favourites are restored.
+- docs/36 is now the single debts-and-plan list.
+
+**Left:** docs/36.
+- P2: MQTT discovery for HA, "later".
+- P4: a bare LD2450 on IO45/IO46 over UART. The owner is ordering the module.
+- The debts D-A to D-K.
+
+**Next step:** when the LD2450 arrives, a HW deep-dive against its datasheet
+(pins, 5 V supply, the UART), then the frame parser into the presence seam.
+Otherwise P2.
+
 ## 2026-09-23 (21:35): system corners on every page (2.5.8 dev)
 
 The owner asked for them, and confirmed on his panel ("работает"):
