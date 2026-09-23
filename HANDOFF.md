@@ -2,6 +2,23 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (22:55): v2.5.9 and v2.6.0 published
+
+- **v2.5.9:**
+  - the upload trial (the panel refuses a Lua file that would fail or take
+    more than 500 ms a frame);
+  - the world clock's home city from the knob and the remote.
+- **v2.6.0.** The owner's decision:
+  - no Lua effects compiled in; LUA_USER_MAX 36;
+  - the seven former built-ins moved to the gallery and uploaded to his
+    panel: 18 effects, switches unchanged;
+  - the image is 135 KB smaller;
+  - the release notes warn that updating removes the former built-ins until
+    they are added from the gallery.
+- **The flasher serves v2.6.0.** The agent's clone is at main.
+- **Found:** the agent keeps its own `~/screens-gallery` and does not use
+  `gallery_publish`, so the nightly sync is idle. See docs/36 P6.
+
 ## 2026-09-23 (22:25): the panel refuses a Lua file that would not run; the rules for agents; world clock city
 
 - **Why the agent's two screens were not seen.**
