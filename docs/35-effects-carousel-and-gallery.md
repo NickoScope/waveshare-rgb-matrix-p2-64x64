@@ -121,30 +121,44 @@ same source over the air (image SHA-256 `3bc280ca70100454…`).
     GitHub. The clone is now at main f3c515a with 30 tools. Pillow is installed
     and pinned in `update.sh`, and `.env` has `LEDMATRIX_PUBLISHER=openclaw`.
 
-## Write access: the owner's decision
+## Write access: decided — the agent never pushes to GitHub
 
-The agent's publishing works up to the push. The push needs a key that GitHub
-accepts for writing, and adding one is a security setting, so it is the
-owner's step.
+The owner, 2026-09-23 17:48: "Не будем давать права пушить в гитхабе. Пусть
+складывает в галерею у себя, ты будешь пушить сам на гитхаб эффекты и картинки
+с лайками."
 
-GitHub's documentation, "Managing deploy keys" (read 2026-09-23):
+How it runs now (main 375f431, first sync d4fe1ae):
 
-- "Deploy keys only grant access to a single repository."
-- "A deploy key with write access lets a deployment push to the repository."
-- The page says nothing about limiting such a key to certain branches.
-  Whether a ruleset can do that: **not verified**.
+- **On nickol.**
+  - The agent's clone has `gallery.remote = .` and
+    `gallery.branch = gallery-staging`.
+  - `gallery_publish`, `gallery_unpublish` and `gallery_scoreboard` commit
+    there.
+  - The clone's push URL is `DISABLED-no-github-push-from-nickol`. Fetch is
+    over https. The nightly `update.sh` pulls `main` only.
+- **On the Mac (me).**
+  - The command:
 
-What follows for us: a write key on `AnimatedPixelClock` would let anything
-with a shell on nickol push anything, including `docs/firmware/`, which the
-web flasher serves. The agent is an LLM that takes messages.
+    ```
+    GIT_SSH_COMMAND="ssh -i ~/.ssh/nickol_mac_claude" python3 tools/agent/gallery.py sync pi@nickol.local:ledmatrix-mcp --by openclaw
+    ```
 
-- **A (quick):** add the existing nickol key with write access to
-  AnimatedPixelClock. Add it in the web UI rather than with gh, so it is not
-  tied to a gh token.
-- **B (recommended):** a separate public repository just for the gallery, with
-  its own write key. The agent then cannot reach the firmware. The cost is
-  that the portal's gallery address and the tools move to it. Now is the time,
-  before 2.5.7 is released.
+  - It mirrors only the agent's entries (`-- @by openclaw`) and
+    `SCREEN_OF_THE_DAY.md`, by state.
+  - Every check runs again. The preview is made again from the script. A
+    person's entry changed in staging is not carried.
+  - It pushes, then resets `gallery-staging` to what GitHub has, and only if
+    the agent staged nothing in between.
+  - Before a real sync: `--dry-run`, and look at the preview.
+- **Scoreboard rules.** Markdown only, no HTML. A picture may only be
+  `preview/<stem>.png` of a published screen, so the only images that can
+  reach GitHub are what gallery scripts draw.
+- **First sync.** FLIP DOT CLOCK, with the agent's own README text from its
+  unpushed commit, plus its scoreboard. Both are on GitHub, and
+  `index.json` shows `FLIP_DOT_CLOCK` `by: openclaw`.
+- **Tests.** `test_gallery_publish.py` has 20 checks: agent staging,
+  scoreboard refusals, sync carried, tamper not carried, staging reset,
+  idempotent, removal, a remote that refuses. It runs in pre-commit.
 
 ## Backlog (not blockers)
 

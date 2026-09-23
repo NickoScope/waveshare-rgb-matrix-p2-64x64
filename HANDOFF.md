@@ -2,6 +2,18 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (17:55): the agent never pushes; it stages, I sync to GitHub
+
+Owner's decision 17:48: no GitHub push rights for OpenClaw. On nickol the agent
+publishes into `gallery-staging` in its own clone; GitHub push there is
+disabled. I carry it to GitHub with `gallery.py sync … --by openclaw` (every
+check again, preview remade, only the agent's entries and the scoreboard).
+First sync done: FLIP DOT CLOCK and the Screen of the Day scoreboard are on
+GitHub (d4fe1ae). Agent MCP: 31 tools. Details: docs/35 "Write access".
+
+Open: when to sync (on request, or daily after the agent's 07:00 screen);
+the 2.5.7 release on "отправляй".
+
 ## 2026-09-23 (17:55): 2.5.7 effects done and on main; agent gallery publishing ready but waiting on write access
 
 Done and tested on the panel (details, tests, incidents: docs/35-effects-carousel-and-gallery.md):
