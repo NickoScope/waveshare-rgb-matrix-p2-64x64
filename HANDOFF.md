@@ -2,6 +2,31 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (16:35): v2.5.6 published; next: per-effect carousel switches, delete, gallery in the portal
+
+v2.5.6 is released on the owner's "отправляй релиз": tag v2.5.6 at d955227
+(main), GitHub Release with firmware, OTA_ONLY, companion and sums; the flasher
+serves v2.5.6. Notes: docs/drafts/release-v2.5.6.md. The owner's panel runs the
+release OTA image (SHA-256 d44458255c5573b2...), self-test PASS.
+
+In it:
+- the radio's memory (PSRAM state);
+- the RAM guard;
+- the radar and the sensor only on screen;
+- the system Cyrillic font on every screen: the owner saw the alphabet and said
+  "отлично выглядит";
+- portal Pages grouped with no empty rows;
+- SDK, MCP, AGENTS.md and the self-test updated;
+- README and the flasher text.
+
+Open, the owner's request 16:31 (for 2.5.7):
+- each Lua effect switchable out of the carousel and the knob walk, in the
+  portal;
+- delete an uploaded effect from the portal;
+- add effects from the GitHub gallery from the portal.
+
+The firmware today switches pages by key: all Lua together.
+
 ## 2026-09-23 (15:30): radar and sensor only on screen (flashed), gallery screens uploaded, weather set
 
 **Firmware on the panel: 2.5.6 = feat/offscreen-quiet d51f983** (USB). It carries the

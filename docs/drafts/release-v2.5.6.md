@@ -1,9 +1,6 @@
 # GitHub Release v2.5.6 (NickoScope/AnimatedPixelClock): draft
 
-Status: DRAFT, waiting for the owner's "отправляй". Source: main 00c5af2 (release images built by
-release.py: release/v2.5.6/, SHA256 of the OTA image d44458255c5573b2...). The panel runs this exact
-OTA image: confirmed valid, self-test PASS. On "отправляй": commit docs/firmware/latest + release/,
-push, tag v2.5.6, publish the GitHub Release with the assets.
+Status: PUBLISHED 2026-09-23 16:32 on the owner's "отправляй релиз": https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.5.6 (tag at d955227). The flasher serves v2.5.6 from 16:33.
 
 Title: AnimatedPixelClock v2.5.6
 
