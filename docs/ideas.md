@@ -45,3 +45,14 @@ A shape to start from:
 
 Rough size: one session with tests and the gate audit, plus the Home Assistant
 side for the light mode.
+
+## The over-the-air update: answers in Russian, and the name question
+
+**From the first live run, 2026-09-23 (owner).**
+
+- Accept Russian answers as well: "да" for yes, "обновить" for update. The
+  owner answered "да" to question 1 and the tool, by design, would have
+  cancelled; the agent had to ask again rather than translate the answer
+  itself.
+- At the name step, ask whether to keep the panel's name or change it
+  ("изменить или оставить прежним?"), instead of only asking it to be typed.

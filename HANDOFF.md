@@ -2,6 +2,22 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (08:44): first live over-the-air update through the SDK — UPDATED
+
+The owner asked for a live run with all the communication through him.
+v2.5.5 (48d3665) published on the flasher and as a GitHub Release (his
+"отправляй"). `tools/agent/update.py --install` ran with his answers relayed
+word for word through a pipe: "yes" (his first answer was "да" - not relayed,
+he was asked again), "update", the panel's name. Image checked (SHA-256
+da7dd6ad..., ESP32-S3), sent, panel back in 10 s on 2.5.5, OTA state pending,
+confirmed by boot_health at 76 s: **UPDATED, app1, valid.** Read-only self-test
+after: ping 3/3, portal 12/12, no allocation failures; dmaMin 1,508 B since boot.
+
+Also today on main: Cyrillic (2.5.4), IR receiver on GPIO0 with ten learnable
+buttons, DHCP name, brightness rounding, health.py, update.py - each through
+the gate audit. Ideas and the owner's two remarks on the update flow:
+docs/ideas.md. Still first on the list of real work: the radio's DMA pool.
+
 ## 2026-09-23 (08:10): the self-test, the panel's name in DHCP, brightness rounding — on main (0c3d573), not flashed
 
 - `python3 tools/agent/health.py` (and MCP `panel_selftest`): ~30 s health run,
