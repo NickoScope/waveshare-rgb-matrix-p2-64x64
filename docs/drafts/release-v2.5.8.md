@@ -1,18 +1,18 @@
 # GitHub Release v2.5.8 (NickoScope/AnimatedPixelClock): draft
 
-Status: DRAFT, published on the owner's "отправляй". Release commit local, not pushed (pushing updates the web flasher). The release OTA image (SHA-256 e39edce6549a62b1...) is on the owner's panel, self-test with --effects PASS.
+Status: PUBLISHED 2026-09-23 21:49 on the owner's "отправляй" (text polished to his voice first): https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.5.8, tag at 7951336; the flasher serves v2.5.8. The release OTA image (SHA-256 e39edce6549a62b1...) is on the owner's panel, self-test with --effects PASS.
 
 Title: AnimatedPixelClock v2.5.8
 
 ## Body (English, as it would be posted)
 
-This release is for the Waveshare ESP32-S3-RGB-Matrix board driving a 128x64 HUB75 panel, the only board I have tested it on. It comes from the first evening with an infrared receiver actually soldered to my panel, and from what I missed while using it.
+This release is for the Waveshare ESP32-S3-RGB-Matrix board driving a 128x64 HUB75 panel, the only board I have tested it on. Most of it came out of the first evening with an infrared receiver soldered to my panel, from the small things I missed while actually using it.
 
-The panel now shows its state in two corners on every screen. Top left is A when the carousel changes screens by itself (dimmer while it waits after you changed a page by hand) and M when it is off, or an arrow while you are inside a page and the arrows act on it, for example choosing a station on the rail board. Top right is a Wi-Fi icon coloured by signal strength: green at -67 dBm or better, amber down to -80, red below, and a red cross with no connection. While the remote is being received that icon turns into a blinking red dot, so you can see the panel hears you. Each mark sits on a small black patch so it reads over any picture.
+The panel now shows its state in two corners on every screen. In the top left there is an A when the carousel changes screens by itself, a dimmer A while it waits after you changed a page by hand, and an M when it is off. While you are inside a page, for example picking a station on the rail board, an arrow takes its place. In the top right there is a Wi-Fi icon coloured by signal strength: green at -67 dBm or better, amber down to -80, red below that, and a red cross when there is no connection. While the remote is being received the icon turns into a blinking red dot, so you can see that the panel hears you. Each mark sits on a small black patch, so it stays readable over any picture.
 
-The remote. Left, right and brightness now change one step per press, however long you hold the button. Before, every repeat the remote sends while a key is held counted as a new press, and one ordinary press could jump from the clock to page 22. Brightness set with the remote is now kept after a power cut, saved a few seconds after the last press.
+The remote now moves one step per press for left, right and brightness, however long you hold the button. Before, every repeat a held key sends counted as a new press, and one ordinary press could jump from the clock to page 22. Brightness set with the remote is also kept after a power cut now. It is saved a few seconds after the last press.
 
-The receiver goes on GPIO0, the BOOT line, which the board already pulls up, so it needs no extra resistor. The wiring and the parts are in the repository's IR notes.
+The receiver goes on GPIO0, the BOOT line, which the board already pulls up, so no extra resistor is needed. The wiring and the parts are in src/ir/README.md.
 
 Install: for a new board, use the web flasher at https://nickoscope.github.io/AnimatedPixelClock/ or write firmware-v2.5.8-waveshare.bin at 0x0. For a board that is already running, upload OTA_ONLY_firmware-v2.5.8-waveshare.bin on the portal's firmware update page, or let the tools in tools/agent do it. Do not upload the full image as an update. The Windows PC stats companion is pc_stats_monitor_v4.exe. SHA256SUMS.txt has the checksums.
 
