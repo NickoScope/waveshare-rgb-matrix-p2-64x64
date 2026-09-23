@@ -2,6 +2,42 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (11:55): 2.5.6 — page and effect state in PSRAM, flashed and measured (double buffering kept)
+
+Owner (11:26): "да, делай и прошивай". Branch `feat/state-in-psram`, commit
+dad3de2, pushed; **not merged to main, not released**. The panel runs it (USB).
+Release notes draft: docs/drafts/release-v2.5.6.md (needs "отправляй").
+
+**Change.** 33 zero-initialised page and effect arrays moved from internal .bss
+to PSRAM through `src/util/psram_state.h` `PSRAM_ARRAY()`. The name becomes a
+reference to a zeroed PSRAM block, so indexing and sizeof are unchanged; trivial
+types only (static_assert). `.dram0.bss` went from 91,896 B to 57,216 B and
+/api/info shows `stateInPsram` = 34,836 B. The HUB75 double buffer and colour
+depth are untouched. Gate audit: APPROVED. It found my comment wrong:
+CONFIG_SPIRAM_BOOT_INIT is **on** for opi_opi/qio_opi and off only for qio_qspi
+(S3-Zero). The comment, the alignment (int64_t in AeroTracker), the lazy
+function-local statics and the includes inside #if are fixed. fx_parity 68/68
+identical; all three release boards build.
+
+**Measured, 2.5.5 vs 2.5.6 (the radio's pool, DMA-capable internal heap):**
+- 2.5.5: 13.3–15.2 KB free over 7 min; 172 B lowest since boot. The panel
+  **lost the network at about 11:28 with no test running**: a failed 1,626 B
+  Wi-Fi allocation, then the watchdog's "transmit path stuck" recovery after
+  ~3 min. allocFails rose 3 -> 8 -> 9 in 20 min. Normal self-test: WARN twice.
+- 2.5.6: 47–50 KB free, 31.6 KB lowest over every clock style (14) and every
+  page (16, yachts separately); yacht radar page for 90 s gave 31.4 KB free and
+  23.3 KB lowest. 0 failed allocations, 0 link recoveries, 0 reboots. Normal
+  self-test PASS, stress self-test PASS.
+- Loop spikes of ~300 ms on MARKETS existed on 2.5.5 too (393 ms in its
+  self-test); not from this change.
+
+**Open:** the long run (logger, scratchpad mem_256.csv); then merge to main;
+release on "отправляй". Audit leftovers for the backlog: a host test for the
+no-PSRAM branch of the macro; ambient_custom reopens the file for every
+prefetched frame (a 4 KB internal stdio buffer each time, existed before);
+the S3-Zero board (qio_qspi) is the only one where psramInit() really runs from
+a constructor, and it has not been booted.
+
 ## 2026-09-23 (11:40): 2.5.5 self-test, and where else the radio's memory can come from
 
 **Owner (11:21):** keep double buffering (it matters), do not touch colour
