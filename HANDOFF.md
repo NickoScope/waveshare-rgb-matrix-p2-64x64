@@ -2,7 +2,28 @@
 
 Rolling record of where the work stands. Newest first.
 
-## 2026-09-23 (00:52): next — Cyrillic as a system font (owner's go, not started)
+## 2026-09-23 (07:55): Cyrillic built — v2.5.4 on main (060926d, 79e5dd9), NOT flashed
+
+Done, per the plan below: PicopixelCyr (tools/fonts/mkcyr.py -> picopixel_fb.h),
+strict decoder src/fonts/utf8_next.h (200,035 inputs = Python), shared
+src/fonts/pxfb_text.h; px.text/px.width and the world clock's name path use it;
+luasim the same; fx_parity identical on every script + cyrillic_test.lua + the
+world clock page; missing glyph = solid block (the hollow box read as 0).
+Flash +2,340 B, RAM 0. SDK effect_api and AGENTS.md updated. All three envs build.
+
+Waiting for: the owner's word to flash, then the wall check of И Й Л Д У Ж Щ Ё
+(test card: upload tools/luasim/scripts/cyrillic_test.lua after flashing), and
+the release (release.py + GitHub Release, notes drafted first).
+
+Debts found on the way (not in this change):
+- World clock city names are ASCII in NVS (WcCity.name[21], worldClockCheck
+  A-Z only; "Москва" fits to ""). Cyrillic names need a new NVS format.
+- Media titles and notifications use the built-in 5x7 font (no Cyrillic); the
+  media page transliterates (ICAO 9303). A 5x7 Cyrillic set would be its own job.
+- Flight board, rail board, yacht radar, market print ASCII data via print();
+  switching them is per page, when their data can carry Cyrillic.
+
+## 2026-09-23 (00:52): the plan — Cyrillic as a system font
 
 The owner's decision: build Cyrillic by the ledmatrix agent's plan
 (docs/drafts/cyrillic-from-openclaw/cyrillic-font-design.md, generator mkcyr.py),
