@@ -1,7 +1,9 @@
 # The infrared remote
 
 **2026-09-23: the receiver moves to GPIO0, the BOOT line** (owner's decision:
-IO45 and IO46 stay free for future expansion, the knob is retired). Read off
+IO45 and IO46 are kept for future expansion rather than given to the receiver;
+the knob stays on them for now as the backup control, and its switch shares
+GPIO0 with the BOOT button and the receiver). Read off
 the vendor schematic, "Reset&Boot circuit", crop in
 `reference-drawings/controller/boot-circuit-schematic.png`:
 

@@ -84,6 +84,6 @@
 
   <!-- notes -->
   <text x="24" y="500" font-size="14" fill="#111">• TSOP21xx pinout is 1 OUT, 2 VS, 3 GND - not the TSOP48xx order (2 GND, 3 VS). Pin order: see the part's datasheet drawing before soldering.</text>
-  <text x="24" y="522" font-size="14" fill="#111">• No pull-up of your own: R8 10 kΩ is on the board. R307 2.2 kΩ from v1b may be added, not needed. IO45/IO46 stay free.</text>
+  <text x="24" y="522" font-size="14" fill="#111">• No pull-up of your own: R8 10 kΩ is on the board. R307 2.2 kΩ from v1b may be added, not needed. IO45/IO46 keep the knob.</text>
   <text x="24" y="544" font-size="14" fill="#111">• Find the IO0 side of the BOOT button with a meter: ~10 kΩ to 3V3 (through R8); the other side reads 0 Ω to GND.</text>
 </svg>
