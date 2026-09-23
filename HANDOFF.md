@@ -2,6 +2,51 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (09:45): the radio's memory — single-frame experiment parked as a debt, panel back on 2.5.5
+
+**The owner's call (09:37):** back to double buffering, keep the single frame
+as a debt and think again later. The panel was USB-flashed with main = tag
+v2.5.5 (48d3665, no source changes since); it runs 2.5.5 and the carousel is
+back on. After a USB flash the OTA state reads "undefined", which is normal:
+there is no pending image for boot_health to confirm.
+
+**What the experiment was** (branch `feat/frame-in-psram`, pushed, last commit
+c73a424; version 2.5.6 there, never released): one HUB75 DMA frame instead of
+two, pages draw into a PSRAM frame, and display() copies the changed rows into
+the DMA frame timed to the scan. A GDMA probe reads the descriptor the DMA is
+on and counts, on the panel itself, the frames that showed a pass half old and
+half new. `/api/frame?sync=0|1|2` switches the timing (off / follow / ahead);
+`?detail=1` shows the last 8 mixed frames. `tools/frame_sync_bench.py <ip>`
+runs every mode on the same pages with the carousel held off.
+
+**Measured on hardware:**
+- Radio pool (DMA-capable internal heap): about 86 KB free and a minimum of
+  72–78 KB, against 15–19 KB free and a minimum of 380 B–1.5 KB on 2.5.5.
+  Stress and normal self-tests passed (ping 8/8, no allocation failures).
+- Tearing, 30–40 s per mode on Tetris, Minecraft and Snake at 20 flips/s:
+  sync off ~63 % of changed frames mixed (the negative control works); follow
+  and ahead both 1–2 % mixed; double buffering 0 by construction.
+- Waiting for the scan costs 1.8–2.3 ms per frame on average in follow mode
+  (7–8 ms worst) and 4.3 ms in ahead mode (9.1 ms worst). The copy takes
+  about 3 ms. The flip rate did not drop.
+- Cause of every remaining mixed frame, from the probe's notes: row 0 written
+  while the scan was on row 31, about to come round to row 0. Holding the
+  scheduler during the copy did not help (13 of 1152 mixed).
+- The last idea is built on the branch but **not measured**: a guard that
+  starts the copy from the next pass when the scan is on the last three rows
+  (at most about 1 ms more wait).
+
+**Debt, for when this is picked up again:**
+1. Flash the branch, run `frame_sync_bench.py` for several minutes on several
+   pages. Adopt only if follow mode shows 0 mixed frames. Anything above 0 is
+   visible tearing that 2.5.5 does not have.
+2. If it is not 0: look for other ways to free the radio's pool that keep
+   double buffering, e.g. fewer colour bits for the second buffer. Colour depth
+   is off limits by the owner's rule, so that needs his word first.
+3. Until then the pool stays the known risk: debt 1 in the list below (fast
+   page switches after boot starve the radio). The 2.5.3 heap back-off and
+   network watchdog are what keep it on the network.
+
 ## 2026-09-23 (08:44): first live over-the-air update through the SDK — UPDATED
 
 The owner asked for a live run with all the communication through him.
