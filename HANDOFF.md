@@ -31,7 +31,12 @@ identical; all three release boards build.
 - Loop spikes of ~300 ms on MARKETS existed on 2.5.5 too (393 ms in its
   self-test); not from this change.
 
-**Open:** the long run (logger, scratchpad mem_256.csv); then merge to main;
+**Long run, 11:42-14:01 (2 h 20 min, carousel on, a reading every 30 s):**
+279 of 279 readings answered; dmaFree 30.4-50.6 KB (median 48.0 KB); lowest
+since boot 21.5 KB; 0 failed allocations, 0 link recoveries, 0 reboots.
+Normal self-test at 2 h 20 min uptime: PASS (on 2.5.5 at 1 h 40 min: WARN).
+
+**Open:** merge to main;
 release on "отправляй". Audit leftovers for the backlog: a host test for the
 no-PSRAM branch of the macro; ambient_custom reopens the file for every
 prefetched frame (a 4 KB internal stdio buffer each time, existed before);
