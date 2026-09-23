@@ -2,6 +2,27 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (21:15): rail stations restored; the HA dashboard exists but the panel has no HA entities
+
+**Rail stations.** The owner could not switch stations: the favourites list in
+NVS was empty. With an empty list the STATION stop does not exist. I restored
+his five from docs/29 (GLD, WAT, CLJ, WOK, SUR) and read them back. He
+confirmed: "работает". How the list was lost is unknown (an NVS wipe? a full
+flash?). docs/29 is the record.
+
+**HA dashboard** (ha-and-ma-manager), at /led-panel/panel:
+- It embeds the panel's portal, plus the MTR-1 room tiles and links.
+- It has no panel tiles because the panel announces almost nothing to HA over
+  MQTT discovery: only the two climate sensors, and those are off
+  (`climate.ha` false).
+- Two ways to get tiles:
+  - (1) Firmware MQTT discovery for the panel: light (on/off, brightness),
+    select (page, style), carousel switch, slot number, next/prev buttons,
+    notify text, now-showing sensors, diagnostics, availability, and an update
+    entity. This is the recommended way.
+  - (2) An HA YAML package of REST sensors and rest_commands.
+- **The owner decides.** Nothing else in HA was touched.
+
 ## 2026-09-23 (21:10): IR receiver soldered; remote fixed in 2.5.8 (dev)
 
 The owner soldered the receiver on GPIO0; it works. On his trial:
