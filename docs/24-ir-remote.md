@@ -1,5 +1,30 @@
 # The infrared remote
 
+**2026-09-23: the receiver moves to GPIO0, the BOOT line** (owner's decision:
+IO45 and IO46 stay free for future expansion, the knob is retired). Read off
+the vendor schematic, "Reset&Boot circuit", crop in
+`reference-drawings/controller/boot-circuit-schematic.png`:
+
+| | Source |
+|---|---|
+| BOOT net = IO0, **R8 10 kΩ pull-up to 3V3**, Key2 to GND | schematic |
+| **C9 across the button is NC** - no capacitance on the line | schematic; to confirm on the board (empty pad) |
+| EN: R9 10 kΩ to 3V3, C11 1 µF to GND (C10 NC) - reset release ~10 ms after power | schematic |
+| A Vishay receiver's OUT: open collector, 30 kΩ inside, ≤ 5 mA, V<sub>OSL</sub> ≤ 100 mV at 0.5 mA; older rev: load ≤ 2 nF, not below 1 V | Vishay 82459 rev 2.4 / 82460 (above) |
+| GPIO0 is a strapping pin: high at reset = normal boot; low with GPIO46 low = download mode | ESP32-S3 datasheet, strapping pins (esptool boot-mode page) |
+
+What this means: the line is already pulled **up** (10 kΩ ∥ 30 kΩ ≈ 7.5 kΩ),
+so the receiver needs **no extra resistor** - the opposite of IO45, which the
+board pulls down. Idle high means a normal boot. The knob-switch reader on the
+same pin keeps working as the BOOT "click": it needs the line low for 20 ms
+(CTRL_SW_DEBOUNCE_MS, 1 kHz sampling), and the longest IR mark is NEC's 9 ms
+leader. Risks, to test on the bench: a remote pressed during a reset lands in
+download mode (another reset recovers); the receiver's own power-up transient
+against the ~10 ms reset delay (not in the datasheets we read: power-cycle it
+20 times); the portal lets the debounce be set lower - clamp it above 9 ms.
+
+The section below is the earlier plan on IO45, kept for its sources.
+
 **Status 2026-09-16 21:33:** flashed and **working on the panel**, driven from
 the serial console. **No receiver is soldered**, so everything below the decoder
 - the receiver, real NEC frames, learning from a real remote - has still never
