@@ -2,6 +2,17 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (19:22): Delete in the portal is two presses, not confirm()
+
+The owner's "не удаляются с панели": the browser he used suppresses native
+dialogs, so confirm() answered "no" and Delete did nothing. Every portal delete
+(effects, clips, cities, airports) now arms on the first press ("Sure?
+Delete", red, 4 s) and deletes on the second. Flashed over the air; CANNES was
+deleted this way as the check (it can be added back from the gallery). AUTUMN
+PHOTO went between 19:12 and 19:13, before my clicks, presumably the owner. main
+ba94ea5. Daily gallery sync from the agent: 21:00 (scheduled task
+gallery-sync-openclaw).
+
 ## 2026-09-23 (17:55): the agent never pushes; it stages, I sync to GitHub
 
 Owner's decision 17:48: no GitHub push rights for OpenClaw. On nickol the agent
