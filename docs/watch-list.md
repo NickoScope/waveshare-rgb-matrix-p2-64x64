@@ -62,6 +62,8 @@ not depend on this check.
 
 ## Log
 
+- 2026-09-23 20:02: item 1, no news. The checker emitted comment 5799935344 on #3, but it is ours (NickoScope, 17:46 UTC): the show-and-tell about the Lua effects SDK and the gallery, posted earlier today. Nothing new from Keralots; Reddit answered 429. Nothing sent.
+
 - 2026-09-20 08:00: items 13 and 1, Keralots. PR #9, the gzip portal, merged 2026-09-18 20:36:30 UTC as `00df919` with no review comments - and **two seconds later he closed issue #3 as completed**, without a closing comment. His whole list is delivered: **six PRs offered upstream, six merged, not one review comment**, every one within minutes. Release is still `v2.3.1` (2026-09-15), so none of the six has shipped to users yet. Nothing sent.
 
 - 2026-09-20 08:00: item 4, Keralots. Five new upstream commits, all after the merge, and the first two build straight on top of ours: `f5aad74` three minutes later pins `src/web/web_assets.h` to LF in `.gitattributes` (our generator writes LF, `core.autocrlf=true` on Windows broke the staleness check), then `e2ffe57` draws the rain in real katakana with its own generator `scripts/gen_matrix_glyphs.py`, `6eeda69` fixes export not backing up the four Matrix Rain settings (`src/web/web.cpp`), `3d46171` makes the rain's leading character fall by the pixel, and `1555601` adds a small corner clock. The last two touch `src/web/web.cpp`, `web_assets.h`, `web_pages.h` and `src/config/settings.cpp`, so a rebase of the fork's branches onto main will meet them there. Reddit answered 429. Nothing sent.
