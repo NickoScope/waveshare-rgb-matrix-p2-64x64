@@ -2,6 +2,22 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (19:35): v2.5.7 published
+
+On the owner's "отправляй":
+- the tag and the GitHub Release (firmware, OTA_ONLY, companion, sums);
+- the flasher serves v2.5.7.
+
+The owner's panel runs the release OTA image (24f1a343966aa1ab...). The
+self-test with --effects passed. Notes: docs/drafts/release-v2.5.7.md.
+
+Doc 35's header still says "unreleased"; that is now history.
+
+The gallery sync from the agent runs daily at 21:00. The owner was assured,
+after a check of every key on nickol, that the agent cannot write to the
+repository: every working key there opens only its own other repository, and
+there are no tokens.
+
 ## 2026-09-23 (19:25): the agent's screens on GitHub, photos without people allowed, 4 thumbs up
 
 Owner: "публикуй сам", "фото без людей пускай", "поставь на них лайки".

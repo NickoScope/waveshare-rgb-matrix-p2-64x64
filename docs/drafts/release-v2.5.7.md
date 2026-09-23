@@ -1,9 +1,11 @@
 # GitHub Release v2.5.7 (NickoScope/AnimatedPixelClock): draft
 
-Status: DRAFT. It is published on the owner's "отправляй".
+Status: PUBLISHED 2026-09-23 19:33 on the owner's "отправляй":
+https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.5.7 (tag at
+3538de3). The flasher serves v2.5.7 (Pages built 3538de3); update.py says the
+owner's panel is up to date.
 
-- Release commit: 3538de3, local, not pushed. Pushing it updates the web
-  flasher.
+- Release commit: 3538de3.
 - The release OTA image (SHA-256 24f1a343966aa1ab…) is on the owner's panel.
   The self-test with --effects passed.
 
