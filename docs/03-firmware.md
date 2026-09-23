@@ -192,6 +192,51 @@ the build was reverted before it could be.
 
 **Verdict:** the DMA buffers stay in internal SRAM. Internal heap has to be won elsewhere.
 
+### Also tried, 2026-09-23: one DMA frame — rejected
+
+One DMA frame instead of two, with pages drawing into PSRAM and the changed rows copied at
+each flip, timed to the scan through the GDMA descriptor the DMA is on. It frees 64 KB, but a
+probe on the panel counted frames shown half old and half new. Without timing, 63 % were
+mixed. With the best timing, 1-2 % were still mixed, every one of them row 0 written while
+the scan was on row 31. Double buffering has none by construction, and the owner keeps it
+(branch feat/frame-in-psram, parked).
+
+### Won elsewhere, 2026-09-23: page and effect state in PSRAM (2.5.6)
+
+The inventory that should have come first: `nm`/`size` over every object file showed 67 KB
+of our own statics in internal RAM, 54 KB of it in 48 objects of 256 B or more. Of the 34.8 KB
+of page and effect state moved to PSRAM, 22.6 KB came from upstream code and 12.2 KB from ours.
+Most of the run-time pressure is ours: the fetch tasks, the broker, MQTT and the yacht stream.
+The move uses `PSRAM_ARRAY()`/`PSRAM_OBJECT()` in `src/util/psram_state.h`: a reference to a
+zeroed PSRAM block, allocated by the global constructors, trivial types only.
+
+| Radio pool (internal DMA-capable heap) | 2.5.5 | 2.5.6 |
+|---|---|---|
+| Free, ordinary running | 13.3–15.2 KB | 30–50 KB (median 48 KB, 2 h 20 min) |
+| Lowest since boot | 172 B | 21.5 KB |
+| Failed Wi-Fi allocations | 3 → 9 in 20 min; network lost ~3 min at 11:28 with no test running | 0 |
+| Self-test, normal pace | WARN (twice) | PASS (also `--stress`) |
+
+The HUB75 frames, double buffering and colour depth are unchanged. Other levers were checked
+against the sources and ruled out:
+- frames in PSRAM: the library lowers the bus clock and the colour depth;
+- task stacks in PSRAM: FreeRTOS asserts internal stacks, and the prebuilt config has no
+  external stacks;
+- `.bss` in PSRAM through `EXT_RAM_ATTR`: `CONFIG_SPIRAM_ALLOW_BSS_SEG_EXTERNAL_MEMORY` is off;
+- mbedTLS: already in PSRAM since 2026-09-14.
+
+**Rules, enforced from 2026-09-23** (AGENTS.md section 7 in the fork):
+1. New page or effect state goes to PSRAM. `tools/ram_budget.py` runs at every commit that
+   touches `src/` and in `release.py`. It fails on a new internal object of 256 B or more that
+   is not listed with a reason, or on a total `.dram0` more than 1 KB over the budget in
+   `tools/ram_budget.json`. Both numbers are our policy, not a standard.
+2. Network work takes turns (lock/broker); a new long-lived connection is measured first. The
+   yacht stream alone holds ~16 KB.
+3. Every change is measured against the baseline in the same conditions: health self-test at
+   normal and stress pace, and a `dmaMin` log over a long run, compared with 21.5 KB.
+4. Check the sdkconfig for the board's own memory type (`tools/sdk/esp32s3/<type>/include/`),
+   not the top-level one.
+
 ## Where loop() stalls — measured on the panel, 2026-09-14
 
 `loop()` renders every page, so anything slow inside it freezes the picture.
