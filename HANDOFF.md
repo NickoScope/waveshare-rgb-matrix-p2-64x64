@@ -2,6 +2,40 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (22:25): the panel refuses a Lua file that would not run; the rules for agents; world clock city
+
+- **Why the agent's two screens were not seen.**
+  - (1) My gallery load tests at 19:46 sent the panel back to the clock.
+  - (2) Both new screens (the bright waterfront SOTD 0923 EVENING and EVE
+    HILLS) take more than 500 ms a frame on the panel. They draw fine in the
+    simulator, and the panel's checks passed them, so the panel showed only an
+    error.
+  - The waterfront had already been synced to GitHub. It was reverted to the
+    working 5 KB version, on the panel and on GitHub (aaddead).
+- **2.5.9 (dev), on the panel.** The owner's rule: the panel refuses a broken
+  file.
+  - Every upload is tried off screen: the load plus 4 frames under the real
+    budgets. More than 1 frame over 500 ms, or any error, and the upload is
+    refused with the frame times and never stored.
+  - Checked: both screens refused; a good one accepted at 15-20 ms.
+- **The rules for agents.** AGENTS.md "What will run on the panel" has the
+  limits and the cost of each px call, measured on the panel through the
+  trial:
+  - px.glow r 10 costs 5.6 ms;
+  - a full px.blend pass costs 110 ms;
+  - aim under 50 ms a frame.
+  - `gallery.py sync` now tries every new or changed screen on the panel
+    first (cf56bb3).
+- **World clock.** OK enters the page and the arrows step the home city
+  (2.5.9). Two custom cities were wrong: RIGA sat on the Kirov region, and
+  GUILFORD was the one in Connecticut. They were re-added from Open-Meteo:
+  Riga, Latvia and Guildford, England.
+- **Open.**
+  - The agent should rework the two screens under the new rules.
+  - 2.5.9 is not released.
+  - The agent uploaded a new effect, `egg_catch_clock`, and it passed the
+    trial.
+
 ## 2026-09-23 (21:55): day's close. Done, left, next
 
 **Done today.**
