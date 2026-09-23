@@ -18,12 +18,14 @@ the vendor schematic, "Reset&Boot circuit", crop in
 What this means: the line is already pulled **up** (10 kΩ ∥ 30 kΩ ≈ 7.5 kΩ),
 so the receiver needs **no extra resistor** - the opposite of IO45, which the
 board pulls down. Idle high means a normal boot. The knob-switch reader on the
-same pin keeps working as the BOOT "click": it needs the line low for 20 ms
-(CTRL_SW_DEBOUNCE_MS, 1 kHz sampling), and the longest IR mark is NEC's 9 ms
-leader. Risks, to test on the bench: a remote pressed during a reset lands in
+same pin keeps working as the BOOT "click": it needs the line low for 40 ms
+(CTRL_SW_DEBOUNCE_MIN_MS while the pin is shared, 1 kHz sampling). Not 9 ms
+(NEC's leader) as first written: the gate audit found the longest mark the
+receiver library knows is the Hitachi AC424 air conditioner's 29,784 us leader
+(IRremoteESP8266 2.9.0, ir_Hitachi.cpp), then Truma 20.2 ms, Trotec 12 ms. Risks, to test on the bench: a remote pressed during a reset lands in
 download mode (another reset recovers); the receiver's own power-up transient
 against the ~10 ms reset delay (not in the datasheets we read: power-cycle it
-20 times); the portal lets the debounce be set lower - clamp it above 9 ms.
+20 times); the portal lets the debounce be set lower - clamped at 40 ms in the firmware.
 
 ### Wiring it (2026-09-23)
 
