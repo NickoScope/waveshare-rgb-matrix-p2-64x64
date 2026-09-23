@@ -2,6 +2,28 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-23 (08:10): the self-test, the panel's name in DHCP, brightness rounding — on main (0c3d573), not flashed
+
+- `python3 tools/agent/health.py` (and MCP `panel_selftest`): ~30 s health run,
+  verdict + findings, raw logs in health-logs/<time>/. Use it before and after
+  any change instead of probing by hand. --list/--panel/--all, --read-only,
+  --stress, --serial. Restores everything it changed on any exit.
+- Firmware 2.5.4 now also carries: DHCP hostname = panel name (eero showed
+  esp32s3-XXXXXX), brightness percent rounding (95/101 values drifted 1%).
+- Both gate audits APPROVED (Cyrillic; this change after one CHANGES-REQUIRED).
+
+Debts the self-test found (firmware, all about the radio's DMA-capable pool):
+1. Pages switched fast soon after boot (1.5 s, flights/trains start TLS) took
+   the pool to 1,396 B; radio buffers failed; off the network 3 min until the
+   watchdog. At the 2 s pace the radio still failed its 1,626 B buffer twice.
+2. The portal's CSS and JS answer 503 even after Retry-After while those
+   fetches run: a browser opening the portal then gets an unstyled page (the
+   browser does not retry a stylesheet). Consider never refusing the two
+   assets, or inlining them.
+3. Opening the USB console resets the board on this Mac even with DTR/RTS low.
+4. saveSettings() persists the runtime brightness set over the API (the code
+   says it does not) — backlog.
+
 ## 2026-09-23 (07:55): Cyrillic built — v2.5.4 on main (060926d, 79e5dd9), NOT flashed
 
 Done, per the plan below: PicopixelCyr (tools/fonts/mkcyr.py -> picopixel_fb.h),
