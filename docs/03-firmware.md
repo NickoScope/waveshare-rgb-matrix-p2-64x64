@@ -231,7 +231,7 @@ against the sources and ruled out:
    is not listed with a reason, or on a total `.dram0` more than 1 KB over the budget in
    `tools/ram_budget.json`. Both numbers are our policy, not a standard.
 2. Network work takes turns (lock/broker); a new long-lived connection is measured first. The
-   yacht stream alone holds ~16 KB.
+   yacht stream alone holds 16-17.5 KB (17.5 KB measured 2026-09-14, docs/32; 16.3 KB on 2.5.6).
 3. Every change is measured against the baseline in the same conditions: health self-test at
    normal and stress pace, and a `dmaMin` log over a long run, compared with 21.5 KB.
 4. Check the sdkconfig for the board's own memory type (`tools/sdk/esp32s3/<type>/include/`),
