@@ -2,6 +2,20 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (18:47): golf 3D slower, no black boxes - the owner: "Так лучше стало!"
+
+After watching the panel he asked for two things: a slower pace ("всё
+мельтешит"), and no big black boxes popping up over the picture.
+
+What changed:
+- A round is 4 minutes now: a hole 12.2 s; the flyover 2 s; the tee shot
+  2.8 s; the play 5.2 s; the putt 2.2 s.
+- Every caption is shadowed text with no box. Words with Д stay in 5x7, since
+  the small font's Д reads as А.
+
+Pestovo on the panel: 14.0-14.6 fps, draw 28-34 ms on average. Commit
+b427ece on feat/golf-real-courses; Lua only, firmware still 2.6.6.
+
 ## 2026-09-24 (15:35): golf 3D on the panel at 14-14.6 fps, whole; 2.6.6
 
 The owner, watching the panel at 15:02: "видно только сам удар, потом пустой
