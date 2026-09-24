@@ -2,6 +2,30 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (10:20): the XIAO ESP32S3 Sense + ESP-Claw node, study only
+
+The owner's idea: a XIAO ESP32S3 Sense running ESP-Claw, on the panel's
+UART. Nothing is bought or built. Everything is in docs/37, with sources.
+
+What docs/37 covers:
+- **The wire:** IO45/46 to D6/D7, and 5 V through a Schottky diode. These are
+  the same pins as P4, so either the node or the bare LD2450.
+- **The node's jobs:** radar, sound bands for the visualizer, camera, and an
+  AI brain.
+- **Voice:** ESP-Claw has no wake word and no speech-to-text. WakeNet has no
+  Russian word. microWakeWord with HA Assist is the route for a custom
+  phrase. Recognition always happens off the chip.
+- **Extra GPIO:**
+  - 6 free pins (D0-D5), all ADC1 and touch;
+  - an I2C pair on GPIO5/6;
+  - the panel reaches them only through the UART protocol.
+- **What the Sense build has on or off:**
+  - IR, BLE, IMU and others are off by default;
+  - ESP-Claw's board README wrongly ties D4/D5 to the camera's I2C.
+
+Next: the owner decides whether to buy the XIAO. The pilot order is at the
+end of docs/37.
+
 ## 2026-09-24 (10:10): GOLF CLOCK in the gallery; the owner's panel runs the portrait copy
 
 The owner's request: an active clock like snooker and football, 18 holes, two
