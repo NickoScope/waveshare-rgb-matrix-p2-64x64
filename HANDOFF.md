@@ -6,13 +6,14 @@ Rolling record of where the work stands. Newest first.
 
 The owner: the corners got in the way of the pictures. They now show only for
 5 s after the receiver last decoded a frame, and each press starts the 5 s
-again. Flashed to his panel. main 55b5911. Not released.
+again. Flashed to his panel. main 55b5911. **Released as v2.6.1** on "выпускай
+2.6.1" (tag at 152861d), and the flasher serves it.
 
 Also found: a gallery commit this morning, 8bf0aba "gallery: add SOTD 0924"
 (Published-by: claude, 07:52 CEST). None of the scheduled tasks here made it.
 It went to main through `publish`, not `sync`, so it was never tried on the
-panel. I tried it: 20-25 ms a frame, fine. Who runs it is still to be found
-(another session or a cloud routine?).
+panel. I tried it: 20-25 ms a frame, fine. The owner made it himself, from his
+phone.
 
 ## 2026-09-23 (22:55): v2.5.9 and v2.6.0 published
 
