@@ -143,6 +143,43 @@ crosses the wire; a Lua upload keeps going over Wi-Fi.
   ESP-IDF (WakeNet plus a stream to STT plus the UART link) cannot run
   together.
 
+## Extra GPIO: what the node adds (checked 2026-09-24)
+
+The owner asked: "подключив его по юарт к панели, мы получим с сенса
+дополнительно кучу новых gpio?" Yes, but a handful of pins, not a pile, and
+they are the node's pins, not the panel's.
+
+| XIAO pin | GPIO | Free on the Sense? | Also can be |
+|---|---|---|---|
+| D0-D3 | GPIO1-4 | yes; D0/D1 go to the LD2450 if the radar moves to the node | ADC1_CH0-3, TOUCH1-4 |
+| D4/D5 | GPIO5/6 | yes; the I2C pair by Seeed's pinout | ADC1_CH4-5, TOUCH5-6 |
+| D6/D7 | GPIO43/44 | taken by the UART to the panel | - |
+| D8-D10 | GPIO7-9 | taken by the microSD; free if no card is fitted | ADC1_CH6-8, TOUCH7-9 |
+
+- **The count:**
+  - 6 pins are free (D0-D5);
+  - 4 are left once the radar sits on D0/D1;
+  - 3 more are freed if the SD card is dropped.
+- **All the free pins are on ADC1**, the one Espressif recommends ("ADC1 is
+  recommended for use"). All are also capacitive touch pins.
+  - Espressif's advice, not measured by us: a 0.1 µF capacitor on an ADC
+    input, and a 470 Ω-2 kΩ series resistor on a touch pad (510 Ω
+    preferred).
+  - Espressif also warns that the S3 touch sensor "has not passed the
+    Conducted Susceptibility (CS) test".
+- **The real way to many pins is the I2C pair on D4/D5.** One bus carries
+  many sensors and GPIO expanders. The common expanders are PCF8574 (8
+  lines) and MCP23017 (16 lines); those line counts are not checked against
+  their datasheets.
+- **The panel does not get these pins.** It learns about a button or a sensor
+  from a message on the UART protocol above, and it sets a relay or an LED
+  the same way.
+  - The delay is a few milliseconds: a 40-byte line at 115 200 baud (our
+    choice, not decided) is 40 x 10 / 115 200 = 3.5 ms on the wire. That
+    leaves out the node's processing time.
+  - Fine for buttons, relays, LEDs and sensors. Not for fast signals: PWM
+    driven from the panel, timing-critical buses, or anything HUB75.
+
 ## A pilot, in order
 
 1. Buy a XIAO ESP32S3 Sense. The LD2450 is already being ordered, for P4.
@@ -159,4 +196,17 @@ crosses the wire; a Lua upload keeps going over Wi-Fi.
 - https://github.com/espressif/esp-claw (README; boards/seeedstudio/xiao_esp32s3_sense/*; components/lua_modules/lua_driver_uart/README.md), read 2026-09-24
 - https://esp-claw.com/en/, read 2026-09-24
 - https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/ (pins, power, current draw), read 2026-09-24
+- Voice, all read 2026-09-24:
+  - ESP-Claw: https://github.com/espressif/esp-claw (components/lua_modules/lua_module_audio/README.md)
+  - ESP-SR:
+    - https://docs.espressif.com/projects/esp-sr/en/latest/esp32s3/wake_word_engine/README.html
+    - https://docs.espressif.com/projects/esp-sr/en/latest/esp32s3/benchmark/README.html
+    - https://github.com/espressif/esp-sr
+    - https://github.com/espressif/esp-skainet (the wakenet example)
+  - microWakeWord and HA:
+    - https://esphome.io/components/micro_wake_word/
+    - https://microwakeword.com/train
+    - https://www.home-assistant.io/voice_control/create_wake_word/
+- https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32s3/schematic-checklist.html (ADC and touch sections), read 2026-09-24
+- https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/peripherals/gpio.html (GPIO summary table), read 2026-09-24
 - Our own: docs/11 (IO45/IO46), docs/16 (LD2450), docs/22 (the mics), docs/26 (the MTR-1 direct-link study), docs/36 P4
