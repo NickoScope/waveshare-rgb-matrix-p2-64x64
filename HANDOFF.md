@@ -2,6 +2,50 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (22:00): day's close. Done, left, next
+
+**Done today** (firmware repo NickoScope/AnimatedPixelClock, main at 01d9110, KB pushed):
+
+- **XIAO ESP32S3 Sense + ESP-Claw research.** docs/37: voice, the extra GPIO over UART, what the Sense build carries, the D4/D5 check.
+- **Golf in 3D on real courses.** Old Course Mandelieu and Pestovo, a course picker, a Mac preview.
+  - Then on the panel at 14-14.6 fps with new firmware helpers:
+    - px.terrain (voxel ground);
+    - px.save/px.restore;
+    - the script size as big as needed (up to 512 KB);
+    - Й fixed.
+  - Released as **v2.7.0**, with the golf courses in the gallery (with portraits, on the owner's word).
+- **Aquarium rewritten on the helpers.** Still layer saved, then fish as cut-out poses. Panel: draw 58-61 then 52-54 then 39-46 ms, 15.2 fps.
+- **Firmware 2.7.1-2.7.3.** Every change passed the gate audit, four rounds APPROVED.
+  - px.grab/px.blit: sprites.
+  - **A crash fixed.** Any non-multipart POST to an upload route (lua, anim, clips, /update) crashed the panel. It was old, in every version, and was found when 2.7.1 rolled back. Fixed in upload_route.h.
+  - px.button: the knob's click and the IR remote's OK on an effect page; also POST /api/lua {"click":true}.
+- **OCEANARIUM**, the owner's "самый красивый в мире океанариум": 119 kinds as agents, depth haze, day and night by the panel's clock, the room radar.
+  - Button: 1 press the lights, 2 the demo (a day in 5 min), 3 the real time. The window is 0.45 s, the value that worked for the owner.
+  - Panel: 14.8-15.2 fps, draw 37-47 ms avg, ~45k Lua instructions a frame by day, load ~1M instructions.
+  - In the gallery (21 effects).
+- **v2.7.3 released** on "публикуй". The flasher serves it; the panel runs the release image, self-test PASS.
+- **Presentation pages** on GitHub Pages, Russian and English: nickoscope.github.io/AnimatedPixelClock/oceanarium/ and en.html. Linked from the release notes, the gallery and the main README.
+- **Rafał (Keralots).**
+  - He merged PR #10 and released upstream v2.3.2 with all seven of our PRs and "Thanks to @NickoScope".
+  - Our thank-you and the Oceanarium page are posted on PR #10 (comment 5821208488).
+
+**Left:**
+- **Hardware functional QA** per docs/FUNCTIONALITY.md for 2.7.3, as the auditor asked. Only the self-test and targeted checks ran.
+- **The knob by hand.** Its click on OCEANARIUM was confirmed by the owner, but only for the button gestures.
+- **Rafał's answer** on PR #10: keralots-watch picks it up.
+- **Tidying:**
+  - the remote branch feat/sprite-blit is merged and can go;
+  - the local worktree branch is still named feat/effects-manage;
+  - release.py needs Python 3.10+ (run it with /opt/homebrew/bin/python3.12), or fix its write_text(newline=).
+- **Oceanarium polish, if the owner asks:**
+  - the manta's silhouette;
+  - how full the tank is at noon;
+  - night brightness on the real LEDs.
+- **Golf:** the scene-cut hitch (~150-200 ms) could go with a multi-slot px.save. Offered earlier, not asked for.
+- **Audio visualizer:** still off until its root cause, per the memory note.
+
+**Next step:** the owner's look at OCEANARIUM over a day on the real panel, then whatever he wants changed.
+
 ## 2026-09-24 (21:48): OCEANARIUM presentation on GitHub Pages, Russian and English
 
 - **Asked:** the owner wanted a presentation to share with family, one in Russian and one in English, on GitHub, with links.
