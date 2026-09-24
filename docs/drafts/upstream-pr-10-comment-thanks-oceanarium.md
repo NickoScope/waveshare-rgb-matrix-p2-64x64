@@ -1,6 +1,6 @@
 # Comment on Keralots/AnimatedPixelClock#10: thanks for v2.3.2, and the Oceanarium (draft)
 
-Status: DRAFT, waiting for the owner's "отправляй". Nothing is posted.
+Status: POSTED 2026-09-24 21:56 on the owner's "отправляй на английском": https://github.com/Keralots/AnimatedPixelClock/pull/10#issuecomment-5821208488
 
 **Where:** https://github.com/Keralots/AnimatedPixelClock/pull/10.
 - It is the PR he merged today, and a comment on it reaches him.

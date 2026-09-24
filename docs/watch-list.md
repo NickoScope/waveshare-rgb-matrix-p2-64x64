@@ -62,6 +62,8 @@ not depend on this check.
 
 ## Log
 
+- 2026-09-24 21:56: posted on the owner's word: a thank-you for v2.3.2 plus the Oceanarium page, as a comment on PR #10 (https://github.com/Keralots/AnimatedPixelClock/pull/10#issuecomment-5821208488). Nothing is asked. Watch PR #10 comments after 21:56 local for an answer.
+
 - 2026-09-24 21:52: **PR #10 (the link watchdog) merged** by Keralots on 2026-09-24 at 16:38:16 UTC, with no review comments.
   - At 16:51 UTC he published **v2.3.2**. It ships all seven of our PRs: #4-#10. Its notes end "Thanks to @NickoScope for contributing."
   - Still no reply to our show-and-tell comment 5799935344 on #3 (2026-09-23).
