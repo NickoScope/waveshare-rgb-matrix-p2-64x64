@@ -2,6 +2,13 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (21:09): OCEANARIUM's button works for the owner at a 0.45 s window
+
+- **Window tried on the panel:** 0.25 s, then 0.35 s, then 0.45 s. The owner: at 0.25 and 0.35 "не работает", at 0.45 "работает".
+  - Why a short window fails, as far as known: the remote's OK holds the switch 250 ms after its last frame (ir_map.h kHoldMs), so its clicks come at least ~0.35-0.4 s apart.
+  - 0.45 s is kept (commit 8c87075 on feat/sprite-blit).
+- **Next:** unchanged from 21:02. The gallery, README and preview; the merge to main; a release only on the owner's word.
+
 ## 2026-09-24 (21:02): 2.7.3 on the panel - the knob and the remote reach Lua effects (px.button)
 
 - **Asked:** the owner wanted the knob click and the IR remote's OK to switch the tank lights. Then two quick presses to run the demo on and off, and three to bring the tank back to the real time.
