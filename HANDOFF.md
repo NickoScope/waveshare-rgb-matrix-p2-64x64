@@ -2,6 +2,15 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (18:58): the golf work is on main
+
+The owner: "Так пойдет. Можно комитить."
+- feat/golf-real-courses was fast-forwarded to main: b427ece, 20 commits.
+- It carries firmware 2.6.6: px.terrain, px.save/px.restore, the dynamic
+  script size, LuaFx::charge and the Й font fix.
+- Not released. It is architectural, so a release comes on his word.
+- The golf courses are not in the gallery yet; that also waits for his word.
+
 ## 2026-09-24 (18:47): golf 3D slower, no black boxes - the owner: "Так лучше стало!"
 
 After watching the panel he asked for two things: a slower pace ("всё
