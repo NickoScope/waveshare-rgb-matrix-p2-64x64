@@ -2,6 +2,21 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (22:15): SDK/MCP/AGENTS.md brought up to 2.7.3
+
+- **Checked on the owner's question** ("всё ли внесено в agent.md, MCP, SDK").
+  - AGENTS.md had the new calls in its cost table.
+  - The MCP `effect_api` did not: no px.save/restore, px.terrain, px.grab/blit, px.button, nothing about pcall/xpcall being removed, and an "installing" note from before 2.6.0.
+  - The SDK README's loop still ended in "a person builds and flashes".
+- **Fixed (dc160af):**
+  - effect_api is complete.
+  - New MCP tool `effect_press` sends POST /api/lua click, once, never retried.
+  - panel_show_effect accepted indexes only up to 31 of the 36 slots.
+  - The README loop now goes through effect_upload.
+  - AGENTS.md says what a click on an effect page does, with a curl example.
+  - tools/agent tests 4/4 PASS. effect_press was tried on the panel.
+- **Left:** the agent on nickol runs its own clone of the SDK, so it sees effect_press after that clone is updated.
+
 ## 2026-09-24 (22:00): day's close. Done, left, next
 
 **Done today** (firmware repo NickoScope/AnimatedPixelClock, main at 01d9110, KB pushed):
