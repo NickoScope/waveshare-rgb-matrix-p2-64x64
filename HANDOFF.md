@@ -2,6 +2,59 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (14:40): golf in 3D on the panel - px.terrain, dynamic script size, Й
+
+The owner's requests in order:
+- "делай для панели вариант" of the 3D golf, "как на видео для мака, если нужно
+  допиши хелперы";
+- script size limits "динамическими, как файловая система";
+- "проверь почему нет Й".
+
+**Й.** Both fonts had the letter, but its breve closed the И's top into an arch,
+so it read as А.
+- 5x7: mksysfont.py moved every X11 6x10 row up one and lost the gap.
+- Small font: mkcyr.py drew the breve flush.
+Both are hand-drawn now. On main (1f3e564).
+
+**Firmware on the fork branch `feat/golf-real-courses` (not main):**
+- **px.terrain** (src/lua/px_terrain.h). A native voxel-space ground renderer,
+  one C source for the firmware, luasim and fxhost; fx_parity identical.
+- **Script size.** The limit is the LittleFS room less 512 KB, under a 512 KB
+  ceiling. /api/lua reports `maxBytes` (the room now) and `ceiling`.
+- **Gate audits.** The first flash (2.6.2 build) went out BEFORE the audit, a
+  process mistake the owner caught.
+  - The audit found 3 HIGH, all in px.terrain: no deadline, use-after-free
+    through __index, NaN casts. Only reachable by a script calling it, and none
+    on the panel did.
+  - Fixed, re-audited APPROVED (a1c56cc), and a second follow-up APPROVED
+    (1aaf2e0). A third, for 7e8d876 (speed), was running at the time of
+    writing.
+- **The panel** (NickoScopeMatrix-64x128-01, 192.168.4.89) runs 2.6.4. It holds
+  golf_old_course, golf_pestovo and GOLF_CLOCK (portrait copies, private), plus
+  a test script zz_bench: delete it after measuring.
+
+**Measured on the panel:**
+- The golf ran at 9-12 fps, draws 60-95 ms, rare peaks to 350 ms.
+- px.terrain alone was 86 ms a frame (25.6 k samples, ~800 cycles each): the
+  bottleneck.
+- 7e8d876 targets it: exact floor without floorf, O2 for the loop, a local
+  sample count, one PSRAM read past 80 m, step 1.04.
+
+**Bugs found on the panel and fixed:**
+- mid-round opening showed the fallback field for the rest of the round;
+- a round start cost ~490 k instructions; the water search moved to
+  golf_courses.py;
+- a half-decoded portrait crashed the effect after a frame was cut at 500 ms.
+  The same bug is in the published GOLF CLOCK, fixed on the branch, gallery
+  copy in step.
+
+**Next:**
+1. Flash 7e8d876 after its audit, and measure zz_bench and both golfs.
+2. Then the Lua side if still under 15 fps.
+3. Delete zz_bench.
+4. Hardware QA per docs/FUNCTIONALITY.md before any release. A release only
+   on the owner's word (it is architectural).
+
 ## 2026-09-24 (10:50): golf on real courses in 3D, a preview for the owner (not on the panel)
 
 The owner asked for:
