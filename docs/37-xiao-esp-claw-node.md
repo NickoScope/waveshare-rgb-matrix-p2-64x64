@@ -110,6 +110,39 @@ crosses the wire; a Lua upload keeps going over Wi-Fi.
   may be needed);
 - the latency of its event router.
 
+## Voice: a wake word, then recognition (checked 2026-09-24)
+
+- **ESP-Claw out of the box has no wake word and no speech recognition.** Its
+  audio Lua module (`lua_module_audio`) records WAV or AAC, plays audio, and
+  has an analyzer (level and spectrum, good for the panel's visualizer
+  bands). Nothing named wake, ASR or STT is in its tree.
+- **Espressif ESP-SR WakeNet9 runs on the ESP32-S3.** For one microphone,
+  the `wakenet` example uses the engine directly.
+  - Cost: WakeNet9 takes 16 KB RAM and 324 KB PSRAM, and 3 ms per 32 ms
+    frame (2-channel figure). The one-mic AFE (MR, SR, low cost) takes
+    60 KB internal and 740 KB PSRAM, at about 19 % of one core.
+  - Ready wake words: "Hi, ESP", "Alexa", "Hi, Lexin", and French, Japanese
+    and Chinese ones. **No Russian.**
+  - A custom wake word is Espressif's paid training (at least 20,000 corpus
+    entries) or a TTS-trained route. MultiNet commands are Chinese or English
+    only.
+- **microWakeWord (ESPHome / Home Assistant)** trains your own wake word from
+  Piper TTS clips, 3-4 syllables, into an INT8 TFLite model for the ESP32-S3.
+  It is on-device and needs no cloud. The ESPHome `voice_assistant` then
+  streams the phrase to Home Assistant's Assist (STT, intent, answer).
+  **A Russian wake phrase is possible this way: not verified.**
+- **Recognition (speech to text).** None of this does Russian speech on the
+  chip. The phrase after the wake word goes out:
+  - to Home Assistant Assist (Whisper locally, or a cloud STT);
+  - to a whisper on nickol;
+  - or to a cloud STT (Yandex SpeechKit and OpenAI both take Russian).
+
+  The recognised text then comes back to the panel (a command, or a
+  notification) over the UART or Wi-Fi.
+- **One firmware at a time on one XIAO.** ESP-Claw, ESPHome, or our own
+  ESP-IDF (WakeNet plus a stream to STT plus the UART link) cannot run
+  together.
+
 ## A pilot, in order
 
 1. Buy a XIAO ESP32S3 Sense. The LD2450 is already being ordered, for P4.
