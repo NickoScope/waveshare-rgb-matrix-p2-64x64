@@ -34,9 +34,9 @@ Rolling record of where the work stands. Newest first.
 - **The knob by hand.** Its click on OCEANARIUM was confirmed by the owner, but only for the button gestures.
 - **Rafał's answer** on PR #10: keralots-watch picks it up.
 - **Tidying:**
-  - the remote branch feat/sprite-blit is merged and can go;
-  - the local worktree branch is still named feat/effects-manage;
-  - release.py needs Python 3.10+ (run it with /opt/homebrew/bin/python3.12), or fix its write_text(newline=).
+  - the local worktree branch is still named feat/effects-manage.
+  - DONE 22:05: feat/sprite-blit deleted from origin (it was fully in main).
+  - DONE 22:05: release.py and tools/firmware_stamp.py run on Python 3.9 (2367d2c).
 - **Oceanarium polish, if the owner asks:**
   - the manta's silhouette;
   - how full the tank is at noon;
