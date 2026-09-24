@@ -2,6 +2,23 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (20:40): 2.7.2 on the panel; OCEANARIUM drafted and running
+
+- **Firmware 2.7.2** is on the panel by OTA. It is on `feat/sprite-blit` (077bc6e), not on main and not released.
+  - px.grab and px.blit are charged a quarter of an instruction a pixel.
+  - **A crash was found and fixed.** Any POST to an upload route that was not a multipart file crashed the panel with a null `server.upload()` in `FunctionRequestHandler::raw`. This is old: it was in every version and on all four routes (lua, anim, clips, /update). The new `src/web/upload_route.h` drops a raw body.
+  - The gate audit APPROVED all three rounds. On the panel, all four raw POSTs are now answered with 400 and the panel stays up.
+- **The aquarium on the panel with stamps:** draw 39-46 ms, was 52-54 ms; 15.2 fps; heap 0.5-0.6 MB.
+- **OCEANARIUM** is `tools/luasim/scripts/oceanarium.lua`, 119 kinds, and runs on the panel.
+  - Measured: 14.9-15.2 fps, draw 37-45 ms avg, 60-100 ms max.
+  - Host: 43k instructions a frame at noon, 32k at night; load 1.0M.
+- **OCEANARIUM_24H** runs the day in 300 s; it is on the panel for the owner to watch.
+- **Not done yet:**
+  - The owner's look at it.
+  - The gallery copy and README section, and a preview.
+  - The px.button knob click for the tank lights (firmware, needs its own audit).
+  - Merging `feat/sprite-blit` to main.
+
 ## 2026-09-24 (20:15): px.grab/px.blit (2.7.1 dev); the aquarium's fish as cut-out poses
 
 - **Asked:** the owner said "Да" to a sprite helper, so that the fish become
