@@ -2,6 +2,19 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (21:25): OCEANARIUM in the gallery, main fast-forwarded, v2.7.3 ready and waiting for "отправляй"
+
+- **Gallery:** OCEANARIUM was added: the script, a 3x2 preview of six times of day, and a README section. The gallery now has 21 effects.
+- **main:** fast-forwarded to 8e52c13, which carries all of feat/sprite-blit: 2.7.1-2.7.3, the aquarium, OCEANARIUM and the gallery.
+- **v2.7.3 release, prepared:**
+  - `release.py`, run with python3.12 (3.9 lacks write_text(newline=)).
+  - Release commit aa553a7 is LOCAL ONLY, not pushed.
+  - The release OTA image (SHA-256 266f5d297a0a2bf8...) is on the panel, and the health self-test PASSes.
+- **Waiting for the owner's "отправляй":** docs/drafts/release-v2.7.3.md. Then:
+  1. push aa553a7;
+  2. tag v2.7.3;
+  3. `gh release create -R NickoScope/AnimatedPixelClock`, with the assets from release/v2.7.3.
+
 ## 2026-09-24 (21:09): OCEANARIUM's button works for the owner at a 0.45 s window
 
 - **Window tried on the panel:** 0.25 s, then 0.35 s, then 0.45 s. The owner: at 0.25 and 0.35 "не работает", at 0.45 "работает".
