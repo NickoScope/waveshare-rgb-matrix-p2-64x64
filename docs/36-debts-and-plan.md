@@ -27,6 +27,11 @@ first. Started 2026-09-23 at the owner's request: "запиши в долги и
   - An existing native screen moves only if there is a concrete reason to
     change that screen.
 
+- **2026-09-24, the owner: releases only after architectural changes.**
+  Gallery screens, docs and tools are committed and pushed, and that is all.
+  A tag, a GitHub Release and the flasher come only for a change in how the
+  firmware works, on his go.
+
 ## Debts: open, known, not forgotten
 
 | # | Debt | Where it is written |
