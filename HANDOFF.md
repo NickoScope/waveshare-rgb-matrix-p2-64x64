@@ -2,6 +2,35 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (10:10): GOLF CLOCK in the gallery; the owner's panel runs the portrait copy
+
+The owner's request: an active clock like snooker and football, 18 holes, two
+players (ГЕНА, НИКОША), two minutes, a new realistic round every run, the
+score always on screen, the result at the end.
+
+He then added:
+- close-ups of the shots (drive, chip, bunker);
+- the last putt full screen, with applause for the hole's winner;
+- a hole-in-one in about one game in ten.
+
+Done:
+- tools/luasim/scripts/golf_clock.lua and gallery/golf_clock.lua (6713f2b);
+  the preview is up.
+- Public copy: the players are drawn as pixel golfers.
+- The owner's panel runs a private copy with portraits cropped from
+  ~/Downloads/Gena.png and Nikosha.jpg. It is built by
+  tools/luasim/scripts/private/make_golf_photos.py, gitignored, and never in
+  a repo.
+- Measured on the panel: a steady 15 fps, 9-10 ms a frame on average, 110 ms
+  once while a round is made.
+- gen_effects.py no longer names the upload-only scripts in the header, so a
+  new gallery script no longer touches the firmware sources. 2.6.2 (dev)
+  carries that one header change; not released.
+
+Also this morning: a phone session of the owner's published FAMILY PORTRAIT
+(a photograph of people) at his explicit request, marked as such in the
+script.
+
 ## 2026-09-24 (08:22): system corners only for 5 s after the remote (2.6.1 dev)
 
 The owner: the corners got in the way of the pictures. They now show only for
