@@ -15,7 +15,11 @@ Rolling record of where the work stands. Newest first.
   - The README loop now goes through effect_upload.
   - AGENTS.md says what a click on an effect page does, with a curl example.
   - tools/agent tests 4/4 PASS. effect_press was tried on the panel.
-- **Left:** the agent on nickol runs its own clone of the SDK, so it sees effect_press after that clone is updated.
+- **nickol's clone of the SDK is updated** (22:14, on the owner's word), by running its own ~/ledmatrix-run/update.sh by hand. It pulled 1f80b84 (v2.6.0) to dc160af.
+  - Its smoke test starts the server over stdio: 32 tools, effect_press among them.
+  - effect_api carries the new px calls, and gallery/ has oceanarium.lua.
+  - OpenClaw starts the server per session (no long-lived process), so new sessions have it.
+  - The clone was behind only because all of today's work came after the 03:40 nightly run.
 
 ## 2026-09-24 (22:00): day's close. Done, left, next
 
