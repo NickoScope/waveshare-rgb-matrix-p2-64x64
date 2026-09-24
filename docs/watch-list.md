@@ -62,6 +62,12 @@ not depend on this check.
 
 ## Log
 
+- 2026-09-24 21:52: **PR #10 (the link watchdog) merged** by Keralots on 2026-09-24 at 16:38:16 UTC, with no review comments.
+  - At 16:51 UTC he published **v2.3.2**. It ships all seven of our PRs: #4-#10. Its notes end "Thanks to @NickoScope for contributing."
+  - Still no reply to our show-and-tell comment 5799935344 on #3 (2026-09-23).
+  - On #2 (aexeler) he wrote on 2026-09-23 that his own cheap one-piece 128x64 panel arrived broken, but it runs his firmware out of the box.
+  - Nothing sent.
+
 - 2026-09-23 20:02: item 1, no news. The checker emitted comment 5799935344 on #3, but it is ours (NickoScope, 17:46 UTC): the show-and-tell about the Lua effects SDK and the gallery, posted earlier today. Nothing new from Keralots; Reddit answered 429. Nothing sent.
 
 - 2026-09-20 08:00: items 13 and 1, Keralots. PR #9, the gzip portal, merged 2026-09-18 20:36:30 UTC as `00df919` with no review comments - and **two seconds later he closed issue #3 as completed**, without a closing comment. His whole list is delivered: **six PRs offered upstream, six merged, not one review comment**, every one within minutes. Release is still `v2.3.1` (2026-09-15), so none of the six has shipped to users yet. Nothing sent.
@@ -135,5 +141,5 @@ on the owner's "отправляй", like everything else on this list.
 
 https://github.com/Keralots/AnimatedPixelClock/pull/10 — единственный PR наверх, который чинит
 **его** ошибку, а не предлагает нашу функциональность: сторож перезапускает Wi-Fi из-за пинга,
-который драйвер не смог отправить. Ждём ответа Рафаля: комментарии, ревью, состояние, merge.
+который драйвер не смог отправить. **Влит 2026-09-24 16:38 UTC** без комментариев и вышел в v2.3.2 в тот же день.
 Черновик и разбор — `docs/drafts/upstream-pr-07-link-watchdog.md`.
