@@ -180,6 +180,46 @@ they are the node's pins, not the panel's.
   - Fine for buttons, relays, LEDs and sensors. Not for fast signals: PWM
     driven from the panel, timing-critical buses, or anything HUB75.
 
+## What ESP-Claw builds for the Sense (checked 2026-09-24)
+
+These are the build defaults: `components/common/app_claw/Kconfig`, plus the
+board's `sdkconfig.defaults.board`.
+- **Capabilities, all on:**
+  - Core: the core, memory, sessions, agents, skills and the LLM inspector.
+  - Automation: the event router and its rules, and the scheduler.
+  - Lua.
+  - MCP: client and server.
+  - Chats: Telegram, QQ, Feishu, WeChat, and local IM.
+  - Web: HTTP requests to an allowlist, and web search (Tavily or Brave).
+  - Files and system.
+- **Lua modules on for the Sense:**
+  - Drivers: GPIO, ADC, I2C, UART, touch, MCPWM, PCNT, RMT and LEDC.
+  - Hardware on the board: camera, vision (motion detect, colour detect), and
+    audio. The board file turns on the camera and audio switches.
+  - Scripting: the capability bridge, the event publisher, the HTTP server,
+    storage, JSON, image, thread, delay, system, board manager and button.
+  - Display: LED strip, display and LVGL. The last two are on but have no
+    screen on this board.
+- **Off by default:**
+  - Radios: BLE and BLE HID.
+  - Remote and controls: IR and knob.
+  - Screens: LCD and LCD touch.
+  - Sensors: IMU, magnetometer, environmental sensor and fuel gauge.
+  - Other: SCI, and the system UI, which needs an LCD.
+  - Also off: ESPDet object detection (it needs a user `.espdl` model).
+  - Turning any of these on is a rebuild. The browser flasher's image is
+    assumed to match these defaults: **not verified**.
+- **Pins: the board README is wrong about D4/D5.** It says the camera's SCCB
+  (GPIO39/40) is "shared with header D4/D5". Two sources say otherwise:
+  - the Seeed pin table: D4 = GPIO5 (SDA), D5 = GPIO6 (SCL);
+  - Espressif's own Arduino `camera_pins.h` for `CAMERA_MODEL_XIAO_ESP32S3`:
+    SIOD = 40, SIOC = 39. GPIO39/40 are on the MTCK/MTDO pads, not the
+    header.
+
+  So D4/D5 is a bus of its own: `i2c.new(1, 5, 6)` in Lua. Port 1 is our
+  choice, because the board already claims I2C0 for the camera. That a
+  second bus on port 0 would clash: not verified.
+
 ## A pilot, in order
 
 1. Buy a XIAO ESP32S3 Sense. The LD2450 is already being ordered, for P4.
@@ -207,6 +247,11 @@ they are the node's pins, not the panel's.
     - https://esphome.io/components/micro_wake_word/
     - https://microwakeword.com/train
     - https://www.home-assistant.io/voice_control/create_wake_word/
+- ESP-Claw build and pins, read 2026-09-24:
+  - https://github.com/espressif/esp-claw: components/common/app_claw/Kconfig;
+    boards/seeedstudio/xiao_esp32s3_sense/{README.md, sdkconfig.defaults.board, board_devices.yaml, board_peripherals.yaml};
+    components/lua_modules/lua_driver_i2c/README.md
+  - https://github.com/espressif/arduino-esp32/blob/master/libraries/ESP32/examples/Camera/CameraWebServer/camera_pins.h (CAMERA_MODEL_XIAO_ESP32S3)
 - https://docs.espressif.com/projects/esp-hardware-design-guidelines/en/latest/esp32s3/schematic-checklist.html (ADC and touch sections), read 2026-09-24
 - https://docs.espressif.com/projects/esp-idf/en/latest/esp32s3/api-reference/peripherals/gpio.html (GPIO summary table), read 2026-09-24
 - Our own: docs/11 (IO45/IO46), docs/16 (LD2450), docs/22 (the mics), docs/26 (the MTR-1 direct-link study), docs/36 P4
