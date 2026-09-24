@@ -2,6 +2,18 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (08:22): system corners only for 5 s after the remote (2.6.1 dev)
+
+The owner: the corners got in the way of the pictures. They now show only for
+5 s after the receiver last decoded a frame, and each press starts the 5 s
+again. Flashed to his panel. main 55b5911. Not released.
+
+Also found: a gallery commit this morning, 8bf0aba "gallery: add SOTD 0924"
+(Published-by: claude, 07:52 CEST). None of the scheduled tasks here made it.
+It went to main through `publish`, not `sync`, so it was never tried on the
+panel. I tried it: 20-25 ms a frame, fine. Who runs it is still to be found
+(another session or a cloud routine?).
+
 ## 2026-09-23 (22:55): v2.5.9 and v2.6.0 published
 
 - **v2.5.9:**
