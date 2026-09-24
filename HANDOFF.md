@@ -2,6 +2,22 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (19:25): v2.7.0 released; the golf courses in the gallery
+
+- **Release.** v2.7.0 is published on the owner's "Отправляй":
+  https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.0, tag at
+  4205882. The flasher serves v2.7.0. The release OTA image is on the owner's
+  panel, self-test PASS.
+- **What is in it:**
+  - px.terrain;
+  - px.save/px.restore;
+  - the script size as big as needed (up to 512 KB);
+  - Й readable in both fonts;
+  - native work charged to the frame's budget.
+- **Gallery.** GOLF OLD COURSE and GOLF PESTOVO were added with the players'
+  portraits, at the owner's request ("оставь с фото"). The gallery now has 20
+  effects. Both need 2.7.0.
+
 ## 2026-09-24 (18:58): the golf work is on main
 
 The owner: "Так пойдет. Можно комитить."

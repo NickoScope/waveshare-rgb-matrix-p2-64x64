@@ -1,6 +1,6 @@
 # GitHub Release v2.7.0 (NickoScope/AnimatedPixelClock)
 
-Status: DRAFT. Publish only on the owner's "отправляй".
+Status: PUBLISHED 2026-09-24 on the owner's "Отправляй": https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.0 (tag at 4205882). The flasher serves v2.7.0.
 
 Checked before this draft:
 - The release OTA image (release/v2.7.0/OTA_ONLY_firmware-v2.7.0-waveshare.bin,
