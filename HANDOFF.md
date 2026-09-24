@@ -2,6 +2,73 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (10:50): golf on real courses in 3D, a preview for the owner (not on the panel)
+
+The owner asked for:
+- real courses, with a choice between them: Old Course Cannes-Mandelieu, and
+  one more, Пестово;
+- then (10:26), before he left for two hours: the course as natural as it
+  can be, relief like the clubs' pictures, the play in 3D from several
+  angles, the feeling of being on that very course. File size does not
+  matter for now; first a simulation to watch on the Mac, then approve,
+  polish and put it on the panel.
+
+Where it is: fork branch `feat/golf-real-courses`, pushed, main untouched.
+The published golf_clock.lua and the gallery are unchanged; nothing is on
+the panel.
+
+The courses and their sources:
+- Old Course: par, length and stroke index from the club's 2026 scorecard
+  (golfoldcourse.com PDF, total 5655 m, par 72). Every hole's line, green,
+  fairway, bunkers, water and woods come from OpenStreetMap (ODbL,
+  attributed in the script). OSM put hole 15 at par 4; the card says 5, and
+  the card wins.
+- Пестово: par, length and index from pestovo.golf/club (6550 m, par 72).
+  OSM has no holes there, so the shape, water and sand of each hole are
+  placed from the club's own hole plans by colour. The pictures stay out of
+  the repository.
+
+The tool is `tools/luasim/golf_courses.py`:
+- `osm` and `plans` lay a course out;
+- `build` packs it into `scripts/golf_course.lua` and writes one script per
+  course (`golf_old_course.lua`, `golf_pestovo.lua`).
+
+That is the choice: a script per course, or COURSE unset for one course
+after the other.
+
+The 3D:
+- Voxel ground per hole: sun-lit relief, mowing stripes, haze, water that
+  reflects the sky.
+- Cameras:
+  - a flyover with the hole card;
+  - the tee shot down the line with a tracer;
+  - the play from above, from behind or from the side;
+  - the putt low behind the player, with the crowd.
+- Old Course only:
+  - umbrella pines and the red Estérel on the horizon;
+  - the ferry across the Siagne before holes 3 and 13. OSM puts 3-12 on the
+    east bank, which is the club's "traversée en bac, entre les trous 3 et
+    13".
+- Пестово: spruce, birch and a spruce skyline.
+- Both: the clubhouse behind the 18th.
+
+Videos for the owner, 2 minutes each, with the portraits (private):
+`~/Downloads/golf_preview/`, in two versions, `*_led.mp4` (round LEDs) and
+`*_pixels.mp4`. Made with `tools/luasim/golf_video.py`.
+
+Found on the way: both panel fonts have no Й, and draw it as А. ЭЙС and
+ДРАЙВ on the published GOLF CLOCK read as ЭАС and ДРААВ. The new version
+avoids the letter; the published one still has it.
+
+Not done, for the panel later:
+- 60 KB is over the 50 KB upload limit;
+- the voxel ground is about 25k samples a frame, far beyond what the panel
+  can draw at 15 fps. It has to be reworked for the panel: a lower
+  resolution, fewer steps, or pre-baked views.
+- Not measured on the panel.
+
+Next: the owner watches, approves or corrects; then the panel version.
+
 ## 2026-09-24 (10:20): the XIAO ESP32S3 Sense + ESP-Claw node, study only
 
 The owner's idea: a XIAO ESP32S3 Sense running ESP-Claw, on the panel's
