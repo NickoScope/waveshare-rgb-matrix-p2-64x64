@@ -2,6 +2,33 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (20:15): px.grab/px.blit (2.7.1 dev); the aquarium's fish as cut-out poses
+
+- **Asked:** the owner said "Да" to a sprite helper, so that the fish become
+  prebuilt poses instead of about forty draw calls each.
+- **Done:**
+  - `src/lua/px_sprite.h` is shared by the firmware and luasim:
+    - `px.grab(x,y,w,h)` returns the sprite trimmed of black, with dx, dy;
+    - `px.blit(s,x,y,flip,mul,r,g,b,a)` stamps it.
+  - The work is charged to the frame's budget.
+  - `sprite_test.lua` was added; fx_parity is 96/96 identical.
+  - The aquarium now:
+    - moves every fish first;
+    - cuts the poses it reaches: 5 sizes x 5 turn positions x 6 tail beats, 4 a frame, capped at 700;
+    - stamps the poses, mirrored and dimmed.
+
+    Without px.blit it draws as before.
+- **Measured on the host:** 44.5k to 37.0k instructions a frame. After ~50 frames all 14 fish are sprites. After a minute there are ~185 KB of poses and a heap peak of ~0.5 MB. The picture is the same.
+- **State:**
+  - commit 33c27d4 on `feat/sprite-blit`, pushed; not on main;
+  - FIRMWARE_VERSION is 2.7.1; the build is SUCCESS;
+  - the gate audit (senior-code-audit) is running.
+- **Next:**
+  1. The audit verdict, then OTA 2.7.1.
+  2. Upload the new aquarium and measure it on the panel against 52-54 ms / 15.2 fps.
+  3. Merge to main.
+  4. No release without the owner's word.
+
 ## 2026-09-24 (19:25): v2.7.0 released; the golf courses in the gallery
 
 - **Release.** v2.7.0 is published on the owner's "Отправляй":
