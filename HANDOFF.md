@@ -2,6 +2,16 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (21:30): v2.7.3 published
+
+- **Published** on the owner's "публикуй": https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.3, tag at aa553a7, which main is at.
+- **Assets:** the full image, the OTA image, pc_stats_monitor_v4.exe and SHA256SUMS.txt, the same set as v2.7.0.
+- **The flasher** at nickoscope.github.io serves v2.7.3.
+- **The panel** runs the release OTA image, self-test PASS.
+- **Open for later:**
+  - `release.py` needs Python 3.10+ (`write_text(newline=)`); run it with /opt/homebrew/bin/python3.12.
+  - The local worktree branch is still named feat/effects-manage and tracks origin/main.
+
 ## 2026-09-24 (21:25): OCEANARIUM in the gallery, main fast-forwarded, v2.7.3 ready and waiting for "отправляй"
 
 - **Gallery:** OCEANARIUM was added: the script, a 3x2 preview of six times of day, and a README section. The gallery now has 21 effects.

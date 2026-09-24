@@ -1,11 +1,6 @@
 # GitHub Release v2.7.3 (NickoScope/AnimatedPixelClock)
 
-Status: DRAFT, waiting for the owner's "отправляй". Nothing is pushed yet.
-
-The release commit exists locally only: aa553a7 on top of main 8e52c13. After "отправляй":
-1. push it;
-2. tag v2.7.3 there;
-3. publish this body with the four assets from release/v2.7.3.
+Status: PUBLISHED 2026-09-24 on the owner's "публикуй": https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.3 (tag at aa553a7). The flasher serves v2.7.3.
 
 Checked before this draft:
 - The release OTA image (release/v2.7.3/OTA_ONLY_firmware-v2.7.3-waveshare.bin, SHA-256 266f5d297a0a2bf8...) is on the owner's panel.
