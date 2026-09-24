@@ -2,6 +2,16 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (21:48): OCEANARIUM presentation on GitHub Pages, Russian and English
+
+- **Asked:** the owner wanted a presentation to share with family, one in Russian and one in English, on GitHub, with links.
+- **Where:**
+  - https://nickoscope.github.io/AnimatedPixelClock/oceanarium/ (Russian);
+  - https://nickoscope.github.io/AnimatedPixelClock/oceanarium/en.html (English);
+  - private artifact copy: https://claude.ai/artifact/TL9HfBsCQ7vv8ybrjbRThe
+- **Files and commits:** docs/oceanarium/ on main, commits 5e3aba7 and b470310.
+- **Contents:** the story, three 12-second GIFs (simulator frames at the real 15 fps), the gallery preview, and the numbers measured on the panel and the host.
+
 ## 2026-09-24 (21:30): v2.7.3 published
 
 - **Published** on the owner's "публикуй": https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.3, tag at aa553a7, which main is at.
