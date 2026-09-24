@@ -1,6 +1,6 @@
 # GitHub Release v2.7.3 (NickoScope/AnimatedPixelClock)
 
-Status: PUBLISHED 2026-09-24 on the owner's "публикуй": https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.3 (tag at aa553a7). The flasher serves v2.7.3.
+Status: PUBLISHED 2026-09-24 on the owner's "публикуй": https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.3 (tag at aa553a7). The flasher serves v2.7.3. Links to the presentation pages added to the body at 21:48 on the owner's question.
 
 Checked before this draft:
 - The release OTA image (release/v2.7.3/OTA_ONLY_firmware-v2.7.3-waveshare.bin, SHA-256 266f5d297a0a2bf8...) is on the owner's panel.
@@ -26,6 +26,7 @@ There is a new screen in the gallery, OCEANARIUM: a window into a big public aqu
 - The curious fish come to the glass where you stand, if you have the presence radar.
 - One press of the knob or the remote switches the tank lights. Two run a whole day in five minutes. Three bring it back to the real time.
 - It needs this firmware for the button, and 2.7.1 or later for the rest.
+- How it works, with the tank running and the numbers from the panel: https://nickoscope.github.io/AnimatedPixelClock/oceanarium/en.html (English), https://nickoscope.github.io/AnimatedPixelClock/oceanarium/ (Russian).
 
 Install:
 - For a new board, use the web flasher at https://nickoscope.github.io/AnimatedPixelClock/ or write firmware-v2.7.3-waveshare.bin at 0x0.
@@ -46,6 +47,7 @@ Install:
 - Если есть радар присутствия, любопытные рыбы подплывают к стеклу туда, где вы стоите.
 - Одно нажатие энкодера или пульта включает и выключает подсветку. Два прогоняют сутки за пять минут. Три возвращают к текущему времени.
 - Для кнопки нужна эта прошивка, для остального 2.7.1 или новее.
+- Как это устроено, с живым аквариумом и цифрами с панели: https://nickoscope.github.io/AnimatedPixelClock/oceanarium/ (по-русски), https://nickoscope.github.io/AnimatedPixelClock/oceanarium/en.html (по-английски).
 
 Установка:
 - Для новой платы — веб-прошивальщик https://nickoscope.github.io/AnimatedPixelClock/ или запись firmware-v2.7.3-waveshare.bin по адресу 0x0.
