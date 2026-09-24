@@ -2,6 +2,29 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (21:02): 2.7.3 on the panel - the knob and the remote reach Lua effects (px.button)
+
+- **Asked:** the owner wanted the knob click and the IR remote's OK to switch the tank lights. Then two quick presses to run the demo on and off, and three to bring the tank back to the real time.
+- **Firmware 2.7.3:**
+  - `px.button()` is a click count.
+  - A click on a Lua-effect page goes to `luaEffectsClick()`. The remote's OK holds the same switch, so it arrives the same way.
+  - `POST /api/lua {"click":true}` presses it too.
+  - luasim and fxhost take `--clicks f1,f2`.
+  - The gate audit APPROVED it. It is on the panel by OTA, and the OTA is confirmed valid.
+- **Checked on the panel:**
+  - A probe effect burned 10k loop turns per press. Its instructions per frame went from 0 to 60,000 after 2 remote OKs (`/api/ir/do?fn=ok`) and 1 web click.
+  - A double OK 0.45 s apart counts as 2 clicks, and a triple as 3.
+- **OCEANARIUM on the button:**
+  - 1 press: the lights by hand, until the next sunrise or sunset;
+  - 2 presses: the demo, a day in 5 min, on or off;
+  - 3 presses: back to the real time.
+  - Presses are grouped over a 0.75 s window, and a 5x7 caption says what happened.
+  - fx_parity 104/104. With clicks, luasim and fxhost are byte-identical.
+- **State:**
+  - `feat/sprite-blit` is pushed; main is untouched.
+  - OCEANARIUM and OCEANARIUM_24H are on the panel; OCEANARIUM is on screen.
+- **Next:** the owner's look. Then the gallery, README and preview, the merge to main, and a release on his word.
+
 ## 2026-09-24 (20:40): 2.7.2 on the panel; OCEANARIUM drafted and running
 
 - **Firmware 2.7.2** is on the panel by OTA. It is on `feat/sprite-blit` (077bc6e), not on main and not released.
