@@ -2,6 +2,59 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-24 (15:35): golf 3D on the panel at 14-14.6 fps, whole; 2.6.6
+
+The owner, watching the panel at 15:02: "видно только сам удар, потом пустой
+экран, потом видео налета... нет целостной картины". He asked for 15 fps and
+the check, then left: "отлаживай".
+
+**What was wrong:**
+- The "empty screen" was the plain fallback field. The next hole's grid was
+  sliced for 15 fps, and the panel ran 9-13. Reproduced in luasim at 9 fps:
+  hundreds of fallback frames.
+- A first fix, slices adapted to the measured frame time, spiralled on the
+  panel to 6 fps: heavier frames give fewer frames, which ask for heavier ones.
+  A/B on the panel confirmed it.
+- Most of every frame was drawing the same still picture again.
+
+**What fixed it:**
+- New helpers, firmware 2.6.6 (gate audit APPROVED):
+  - `px.save()` / `px.restore()` (src/lua/px_snapshot.h): the canvas put aside
+    and back, 24 KB, a userdata in the registry, charged 1000 instructions per
+    call.
+  - Still scenes (tee shot, play from above, putt, ace, intro, result) draw
+    once and restore each frame; only what moves is drawn live.
+- The flyover draws its ground in two-pixel columns.
+- Grid urgency is capped (1500 cells a frame for the hole on screen, 700 for
+  the next). The distance field is worked out on every other cell of every
+  other row.
+- The game as a whole:
+  - a plan of the hole in the top right corner with both balls;
+  - the overview camera closer, with less haze;
+  - stems over far balls;
+  - the rhythm 0.8 / 1.5 / 2.2 / 1.3 s.
+
+**Measured on the panel with 2.6.6, a full round each:**
+- Old Course and Pestovo: steady 14.1-14.6 fps, draw 28-42 ms on average.
+- The first window after opening mid-round: 13.2-13.3.
+- Scene cuts cost a hitch of about 150-200 ms: the first frame of a still
+  scene draws it whole.
+- No fallback, no stop, no allocFails.
+- Self-test `health.py --effects`: PASS (ping 40/40, controls, portal 12x200,
+  effects walk/409/restore, no panel log errors).
+
+**On the panel:** 2.6.6 from the branch `feat/golf-real-courses`, not main,
+not released. golf_old_course, golf_pestovo and GOLF_CLOCK are portrait
+copies; the zz_* test scripts are deleted.
+
+**Previews:** `~/Downloads/golf_preview/panel/*_led.mp4`, the same code.
+
+**Next:**
+- If the owner wants a steady 15 and no hitch at cuts: multi-slot px.save(n),
+  to make the next scene's picture across two frames beforehand. That is a
+  firmware change and needs an audit.
+- Then merge to main, and a release on his word (it is architectural).
+
 ## 2026-09-24 (14:40): golf in 3D on the panel - px.terrain, dynamic script size, Й
 
 The owner's requests in order:
