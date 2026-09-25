@@ -1,0 +1,138 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="1380" viewBox="0 0 1180 1380"><rect width="1180" height="1380" fill="#fbfaf7"/>
+<text x="40.0" y="34.0" font-family="Helvetica,Arial" font-size="21" fill="#12202b" text-anchor="start" font-weight="bold">Корпус LED MATRIX — акрил 4 мм, лазерная резка</text>
+<text x="40.0" y="54.0" font-family="Helvetica,Arial" font-size="11.5" fill="#6b7d88" text-anchor="start" font-weight="normal">Концепция. Конструкция как у корпуса NickoScope32 v1b: шипы плюс резьбовые стойки через монтажные отверстия матриц.</text>
+<text x="40.0" y="92.0" font-family="Helvetica,Arial" font-size="12" fill="#1f7a5a" text-anchor="start" font-weight="bold">1 · ВИД СПЕРЕДИ</text>
+<rect x="40.0" y="110.0" width="537.2" height="341.9" rx="9.3" fill="#ffffff" stroke="#12202b" stroke-width="1.6"/>
+<rect x="61.7" y="131.7" width="396.8" height="198.4" rx="0" fill="#101820" stroke="#12202b" stroke-width="1.2"/>
+<line x1="260.1" y1="131.7" x2="260.1" y2="330.1" stroke="#2f4a5c" stroke-width="0.7" stroke-dasharray="3 3"/>
+<text x="260.1" y="126.7" font-family="Helvetica,Arial" font-size="8.5" fill="#a8451f" text-anchor="middle" font-weight="normal">стык — ни ребра, ни зазора</text>
+<circle cx="536.9" cy="345.6" r="10.8" fill="#e8edf0" stroke="#12202b" stroke-width="1.2"/>
+<circle cx="536.9" cy="345.6" r="5.7" fill="none" stroke="#6b7d88" stroke-width="0.8"/>
+<text x="522.9" y="349.6" font-family="Helvetica,Arial" font-size="9" fill="#6b7d88" text-anchor="end" font-weight="normal">энкодер</text>
+<line x1="40.0" y1="471.9" x2="577.2" y2="471.9" stroke="#6b7d88" stroke-width="0.8"/>
+<line x1="40.0" y1="468.9" x2="40.0" y2="474.9" stroke="#6b7d88" stroke-width="0.8"/>
+<line x1="577.2" y1="468.9" x2="577.2" y2="474.9" stroke="#6b7d88" stroke-width="0.8"/>
+<text x="308.6" y="467.9" font-family="Helvetica,Arial" font-size="9" fill="#6b7d88" text-anchor="middle" font-weight="normal">347</text>
+<line x1="61.7" y1="489.9" x2="458.5" y2="489.9" stroke="#6b7d88" stroke-width="0.8"/>
+<line x1="61.7" y1="486.9" x2="61.7" y2="492.9" stroke="#6b7d88" stroke-width="0.8"/>
+<line x1="458.5" y1="486.9" x2="458.5" y2="492.9" stroke="#6b7d88" stroke-width="0.8"/>
+<text x="260.1" y="485.9" font-family="Helvetica,Arial" font-size="9" fill="#6b7d88" text-anchor="middle" font-weight="normal">поле 256</text>
+<line x1="589.2" y1="110.0" x2="589.2" y2="451.9" stroke="#6b7d88" stroke-width="0.8"/>
+<text x="595.2" y="281.0" font-family="Helvetica,Arial" font-size="9" fill="#6b7d88" text-anchor="start" font-weight="normal">221</text>
+<text x="40.0" y="511.9" font-family="Helvetica,Arial" font-size="10" fill="#6b7d88" text-anchor="start" font-weight="normal">рамка 14 по бокам и сверху, свободная полоса 20 снизу</text>
+<text x="707.2" y="92.0" font-family="Helvetica,Arial" font-size="12" fill="#1f7a5a" text-anchor="start" font-weight="bold">2 · РАЗРЕЗ ПО ГЛУБИНЕ</text>
+<rect x="707.2" y="114.0" width="150.0" height="28.0" rx="0" fill="#d7dee3" stroke="#12202b" stroke-width="1.0"/>
+<text x="865.2" y="131.5" font-family="Helvetica,Arial" font-size="10" fill="#12202b" text-anchor="start" font-weight="normal">4.0  лицевая плита, акрил</text>
+<rect x="707.2" y="142.0" width="150.0" height="105.0" rx="0" fill="#233544" stroke="#12202b" stroke-width="1.0"/>
+<text x="865.2" y="198.0" font-family="Helvetica,Arial" font-size="10" fill="#12202b" text-anchor="start" font-weight="normal">15.0  матрица целиком</text>
+<rect x="707.2" y="247.0" width="150.0" height="63.0" rx="0" fill="#e8edf0" stroke="#12202b" stroke-width="1.0"/>
+<text x="865.2" y="282.0" font-family="Helvetica,Arial" font-size="10" fill="#12202b" text-anchor="start" font-weight="normal">9.0  колодки и контроллер</text>
+<rect x="707.2" y="310.0" width="150.0" height="28.0" rx="0" fill="#d7dee3" stroke="#12202b" stroke-width="1.0"/>
+<text x="865.2" y="327.5" font-family="Helvetica,Arial" font-size="10" fill="#12202b" text-anchor="start" font-weight="normal">4.0  задняя плита, акрил</text>
+<line x1="693.2" y1="352.0" x2="693.2" y2="352.0" stroke="#6b7d88" stroke-width="0.8"/>
+<line x1="693.2" y1="349.0" x2="693.2" y2="355.0" stroke="#6b7d88" stroke-width="0.8"/>
+<line x1="693.2" y1="349.0" x2="693.2" y2="355.0" stroke="#6b7d88" stroke-width="0.8"/>
+<text x="693.2" y="348.0" font-family="Helvetica,Arial" font-size="9" fill="#6b7d88" text-anchor="middle" font-weight="normal"></text>
+<line x1="693.2" y1="114.0" x2="693.2" y2="338.0" stroke="#6b7d88" stroke-width="0.8"/>
+<text x="687.2" y="226.0" font-family="Helvetica,Arial" font-size="11" fill="#12202b" text-anchor="end" font-weight="bold">32</text>
+<text x="707.2" y="360.0" font-family="Helvetica,Arial" font-size="10" fill="#a8451f" text-anchor="start" font-weight="bold">Матрица — ОДИН модуль, а не стопка слоёв:</text>
+<text x="707.2" y="375.0" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">пиксели, смола GOB и электроника уже внутри</text>
+<text x="707.2" y="388.0" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">литого корпуса. Сложить их как слои — значит</text>
+<text x="707.2" y="401.0" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">трижды посчитать одну деталь и уехать к 60 мм.</text>
+<text x="40.0" y="556.9" font-family="Helvetica,Arial" font-size="12" fill="#1f7a5a" text-anchor="start" font-weight="bold">3 · ВИД СЗАДИ — как держатся матрицы</text>
+<rect x="40.0" y="574.9" width="537.2" height="341.9" rx="9.3" fill="#ffffff" stroke="#12202b" stroke-width="1.6"/>
+<rect x="47.8" y="582.7" width="521.7" height="326.4" rx="0" fill="none" stroke="#6b7d88" stroke-width="1.0" stroke-dasharray="5 4"/>
+<rect x="61.7" y="596.6" width="198.4" height="198.4" rx="0" fill="none" stroke="#9fb0bb" stroke-width="1.0"/>
+<circle cx="160.9" cy="607.7" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="160.9" cy="783.9" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="72.8" cy="627.6" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="249.0" cy="627.6" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="72.8" cy="764.0" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="249.0" cy="764.0" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<rect x="260.1" y="596.6" width="198.4" height="198.4" rx="0" fill="none" stroke="#9fb0bb" stroke-width="1.0"/>
+<circle cx="359.3" cy="607.7" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="359.3" cy="783.9" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="271.2" cy="627.6" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="447.4" cy="627.6" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="271.2" cy="764.0" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<circle cx="447.4" cy="764.0" r="2.6" fill="#1f7a5a" stroke="#1f7a5a" stroke-width="0"/>
+<rect x="269.9" y="814.6" width="77.5" height="65.1" rx="0" fill="#f3ede1" stroke="#a8451f" stroke-width="1.2"/>
+<text x="308.6" y="850.1" font-family="Helvetica,Arial" font-size="8.5" fill="#a8451f" text-anchor="middle" font-weight="normal">контроллер</text>
+<text x="40.0" y="938.9" font-family="Helvetica,Arial" font-size="10" fill="#1f7a5a" text-anchor="start" font-weight="bold">12 стоек M3 через штатные отверстия матриц (по 6 на матрицу, размах 113.7)</text>
+<text x="40.0" y="954.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">Положение обеих матриц задаёт ЗАДНЯЯ ПЛИТА: лазер ставит отверстия с точностью</text>
+<text x="40.0" y="967.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">порядка десятой миллиметра, и стык держится ею, а не ребром между матрицами.</text>
+<text x="707.2" y="556.9" font-family="Helvetica,Arial" font-size="12" fill="#1f7a5a" text-anchor="start" font-weight="bold">4 · ШЕСТЬ ДЕТАЛЕЙ</text>
+<text x="707.2" y="580.9" font-family="Helvetica,Arial" font-size="10.5" fill="#12202b" text-anchor="start" font-weight="bold">лицевая плита</text>
+<text x="815.2" y="580.9" font-family="Helvetica,Arial" font-size="10" fill="#1f6f9a" text-anchor="start" font-weight="normal">347 x 221</text>
+<text x="897.2" y="580.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">окно, энкодер</text>
+<text x="707.2" y="599.9" font-family="Helvetica,Arial" font-size="10.5" fill="#12202b" text-anchor="start" font-weight="bold">задняя плита</text>
+<text x="815.2" y="599.9" font-family="Helvetica,Arial" font-size="10" fill="#1f6f9a" text-anchor="start" font-weight="normal">347 x 221</text>
+<text x="897.2" y="599.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">12 стоек, USB-C, вентиляция</text>
+<text x="707.2" y="618.9" font-family="Helvetica,Arial" font-size="10.5" fill="#12202b" text-anchor="start" font-weight="bold">борт верхний</text>
+<text x="815.2" y="618.9" font-family="Helvetica,Arial" font-size="10" fill="#1f6f9a" text-anchor="start" font-weight="normal">337 x 32</text>
+<text x="897.2" y="618.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">шипы в обе плиты</text>
+<text x="707.2" y="637.9" font-family="Helvetica,Arial" font-size="10.5" fill="#12202b" text-anchor="start" font-weight="bold">борт нижний</text>
+<text x="815.2" y="637.9" font-family="Helvetica,Arial" font-size="10" fill="#1f6f9a" text-anchor="start" font-weight="normal">337 x 32</text>
+<text x="897.2" y="637.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">то же</text>
+<text x="707.2" y="656.9" font-family="Helvetica,Arial" font-size="10.5" fill="#12202b" text-anchor="start" font-weight="bold">борт левый</text>
+<text x="815.2" y="656.9" font-family="Helvetica,Arial" font-size="10" fill="#1f6f9a" text-anchor="start" font-weight="normal">211 x 32</text>
+<text x="897.2" y="656.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">то же</text>
+<text x="707.2" y="675.9" font-family="Helvetica,Arial" font-size="10.5" fill="#12202b" text-anchor="start" font-weight="bold">борт правый</text>
+<text x="815.2" y="675.9" font-family="Helvetica,Arial" font-size="10" fill="#1f6f9a" text-anchor="start" font-weight="normal">211 x 32</text>
+<text x="897.2" y="675.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">то же</text>
+<text x="707.2" y="708.9" font-family="Helvetica,Arial" font-size="10.5" fill="#1f7a5a" text-anchor="start" font-weight="bold">Лицевая плита 284 мм режется ОДНИМ куском.</text>
+<text x="707.2" y="723.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">Вся нынешняя FDM-конструкция построена вокруг того,</text>
+<text x="707.2" y="736.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">что 284 не лезет на столик 250 и деталь приходится</text>
+<text x="707.2" y="749.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">резать на шесть частей и класть по диагонали.</text>
+<text x="707.2" y="762.9" font-family="Helvetica,Arial" font-size="9.5" fill="#6b7d88" text-anchor="start" font-weight="normal">Лазеру это безразлично: шва по лицу нет вообще.</text>
+<text x="40.0" y="994.9" font-family="Helvetica,Arial" font-size="12" fill="#a8451f" text-anchor="start" font-weight="bold">5 · ЧЕМ ЗАКРЫТЬ ЛИЦО — решение за вами</text>
+<rect x="40.0" y="1010.9" width="150.0" height="74.0" rx="4" fill="#ffffff" stroke="#12202b" stroke-width="1.2"/>
+<rect x="50.0" y="1020.9" width="130.0" height="40.0" rx="0" fill="#101820" stroke="#6b7d88" stroke-width="0.8"/>
+<text x="115.0" y="1074.9" font-family="Helvetica,Arial" font-size="10" fill="#12202b" text-anchor="middle" font-weight="bold">A. Открытое окно</text>
+<text x="40.0" y="1098.9" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">ничего перед пикселями</text>
+<text x="40.0" y="1111.4" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">картинка как есть</text>
+<text x="40.0" y="1123.9" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">светодиоды открыты, но они</text>
+<text x="40.0" y="1136.4" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">и так залиты смолой GOB</text>
+<rect x="216.0" y="1010.9" width="150.0" height="74.0" rx="4" fill="#ffffff" stroke="#12202b" stroke-width="1.2"/>
+<rect x="226.0" y="1020.9" width="130.0" height="40.0" rx="0" fill="#dfe9ee" stroke="#6b7d88" stroke-width="0.8"/>
+<text x="291.0" y="1074.9" font-family="Helvetica,Arial" font-size="10" fill="#12202b" text-anchor="middle" font-weight="bold">B. Прозрачный акрил</text>
+<text x="216.0" y="1098.9" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">как на NickoScope32</text>
+<text x="216.0" y="1111.4" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">защита от пыли и тычков</text>
+<text x="216.0" y="1123.9" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">НО: бликует и моет чёрный —</text>
+<text x="216.0" y="1136.4" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">контраст заметно падает</text>
+<rect x="392.0" y="1010.9" width="150.0" height="74.0" rx="4" fill="#ffffff" stroke="#12202b" stroke-width="1.2"/>
+<rect x="402.0" y="1020.9" width="130.0" height="40.0" rx="0" fill="#7d8f99" stroke="#6b7d88" stroke-width="0.8"/>
+<text x="467.0" y="1074.9" font-family="Helvetica,Arial" font-size="10" fill="#12202b" text-anchor="middle" font-weight="bold">C. Дымчатый акрил</text>
+<text x="392.0" y="1098.9" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">стандарт для светодиодных</text>
+<text x="392.0" y="1111.4" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">экранов: свет диода проходит</text>
+<text x="392.0" y="1123.9" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">фильтр один раз, а внешний —</text>
+<text x="392.0" y="1136.4" font-family="Helvetica,Arial" font-size="9.2" fill="#6b7d88" text-anchor="start" font-weight="normal">дважды, поэтому чёрное глубже</text>
+<text x="570.0" y="1024.9" font-family="Helvetica,Arial" font-size="11.5" fill="#a8451f" text-anchor="start" font-weight="bold">Рекомендую C.</text>
+<text x="570.0" y="1042.9" font-family="Helvetica,Arial" font-size="10" fill="#6b7d88" text-anchor="start" font-weight="normal">Вы просили «как NickoScope32», а там весь корпус прозрачный —</text>
+<text x="570.0" y="1056.9" font-family="Helvetica,Arial" font-size="10" fill="#6b7d88" text-anchor="start" font-weight="normal">это вариант B. Но у осциллографа за акрилом плата, а тут экран,</text>
+<text x="570.0" y="1070.9" font-family="Helvetica,Arial" font-size="10" fill="#6b7d88" text-anchor="start" font-weight="normal">и прозрачное стекло перед матрицей размывает именно чёрный:</text>
+<text x="570.0" y="1084.9" font-family="Helvetica,Arial" font-size="10" fill="#6b7d88" text-anchor="start" font-weight="normal">отражение комнаты ложится поверх картинки.</text>
+<text x="570.0" y="1104.9" font-family="Helvetica,Arial" font-size="10" fill="#6b7d88" text-anchor="start" font-weight="normal">Борта и заднюю плиту при этом можно оставить прозрачными —</text>
+<text x="570.0" y="1118.9" font-family="Helvetica,Arial" font-size="10" fill="#6b7d88" text-anchor="start" font-weight="normal">родство с NickoScope32 сохранится, а лицо будет работать.</text>
+<text x="570.0" y="1138.9" font-family="Helvetica,Arial" font-size="9.5" fill="#a8451f" text-anchor="start" font-weight="normal">Точный процент пропускания — из паспорта листа у поставщика,</text>
+<text x="570.0" y="1152.9" font-family="Helvetica,Arial" font-size="9.5" fill="#a8451f" text-anchor="start" font-weight="normal">своего замера у меня нет.</text>
+<rect x="40.0" y="1184.9" width="1100.0" height="118.0" rx="5" fill="#fdf6f2" stroke="#a8451f" stroke-width="1.2"/>
+<text x="56.0" y="1206.9" font-family="Helvetica,Arial" font-size="12" fill="#a8451f" text-anchor="start" font-weight="bold">6 · ЧТО НУЖНО ЗАМЕРИТЬ, ПРЕЖДЕ ЧЕМ РЕЗАТЬ</text>
+<text x="56.0" y="1226.9" font-family="Helvetica,Arial" font-size="10" fill="#12202b" text-anchor="start" font-weight="normal">Шесть чисел до сих пор догадки. Железо у вас на руках, так что это полчаса со штангенциркулем:</text>
+<text x="66.0" y="1246.9" font-family="Helvetica,Arial" font-size="10" fill="#a8451f" text-anchor="start" font-weight="bold">·  128.0</text>
+<text x="136.0" y="1246.9" font-family="Helvetica,Arial" font-size="9.8" fill="#6b7d88" text-anchor="start" font-weight="normal">кромка платы; чертёж её НЕ размеряет — замерить</text>
+<text x="66.0" y="1260.9" font-family="Helvetica,Arial" font-size="10" fill="#a8451f" text-anchor="start" font-weight="bold">·  15.0</text>
+<text x="136.0" y="1260.9" font-family="Helvetica,Arial" font-size="9.8" fill="#6b7d88" text-anchor="start" font-weight="normal">толщина модуля целиком; на листе не размерена, 14.5…15</text>
+<text x="66.0" y="1274.9" font-family="Helvetica,Arial" font-size="10" fill="#a8451f" text-anchor="start" font-weight="bold">·  9.0</text>
+<text x="136.0" y="1274.9" font-family="Helvetica,Arial" font-size="9.8" fill="#6b7d88" text-anchor="start" font-weight="normal">высота платы с надетыми разъёмами — замерить</text>
+<text x="66.0" y="1288.9" font-family="Helvetica,Arial" font-size="10" fill="#a8451f" text-anchor="start" font-weight="bold">·  9.0</text>
+<text x="136.0" y="1288.9" font-family="Helvetica,Arial" font-size="9.8" fill="#6b7d88" text-anchor="start" font-weight="normal">колодка HUB75 над задней плоскостью — замерить</text>
+<text x="66.0" y="1302.9" font-family="Helvetica,Arial" font-size="10" fill="#a8451f" text-anchor="start" font-weight="bold">·  7.0</text>
+<text x="136.0" y="1302.9" font-family="Helvetica,Arial" font-size="9.8" fill="#6b7d88" text-anchor="start" font-weight="normal">колодка питания VH4 — замерить</text>
+<text x="66.0" y="1316.9" font-family="Helvetica,Arial" font-size="10" fill="#a8451f" text-anchor="start" font-weight="bold">·  0.15</text>
+<text x="136.0" y="1316.9" font-family="Helvetica,Arial" font-size="9.8" fill="#6b7d88" text-anchor="start" font-weight="normal">рез на сторону — РАСЧЁТ, снимается купоном</text>
+<text x="640.0" y="1246.9" font-family="Helvetica,Arial" font-size="10" fill="#a8451f" text-anchor="start" font-weight="bold">Самое важное — КРОМКА ПЛАТЫ.</text>
+<text x="640.0" y="1260.9" font-family="Helvetica,Arial" font-size="9.8" fill="#6b7d88" text-anchor="start" font-weight="normal">Чертёж размеряет литую рамку 127.8 и не размеряет плату.</text>
+<text x="640.0" y="1274.9" font-family="Helvetica,Arial" font-size="9.8" fill="#6b7d88" text-anchor="start" font-weight="normal">Если наружу выступает рамка, две матрицы вплотную дают 255.6,</text>
+<text x="640.0" y="1288.9" font-family="Helvetica,Arial" font-size="9.8" fill="#6b7d88" text-anchor="start" font-weight="normal">и шаг через стык выходит 1.8 вместо 2.0 — это видно глазом.</text>
+</svg>
