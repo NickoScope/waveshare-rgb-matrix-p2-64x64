@@ -14,9 +14,10 @@ day. It is kept in
 [drafts/38-mail-whatsapp-tty1-rejected-2026-09-27.md](drafts/38-mail-whatsapp-tty1-rejected-2026-09-27.md)
 for its research.
 
-**State:** the library is written. It is moving to its own repository,
-**NickoScope-Telex**, on the owner's word of 2026-09-27; until that repository
-exists, the copy is in [`modules/itelex/`](../modules/itelex/).
+**State:** the library is written and lives in its own private repository,
+[NickoScope/NickoScope-Telex](https://github.com/NickoScope/NickoScope-Telex/tree/claude/waveshare-led-email-whatsapp-network-y01laq), on the owner's word of 2026-09-27.
+It is on the working branch; `main` holds only the initial README until the
+owner merges.
 - It passes host tests (97/97).
 - It is **compatible with i-Telex as piTelex implements it**: 12/12 interop
   checks in both directions against piTelex's own i-Telex code, over TCP, three
@@ -125,14 +126,14 @@ reference implementation in Python is
   default. They are there so that the day a number is granted, joining the
   public network is configuration, not code.
 
-## 4. The module: `modules/itelex/`
+## 4. The library: NickoScope-Telex
 
 A PlatformIO/Arduino library, MIT, written from the specification. The owner
 asked for it as its own repository, "NickoScope-Telex", and for i-Telex
 compatibility («мы должны быть совместимы с iTelex»). piTelex was
 read as a reference and used as a **test oracle** (its encoder produced the
 Baudot vectors); none of its GPL code is copied. Details, API and limits are in
-[modules/itelex/README.md](../modules/itelex/README.md).
+[README.md](https://github.com/NickoScope/NickoScope-Telex/blob/claude/waveshare-led-email-whatsapp-network-y01laq/README.md).
 
 | File | What | Arduino? |
 |---|---|---|
@@ -155,7 +156,7 @@ Baudot vectors); none of its GPL code is copied. Details, API and limits are in
 - A caller waits up to 3 s for the peer's Version before it sends text.
 - Tested both ways in `testCodingByPeer`.
 
-**An ASCII-only port** (optional): see [modules/itelex/docs/MINITEL.md](../modules/itelex/docs/MINITEL.md).
+**An ASCII-only port** (optional): see [docs/MINITEL.md](https://github.com/NickoScope/NickoScope-Telex/blob/claude/waveshare-led-email-whatsapp-network-y01laq/docs/MINITEL.md).
 
 **Verified:**
 - host tests PASS (97/97);
@@ -212,7 +213,7 @@ need no change to the module: only the phonebook differs.
 
 | # | Step | Where | Gate |
 |---|---|---|---|
-| 1 | The module: codec, packets, session, station, example, host tests | KB `modules/itelex/` | **done**: host tests PASS, compiles for the S3; link + flash on the bench |
+| 1 | The module: codec, packets, session, station, example, host tests | NickoScope-Telex | **done**: host tests PASS, compiles for the S3; link + flash on the bench |
 | 2 | Interop with piTelex over TCP (host build of the session) | `test/interop/` | **done**: 12/12 PASS |
 | 2b | The same on hardware: the example on a spare ESP32-S3 vs piTelex on a laptop | bench | text both ways; End seen |
 | 3 | Tailscale subnet router in house 1 (the HA add-on, `advertise_routes`); a phone's telnet app to the S3 | HA | a telegram typed on the phone prints on the S3 |
@@ -227,7 +228,7 @@ Minitel can reach a panel's address today.
 - Its keys start with bytes that look like i-Telex packets, so the station got
   an optional ASCII-only port.
 - A "3615 TELEX" service on the RPi5 (MiniPavi) is the full experience.
-- Details and sources: [modules/itelex/docs/MINITEL.md](../modules/itelex/docs/MINITEL.md).
+- Details and sources: [docs/MINITEL.md](https://github.com/NickoScope/NickoScope-Telex/blob/claude/waveshare-led-email-whatsapp-network-y01laq/docs/MINITEL.md).
 
 ## 8. Questions for the owner
 

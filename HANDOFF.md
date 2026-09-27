@@ -8,11 +8,14 @@ Rolling record of where the work stands. Newest first.
   - «заведи отдельное репо NickoScope-Telex»;
   - «мы должны быть совместимы с iTelex»;
   - «а может Minitel сети и протоколы использовать?» (the iodeo ESP32 dongle).
-- **The repository could not be created from the session:** the GitHub App answered 403 "Resource not accessible by integration". It is prepared locally with its history. The owner creates an empty private `NickoScope/NickoScope-Telex`, then a session pushes it. Until then `modules/itelex/` is the copy.
+- **The repository:** the session could not create it (the GitHub App answered 403 "Resource not accessible by integration"), so the owner created `NickoScope/NickoScope-Telex` (private).
+  - The library is pushed to its branch `claude/waveshare-led-email-whatsapp-network-y01laq`, on top of the owner's initial commit.
+  - `main` has only that README until the owner merges.
+  - `modules/itelex/` here was removed; `modules/README.md` points to the repository.
 - **Compatibility:**
   - `test/interop/run_pitelex_interop.py` runs piTelex's own i-Telex code (ece3d43) against our station over TCP: **12/12 PASS in both directions, 3 runs**.
   - Found on the way: the i-Telex line is ITA2. The station now defaults to ITA2 and switches to MTK-2 only with our own stations, recognised by their Version id `nk…`.
-- **Minitel:** `modules/itelex/docs/MINITEL.md`.
+- **Minitel:** `docs/MINITEL.md` in NickoScope-Telex.
   - The dongle's firmware can open raw TCP to a panel.
   - Its keys look like i-Telex packet types, so an optional ASCII-only port was added.
   - The full experience is a "3615 TELEX" MiniPavi service on the RPi5 (not built).
