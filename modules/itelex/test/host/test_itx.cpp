@@ -281,6 +281,53 @@ static void testBinaryCall() {
   CHECK(b.state() == Session::State::Closed && eb.endReason == "end" && eb.ends == 1);
 }
 
+// A peer of the wider network (piTelex says "pi..."): ITA2, Russian transliterated.
+// One of ours ("nk..."): MTK-2, Russian as is. Nobody configures this per call.
+static void testCodingByPeer() {
+  {
+    End ea("A"), eb("B");
+    SessionConfig ca;
+    SessionConfig cb; cb.swId = "pi0.9";   // plays a piTelex station
+    Session a, b;
+    b.begin(Session::Role::Called, false, nullptr, cb, handlers(eb), g_now);
+    a.begin(Session::Role::Caller, false, "", ca, handlers(ea), g_now);
+    a.setAutoPrinted(true); b.setAutoPrinted(true);
+    CHECK(a.send("Привет 1") > 0);
+    pump(a, ea, b, eb, 100);
+    CHECK(!a.peerIsFamily() && a.coding() == Coding::ITA2);
+    CHECK(eb.text == "PRIVET 1");
+  }
+  {
+    End ea("A"), eb("B");
+    SessionConfig c;
+    Session a, b;
+    b.begin(Session::Role::Called, false, nullptr, c, handlers(eb), g_now);
+    a.begin(Session::Role::Caller, false, "", c, handlers(ea), g_now);
+    a.setAutoPrinted(true); b.setAutoPrinted(true);
+    CHECK(a.send("Привет 1") > 0);
+    pump(a, ea, b, eb, 100);
+    CHECK(a.peerIsFamily() && a.coding() == Coding::MTK2);
+    CHECK(b.peerIsFamily() && b.coding() == Coding::MTK2);
+    CHECK(eb.text == "ПРИВЕТ 1");
+  }
+  {
+    // A peer that never sends Version: after the wait, ITA2
+    End ea("A");
+    SessionConfig c;
+    Session a;
+    a.begin(Session::Role::Caller, false, "", c, handlers(ea), g_now);
+    ea.wire.clear();
+    CHECK(a.send("Да") > 0);
+    a.poll(g_now + 100);
+    CHECK(ea.wire.empty());                    // still waiting for the Version
+    a.poll(g_now + 3001);
+    const uint8_t fed[] = {PKT_ACKNOWLEDGE, 1, 0};
+    a.feed(fed, 3, g_now + 3001);
+    a.poll(g_now + 3002);
+    CHECK(a.coding() == Coding::ITA2 && !ea.wire.empty());
+  }
+}
+
 static void testFlowControl() {
   End ea("A"), eb("B");
   SessionConfig cfg;
@@ -324,6 +371,28 @@ static void testAsciiCall() {
   CHECK(b.state() == Session::State::Closed && eb.endReason == "timeout");
 }
 
+// A Minitel on an ASCII-only port: its Envoi key (DC3 0x13) and an accent
+// (SS2 0x19 ...) must not be taken for i-Telex packets.
+static void testAsciiPort() {
+  End eb("B");
+  SessionConfig cfg;
+  Session b;
+  b.begin(Session::Role::Called, true, nullptr, cfg, handlers(eb), g_now);
+  CHECK(eb.connected == 1 && eb.ascii);
+  const uint8_t minitel[] = {'O', 'U', 'I', 0x13, 0x41};   // "OUI" + Envoi
+  b.feed(minitel, sizeof minitel, g_now);
+  CHECK(b.state() == Session::State::Open && b.ascii());
+  CHECK(eb.text.substr(0, 3) == "OUI");
+  // the same bytes on an auto-detecting port are (wrongly, but as piTelex does)
+  // read as a packet when a control byte comes first
+  End ec("C");
+  Session c;
+  c.begin(Session::Role::Called, false, nullptr, cfg, handlers(ec), g_now);
+  const uint8_t envoiFirst[] = {0x13, 0x41, 'O'};
+  c.feed(envoiFirst, sizeof envoiFirst, g_now);
+  CHECK(!c.ascii());
+}
+
 static void testRefusalsAndTimeouts() {
   {
     End eb("B");
@@ -364,8 +433,10 @@ int main() {
   testBaudot();
   testPackets();
   testBinaryCall();
+  testCodingByPeer();
   testFlowControl();
   testAsciiCall();
+  testAsciiPort();
   testRefusalsAndTimeouts();
   std::printf("%s: %d passed, %d failed\n", g_fail ? "FAIL" : "PASS", g_pass, g_fail);
   return g_fail ? 1 : 0;

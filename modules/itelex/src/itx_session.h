@@ -27,9 +27,16 @@
 namespace itx {
 
 struct SessionConfig {
-  Coding coding = Coding::MTK2;
-  const char *answerback = "";      // e.g. "10001 KUX NIKOSCOPE", sent on WRU
-  const char *swId = "nk01";        // Version packet id, ≤6 chars
+  // The i-Telex network speaks ITA2 (piTelex builds its line codec with the
+  // ITA2 table, txDevITelexCommon.py:257). MTK-2 is used only when both ends
+  // are ours: a peer whose Version id starts with familyTag. The owner's
+  // stations therefore talk Russian to each other and plain ITA2 to everyone
+  // else, with no setting per call.
+  Coding coding = Coding::ITA2;     // with the rest of the i-Telex network
+  Coding familyCoding = Coding::MTK2;
+  const char *familyTag = "nk";     // Version id prefix that marks "one of ours"
+  const char *answerback = "";      // e.g. "10101 KUX NIKOSCOPE", sent on WRU
+  const char *swId = "nk01";        // our Version id, ≤6 chars; keep familyTag in it
   bool acceptAscii = true;          // let telnet users call in
   uint32_t idleTimeoutMs = 30000;   // binary call: silence this long = dead
   uint32_t asciiIdleTimeoutMs = 600000;   // a human typing is slow
@@ -53,7 +60,8 @@ class Session {
 
   // Caller: the TCP connection to the peer is up; `ascii` is the peer's type
   // from the directory, `ext` the direct-dial extension ("" for none).
-  // Called: someone connected to us; the kind of call is detected.
+  // Called: someone connected to us; the kind of call is detected from the
+  // first bytes, unless `ascii` says the port is ASCII-only.
   void begin(Role role, bool ascii, const char *ext, const SessionConfig &cfg,
              const SessionHandlers &h, uint32_t nowMs);
 
@@ -77,6 +85,8 @@ class Session {
   bool sendQueueEmpty() const { return txHead_ == txTail_ && !outLen_; }
   uint8_t inFlight() const;           // codes sent, not yet acknowledged
   const char *extension() const { return ext_; }
+  Coding coding() const { return enc_.coding(); }   // what the line uses now
+  bool peerIsFamily() const { return peerFamily_; }
 
  private:
   void open(bool ascii, uint32_t now);
@@ -86,13 +96,13 @@ class Session {
   void deliver(uint32_t cp, uint8_t cost);
   bool writeRaw(const uint8_t *d, size_t n);   // false if it had to be kept
   void flushOut();
-  size_t queueCodes(const uint8_t *c, size_t n);
   size_t queueBytes(const uint8_t *b, size_t n);
+  void onPeerVersion(const Packet &p);
   size_t txCount() const { return (size_t)((txTail_ - txHead_) & (kTx - 1)); }
   void pumpBinary(uint32_t now);
   void pumpAscii();
 
-  static constexpr size_t kTx = 512;     // outgoing codes (binary) or bytes (ASCII)
+  static constexpr size_t kTx = 512;     // outgoing text, UTF-8, encoded when sent
   static constexpr size_t kCost = 256;   // received chars not yet shown
 
   SessionConfig cfg_{};
@@ -121,6 +131,9 @@ class Session {
   uint8_t peerAck_ = 0;
   bool havePeerAck_ = false;
   bool versionSent_ = false;
+  bool codingSettled_ = false;           // caller: the peer's Version (or silence) decided it
+  bool peerFamily_ = false;
+  uint32_t openedAt_ = 0;
 
   uint8_t utf8Buf_[4];                   // ASCII calls: a character split across reads
   uint8_t utf8Len_ = 0, utf8Need_ = 0;

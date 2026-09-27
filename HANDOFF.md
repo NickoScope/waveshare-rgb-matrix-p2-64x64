@@ -2,6 +2,23 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-27 (later): NickoScope-Telex - its own repository, i-Telex interop PASS, Minitel
+
+- **Asked:**
+  - «заведи отдельное репо NickoScope-Telex»;
+  - «мы должны быть совместимы с iTelex»;
+  - «а может Minitel сети и протоколы использовать?» (the iodeo ESP32 dongle).
+- **The repository could not be created from the session:** the GitHub App answered 403 "Resource not accessible by integration". It is prepared locally with its history. The owner creates an empty private `NickoScope/NickoScope-Telex`, then a session pushes it. Until then `modules/itelex/` is the copy.
+- **Compatibility:**
+  - `test/interop/run_pitelex_interop.py` runs piTelex's own i-Telex code (ece3d43) against our station over TCP: **12/12 PASS in both directions, 3 runs**.
+  - Found on the way: the i-Telex line is ITA2. The station now defaults to ITA2 and switches to MTK-2 only with our own stations, recognised by their Version id `nk…`.
+- **Minitel:** `modules/itelex/docs/MINITEL.md`.
+  - The dongle's firmware can open raw TCP to a panel.
+  - Its keys look like i-Telex packet types, so an optional ASCII-only port was added.
+  - The full experience is a "3615 TELEX" MiniPavi service on the RPi5 (not built).
+  - The dongle is sold out on Tindie since 2025-10-27.
+- Host tests 97/97; the ESP32-S3 compile is still clean.
+
 ## 2026-09-27: the family teletype - i-Telex over one tailnet (docs/38, modules/itelex)
 
 - **Asked, in three steps:**

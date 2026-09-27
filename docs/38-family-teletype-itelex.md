@@ -14,10 +14,16 @@ day. It is kept in
 [drafts/38-mail-whatsapp-tty1-rejected-2026-09-27.md](drafts/38-mail-whatsapp-tty1-rejected-2026-09-27.md)
 for its research.
 
-**State:** the module [`modules/itelex/`](../modules/itelex/) is written. It
-passes host tests and compiles for the ESP32-S3 against the panel's exact core.
-**It is not in the firmware, not flashed, and not tried against a live i-Telex
-station.**
+**State:** the library is written. It is moving to its own repository,
+**NickoScope-Telex**, on the owner's word of 2026-09-27; until that repository
+exists, the copy is in [`modules/itelex/`](../modules/itelex/).
+- It passes host tests (97/97).
+- It is **compatible with i-Telex as piTelex implements it**: 12/12 interop
+  checks in both directions against piTelex's own i-Telex code, over TCP, three
+  runs in a row.
+- It compiles for the ESP32-S3 against the panel's exact core.
+- **It is not in the firmware, not flashed, and not tried with a real
+  teleprinter.**
 
 ## The design in one picture
 
@@ -121,7 +127,9 @@ reference implementation in Python is
 
 ## 4. The module: `modules/itelex/`
 
-A PlatformIO/Arduino library, MIT, written from the specification. piTelex was
+A PlatformIO/Arduino library, MIT, written from the specification. The owner
+asked for it as its own repository, "NickoScope-Telex", and for i-Telex
+compatibility («мы должны быть совместимы с iTelex»). piTelex was
 read as a reference and used as a **test oracle** (its encoder produced the
 Baudot vectors); none of its GPL code is copied. Details, API and limits are in
 [modules/itelex/README.md](../modules/itelex/README.md).
@@ -133,10 +141,25 @@ Baudot vectors); none of its GPL code is copied. Details, API and limits are in
 | `itx_session.*` | one call: detect binary/ASCII, decode, answer WRU, Acknowledge by what was *shown*, flow control by the peer's Acknowledge, End/Reject/timeouts | no |
 | `ITelex.*` | `itx::Station`: listen on :134, one call at a time ("occ" to a second caller), dial by phonebook/TNS/host:port, the Centralex line | yes |
 | `examples/SerialTeletype` | the smallest station: the serial monitor is the teleprinter | yes |
-| `test/run_host_tests.sh` | 83 checks under ASan/UBSan, incl. two sessions wired back to back | no |
+| `test/run_host_tests.sh` | 97 checks under ASan/UBSan, incl. two sessions wired back to back | no |
+| `test/interop/` | a live i-Telex call against **piTelex's own code** in both directions: text, WRU and answerback, hang-up | no |
+
+**Which code is on the line.**
+- The i-Telex network is **ITA2**: piTelex builds its line codec with the ITA2
+  table.
+- MTK-2 would turn Russian into Latin garbage at a piTelex station. So the
+  station speaks ITA2 by default and transliterates Russian.
+- Two of our stations recognise each other by the software id in the Version
+  packet (ours starts with `nk`) and switch the line to **MTK-2**, where
+  Cyrillic passes.
+- A caller waits up to 3 s for the peer's Version before it sends text.
+- Tested both ways in `testCodingByPeer`.
+
+**An ASCII-only port** (optional): see [modules/itelex/docs/MINITEL.md](../modules/itelex/docs/MINITEL.md).
 
 **Verified:**
-- host tests PASS (83/83).
+- host tests PASS (97/97);
+- interop with piTelex PASS (12/12, both directions, 3 runs).
 - The module and the example **compile** for the ESP32-S3 with no warnings:
   - xtensa-esp32s3-elf-gcc 8.4.0 (esp-2021r2-patch5);
   - the headers of arduino-esp32 2.0.17 / IDF 4.4.7;
@@ -149,7 +172,7 @@ Baudot vectors); none of its GPL code is copied. Details, API and limits are in
   socket buffers come on top and are not measured.
 
 **Not verified:**
-- a call with a real i-Telex station or piTelex over TCP;
+- a call with a real teleprinter on the public network;
 - Centralex and the TNS against the live servers;
 - anything on the panel.
 
@@ -190,11 +213,21 @@ need no change to the module: only the phonebook differs.
 | # | Step | Where | Gate |
 |---|---|---|---|
 | 1 | The module: codec, packets, session, station, example, host tests | KB `modules/itelex/` | **done**: host tests PASS, compiles for the S3; link + flash on the bench |
-| 2 | A bench call: the example on a spare ESP32-S3 vs piTelex on a laptop (`telex.json` with an i-Telex device), both directions, WRU, hang-up | bench | text both ways; the Acknowledge moves; End seen |
+| 2 | Interop with piTelex over TCP (host build of the session) | `test/interop/` | **done**: 12/12 PASS |
+| 2b | The same on hardware: the example on a spare ESP32-S3 vs piTelex on a laptop | bench | text both ways; End seen |
 | 3 | Tailscale subnet router in house 1 (the HA add-on, `advertise_routes`); a phone's telnet app to the S3 | HA | a telegram typed on the phone prints on the S3 |
 | 4 | The panel: `src/itelex/` behind `-DITELEX_ENABLED`, a TELEX page (ZCZC header, letter-by-letter typing, receipt), the knob for canned replies, the flag-matrix row, the RAM delta measured | fork `feat/itelex` | only on the owner's word: «в прошивку пока не интегрируй» |
 | 5 | Across houses per §5; the family directory on the RPi5 | routers / RPi5 | panel ↔ panel between houses |
 | 6 | The public network: ask the i-Telex admins; Centralex with the granted number and PIN | telexforum | a call from a real teleprinter |
+
+## 7b. Minitel
+
+Asked the same day. The iodeo dongle's firmware has a raw-TCP mode, so a
+Minitel can reach a panel's address today.
+- Its keys start with bytes that look like i-Telex packets, so the station got
+  an optional ASCII-only port.
+- A "3615 TELEX" service on the RPi5 (MiniPavi) is the full experience.
+- Details and sources: [modules/itelex/docs/MINITEL.md](../modules/itelex/docs/MINITEL.md).
 
 ## 8. Questions for the owner
 

@@ -1,6 +1,6 @@
 {
-  "name": "ITelex",
-  "version": "0.1.0",
+  "name": "NickoScope-Telex",
+  "version": "0.2.0",
   "description": "A teletype station for any ESP32: the i-Telex protocol (Baudot/MTK-2, Acknowledge, WRU, TNS lookup, Centralex relay) with a transport-free core that is tested on the host.",
   "keywords": "telex, teletype, i-telex, baudot, ita2, mtk-2, esp32",
   "license": "MIT",
@@ -10,6 +10,13 @@
     "srcDir": "src"
   },
   "export": {
-    "exclude": ["test"]
+    "exclude": [
+      "test",
+      ".github"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/NickoScope/NickoScope-Telex.git"
   }
 }

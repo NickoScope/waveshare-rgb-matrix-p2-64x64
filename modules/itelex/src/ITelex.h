@@ -49,6 +49,10 @@ struct PhonebookEntry {
 struct StationConfig {
   SessionConfig session;              // coding, answerback, timeouts
   uint16_t listenPort = kDefaultStationPort;   // 0: accept no direct calls
+  // A second port where every call is plain ASCII (UTF-8), for terminals whose
+  // first bytes would be mistaken for i-Telex packets - a Minitel with the
+  // iodeo dongle sends DC3/SS2/ESC. 0: off.
+  uint16_t asciiListenPort = 0;
   uint32_t connectTimeoutMs = 3000;
 
   const PhonebookEntry *phonebook = nullptr;   // the family's numbers
@@ -104,6 +108,7 @@ class Station {
   void pumpCall(uint32_t now);
   void pumpCentralex(uint32_t now);
   void acceptDirect();
+  void acceptOn(WiFiServer *srv, bool ascii);
   void cxDrop(const char *why, uint32_t now);
   void status(const char *s) { if (ev_.onStatus) ev_.onStatus(ev_.ctx, s); }
 
@@ -116,6 +121,7 @@ class Station {
   StationConfig cfg_{};
   StationEvents ev_{};
   WiFiServer *server_ = nullptr;
+  WiFiServer *asciiServer_ = nullptr;
   WiFiClient call_;
   WiFiClient cxClient_;
   Session session_;

@@ -2,7 +2,7 @@
 // teleprinter. Works on any ESP32 with Wi-Fi; nothing panel-specific.
 //
 // Serial commands (end with Enter):
-//   /dial 10002        call a number from the phonebook (or host:port)
+//   /dial 10201        call a number from the phonebook (or host:port)
 //   /wru               ask the other side who it is
 //   /bye               hang up
 //   anything else      is sent as text while in a call
@@ -21,8 +21,8 @@
 // The family's numbers. Hosts are whatever this device can reach: a LAN IP,
 // or across houses the address the Tailscale subnet router gives it.
 static const itx::PhonebookEntry kPhonebook[] = {
-    {10001, "192.168.1.57", 134, "", false, "KUX"},
-    {10002, "192.168.1.58", 134, "", false, "GAR"},
+    {10101, "192.168.1.57", 134, "", false, "KUX"},
+    {10201, "192.168.2.40", 134, "", false, "GAR"},
 };
 
 static itx::Station station;
@@ -48,8 +48,7 @@ void setup() {
   Serial.printf("Wi-Fi up, %s:134\r\n", WiFi.localIP().toString().c_str());
 
   itx::StationConfig cfg;
-  cfg.session.coding = itx::Coding::MTK2;
-  cfg.session.answerback = "10001 KUX NIKOSCOPE";
+  cfg.session.answerback = "10101 KUX NIKOSCOPE";   // Latin: the i-Telex network is ITA2
   cfg.phonebook = kPhonebook;
   cfg.phonebookLen = sizeof(kPhonebook) / sizeof(kPhonebook[0]);
 

@@ -1,11 +1,12 @@
-# ITelex: a teletype station for any ESP32
+# NickoScope-Telex: a teletype station for any ESP32
 
-The i-Telex protocol (telex over the internet) as a plug-and-play library:
+**i-Telex compatible.** The i-Telex protocol (telex over the internet) as a plug-and-play library:
 drop it into any ESP32 Arduino project and the device becomes a teletype
 station. It has a number, answers calls, prints what arrives letter by letter,
 answers "КТО ТАМ?", and dials other stations.
 
-Written for the family of LED panels ([docs/38](../../docs/38-family-teletype-itelex.md)).
+Written for the family of LED panels (design:
+[waveshare-rgb-matrix-p2-64x64 docs/38](https://github.com/NickoScope/waveshare-rgb-matrix-p2-64x64/blob/claude/waveshare-led-email-whatsapp-network-y01laq/docs/38-family-teletype-itelex.md)).
 It knows nothing about the panel. **It is not in the panel's firmware yet**, by
 the owner's word.
 
@@ -13,20 +14,41 @@ the owner's word.
 
 | | |
 |---|---|
-| Host tests | **PASS**, 83 checks, ASan + UBSan: `test/run_host_tests.sh` |
+| Host tests | **PASS**, 97 checks, ASan + UBSan: `test/run_host_tests.sh` |
+| **Interop with piTelex** (the i-Telex reference implementation) | **PASS**, 12/12, both directions, 3 runs in a row: `test/interop/run_pitelex_interop.py --pitelex <clone>` |
 | ESP32-S3, arduino-esp32 2.0.17 | **compiles**, no warnings (`gnu++11`, `-Wall -Wextra`); not linked or flashed yet |
-| Against piTelex / a real i-Telex station | **not tried** |
+| Against a real teleprinter on the public network | **not tried** (needs a number, see below) |
 | Centralex, TNS lookup | written from the spec and piTelex; **not tried** against the live servers |
+
+### What "compatible" was checked against
+
+The interop test runs piTelex's **own i-Telex code** (commit ece3d43,
+`txDevITelexClient` / `txDevITelexSrv`) against our station over real TCP
+sockets. It plays piTelex's printer through the same escape-sequence
+interface its hardware drivers use.
+
+1. **piTelex calls us:**
+   - its text arrives;
+   - our reply prints on its side;
+   - its WRU gets our answerback;
+   - its hang-up (End) is seen.
+2. **We call piTelex:**
+   - our text prints there;
+   - our WRU is recognised (piTelex shows `#`);
+   - its reply and answerback reach us;
+   - our hang-up is seen.
+
+piTelex is not vendored: point `--pitelex` at a clone.
 
 ## Using it
 
-PlatformIO cannot fetch a subdirectory of a git repository, so either link it:
-
 ```ini
-lib_deps = symlink://../waveshare-rgb-matrix-p2-64x64/modules/itelex
+lib_deps = https://github.com/NickoScope/NickoScope-Telex.git
 ```
 
-or copy `modules/itelex/` into the project's `lib/`. Then:
+(a private repository needs git credentials on the build machine), or a local
+clone with `symlink://../NickoScope-Telex`, or a copy in the project's `lib/`.
+Then:
 
 ```cpp
 #include <ITelex.h>
@@ -55,6 +77,15 @@ void loop() {
 
 The full, runnable example is [examples/SerialTeletype](examples/SerialTeletype/SerialTeletype.ino).
 
+**Which code on the line.** The i-Telex network is ITA2: piTelex builds its
+line codec with the ITA2 table. So is this station, by default. Russian text
+to an ordinary station is transliterated (`ПРИВЕТ` → `PRIVET`).
+- Two of **our** stations recognise each other by the Version packet: our id
+  starts with `nk`, piTelex's with `pi`.
+- They then switch the line to **MTK-2**, so Cyrillic passes as Cyrillic.
+- Nothing is configured per call. A caller waits up to 3 s for the peer's
+  Version before sending text, so it never guesses.
+
 **The receipt.** By default a received character counts as printed when it
 arrives. A display that types text out slowly should call
 `station.printed(n)` as it shows characters. The sender's Acknowledge then
@@ -68,6 +99,12 @@ means "on the screen", the way it meant "on the paper".
 - It answers in UTF-8.
 - An ASCII caller may idle for 10 minutes; an i-Telex one for 30 s.
 
+**An ASCII-only port** (`StationConfig::asciiListenPort`, off by default).
+Auto-detection works on the first byte, like piTelex. A **Minitel** (with the
+iodeo dongle's raw-TCP "Telnet" mode) starts with bytes that are also i-Telex
+packet types: *Envoi* is DC3 0x13, an accent is SS2 0x19, an arrow is ESC 0x1B.
+On the ASCII port there is no guessing. See [docs/MINITEL.md](docs/MINITEL.md).
+
 ## What is in it
 
 | File | Arduino? | What |
@@ -76,7 +113,8 @@ means "on the screen", the way it meant "on the paper".
 | `src/itx_packet.*` | no | station packets 0x00-0x09, Centralex 0x81-0x84, TNS Peer_query / Peer_reply_v1 / Client_update; direct-dial extensions; a streaming parser that tells packets from ASCII and skips telnet IAC |
 | `src/itx_session.*` | no | one call over any transport (a write callback and `feed()`), described in the header |
 | `src/ITelex.*` | yes | `itx::Station`: WiFiServer on :134, one call at a time, `dial()` by phonebook → TNS → `host:port`, the Centralex line |
-| `test/host/test_itx.cpp` | no | the codec against piTelex vectors, the packets against the spec's examples, two sessions back to back (binary and ASCII, flow control, WRU, hang-up, refusals, time-outs) |
+| `test/host/test_itx.cpp` | no | the codec against piTelex vectors, the packets against the spec's examples, two sessions back to back (binary and ASCII, ITA2/MTK-2 by peer, flow control, WRU, hang-up, refusals, time-outs, the ASCII port) |
+| `test/interop/` | no | `itx_tcp` (the session on a POSIX socket) and the piTelex interop driver |
 
 ### What the session does
 
@@ -141,6 +179,7 @@ produced the Baudot vectors); none of its code is in this MIT library.
 - **IPv4 only**, as i-Telex. No TLS: across the internet the tailnet (WireGuard)
   is what encrypts. A Centralex line to the public relay is plain text.
 - **The public i-Telex network** gives numbers only through its
-  administrators, and expects a real teleprinter behind them (docs/38 §3). The
+  administrators, and expects a real teleprinter behind them (see the design
+  document, §3). The
   family network needs neither: TNS lookup and Centralex are off by default.
 - **DNS.** Hosts are resolved by the core's DNS; `.local` (mDNS) names are not.

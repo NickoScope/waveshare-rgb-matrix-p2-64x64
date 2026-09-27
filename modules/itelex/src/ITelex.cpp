@@ -47,6 +47,11 @@ bool Station::begin(const StationConfig &cfg, const StationEvents &ev) {
     server_->begin();
     server_->setNoDelay(true);
   }
+  if (cfg_.asciiListenPort) {
+    asciiServer_ = new WiFiServer(cfg_.asciiListenPort);
+    asciiServer_->begin();
+    asciiServer_->setNoDelay(true);
+  }
   cx_ = Cx::Off;
   cxNextTry_ = millis();
   started_ = true;
@@ -57,6 +62,7 @@ bool Station::begin(const StationConfig &cfg, const StationEvents &ev) {
 void Station::end() {
   if (inCall_) { session_.transportClosed(); call_.stop(); inCall_ = false; }
   if (server_) { server_->end(); delete server_; server_ = nullptr; }
+  if (asciiServer_) { asciiServer_->end(); delete asciiServer_; asciiServer_ = nullptr; }
   cxClient_.stop();
   cx_ = Cx::Off;
   started_ = false;
@@ -90,12 +96,21 @@ void Station::startCall(Session::Role role, bool ascii, const char *ext, const c
 }
 
 void Station::acceptDirect() {
-  if (!server_ || !server_->hasClient()) return;
-  WiFiClient c = server_->available();
+  acceptOn(server_, false);
+  acceptOn(asciiServer_, true);
+}
+
+void Station::acceptOn(WiFiServer *srv, bool ascii) {
+  if (!srv || !srv->hasClient()) return;
+  WiFiClient c = srv->available();
   if (!c) return;
   if (inCall_) {
-    uint8_t r[8];
-    c.write(r, buildReject(r, "occ"));
+    if (ascii) {
+      c.print("occ\r\n");
+    } else {
+      uint8_t r[8];
+      c.write(r, buildReject(r, "occ"));
+    }
     c.stop();
     status("itx: second caller turned away (occ)");
     return;
@@ -103,7 +118,7 @@ void Station::acceptDirect() {
   call_ = c;
   callViaCx_ = false;
   const String ip = c.remoteIP().toString();
-  startCall(Session::Role::Called, false, nullptr, ip.c_str());
+  startCall(Session::Role::Called, ascii, nullptr, ip.c_str());
 }
 
 void Station::pumpCall(uint32_t now) {
