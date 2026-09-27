@@ -2,6 +2,13 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-27 (evening): the teletype is a project of its own - everything moved to NickoScope-Telex
+
+- **Owner:** «Собери весь проект телекса здесь в этом репо: NickoScope/NickoScope-Telex … Телетайп - это отдельный проект».
+- **Moved there:** the design (docs/38), the rejected draft and its HA automation (docs/drafts/38-*), the Minitel study, a map for the panel integration, and its own HANDOFF.
+- **What stays here:** `docs/38` is a pointer, so its number keeps working; `modules/README.md` is a pointer too.
+- **For anything about the telex, read NickoScope-Telex's HANDOFF.md.**
+
 ## 2026-09-27 (later): NickoScope-Telex - its own repository, i-Telex interop PASS, Minitel
 
 - **Asked:**
