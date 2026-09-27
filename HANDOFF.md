@@ -2,16 +2,21 @@
 
 Rolling record of where the work stands. Newest first.
 
-## 2026-09-27: mail, WhatsApp and the teletype network - research and design (docs/38)
+## 2026-09-27: the family teletype - i-Telex over one tailnet (docs/38, modules/itelex)
 
-- **Asked:** the owner wanted email, a WhatsApp client and "our own teletype network between the family of panels, with any ESP32 as a client by one protocol", and a GitHub search for prior art.
-- **Done:** four research strands (mail, WhatsApp, the network with its prior art, the firmware's integration points) are written up in [docs/38](docs/38-mail-whatsapp-teletype.md). The stage-0 HA draft is `configs/ha/mail_to_panel.yaml`.
-- **The decisions proposed:**
-  - no new TLS on the panel: mail and WhatsApp are bridges at home that publish MQTT;
-  - one protocol, TTY/1, for all three: a 250-byte signed frame over ESP-NOW, with a JSON mirror on MQTT;
-  - Mosquitto bridges between houses.
-- **Nothing built, nothing flashed.** Branch `claude/waveshare-led-email-whatsapp-network-y01laq` in this repository; the same branch in NikoScope32 carries a pointer.
-- **Waiting on the owner:** the five questions in docs/38 §8. The first is the WhatsApp route: a second SIM + GOWA, an Android phone's notifications, or Telegram.
+- **Asked, in three steps:**
+  - «все панели сети/семьи посадить в одной сети через тайлскейл, и сделать мессенджер между ними, отправлять с телефона на адрес панели»;
+  - «а через i-telex эмулировать телетайп?»;
+  - «делай так, но в прошивку пока не интегрируй, пиши отдельным модулем p&p».
+- **Decided:**
+  - Tailscale runs as a subnet router on HA/RPi5 in each house, not on the panels. microlink needs IDF ≥ 5, 42 KB of internal stacks and standing TLS; checked against its source and the 2.0.17 SDK.
+  - The panels speak i-Telex: numbers, WRU, an Acknowledge that means "shown".
+- **Built:** `modules/itelex/`, an MIT Arduino library (codec ITA2/MTK-2, packets, session, `itx::Station`, example).
+  - Host tests 83/83 PASS.
+  - Compiles for the ESP32-S3 against arduino-esp32 2.0.17 with no warnings. It was compiled with the Espressif toolchain from GitHub, because the PlatformIO registry was blocked in this session; **not linked, not flashed, not tried against piTelex**.
+- **Earlier today's direction** (mail, WhatsApp, TTY/1) was rejected («Все не то!»). It moved to `docs/drafts/38-mail-whatsapp-tty1-rejected-2026-09-27.md`.
+- **Nothing in the firmware.** Branch `claude/waveshare-led-email-whatsapp-network-y01laq`.
+- **Next:** the bench call against piTelex (docs/38 §7 step 2); the owner's answers to docs/38 §8 (routes between houses, numbering, look, the public network).
 
 ## 2026-09-24 (22:15): SDK/MCP/AGENTS.md brought up to 2.7.3
 

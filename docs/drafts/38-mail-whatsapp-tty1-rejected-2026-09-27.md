@@ -1,4 +1,10 @@
-# 38. Mail, WhatsApp and a teletype network between the panels
+# Draft (rejected): mail, WhatsApp and TTY/1
+
+> **Rejected by the owner on 2026-09-27** («Все не то!»). The chosen design is
+> [docs/38](../38-family-teletype-itelex.md): the family's panels on one tailnet,
+> talking i-Telex. Kept for its research (mail, WhatsApp, prior art), which may
+> be useful later. Links below that point to `configs/ha/mail_to_panel.yaml`
+> now mean `38-mail_to_panel-rejected.yaml` next to this file.
 
 A study and a design, 2026-09-27, at the owner's request:
 
