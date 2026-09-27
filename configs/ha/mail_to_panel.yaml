@@ -1,0 +1,90 @@
+# Stage 0 of docs/38: new mail on the panel, with no firmware change.
+#
+# DRAFT - written 2026-09-27, not yet loaded into Home Assistant, not tried on
+# the panel. The templates were rendered with plain Jinja2 against sample
+# senders ("Name <a@b>", a bare address, emoji in the name and subject), not
+# inside HA.
+#
+# Needs:
+#   - the core IMAP integration set up in the UI:
+#       server imap.mail.me.com, port 993, the full @me.com address, an
+#       app-specific password (appleid.apple.com), folder INBOX, search UnSeen,
+#       verify_ssl left on. The password is entered by the owner, never by an
+#       agent.
+#   - the panel built with MQTT_BUS_ENABLED and CARDS_ENABLED (it is, in 2.7.x).
+#   - an icon named "mail" in the panel's icon store, published once to
+#     nickoscope_matrix/icon/mail. Without it the card is drawn with no icon.
+#
+# What it does:
+#   - a new message (imap_content, initial: true) raises the notify overlay
+#     with the sender and subject for 12 s. It is NOT retained, so a subject
+#     does not stay on the broker.
+#   - the unread count keeps a retained card nickoscope_matrix/card/mail, and
+#     the card is removed when the count reaches 0.
+#
+# Limits it lives with (docs/38 §1):
+#   - the card overlay takes title ≤22 bytes and text ≤64 bytes: about 10 and
+#     30 Cyrillic letters. So the text is trimmed here, in characters.
+#   - the panel's fonts carry ASCII, Latin-1 and Cyrillic U+0400-045F only;
+#     anything else, emoji included, is stripped here.
+#   - HA raises imap_content for the newest UID only, so a burst of mail shows
+#     the last one. The count on the card is the true number.
+#
+# Replace sensor.imap_icloud with the entity the IMAP integration created.
+
+automation:
+  - id: mail_to_panel_notify
+    alias: "Панель: новое письмо"
+    mode: queued
+    max: 5
+    trigger:
+      - platform: event
+        event_type: imap_content
+        event_data:
+          initial: true
+    action:
+      - variables:
+          raw_from: "{{ trigger.event.data['sender'] | default('') }}"
+          # "Name <addr@x>" -> Name; a bare address -> the part before @
+          who: >-
+            {% set s = raw_from | regex_replace('\\s*<[^>]*>\\s*$', '') | replace('"', '') | trim %}
+            {% if s == '' %}{% set s = raw_from | replace('<', '') | replace('>', '') | trim %}{% endif %}
+            {% if '@' in s %}{% set s = s.split('@')[0] %}{% endif %}
+            {{ s }}
+          subj: "{{ trigger.event.data['subject'] | default('(без темы)') }}"
+          clean: >-
+            {{ (who ~ ': ' ~ subj)
+               | regex_replace('[^\u0020-\u007E\u00A0-\u00FF\u0400-\u045F]', '')
+               | regex_replace('\s+', ' ') | regex_replace(' :', ':') | trim }}
+      - service: mqtt.publish
+        data:
+          topic: nickoscope_matrix/notify
+          retain: false
+          payload: >-
+            {{ {"title": "Почта",
+                "text": clean[:30],
+                "icon": "mail",
+                "color": "#FFB400",
+                "duration": 12} | to_json }}
+
+  - id: mail_to_panel_count
+    alias: "Панель: счётчик писем"
+    mode: restart
+    trigger:
+      - platform: state
+        entity_id: sensor.imap_icloud
+      - platform: homeassistant
+        event: start
+    action:
+      - variables:
+          n: "{{ states('sensor.imap_icloud') | int(0) }}"
+      - service: mqtt.publish
+        data:
+          topic: nickoscope_matrix/card/mail
+          retain: true
+          # An empty payload removes the card (src/cards/cards.h).
+          payload: >-
+            {% if n > 0 %}{{ {"title": "Почта",
+                               "text": "Непрочитанных: " ~ n,
+                               "icon": "mail",
+                               "color": "#FFB400"} | to_json }}{% endif %}

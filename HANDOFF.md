@@ -2,6 +2,17 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-27: mail, WhatsApp and the teletype network - research and design (docs/38)
+
+- **Asked:** the owner wanted email, a WhatsApp client and "our own teletype network between the family of panels, with any ESP32 as a client by one protocol", and a GitHub search for prior art.
+- **Done:** four research strands (mail, WhatsApp, the network with its prior art, the firmware's integration points) are written up in [docs/38](docs/38-mail-whatsapp-teletype.md). The stage-0 HA draft is `configs/ha/mail_to_panel.yaml`.
+- **The decisions proposed:**
+  - no new TLS on the panel: mail and WhatsApp are bridges at home that publish MQTT;
+  - one protocol, TTY/1, for all three: a 250-byte signed frame over ESP-NOW, with a JSON mirror on MQTT;
+  - Mosquitto bridges between houses.
+- **Nothing built, nothing flashed.** Branch `claude/waveshare-led-email-whatsapp-network-y01laq` in this repository; the same branch in NikoScope32 carries a pointer.
+- **Waiting on the owner:** the five questions in docs/38 §8. The first is the WhatsApp route: a second SIM + GOWA, an Android phone's notifications, or Telegram.
+
 ## 2026-09-24 (22:15): SDK/MCP/AGENTS.md brought up to 2.7.3
 
 - **Checked on the owner's question** ("всё ли внесено в agent.md, MCP, SDK").

@@ -140,12 +140,14 @@ If the hardware has not been powered up yet, read in this order:
 | [24-ir-remote.md](docs/24-ir-remote.md) | The infrared remote as a second knob: the port from NickoScope32, the pin it has to share with the encoder, the pull-up the receiver needs on this board, and the serial console that tests it with no hardware |
 | [25-ma-media-player.md](docs/25-ma-media-player.md) | The panel as a Music Assistant player: the routes compared from MA's own code, why announcements with ducking do not fit, the audio chain read off the schematic, and the one constraint that shapes it all — a shared bit clock means one sample rate for playback and capture together |
 | [26-mtr1-direct-link.md](docs/26-mtr1-direct-link.md) | The MTR-1 straight to the panel or through Home Assistant: what the current chain really costs HA (measured), the recorder exclusion, and every direct option - UDP, ESP-NOW, UART, I2C, MQTT, the API - with a pin audit and a bench procedure |
+| [38-mail-whatsapp-teletype.md](docs/38-mail-whatsapp-teletype.md) | Mail, WhatsApp and a teletype network between the panels and any ESP32: what exists on GitHub, why none of it runs inside the panel, and TTY/1 - one signed frame over ESP-NOW and MQTT. Design only; stage 0 (mail on the notify overlay) is a Home Assistant draft |
 
 ## Ready-to-use configs
 
 | File | Purpose |
 |---|---|
 | [configs/esphome/waveshare-matrix.yaml](configs/esphome/waveshare-matrix.yaml) | Minimal ESPHome config: one 64x64 panel, onboard sensors, brightness entity |
+| [configs/ha/mail_to_panel.yaml](configs/ha/mail_to_panel.yaml) | Draft HA automations: a new iCloud mail on the notify overlay, the unread count as a card (docs/38 stage 0) |
 | [configs/arduino/smoke_test/smoke_test.ino](configs/arduino/smoke_test/smoke_test.ino) | Smoke test: prove the panel is alive before building anything around it |
 
 Pin assignments in both files are verified. **Neither config has been compiled or flashed**,
