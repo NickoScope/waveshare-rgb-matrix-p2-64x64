@@ -62,6 +62,8 @@ not depend on this check.
 
 ## Log
 
+- 2026-09-27 18:54: item 4, Keralots. Upstream commit `a719492` (2026-09-27 14:43 UTC) "docs: link the MakerWorld enclosure": one README line adds an optional 3D-printable case (stands, hangs on a wall or a Multiboard), MakerWorld model 3363461. README only; no src/web, src/weather or platformio.ini. Nothing sent.
+
 - 2026-09-24 22:03: item 4, Keralots. One upstream commit not logged before: `8d5f770` (2026-09-23 21:12 UTC) adds an optional WS2812B accent strip on RMT channel 0 (Solid, Wave, Rainbow, Fire, Meteor, Scanner, Hour sweep, Weather, Audio VU), with pin validation, NVS settings, portal and export/import. It touches `platformio.ini`, `src/web/web.cpp`, `web_assets.h`, `web_pages.h`, `src/config/settings.cpp` and `src/viz/*`, so a rebase of the fork will meet it there. The other checker events (`af2fd7e` release v2.3.2, `133c100` our #10, PR #10 merged, comment 5821208488) were logged already, and that comment is ours. No reply from him on #10 or #3 yet. Reddit answered 429. Nothing sent.
 
 - 2026-09-24 21:56: posted on the owner's word: a thank-you for v2.3.2 plus the Oceanarium page, as a comment on PR #10 (https://github.com/Keralots/AnimatedPixelClock/pull/10#issuecomment-5821208488). Nothing is asked. Watch PR #10 comments after 21:56 local for an answer.
