@@ -60,6 +60,31 @@ def part_segments(name):
     return {k: mirror_segs(v, x0, x1) for k, v in part.items()}
 
 
+def outline_texts(msp):
+    """Перевести все надписи в контуры букв.
+
+    Раньше надписи уходили в DXF объектом TEXT — командой «напиши строку
+    шрифтом». Многие программы лазера и просмотрщики его не рисуют или
+    теряют без шрифта, и на NickoScope32 так «пропал» логотип на передней
+    панели (27.09.2026), а вместе с ним подписи разъёмов и номера пазов
+    купона. Контуры — это обычные линии слоя ENGRAVE, их видит любая
+    программа. Шрифт берёт ezdxf по стилю Standard; на этой машине — Arial.
+    """
+    from ezdxf import path as ezpath
+    from ezdxf.addons import text2path
+    n = 0
+    for t in list(msp.query("TEXT MTEXT")):
+        layer = t.dxf.layer
+        for _ in ezpath.render_lwpolylines(msp, text2path.make_paths_from_entity(t),
+                                           distance=0.02,
+                                           dxfattribs={"layer": layer}):
+            n += 1
+        msp.delete_entity(t)
+    left = len(msp.query("TEXT MTEXT"))
+    assert left == 0, f"в DXF осталось {left} надписей объектом TEXT"
+    return n
+
+
 def dxf():
     import ezdxf
     from ezdxf.enums import TextEntityAlignment
@@ -90,6 +115,7 @@ def dxf():
                                    dxfattribs={"layer": lay})
             if grp != "гравировка":
                 total += L.cut_length(segs)
+    outline_texts(msp)          # TEXT -> контуры, иначе лазер их не видит
     doc.saveas(OUT_DXF)
     return total
 
