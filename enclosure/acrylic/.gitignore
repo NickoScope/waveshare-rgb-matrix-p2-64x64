@@ -1,0 +1,5 @@
+# Промежуточные сетки — пересобираются из assembly3d.py
+out/3d_*.stl
+__pycache__/
+*.pyc
+.DS_Store

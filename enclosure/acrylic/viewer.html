@@ -1,0 +1,245 @@
+<meta charset="utf-8">
+<title>Корпус LED MATRIX</title>
+<style>
+  :root{color-scheme:light;--ink:#101a20;--ink-2:#3d4f5a;--mute:#6b7d88;
+    --bg:#eef1f2;--panel:#fff;--line:#d3dade;--accent:#1f7a5a;--warn:#a8451f;
+    --stage-top:#f7f9fa;--stage-bot:#dfe5e8;
+    --shadow:0 1px 2px rgba(16,26,32,.06),0 8px 24px rgba(16,26,32,.07)}
+  @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+    color-scheme:dark;--ink:#e8eef1;--ink-2:#aebbc3;--mute:#7e8e98;
+    --bg:#10171b;--panel:#172026;--line:#27343b;--accent:#4fd1a0;--warn:#e2825f;
+    --stage-top:#151e23;--stage-bot:#0b1114;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35)}}
+  :root[data-theme="dark"]{color-scheme:dark;--ink:#e8eef1;--ink-2:#aebbc3;
+    --mute:#7e8e98;--bg:#10171b;--panel:#172026;--line:#27343b;--accent:#4fd1a0;
+    --warn:#e2825f;--stage-top:#151e23;--stage-bot:#0b1114;
+    --shadow:0 1px 2px rgba(0,0,0,.4),0 10px 30px rgba(0,0,0,.35)}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:14px/1.5 "IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+    padding-inline:16px;padding-block:22px 34px}
+  .wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+  h1{margin:0;font-size:clamp(20px,3.2vw,29px);font-weight:650;letter-spacing:-.02em}
+  header p{margin:6px 0 0;color:var(--mute);max-width:66ch}
+  .dims{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:12px;
+    font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink-2)}
+  .dims b{font-weight:600;color:var(--ink)}
+  .stage{position:relative;border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;background:linear-gradient(180deg,var(--stage-top),var(--stage-bot));
+    box-shadow:var(--shadow);height:min(66vh,560px);min-height:340px}
+  canvas{display:block;width:100%;height:100%;touch-action:none}
+  .hint{position:absolute;left:12px;bottom:10px;font-size:12px;color:var(--mute);
+    background:color-mix(in srgb,var(--panel) 82%,transparent);
+    padding:4px 9px;border-radius:5px;pointer-events:none}
+  .loading{position:absolute;inset:0;display:grid;place-items:center;
+    color:var(--mute);font-size:13px;letter-spacing:.03em}
+  /* Без этого hidden НЕ работает: display:grid выше в каскаде, чем
+     браузерное [hidden]{display:none}, и надпись висит поверх модели. */
+  .loading[hidden]{display:none}
+  .controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:9px;
+    padding:13px 14px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 9px;font-size:11px;font-weight:650;letter-spacing:.09em;
+    text-transform:uppercase;color:var(--mute)}
+  .row{display:flex;align-items:center;gap:9px;padding:3px 0}
+  .row label{flex:1;cursor:pointer}
+  .sw{width:15px;height:15px;border:1.5px solid var(--line);border-radius:3px;
+    background:var(--panel);display:grid;place-items:center;cursor:pointer;flex:none}
+  .sw[data-on="1"]{background:var(--accent);border-color:var(--accent)}
+  .sw[data-on="1"]::after{content:"";width:7px;height:4px;border:2px solid var(--panel);
+    border-top:0;border-right:0;transform:rotate(-45deg) translate(0,-1px)}
+  .chip{font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums}
+  button{font:inherit;font-size:13px;color:var(--ink);background:var(--panel);
+    border:1px solid var(--line);border-radius:7px;padding:7px 11px;cursor:pointer}
+  button:hover{border-color:var(--accent);color:var(--accent)}
+  .btns{display:flex;flex-wrap:wrap;gap:8px}
+  input[type=range]{width:100%;accent-color:var(--accent)}
+  .note{font-size:12.5px;color:var(--mute);margin:4px 0 0}
+  .bad{color:var(--warn)}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Корпус LED MATRIX — сборка</h1>
+    <p>Акрил 4 мм, лазерная резка. Две плиты, четыре борта на шипах, стяжка
+       резьбовыми стойками через штатные отверстия матриц. Крутите мышью,
+       отключайте слои, разносите сборку.</p>
+    <div class="dims">
+      <span><b>334,6 × 177,8 × 33</b> габарит</span>
+      <span><b>256,6 × 128,6</b> окно</span>
+      <span><b>128 × 64</b> пикселя, шаг 2</span>
+      <span><b>3</b> мм ножки</span>
+    </div>
+  </header>
+
+  <div class="stage">
+    <canvas id="cv"></canvas>
+    <div class="loading" id="load">загрузка модели…</div>
+    <div class="hint">левая — вращать · колесо — масштаб · правая — сдвиг</div>
+  </div>
+
+  <div class="controls">
+    <div class="card">
+      <h2>Корпус</h2>
+      <div class="row"><span class="sw" data-on="1" data-g="front"></span><label data-for="front">лицевая плита</label><span class="chip">334,6×177,8</span></div>
+      <div class="row"><span class="sw" data-on="1" data-g="rear"></span><label data-for="rear">задняя плита</label><span class="chip">зеркально</span></div>
+      <div class="row"><span class="sw" data-on="1" data-g="rail_top"></span><label data-for="rail_top">борт верхний</label><span class="chip">326,6×33</span></div>
+      <div class="row"><span class="sw" data-on="1" data-g="rail_bottom"></span><label data-for="rail_bottom">борт нижний</label><span class="chip">326,6×33</span></div>
+      <div class="row"><span class="sw" data-on="1" data-g="rail_left"></span><label data-for="rail_left">борт левый</label><span class="chip">158,8×33</span></div>
+      <div class="row"><span class="sw" data-on="1" data-g="rail_right"></span><label data-for="rail_right">борт правый</label><span class="chip">158,8×33</span></div>
+    </div>
+    <div class="card">
+      <h2>Железо</h2>
+      <div class="row"><span class="sw" data-on="1" data-g="panels"></span><label data-for="panels">две матрицы</label><span class="chip">заподлицо</span></div>
+      <div class="row"><span class="sw" data-on="1" data-g="standoffs"></span><label data-for="standoffs">стойки M3</label><span class="chip">12 шт</span></div>
+      <div class="row"><span class="sw" data-on="1" data-g="speaker"></span><label data-for="speaker">динамик FRWS 5 SC</label><span class="chip">28 мм</span></div>
+      <div class="row"><span class="sw" data-on="1" data-g="encoder"></span><label data-for="encoder">энкодер</label><span class="chip">⌀14</span></div>
+      <div class="row"><span class="sw" data-on="1" data-g="controller"></span><label data-for="controller">контроллер</label><span class="chip">50×42</span></div>
+    </div>
+    <div class="card">
+      <h2>Вид</h2>
+      <div class="btns">
+        <button id="b-iso">изометрия</button>
+        <button id="b-front">спереди</button>
+        <button id="b-back">сзади</button>
+        <button id="b-side">сбоку</button>
+      </div>
+      <p class="note" style="margin-top:11px">разнести сборку</p>
+      <input type="range" id="explode" min="0" max="100" value="0">
+      <div class="btns" style="margin-top:10px">
+        <button id="b-all">включить всё</button>
+        <button id="b-case">только корпус</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>На что смотреть</h2>
+      <p class="note"><b>Динамик заходит в толщину задней плиты.</b> Он 28 мм,
+        полость 25 — недостающие 3 мм он берёт из четырёх миллиметров задней
+        плиты через окно ⌀26 и кончается за 1 мм до её наружной грани.
+        Наружу ничего не торчит.</p>
+      <p class="note" style="margin-top:8px"><b>Высота борта = полость + 8.</b>
+        Шипы проходят сквозь обе плиты и кончаются вровень с наружными
+        гранями, поэтому на борте подписан наружный габарит 33, а не
+        внутренние 25.</p>
+      <p class="note" style="margin-top:8px">Матрицы <b>утоплены в окно</b> и стоят
+        заподлицо с лицом: первые 4 мм матрицы сидят в передней плите, поэтому
+        она не добавляется к глубине.</p>
+      <p class="note" style="margin-top:8px">Между матрицами <b>нет ребра</b>.
+        Их положение задают 12 стоек через штатные отверстия — лазер ставит их
+        точнее, чем держала бы перегородка.</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+<script>
+(function(){
+  var cv=document.getElementById('cv'), stage=cv.parentElement;
+  var scene=new THREE.Scene();
+  var camera=new THREE.PerspectiveCamera(38,1,1,6000);
+  var renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,2));
+  scene.add(new THREE.AmbientLight(0xffffff,0.55));
+  scene.add(new THREE.HemisphereLight(0xffffff,0x6b7680,1.0));
+  [[180,240,320,.85],[-220,-160,140,.5],[60,-260,-180,.45],[0,0,-300,.3]]
+    .forEach(function(d){var l=new THREE.DirectionalLight(0xffffff,d[3]);
+      l.position.set(d[0],d[1],d[2]);scene.add(l);});
+  var controls=new THREE.OrbitControls(camera,renderer.domElement);
+  controls.enableDamping=true;controls.dampingFactor=0.08;
+  var root=new THREE.Group();scene.add(root);
+  var groups={},homes={},center=new THREE.Vector3(),radius=250;
+
+  function resize(){var w=stage.clientWidth,h=stage.clientHeight;
+    renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}
+  addEventListener('resize',resize);
+  function view(dx,dy,dz){var d=radius*2.4;
+    camera.position.set(center.x+dx*d,center.y+dy*d,center.z+dz*d);
+    controls.target.copy(center);controls.update();}
+
+  // Цвета по ИМЕНИ узла: trimesh кладёт их в вершинные атрибуты, и three r128
+  // рисует такую геометрию чёрной, если материалу не сказать vertexColors.
+  var MAT={
+    'front':{c:0xcfe2ec,o:0.58},'rear':{c:0xc8dde8,o:0.55},
+    'rail_top':{c:0xc8dde8,o:0.55},'rail_bottom':{c:0xc8dde8,o:0.55},
+    'rail_left':{c:0xc8dde8,o:0.55},'rail_right':{c:0xc8dde8,o:0.55},
+    'panels':{c:0x141c24,o:1},'standoffs':{c:0xe0be6e,o:1},
+    'speaker':{c:0xa8451f,o:1},'encoder':{c:0x55626d,o:1},
+    'controller':{c:0x2f8a58,o:1}
+  };
+
+  new THREE.GLTFLoader().load('out/LEDMX_assembly.json',function(gltf){
+   try{
+    var m=gltf.scene;root.add(m);
+    m.traverse(function(o){if(o.name&&MAT[o.name])groups[o.name]=o;});
+    Object.keys(groups).forEach(function(k){
+      var sp=MAT[k],clear=sp.o<1;
+      groups[k].traverse(function(o){
+        if(!o.isMesh)return;
+        // Акрил пишет глубину: без этого детали просвечивают одна сквозь
+        // другую и форма не читается вовсе. Плотность 0.55 вместо 0.26 —
+        // это уже матовый акрил, а не стекло.
+        o.material=new THREE.MeshStandardMaterial({
+          color:sp.c,roughness:clear?0.35:0.55,metalness:clear?0:0.15,
+          transparent:clear,opacity:sp.o,depthWrite:true,
+          side:THREE.DoubleSide});
+        o.renderOrder=clear?2:1;
+        if(clear){
+          // Обводка рёбер. Именно она делает геометрию понятной: контуры
+          // деталей, пазы, отверстия и щели становятся видны, а не тонут
+          // в полупрозрачной массе. Порог 25° отсекает тесселяцию плоскостей.
+          var eg=new THREE.EdgesGeometry(o.geometry,25);
+          var ln=new THREE.LineSegments(eg,new THREE.LineBasicMaterial(
+            {color:0x2b4756,transparent:true,opacity:0.55}));
+          ln.renderOrder=4;o.add(ln);
+        }});
+    });
+    var box=new THREE.Box3().setFromObject(root);
+    box.getCenter(center);radius=box.getSize(new THREE.Vector3()).length()/2;
+    Object.keys(groups).forEach(function(k){homes[k]=groups[k].position.clone();});
+    document.getElementById('load').hidden=true;
+    resize();view(0.75,0.5,0.85);
+   }catch(e){document.getElementById('load').textContent='ошибка: '+e;}
+  },function(ev){
+    var el=document.getElementById('load');
+    if(ev&&ev.total)el.textContent='загрузка… '+Math.round(100*ev.loaded/ev.total)+'%';
+  },function(){document.getElementById('load').textContent='модель не загрузилась';});
+
+  function setVis(n,on){if(groups[n])groups[n].visible=on;}
+  document.querySelectorAll('.sw').forEach(function(sw){
+    sw.addEventListener('click',function(){
+      var on=sw.getAttribute('data-on')==='1'?'0':'1';
+      sw.setAttribute('data-on',on);setVis(sw.getAttribute('data-g'),on==='1');});});
+  document.querySelectorAll('label[data-for]').forEach(function(l){
+    l.addEventListener('click',function(){
+      var sw=document.querySelector('.sw[data-g="'+l.getAttribute('data-for')+'"]');
+      if(sw)sw.click();});});
+
+  var DIR={'front':[0,-1,0],'rear':[0,1,0],'rail_top':[0,0,1],'rail_bottom':[0,0,-1],
+    'rail_left':[-1,0,0],'rail_right':[1,0,0],'panels':[0,-0.5,0],
+    'standoffs':[0,0.3,0],'speaker':[0.6,0,0],'encoder':[0,-0.9,0],
+    'controller':[0,0.6,0]};
+  document.getElementById('explode').addEventListener('input',function(e){
+    var t=(+e.target.value)/100*radius*0.8;
+    Object.keys(homes).forEach(function(k){var d=DIR[k];if(!d)return;
+      groups[k].position.set(homes[k].x+d[0]*t,homes[k].y+d[1]*t,homes[k].z+d[2]*t);});});
+
+  document.getElementById('b-iso').onclick=function(){view(0.75,0.5,0.85);};
+  document.getElementById('b-front').onclick=function(){view(0,-1.15,0.12);};
+  document.getElementById('b-back').onclick=function(){view(0,1.15,0.12);};
+  document.getElementById('b-side').onclick=function(){view(1.2,0,0.1);};
+  document.getElementById('b-all').onclick=function(){
+    document.querySelectorAll('.sw').forEach(function(sw){
+      sw.setAttribute('data-on','1');setVis(sw.getAttribute('data-g'),true);});};
+  document.getElementById('b-case').onclick=function(){
+    var hw=['panels','standoffs','speaker','encoder','controller'];
+    document.querySelectorAll('.sw').forEach(function(sw){
+      var g=sw.getAttribute('data-g'),on=hw.indexOf(g)===-1;
+      sw.setAttribute('data-on',on?'1':'0');setVis(g,on);});};
+
+  (function loop(){requestAnimationFrame(loop);controls.update();
+    renderer.render(scene,camera);})();
+  resize();
+})();
+</script>
