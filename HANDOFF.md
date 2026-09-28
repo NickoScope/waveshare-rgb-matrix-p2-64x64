@@ -2,6 +2,49 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-27 (evening): the teletype is a project of its own - everything moved to NickoScope-Telex
+
+- **Owner:** «Собери весь проект телекса здесь в этом репо: NickoScope/NickoScope-Telex … Телетайп - это отдельный проект».
+- **Moved there:** the design (docs/38), the rejected draft and its HA automation (docs/drafts/38-*), the Minitel study, a map for the panel integration, and its own HANDOFF.
+- **What stays here:** `docs/38` is a pointer, so its number keeps working; `modules/README.md` is a pointer too.
+- **For anything about the telex, read NickoScope-Telex's HANDOFF.md.**
+
+## 2026-09-27 (later): NickoScope-Telex - its own repository, i-Telex interop PASS, Minitel
+
+- **Asked:**
+  - «заведи отдельное репо NickoScope-Telex»;
+  - «мы должны быть совместимы с iTelex»;
+  - «а может Minitel сети и протоколы использовать?» (the iodeo ESP32 dongle).
+- **The repository:** the session could not create it (the GitHub App answered 403 "Resource not accessible by integration"), so the owner created `NickoScope/NickoScope-Telex` (private).
+  - The library is pushed to its branch `claude/waveshare-led-email-whatsapp-network-y01laq`, on top of the owner's initial commit.
+  - `main` has only that README until the owner merges.
+  - `modules/itelex/` here was removed; `modules/README.md` points to the repository.
+- **Compatibility:**
+  - `test/interop/run_pitelex_interop.py` runs piTelex's own i-Telex code (ece3d43) against our station over TCP: **12/12 PASS in both directions, 3 runs**.
+  - Found on the way: the i-Telex line is ITA2. The station now defaults to ITA2 and switches to MTK-2 only with our own stations, recognised by their Version id `nk…`.
+- **Minitel:** `docs/MINITEL.md` in NickoScope-Telex.
+  - The dongle's firmware can open raw TCP to a panel.
+  - Its keys look like i-Telex packet types, so an optional ASCII-only port was added.
+  - The full experience is a "3615 TELEX" MiniPavi service on the RPi5 (not built).
+  - The dongle is sold out on Tindie since 2025-10-27.
+- Host tests 97/97; the ESP32-S3 compile is still clean.
+
+## 2026-09-27: the family teletype - i-Telex over one tailnet (docs/38, modules/itelex)
+
+- **Asked, in three steps:**
+  - «все панели сети/семьи посадить в одной сети через тайлскейл, и сделать мессенджер между ними, отправлять с телефона на адрес панели»;
+  - «а через i-telex эмулировать телетайп?»;
+  - «делай так, но в прошивку пока не интегрируй, пиши отдельным модулем p&p».
+- **Decided:**
+  - Tailscale runs as a subnet router on HA/RPi5 in each house, not on the panels. microlink needs IDF ≥ 5, 42 KB of internal stacks and standing TLS; checked against its source and the 2.0.17 SDK.
+  - The panels speak i-Telex: numbers, WRU, an Acknowledge that means "shown".
+- **Built:** `modules/itelex/`, an MIT Arduino library (codec ITA2/MTK-2, packets, session, `itx::Station`, example).
+  - Host tests 83/83 PASS.
+  - Compiles for the ESP32-S3 against arduino-esp32 2.0.17 with no warnings. It was compiled with the Espressif toolchain from GitHub, because the PlatformIO registry was blocked in this session; **not linked, not flashed, not tried against piTelex**.
+- **Earlier today's direction** (mail, WhatsApp, TTY/1) was rejected («Все не то!»). It moved to `docs/drafts/38-mail-whatsapp-tty1-rejected-2026-09-27.md`.
+- **Nothing in the firmware.** Branch `claude/waveshare-led-email-whatsapp-network-y01laq`.
+- **Next:** the bench call against piTelex (docs/38 §7 step 2); the owner's answers to docs/38 §8 (routes between houses, numbering, look, the public network).
+
 ## 2026-09-25 (18:30): акриловый корпус — чертежи, 3D и просмотрщик
 
 - **Что просили:** корпус для LED-проекта «точно по аналогии с NickoScope32 v1b».
