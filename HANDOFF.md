@@ -2,6 +2,31 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (15:45): the virtual panel — the real firmware on the Mac, first picture and the clock
+
+- **Asked:** «полную симуляцию устройства … заливать в эту симуляцию реальную нашу прошивку … 100% виртуальную копию нашей панели» (the owner is away; work continues without him).
+- **Decision:** docs/40-virtual-twin.md (ADR-TWIN-01): six sourced studies and 154 checked claims.
+  - No emulator shows our picture as-is: none has LCD_CAM i8080.
+  - The engine is **esp32sim** (Rust, MIT); we write the missing models ourselves.
+- **Done, verified in runs of the real `firmware-v2.7.3-waveshare.bin`** (unmodified; local engine at `~/twin/esp32sim`, branch `nickoscope/twin`, not pushed: a public fork is the owner's call):
+  - **Boot.** The octal flash is a Macronix ID (`--flash-id c28039`, not read from our module) plus eFuse FLASH_TYPE. Boot goes ROM → bootloader → app, with PSRAM 16 MB.
+  - **SD slot.** An empty SD slot model: SD_MMC fails as with no card.
+  - **Radio.** The radio calibration completes without an AP.
+  - **Display.** LCD_CAM i8080 streams the GDMA ring at the programmed 10 MHz PCLK into a HUB75 decoder. The setup screen, and then the clock, are drawn from the bitstream.
+  - **Wi-Fi.** Provisioning goes through Improv-Serial (`tools/twin/improv.py`), then the firmware joins the virtual AP. NTP is real through the NAT.
+  - **Flash.** Persistent flash via `--flash-persist`, write-through.
+  - **Page.** `web/panel.html` at `--web 8790`: LED dots with GOB glow, the remote, the knob, the console. It runs in real time, 0 ms behind.
+- **Running in parallel (helpers):**
+  - the HUB75 decoder/renderer crate with Python-oracle fixtures;
+  - the IR receiver (NEC on GPIO0) and EC11 models;
+  - inbound port forwarding (portal and API at 127.0.0.1:8080).
+- **Next:**
+  - merge the helpers' work;
+  - learn the ten remote codes through the firmware's own learn mode;
+  - upload Lua effects over HTTP;
+  - OTA through `/update`;
+  - a timing model calibrated against panel measurements (Lua ns per instruction, effect fps). Without it the twin's CPU is faster than the panel's.
+
 ## 2026-09-27 (evening): the teletype is a project of its own - everything moved to NickoScope-Telex
 
 - **Owner:** «Собери весь проект телекса здесь в этом репо: NickoScope/NickoScope-Telex … Телетайп - это отдельный проект».
