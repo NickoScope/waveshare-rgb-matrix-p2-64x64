@@ -92,6 +92,25 @@ Rolling record of where the work stands. Newest first.
 
 **Следующий шаг:** обмер семи величин и решение по лицу, затем перевыпуск.
 
+## 2026-09-29 (12:20): KINETIC DIGITS LED, a Lua flip board, on the panel (draft)
+
+- **Asked:** the owner pasted a brief from another session (a flip board of seven-segment digits, prototype https://claude.ai/artifact/H44NLDJrtjgNBwAWeFvWQq). He chose a Lua effect over a firmware style, then asked for its scenes to be chosen with the IR remote.
+- **Done:** tools/luasim/scripts/kinetic_digits_led.lua, on main f55de79 (not in the gallery yet). It is on the panel as KINETIC DIGITS LED (index 7).
+  - **Design:**
+    - V/H sampling (credited to Ksawery Kirklewski), written from scratch; no FlipDigits (GPL) code.
+    - Sources are sampled only at the V/H points.
+    - A pointer runs over the board on a budget of samples a frame; Life steps 3 rows a frame.
+    - State tables are kept across scenes (a new set per scene peaked the heap at 3.4 MB).
+  - **Buttons** (px.button, window 0.45 s): 1 press the next scene (held), 2 the previous, 3 back to the auto program. A 5x7 caption shows the scene.
+  - **Host** (fxhost --panel-limits): p50 28-60k instructions a frame by scene, p90 at most 74k. Spikes of 100-370k come only at scene changes (the dots wave out, about 170 ms a frame on the panel).
+  - luasim = fxhost byte for byte, with clicks too.
+- **Panel:** only the text scene was measured: 15.2 fps, draw 24 ms avg, 38 ms max. Then somebody walked the pages by hand (the carousel is off), so the other scenes are not measured yet.
+- **Next:**
+  1. Measure the heavy scenes on the panel (rings, Life, dots, 4x7) when it is free.
+  2. The owner's look.
+  3. The gallery.
+  4. The seven-segment font is the prototype's; it was not checked against seven-dots.
+
 ## 2026-09-24 (22:15): SDK/MCP/AGENTS.md brought up to 2.7.3
 
 - **Checked on the owner's question** ("всё ли внесено в agent.md, MCP, SDK").
