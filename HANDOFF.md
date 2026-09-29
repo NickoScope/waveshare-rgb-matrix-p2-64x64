@@ -2,6 +2,21 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (21:40): RPi5 measured, the iPad as a remote analysed (docs/40 §10); KALEIDOSCOPE on the twin
+
+- **RPi5 (nickol, 4 GB): not a live twin.**
+  - The engine was built on the Mac as a static musl binary; the `__clear_cache` patch is not committed and sits in `docs/twin-rpi5-2026-09-29/`.
+  - Clock with Wi-Fi: 0.58× real time on the RPi, 2.78× on the Mac (5 runs each). With real-time pacing the Mac holds 1.0× on about 40 % of one core.
+  - The engine is single-threaded. nickol is on Wi-Fi only, so the twin gets no own IP there. It is fine for non-real-time runs.
+  - /tmp on nickol was cleaned; nothing was installed there.
+- **iPad as a remote:**
+  - The portal works over `--lan`.
+  - The panel page and the flasher need an SSH tunnel to the Mac (the owner enables Remote Login), or an engine change to listen on the LAN (no auth, owner's call).
+  - iPad as host: unchanged (§9, weeks of work). First step: measure the upstream HTTPS demo on the iPad; this needs the iPad model.
+- **KALEIDOSCOPE (gallery, 2.7.5 version)** uploaded to the twin at the owner's «залей»: 15.2 fps, 6–7.6 ms a frame. LASER CLOCK was already there (the owner uploaded it): 15.2 fps, 33.5–37.4 ms against the panel's 41 ms.
+- **main moved on:** bd63b91 «px.feedback» (a firmware change, measured on the panel). When the panel gets it, update the twin the same way.
+- **The twin is still running** (log `~/twin/web-lan4.log`): the owner is working with it. Stop it at the end of the session.
+
 ## 2026-09-29 (21:10): the twin on 2.7.5 like the panel; idle check passed; the twin runs on demand
 
 - **Owner (20:53):** the twin is not always on. Start it when a session works with it, stop it at the end (`pkill -f "esp32sim --board panel"`, or by PID). No autostart. In memory: twin-run-on-demand.
