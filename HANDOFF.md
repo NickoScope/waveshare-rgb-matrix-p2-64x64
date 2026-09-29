@@ -2,6 +2,16 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (22:40): the twin on the 2.7.5 release
+
+- **Owner (22:34): «поставь выпуск 2.7.5».** The release is on the flasher (c4ddd3a). Its Full.bin matches SHA256SUMS. Its build is 22:06:33, 2 313 168 bytes, the same as the panel (flashed ~22:33).
+  - The app and its ELF came from the netbroker `.pio` build: the same bytes as the release app, the same ELF SHA-256. Both went to `~/twin/fw/v2.7.5/`, with the release's merged.bin beside them.
+  - The twin was updated over the air and confirmed itself after 60 s.
+  - It still runs with the 20:23:36 symbols. Restart it after the fidelity workflow (wf_5bcb38b7-9a3) ends; twin.py then picks `~/twin/fw/v2.7.5/firmware.elf` itself.
+- **FLOW and NEBULA** (px.particles, gallery) were uploaded to the twin without being shown, as on the panel. Trial frames: 5 ms and 43 ms.
+- **New difference:** `clockStyle` is 16 on the panel and 0 on the twin. It was equal at 21:07, so the panel's was changed since. Not copied without the owner's word: he may have set the twin's himself.
+- Effects: the panel has 30, the twin 24. Missing on the twin: AUTUMN, FLIP WALL CLOCK, LADY ×3, SOTD 0923 EVENING (no exact copies anywhere).
+
 ## 2026-09-29 (21:40): RPi5 measured, the iPad as a remote analysed (docs/40 §10); KALEIDOSCOPE on the twin
 
 - **RPi5 (nickol, 4 GB): not a live twin.**
