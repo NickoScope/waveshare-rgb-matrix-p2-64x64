@@ -3512,3 +3512,28 @@ Panel measurements:
 **Gallery now has:** VORTEX, NEBULA and FLOW; KALEIDOSCOPE and LASER CLOCK flow between scenes.
 
 **Next:** stage 7, simulation steps.
+
+## 2026-09-29 (23:03): stage 7 — px.step (fire, life, wave) and px.reaction (2.7.6, on the panel, not released)
+
+**What:** `src/lua/px_sim.h`: fire, life and wave steps on a layer, and Gray-Scott reaction-diffusion in Q12.
+
+**Gate audit:** a HIGH — R:seed's 32-bit loop bounds wrapped on xtensa into an endless C loop, which would end in a watchdog reboot. Fixed with 64-bit bounds after taking the centre modulo the field. Re-audited, APPROVED.
+
+**Panel:**
+
+| | Time |
+|---|---|
+| fire | 1.4 ms a step |
+| life | 2.8 ms a step |
+| wave | 2 ms a step |
+| reaction | 9.9 ms a step |
+
+**REACTION** (@upload-only; on the panel, not in the gallery — ask the owner): 3 steps a frame, 15.2 fps, 33 ms.
+
+**Checks:** fx_parity 164/164.
+
+**Where:** fork main 41c36b7.
+
+**Docs:** SDK, AGENTS.md, luasim README.
+
+**Next:** stage 8 (anti-aliased primitives, triangles, px.mesh), or release 2.7.6.
