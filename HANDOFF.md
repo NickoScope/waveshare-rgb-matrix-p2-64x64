@@ -2,6 +2,29 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (16:25): the virtual panel runs at the panel's pace; a review is under way
+
+- **Timing is calibrated: `twin.py run` defaults to `--cpi 2.45`.**
+  - The fit uses KINETIC's ten scenes from kd_all at 13:47. The geometric mean ratio is 2.45, and the scenes range from −23% (text) to +13%.
+  - Checked on three measurements the fit did not use:
+    - OCEANARIUM: 44.3 ms against 37–47 on the panel;
+    - dots cube: +16%;
+    - the ball: −11%.
+  - The engine's approximate memory model was not better.
+  - Details are in `tools/twin/calibration-2026-09-29.md`. By the owner's rule this is a reference: 13 measurements, one panel, one day.
+- **New in the twin:**
+  - **"Seen by a camera" (1/250…1/16000 s):** the bands of the 1/32 scan, as a phone films them.
+  - **SHTC3 at I2C0 0x70:** the firmware reads it (`/api/info` climate 22.5 °C / 45%), and `climate T RH` changes it.
+  - **Fractional `--cpi`.**
+- **docs/40 §0:** what each stage delivered and how it was checked, the gaps, and the owner's decisions.
+- **Review:** a workflow is reviewing the engine diff across five dimensions (LCD/GDMA, panel and hub75, inputs, memory/network, SHTC3 and the tools). Each finding is checked by a skeptic.
+- **Owner's decisions (none blocks the twin):**
+  - publish the engine as a public fork on GitHub, or keep it as a patch in tools/twin/engine;
+  - connect the twin to the HA broker: it would appear as a second panel;
+  - read the flash chip's JEDEC ID and the eFuses from the panel (esptool, a minute in download mode);
+  - photograph the panel for the optics calibration.
+- **Firmware display bug found by the twin (not fixed, outside the task):** `weather_layout.h:316-319` draws "Weather not set up" at x=22 and "Enable it in the web UI" at x=13. At 6 px a character both lines run past 128 px and wrap mid-word.
+
 ## 2026-09-29 (15:50): the virtual panel is a working copy — remote, knob, portal, Lua, OTA
 
 - **Verified with the real, unmodified v2.7.3 image in the twin:**
