@@ -3457,3 +3457,28 @@ Panel measurements:
 **Correction to docs/39:** px.field does little for KINETIC, which samples its plasma only at segment points.
 
 **Next:** stage 6 (particles), or release 2.7.5 on the owner's word.
+
+## 2026-09-29 (22:26): stage 6 — px.particles (2.7.5, on the panel, not released)
+
+**What:** `src/lua/px_particles.h`:
+- up to 4096 particles a system, each system with its own xorshift;
+- emit, step (gravity, drag, a curl-noise flow field, kill/wrap/bounce), draw, count, clear;
+- the charge is taken before the work.
+
+**Gate audit:** found two int32 overflows — the flow's noise coordinate, and drag × dt > 1. Fixed, re-audited, APPROVED.
+
+**Panel, 800 particles:**
+
+| | Time |
+|---|---|
+| a step | ~1 ms |
+| a step in a flow field | ~11 ms |
+| a draw | ~1.5 ms |
+
+**FLOW** (@upload-only; on the panel, not in the gallery — ask the owner): 15.2 fps, 6.6 ms. Scenes: flow, fountain, snow.
+
+**Checks:** fx_parity 156/156.
+
+**Where:** fork main 48983c0. The SDK and AGENTS.md are updated (the owner reminded).
+
+**Next:** stage 7 (simulation steps: fire, waves, reaction-diffusion), or release 2.7.5.
