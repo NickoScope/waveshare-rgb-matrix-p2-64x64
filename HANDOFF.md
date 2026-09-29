@@ -2,6 +2,21 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (17:40): the twin on the home network, in HA as TWIN-…; review fixes merged; the web flasher under way
+
+- **Owner's decisions (16:36):** engine as a patch in our repo (so it stays); connect to HA, named with a TWIN prefix; allow reading the chip ID (the panel is not on USB yet); its own MAC and an IP on the network.
+- **Name and MAC:** the twin is `TWIN-NickoScopeMatrix-64x128-01`, MAC `02:54:57:49:4E:01` (locally administered, "TWIN" in ASCII; `twin.py` default).
+- **MQTT:** the broker went into the twin's NVS through the owner's `env:provision`, with the MQTT lines only (twin-local `provision_secrets.ini`, gitignored, values never printed). The AeroAPI, RTT and AIS keys were left out so the twin does not spend the panel's paid quotas.
+- **Home LAN:** the owner installed socket_vmnet (bridged en0). The twin runs with `twin.py run --lan`.
+  - It took 192.168.4.68 from eero and announced `TWIN-….local`. The Mac reaches it (API, ping), and MQTT is connected.
+  - After `climateHa` was turned on through `/api/import`, HA has the device TWIN-… with indoor temperature and humidity from the SHTC3 model (22.5 °C / 45%).
+  - Design and checks: docs/41-twin-home-lan.md.
+- **macOS Local Network privacy** blocks the self-built emulator from LAN addresses in NAT mode (`No route to host`). The bridge mode does not need it. In NAT mode it needs the owner's toggle in System Settings.
+- **Review:** 15 findings confirmed, fixed in three branches, independently checked FIXED, merged. On the real image the SD path is now 0x107 as on hardware, the HUB75 stream is unchanged at 106.1 Hz, and all tests pass.
+- **Web flasher:** the research proved the chain with the real esptool through a scratch bridge (download mode via DTR/RTS, stub, octal flash, write + verify, reset, Improv). A workflow is building the lossless USB channel, the DTR/RTS state machine per TRM 33.3-2, RFC 2217 for esptool, the navigator.serial shim and a local flasher copy (ADR in `~/twin/research/ADR-TWIN-03-webflasher.md`, to go to docs/42 when done).
+- **Security, told to the owner:** the twin's API has no auth, like the panel. Keep it on the LAN only while testing. A separate MQTT user for the twin is advisable: it now holds the panel's broker credentials, locally in `~/twin/state/flash.bin` only.
+- **iPad:** at the owner's request the feasibility check runs in the background, for the plan only. Mac first.
+
 ## 2026-09-29 (16:25): the virtual panel runs at the panel's pace; a review is under way
 
 - **Timing is calibrated: `twin.py run` defaults to `--cpi 2.45`.**
