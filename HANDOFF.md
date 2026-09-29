@@ -3391,3 +3391,5 @@ Panel measurements:
 - **Where:** fork main and the gallery copy.
 - **Owner:** "обалденно красиво!"
 - **Next candidates for px.mix:** KINETIC scene changes, OCEANARIUM light.
+
+- **Order** (the owner, 21:01): stages 4-9 of docs/39 first. At the very end: the flow for KINETIC and OCEANARIUM, then the two researches (a page crossfade in the firmware; Lua versions of the classic clock styles).
