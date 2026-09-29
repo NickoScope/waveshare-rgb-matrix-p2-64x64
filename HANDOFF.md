@@ -92,6 +92,37 @@ Rolling record of where the work stands. Newest first.
 
 **Следующий шаг:** обмер семи величин и решение по лицу, затем перевыпуск.
 
+## 2026-09-29 (13:25): KINETIC DIGITS LED tested on the panel, all ten scenes; the dot board flows
+
+- **The owner** freed the panel and asked for every mode to be tested and timed. He said the dot screens "сменяются очень медленно... перерисовывается экран", then "рывками, делай чтобы работала так же как и 7 сегментная, плавно, на ходу".
+- **Fixes, all on main (899b899, then 12921e7):**
+  - whole-board frames for the digits;
+  - a field grid for plasma and rings;
+  - a flip timetable with a fix for late events: they had leaked and never flipped;
+  - live memory 2.1 to 1.5 MB (host);
+  - a frame-level governor;
+  - the dot board is continuous: an eighth of the LEDs a frame, scattered, flipped at once, the picture at half speed.
+- **Panel, each measured over a full 30 s report:**
+
+  | Scene | fps | draw avg |
+  |---|---|---|
+  | 8x12 text | 15.2 | 22 ms |
+  | 8x12 plasma | 15.1 | 38 ms |
+  | 6x11 rings | 15.1 | 48 ms |
+  | 11x21 clock | 15.2 | 12.5 ms |
+  | 5x9 Life | 15.2 | 31 ms |
+  | 16x32 cube | 15.1 | 23 ms |
+  | dots plasma | 15.2 | 52 ms |
+  | 8x16 text | 15.2 | 21 ms |
+  | dots rings | 14.5 | 57 ms |
+  | 4x7 plasma | 14.5 | 53 ms |
+
+  Heap on the panel stayed under 0.9 MB. Five of the rows (8x12 plasma, clock, Life, cube, 8x16 text) were measured on the build before the governor.
+- **Lessons:**
+  - `/api/log?since=0` returns only the start of the log, so clear it before each measurement.
+  - A background script left running from an earlier attempt kept pressing the button.
+- **Next:** the owner's look. Then the gallery.
+
 ## 2026-09-29 (12:20): KINETIC DIGITS LED, a Lua flip board, on the panel (draft)
 
 - **Asked:** the owner pasted a brief from another session (a flip board of seven-segment digits, prototype https://claude.ai/artifact/H44NLDJrtjgNBwAWeFvWQq). He chose a Lua effect over a firmware style, then asked for its scenes to be chosen with the IR remote.
