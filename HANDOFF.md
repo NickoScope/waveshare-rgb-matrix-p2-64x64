@@ -3482,3 +3482,23 @@ Panel measurements:
 **Where:** fork main 48983c0. The SDK and AGENTS.md are updated (the owner reminded).
 
 **Next:** stage 7 (simulation steps: fire, waves, reaction-diffusion), or release 2.7.5.
+
+## 2026-09-29 (22:45): v2.7.5 released; FLOW in the gallery
+
+**Released** on the owner's word:
+- GitHub Release: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.5 (tag at c4ddd3a).
+- The flasher serves v2.7.5.
+- The panel runs the release OTA image (d79fd06d...).
+- The body is in docs/drafts/release-v2.7.5.md, with a Russian translation.
+
+**Checks before release:** health.py --effects PASS; all 30 effects run; fx_parity 156/156.
+
+**In 2.7.5:**
+- snapshots and px.mix;
+- px.feedback;
+- px.noise and px.field;
+- px.particles.
+
+**Gallery now has:** VORTEX, NEBULA and FLOW; KALEIDOSCOPE and LASER CLOCK flow between scenes.
+
+**Next:** stage 7, simulation steps.
