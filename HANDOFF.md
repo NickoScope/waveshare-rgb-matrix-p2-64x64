@@ -3217,3 +3217,33 @@ A research agent is running on the owner's question about new C helpers for Lua 
 **Next:**
 - Stage 2 of docs/39: palettes, an 8-bit layer, scroll and mirror.
 - Move the KINETIC plasma and the dots rings onto the new calls.
+
+## 2026-09-29 (18:30): stage 2 of the helpers on the panel; KALEIDOSCOPE and LASER CLOCK
+
+**Stage 2** (fork main 5f275f7, flashed): palettes, layers, show, scroll and mirror, in a shared header src/lua/px_layer.h.
+- Gate audit: APPROVED.
+- fx_parity: 124/124.
+
+Panel measurements:
+
+| Call | Time |
+|---|---|
+| show, whole canvas | 1.4 ms |
+| mirror hv | 0.33 ms |
+| palette | 0.5 ms |
+| capture | 0.5 ms |
+| scroll with wrap | about 1.4 ms (from the upload trial; the log report was missing) |
+
+**New effects:**
+- **KALEIDOSCOPE** (@upload-only, on the panel, not in the gallery): 15.2 fps, 7 ms.
+- **LASER CLOCK** (@upload-only, on the panel, not in the gallery; b05ffa0): 15.2 fps, 53 ms. The owner asked for it at 18:13. The font was redrawn from arcs at the owner's word "шрифт не очень".
+
+**Open batch before the release** (needs its own gate audit):
+- Budget charges for the stage-2 calls from these measurements.
+- Auditor LOWs:
+  - charge the palette 256+5n;
+  - offsetof for PxLayer;
+  - T in kaleidoscope grows as float32 (shift it with sceneAt);
+  - the AGENTS.md wording "under 20 thousand".
+- The auditor's HIGH, old: a nested string.gsub with a function replacement costs ~944 B of C stack a level × up to 18 levels. That is more than the 12 KB luafx stack, so an uploaded script could crash the panel. Not tried on hardware. Fix: a gsub nesting guard in the sandbox.
+- After the batch: hardware QA, then the release on the owner's go.
