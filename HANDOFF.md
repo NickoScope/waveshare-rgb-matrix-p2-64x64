@@ -3263,3 +3263,50 @@ Panel measurements:
   - the AGENTS.md wording "under 20 thousand".
 - The auditor's HIGH, old: a nested string.gsub with a function replacement costs ~944 B of C stack a level × up to 18 levels. That is more than the 12 KB luafx stack, so an uploaded script could crash the panel. Not tried on hardware. Fix: a gsub nesting guard in the sandbox.
 - After the batch: hardware QA, then the release on the owner's go.
+
+## 2026-09-29 (19:50): v2.7.4 released; LASER CLOCK in the gallery
+
+**Released** on the owner's "вноси конечно в галерею и выкатывай релиз":
+- GitHub Release: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.4 (tag at 5aa0622).
+- The flasher serves v2.7.4.
+- The panel runs the release OTA image (db942441...).
+- The body is in docs/drafts/release-v2.7.4.md, with a Russian translation.
+
+**What went in since stage 2:**
+- `px.weather()` gives the weather clock's data; `px.city()` gives the world clock's home.
+- Sandbox hardening, over five gate-audit rounds:
+  - callbacks (gsub, format, sort, concat, unpack, move, insert, remove, tostring, print, log, math.max/min) nest at most 2 deep;
+  - `setmetatable` refuses a `__gc`;
+  - palette and show buffers moved off the stack;
+  - the weather note is passed to the loop task.
+
+**Stack, measured on the panel** with the auditor's probes (upload trials, stackFreeMin, one boot per series):
+
+| Level | Cost |
+|---|---|
+| `__concat` | 368 B, as `.su` predicted |
+| wrapped gsub | 1392–1460 B |
+| error leaf with the handler there | about 400 B over `.su` |
+
+- At depth 3 the worst case was about 11.9 KB, which ate the 1 KB interrupt reserve.
+- At depth 2 it is 11.0–11.2 KB, inside the reserve, only just.
+- Depth 1 would give about 0.8 KB more, but it refuses `string.format` inside a gsub replacement.
+
+**Checks before release:**
+- health.py --effects: PASS;
+- all 27 effects on the panel run;
+- fx_parity 128/128;
+- 46 scripts and gallery screens pass the real sandbox.
+
+**Gallery:**
+- LASER CLOCK is added (18ed053). Its screens rotate every 5 s: time, weekday in Russian, date, temperature, КАННЫ. The owner asked to remove ГИЛФОРД.
+- CANNES runs on px.fade: 15 fps.
+- KALEIDOSCOPE and KINETIC DIGITS LED are on the panel but not in the gallery. Ask the owner.
+
+**Open (LOW):**
+- Wrapped functions report "bad argument to '?'" without the position.
+- ERRMEM becomes ERRRUN through the wrapper.
+- LASER CLOCK's auto preview shows no time screen.
+- The platformio.ini stack note does not count newlib's printf in the parser figure.
+
+**Next:** stage 3 of docs/39: snapshots with crossfade, then px.feedback.
