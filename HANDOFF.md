@@ -12,6 +12,10 @@ Rolling record of where the work stands. Newest first.
 - **Restarted** as plain `twin.py run --lan --web 8790` (log `~/twin/web-lan3.log`): .68 again, build 17:56:37, `/flasher/` answers.
 - **Panel vs twin:** 61 settings each; only `deviceName` and `climateHa` differ, both on purpose. 20 of 27 Lua effects (the 7 without exact copies as before).
 - **Running:** probes from nickol (192.168.4.37) at 0, 21 and 42 min of idle, log `~/twin/idle-probe-2022.log`. At the start: HTTP 200 in 0.27 s.
+- **Backlog item closed: the lost `release` on a USB close** (fork e01c301, firmware main 5d50df8 points at it).
+  - `Session::close` now keeps the sink until the machine has handled the Close. The machine drops the lines (the `release` reaches the page), sends `closed` and calls `finish`. A client that is gone uses `abandon`.
+  - The new machine test fails without the fix. Engine tests pass, except 4 wasm-jit ones that need Node (not installed on this Mac, unrelated).
+  - `check_flasher.py` 25/25 against a second, temporary blank twin on :8791. The live twin was not restarted, so the idle probes stay valid; it picks up e01c301 at its next restart.
 
 ## 2026-09-29 (20:10): the twin is in main; a Virtual twin section in the README; an issue to esp32sim's author
 
