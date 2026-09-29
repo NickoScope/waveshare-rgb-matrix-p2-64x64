@@ -12,6 +12,19 @@ Rolling record of where the work stands. Newest first.
 - **Ksawery's INTERPHASE code** was pulled from collect.ksawerykomputery.com. It is copyrighted, so it stays local only, outside every repo (memory led-strip-wall-p004).
 - **What mattered for the panel work here:** nothing changes. The panel firmware still takes no DDP or Art-Net input. Adding a DDP receiver would be an architectural change, made only on the owner's word.
 
+## 2026-09-30 (01:40): engine fixes in the fork - PSRAM 16 MB, watchdogs, no clock drift
+
+- Fork `nickoscope/twin` @ 656cd2a, pushed. `~/twin/esp32sim` is rebuilt; firmware main 980c909 points at it.
+  - PSRAM: MR2 density follows `--psram-mb`. The firmware sees 16 772 995 bytes, as on the panel.
+  - MWDT: TIMG0 and TIMG1 watchdogs with reset causes 7/8/11/17.
+  - `machine/pace.rs`: a lag is caught up at up to 1.5×. Only a real stall of more than 1 s is dropped.
+- Checks:
+  - 612 engine tests pass (wasm-jit needs Node, known).
+  - 32 min on a temporary instance: the clock stays within 0.1 s of the Mac, with no resyncs.
+  - 24 min of heavy Lua effects on 2.7.6: no watchdog reset, all effects at 15.2 fps. Review verdict «годится».
+- **The live twin still runs the old engine** (started 21:06). It picks up the fixes at its next start. Per the owner's rule, stop it at the end of the session.
+- Dropped by the owner: RSSI, RNG seed, SHTC3 ID, the Wi-Fi-off verb.
+
 ## 2026-09-29 (23:55): the panel's settings on the twin; the twin on the 2.7.6 release
 
 - **Settings (owner 22:50, «перенеси все настройки»).** Everything was copied at 23:34 by `tools/twin/sync.py` (commit 8dab662, not pushed yet: its review is still running): night mode, clockStyle, mirrorX, world clock cities, railboard favourites, logOn, market window. Afterwards `sync.py --diff` shows nothing to copy.
