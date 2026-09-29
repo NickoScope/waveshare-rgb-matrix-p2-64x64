@@ -2,6 +2,21 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (23:55): the panel's settings on the twin; the twin on the 2.7.6 release
+
+- **Settings (owner 22:50, «перенеси все настройки»).** Everything was copied at 23:34 by `tools/twin/sync.py` (commit 8dab662, not pushed yet: its review is still running): night mode, clockStyle, mirrorX, world clock cities, railboard favourites, logOn, market window. Afterwards `sync.py --diff` shows nothing to copy.
+  - Not copied: the paid keys (AeroAPI, RTT, AIS), `deviceName`.
+  - `clockStyle` on the panel was changed twice in the evening (16, then 10). The twin has the 23:34 value.
+- **Switched off on the twin (owner, «выключи на двойнике»):**
+  - `climateHa`: the firmware cleared its HA discovery itself, and the TWIN device is gone from HA.
+  - Flight board requests: flightboard set to a custom airport, ZZZZ «NO REQUESTS»; `mayAsk()` is false for ids 100 and up.
+  - The trains and flights pages are out of the knob rotation.
+  - The railboard has no switch in the firmware. The twin still publishes retained `{"crs":"GLD"}` on each connect. This is the panel's station too, so it does no harm.
+- **Owner: «перемудрил».** A simple ask gets a direct action (memory keep-simple-tasks-simple). The engine small fixes (RSSI, RNG, SHTC3 ID, Wi-Fi-off verb) were dropped on his word. PSRAM, MWDT and the clock drift continue (workflow wf_9695631e-485).
+- **2.7.6 (owner 23:50).** The release on the flasher (main) is build 23:06:44, 2 325 008 bytes, the same as the panel. Its checksum is correct.
+  - OTA at ~23:52, confirmed after 60 s; the settings survived.
+  - There is no ELF for this build: netbroker's `.pio` was rebuilt at 23:43. The twin runs without symbols after its next start, and `twin.py` says so.
+
 ## 2026-09-29 (22:40): the twin on the 2.7.5 release
 
 - **Owner (22:34): «поставь выпуск 2.7.5».** The release is on the flasher (c4ddd3a). Its Full.bin matches SHA256SUMS. Its build is 22:06:33, 2 313 168 bytes, the same as the panel (flashed ~22:33).
