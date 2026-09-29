@@ -2,6 +2,14 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (20:00): the engine is a public fork, NickoScope/esp32sim
+
+- **Owner (19:52):** «Делай форк… со всей историей». Public fork of joakimeriksson/esp32sim (MIT): https://github.com/NickoScope/esp32sim.
+  - Branch `nickoscope/twin` (49 commits over upstream 4ab7e90) is the fork's default. `main` follows upstream. NICKOSCOPE.md lists what the branch adds.
+  - Checked before publishing: no secrets or personal data in the diff. The only hits were paths on this Mac in the hub75 fixture generator, now read from the environment.
+- **Firmware repo:** the patch `tools/twin/engine/esp32sim-twin.patch` and its HISTORY.txt are removed. `tools/twin/engine/README.md` points at the fork (last checked commit ed87818).
+- Still not merged into the firmware's `main`: `feat/virtual-twin`, tools only. It merges without conflicts. Waiting for the owner's word. No release is needed: the firmware is untouched.
+
 ## 2026-09-29 (19:45): the twin mirrors the panel's settings and effects; stable on the LAN
 
 - **Settings as on the panel.** The panel's `/api/export` was read (read-only) and 58 settings went into the twin via `/api/import`. All 58 match afterwards.
