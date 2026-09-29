@@ -2,6 +2,16 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-30 (00:15): the hanging-strip video wall is a project in the LED-strip repo
+
+- **Request (owner, 23:46): «видео стену из висящих лед лент» like Ksawery Komputery, deep research, the project collected, pushed to a private repo.**
+- It went into the private LED-strip repo, not here. That repo already had the strip KB (chips, power, WLED) and its process rules.
+  - Research: its `knowledge/12-16`.
+  - Tools: project P004, a DDP bridge, a controller simulator, a WLED ledmap generator, a wall calculator and a wall preview page.
+  - Open decisions for the owner: issues #13-#14 there.
+- **Ksawery's INTERPHASE code** was pulled from collect.ksawerykomputery.com. It is copyrighted, so it stays local only, outside every repo (memory led-strip-wall-p004).
+- **What mattered for the panel work here:** nothing changes. The panel firmware still takes no DDP or Art-Net input. The P004 README says what a DDP receiver would take.
+
 ## 2026-09-29 (23:55): the panel's settings on the twin; the twin on the 2.7.6 release
 
 - **Settings (owner 22:50, «перенеси все настройки»).** Everything was copied at 23:34 by `tools/twin/sync.py` (commit 8dab662, not pushed yet: its review is still running): night mode, clockStyle, mirrorX, world clock cities, railboard favourites, logOn, market window. Afterwards `sync.py --diff` shows nothing to copy.
