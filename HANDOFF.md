@@ -2,6 +2,17 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (20:22): the twin runs the panel's exact build; twin.py picks the image and the symbols itself
+
+- **Same build as the panel.** The twin was on an interim 2.7.4 (16:47:41), the panel and the release on 17:56:37. The twin was updated over the air with the release's app (`update.upload` to 192.168.4.68). It confirmed itself after 60 s. `/api/info` now shows the same build on both.
+  - The release's ELF was found in the integration worktree's `.pio/build` (its firmware.bin is byte for byte the release's app). It is copied to `~/twin/fw/v2.7.4/`. The interim build moved to `~/twin/fw/v2.7.4-pre-164741/`.
+- **twin.py (firmware main 1829b42):** no hard-coded v2.7.3 any more.
+  - A new chip gets the release in `docs/firmware/latest`, or `TWIN_IMAGE`. An existing flash file wins over any image anyway.
+  - The symbols come from the `~/twin/fw/*/firmware.elf` whose SHA-256 the booted app carries in `esp_app_desc_t.app_elf_sha256` (+0x90, IDF 4.4 esp_app_format.h). Checked on all three builds here. No match: runs without `--elf` and says so. 31 tests pass.
+- **Restarted** as plain `twin.py run --lan --web 8790` (log `~/twin/web-lan3.log`): .68 again, build 17:56:37, `/flasher/` answers.
+- **Panel vs twin:** 61 settings each; only `deviceName` and `climateHa` differ, both on purpose. 20 of 27 Lua effects (the 7 without exact copies as before).
+- **Running:** probes from nickol (192.168.4.37) at 0, 21 and 42 min of idle, log `~/twin/idle-probe-2022.log`. At the start: HTTP 200 in 0.27 s.
+
 ## 2026-09-29 (20:10): the twin is in main; a Virtual twin section in the README; an issue to esp32sim's author
 
 - **`feat/virtual-twin` merged into the firmware's `main`** at the owner's word. Merge 59a9463: `tools/twin/` only, 20 files; the firmware is untouched, so no release.
