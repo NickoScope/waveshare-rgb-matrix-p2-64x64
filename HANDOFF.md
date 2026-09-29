@@ -3571,3 +3571,19 @@ Charges are set from these.
 **Where:** fork main 47589c9.
 
 **Next:** stage 9 (px.remap), or release 2.7.6 (stages 7 and 8). Then the end list: the KINETIC/OCEANARIUM flows and the two researches.
+
+## 2026-09-29 (23:45): v2.7.6 released; SOLIDS in the gallery
+
+**Released** on the owner's word:
+- GitHub Release: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.6 (tag at 0852b96).
+- The flasher serves v2.7.6.
+- The panel runs the release OTA image (12aacfc3...).
+- The body is in docs/drafts/release-v2.7.6.md.
+
+**Checks before release:** health.py PASS; all 32 effects run; fx_parity 172/172.
+
+**In 2.7.6:** stages 7 and 8.
+
+**Gallery now has:** REACTION and SOLIDS.
+
+**Next:** stage 9, px.remap.
