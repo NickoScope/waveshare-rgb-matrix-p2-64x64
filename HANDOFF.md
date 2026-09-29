@@ -3537,3 +3537,37 @@ Panel measurements:
 **Docs:** SDK, AGENTS.md, luasim README.
 
 **Next:** stage 8 (anti-aliased primitives, triangles, px.mesh), or release 2.7.6.
+
+## 2026-09-29 (23:30): stage 8 — anti-aliased lines, dots, triangles, 3D meshes; SOLIDS with morphs (2.7.6, on the panel, not released)
+
+**What:** `src/lua/px_draw.h`:
+- `px.aline` (Wu), `px.dot` (sub-pixel), `px.tri` (edge functions);
+- `px.model{v, e, f, orient}` and `px.mesh` (wire/solid/both; turn, perspective, a sort in the model's own buffers, lit by the turned normals, edges of front faces only).
+
+**Gate audit:**
+- HIGH: an unclamped projection overflowed int32.
+- MEDIUM: shifts of negative values.
+- MEDIUM: faces under-charged.
+- LOW: fractional indices.
+
+All fixed, then APPROVED.
+
+**Panel:**
+
+| | Time |
+|---|---|
+| a full-height line | 88 µs |
+| a triangle | 1.25 µs a box pixel |
+| an icosahedron in "both" | 5.4 ms |
+
+Charges are set from these.
+
+**SOLIDS** (@upload-only; on the panel, not in the gallery — ask the owner): 15.2 fps, 6 ms.
+- The Platonic solids reshape into each other, on the owner's "магически перерисовывался". A 162-point skin, radially projected onto each solid with its corners snapped, slides between them and then flows into the real solid.
+- Stars glide at sub-pixel speed.
+
+**Checks:** fx_parity 172/172.
+
+**Where:** fork main 47589c9.
+
+**Next:** stage 9 (px.remap), or release 2.7.6 (stages 7 and 8). Then the end list: the KINETIC/OCEANARIUM flows and the two researches.
