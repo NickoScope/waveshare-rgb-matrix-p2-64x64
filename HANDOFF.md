@@ -3436,3 +3436,24 @@ Panel measurements:
 **Where:** fork main bd63b91.
 
 **Next:** stage 5 (noise and px.field), or release 2.7.5 (snapshots, mix, feedback) on the owner's word.
+
+## 2026-09-29 (22:05): stage 5 — px.noise and px.field (2.7.5, on the panel, not released)
+
+**What:** `src/lua/px_field.h`, integers only:
+- Perlin noise with our own permutation;
+- `px.field` terms: sin, ring, ray (integer atan2), noise (fbm).
+
+**Panel speed:**
+- Noise at every pixel cost 27 ms an octave. Now each octave is sampled on a grid (~3 points a noise unit) and interpolated.
+- Three octaves: 82 → 18 ms. Ring or ray: 11 ms. Sin: 3.7 ms. `px.noise`: 12.6 µs.
+- `px.field` charges its cost before the work, by the measured weights.
+
+**NEBULA** (@upload-only; on the panel, not in the gallery — ask the owner): 15.2 fps, 31 ms.
+
+**Checks:** gate audits APPROVED (44ccda1, 604d77a, 6b5566e); fx_parity 148/148.
+
+**Where:** fork main.
+
+**Correction to docs/39:** px.field does little for KINETIC, which samples its plasma only at segment points.
+
+**Next:** stage 6 (particles), or release 2.7.5 on the owner's word.
