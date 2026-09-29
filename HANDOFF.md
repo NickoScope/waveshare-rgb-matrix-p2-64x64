@@ -2,6 +2,22 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (19:10): the web flasher flashes the twin; the twin is on 2.7.4 like the panel
+
+- **Web flasher, end to end in the browser.** A blank twin was flashed from the project flasher page: Connect → «Двойник» → Install 2.7.4 with erase → Improv Wi-Fi → «Device connected to the network!». `twin.py verify` shows the flash equals the image outside NVS. Design and checks: docs/42.
+- **The live twin is on 2.7.4, the panel's version.** It was updated over OTA (`update.py`) at 192.168.4.68; health confirmed after 60 s. Its name, MQTT and network settings were kept. It is now running on the new engine: `twin.py run --lan --web 8790 --flasher-image ~/twin/fw/v2.7.4/merged.bin`.
+  - Panel page: http://127.0.0.1:8790/panel.html.
+  - Flasher: /flasher/index.html.
+- **The real panel was already on 2.7.4 (uptime 20 min at 17:52).** Another session flashed it from main 588d7eb. Its image was copied read-only from the netbroker `.pio` into `~/twin/fw/v2.7.4/`. The merged image was built with esptool `merge_bin --flash_mode keep`: the bootloader header must stay `e9 03 03 5f` (dio rewrote it).
+- **Independent check fixes:** `--fresh`/`--blank` now back up `flash.bin` to `state/backup/`. The two low findings (a lost `release` event on close; the «USB занят» chip missing from a late tab) are in the backlog.
+- **Rule from the owner, now in ~/.claude/CLAUDE.md:** everything he sees is in Russian, including reasoning and helper task names.
+- **Left:**
+  - A6 stability (25 min idle, sleep/Wi-Fi reconnect);
+  - reading the flash ID and eFuses from the real panel over USB (it is not plugged in yet);
+  - photos for the optics;
+  - a separate MQTT user for the twin (offered);
+  - the iPad plan (docs/40 §9) waits until the Mac work is done.
+
 ## 2026-09-29 (17:40): the twin on the home network, in HA as TWIN-…; review fixes merged; the web flasher under way
 
 - **Owner's decisions (16:36):** engine as a patch in our repo (so it stays); connect to HA, named with a TWIN prefix; allow reading the chip ID (the panel is not on USB yet); its own MAC and an IP on the network.
