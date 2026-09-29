@@ -40,7 +40,7 @@
 | Аренда DHCP в eero | IP из 192.168.4.0/22, hostname `TWIN-…`, client-id/`chaddr` = MAC твина | XNU MAC-NAT ставит broadcast-флаг и не трогает `chaddr` при `use_dhcp_xid=0` (sysctl на этом Mac, verified). Option 61 — likely, см. §1 |
 | ARP у HA и роутера | IP твина → MAC Wi-Fi Mac | if_bridge.c 9356-9359 (verified), socket_vmnet #32 (verified) |
 | mDNS | `TWIN-….local`, `_http._tcp`, TXT `mac=02:54:57:49:4E:01` | network.cpp 232-236 (прошивка) |
-| Входящий unicast из LAN | доходит, пока жива запись MAC-NAT (20 мин тишины → запись пересоздаётся при следующей передаче твина или его ответе на ARP) | if_bridge.c 376, 7584 (verified) |
+| Входящий unicast из LAN | доходит, пока жива запись MAC-NAT (20 мин тишины → запись пересоздаётся при следующей передаче твина или его ответе на ARP) | if_bridge.c 376, 7584 (verified). **Замер 29.09:** с nickol (RPi5, 192.168.4.37, Wi-Fi) после 21 и 42 мин без входящих запросов: ARP-запись nickol STALE, `/api/info` — HTTP 200 за 0,054 и 0,049 с. Справочно: по одному прогону, при этом MQTT двойника работал (его исходящий трафик мог держать запись) |
 | Mac → твин | по исходникам ядра должно работать | if_bridge.c `bridge_member_output`; **не проверено**, есть жалобы UTM на macOS 15 |
 
 **Главный риск на этом железе.** Mac17,9: M5 Pro и Wi-Fi-чип Apple N1. На этой связке `ifconfig bridge0 addm en0` падал с «Operation not supported on socket». По сообщениям пользователей, починено в 26.6 / 26.6.1 (UTM #7658, likely). Здесь стоит 26.6.2, и `vmnet_copy_shared_interface_list()` отдаёт `en0` (verified). Но сам мост без root не проверить, поэтому A0 — первый шлюз.

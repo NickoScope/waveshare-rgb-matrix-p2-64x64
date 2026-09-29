@@ -2,6 +2,15 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (21:10): the twin on 2.7.5 like the panel; idle check passed; the twin runs on demand
+
+- **Owner (20:53):** the twin is not always on. Start it when a session works with it, stop it at the end (`pkill -f "esp32sim --board panel"`, or by PID). No autostart. In memory: twin-run-on-demand.
+- **2.7.5 (owner, 21:02: «обнови до прошивки 5»).** The panel runs 2.7.5, build 20:23:36, 2 303 408 bytes, flashed by the integration session. There is no release or tag for it. Its build is the netbroker `.pio` one (same size and stamp, written 20:34:17, the panel booted ~20:36). It is copied with its ELF to `~/twin/fw/v2.7.5-202336/`.
+  - The twin was updated over the air at 21:05 and confirmed itself after 60 s. It was then restarted on engine e01c301 (log `~/twin/web-lan4.log`). `twin.py` picked `--elf ~/twin/fw/v2.7.5-202336/firmware.elf` by SHA-256 by itself.
+  - Panel vs twin after it: the same 61 settings except `deviceName` and `climateHa`; 20 of 27 Lua effects, as before.
+- **Inbound after idle, passed:** nickol reached the twin at 21 and 42 min (HTTP 200, 0.054 s and 0.049 s; ARP entry STALE). Recorded in docs/41 as a single-run reference: MQTT was running, and its traffic may have kept the MAC-NAT entry alive.
+- **Running:** workflow wf_046a7bd2-b86. It builds the engine for Linux aarch64 on the Mac and benchmarks it on nickol (RPi5 4 GB), in /tmp only, cleaned after. It also covers Linux networking, the iPad as remote and as host, and published CPU speeds. The owner asked whether the twin can run on an RPi5 and on an iPad.
+
 ## 2026-09-29 (20:22): the twin runs the panel's exact build; twin.py picks the image and the symbols itself
 
 - **Same build as the panel.** The twin was on an interim 2.7.4 (16:47:41), the panel and the release on 17:56:37. The twin was updated over the air with the release's app (`update.upload` to 192.168.4.68). It confirmed itself after 60 s. `/api/info` now shows the same build on both.
