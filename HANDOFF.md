@@ -3402,3 +3402,22 @@ Panel measurements:
 - **Next candidates for px.mix:** KINETIC scene changes, OCEANARIUM light.
 
 - **Order** (the owner, 21:01): stages 4-9 of docs/39 first. At the very end: the flow for KINETIC and OCEANARIUM, then the two researches (a page crossfade in the firmware; Lua versions of the classic clock styles).
+
+## 2026-09-29 (21:28): stage 4 — px.feedback (2.7.5, on the panel, not released)
+
+**What:** `px.feedback{zoom, rot, dx, dy, cx, cy, decay, edge}` in `src/lua/px_feedback.h`, shared with luasim.
+- Integers only, bilinear sampling.
+- The copy of the last frame lives in a 24 KB registry scratch buffer.
+
+**Panel speed:**
+- The first version took 18.8 ms a call: int64 arithmetic and four bounds checks a pixel on a 32-bit core.
+- Rewritten to int32 stepping with a fast path when all four samples are inside: 6.5 ms. The zoom is clamped to 0.25..20.
+- Charged 2 instructions a pixel.
+
+**VORTEX** (@upload-only; on the panel, not in the gallery — ask the owner): 15.2 fps, 8.6 ms.
+
+**Checks:** gate audits APPROVED (c51a88a, 7ba66e5, bd63b91); fx_parity 140/140.
+
+**Where:** fork main bd63b91.
+
+**Next:** stage 5 (noise and px.field), or release 2.7.5 (snapshots, mix, feedback) on the owner's word.
