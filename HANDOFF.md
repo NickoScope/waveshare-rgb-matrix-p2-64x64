@@ -9,7 +9,7 @@ Rolling record of where the work stands. Newest first.
   - Clock with Wi-Fi: 0.58× real time on the RPi, 2.78× on the Mac (5 runs each). With real-time pacing the Mac holds 1.0× on about 40 % of one core.
   - The engine is single-threaded. nickol is on Wi-Fi only, so the twin gets no own IP there. It is fine for non-real-time runs.
   - /tmp on nickol was cleaned; nothing was installed there.
-- **iPad as a remote:**
+- **iPad as a remote: dropped by the owner (21:40)** («для чего мне на айпаде пульт, если я могу через мак управлять»). No tunnel, no LAN listening. What the analysis found, for reference:
   - The portal works over `--lan`.
   - The panel page and the flasher need an SSH tunnel to the Mac (the owner enables Remote Login), or an engine change to listen on the LAN (no auth, owner's call).
   - iPad as host: unchanged (§9, weeks of work). First step: measure the upstream HTTPS demo on the iPad; this needs the iPad model.
