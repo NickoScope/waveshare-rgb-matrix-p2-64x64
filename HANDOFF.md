@@ -3602,3 +3602,43 @@ Charges are set from these.
 **Gallery now has:** REACTION and SOLIDS.
 
 **Next:** stage 9, px.remap.
+
+## 2026-09-30 (00:15): stage 9 — px.uvmap and px.remap; WARP (2.7.7, on the panel, not released)
+
+**Shipped to main** (fork e400821..8821b0e; the branch is deleted):
+- `src/lua/px_remap.h`, shared by the firmware and luasim.
+  - `px.uvmap(kind, params)` builds a map once in C: 24 KB, u/v/shade per pixel.
+  - Kinds: tunnel, polar, sphere, plane (mode 7), swirl, blank + `M:set`.
+  - `px.remap(M, slot|layer, du, dv, pal)` redraws the canvas from it every frame.
+- **Fixed in the simulator before the audit:**
+  - the tunnel's v was 16× too deep (moiré);
+  - the swirl showed seams where it wrapped; its off-screen corners now reflect back in (`pxu_fold`).
+- **Gate audit:** APPROVED twice (the code; then the charges). One LOW, fixed: the swirl's `turn` is in radians, now said in the docs.
+- **Measured on the panel** (Wi-Fi on):
+
+  | Call | Time |
+  |---|---|
+  | map build | 12–21 ms by kind, 29 ms peak with allocation |
+  | remap from a layer | 3.2 ms |
+  | remap from a slot | 2.2 ms |
+
+  - Charges set from these: 8 and 1 instructions a pixel (~27 ms, ~3.4 ms).
+- **Checks:**
+  - fx_parity 180/180;
+  - health.py PASS on 2.7.7;
+  - all 33 effects run, no stops.
+- **WARP** (`tools/luasim/scripts/warp.lua`, @upload-only) is on the panel and on screen.
+  - 15.2 fps, 5.6 ms a frame.
+  - Four scenes, 20 s each, flowing into each other with px.mix: tunnel, planet among stars, neon road at sunset, whirlpool.
+  - The button goes to the next scene.
+  - Not in the gallery yet.
+- **Docs updated:** AGENTS.md (a bullet + the cost row), mcp_server effect_api, tools/agent/README, tools/luasim/README.
+
+**Waiting for the owner:**
+- WARP in the gallery?
+- Release 2.7.7?
+
+**Next:** the owner's end list:
+- px.mix flows for KINETIC (scene changes) and OCEANARIUM (light by time of day);
+- research: a crossfade between pages at firmware level;
+- research: Lua versions of the classic clock styles.
