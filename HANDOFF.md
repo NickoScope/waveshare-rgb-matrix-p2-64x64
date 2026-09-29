@@ -10,7 +10,7 @@ Rolling record of where the work stands. Newest first.
   - Tools: project P004, a DDP bridge, a controller simulator, a WLED ledmap generator, a wall calculator and a wall preview page.
   - Open decisions for the owner: issues #13-#14 there.
 - **Ksawery's INTERPHASE code** was pulled from collect.ksawerykomputery.com. It is copyrighted, so it stays local only, outside every repo (memory led-strip-wall-p004).
-- **What mattered for the panel work here:** nothing changes. The panel firmware still takes no DDP or Art-Net input. The P004 README says what a DDP receiver would take.
+- **What mattered for the panel work here:** nothing changes. The panel firmware still takes no DDP or Art-Net input. Adding a DDP receiver would be an architectural change, made only on the owner's word.
 
 ## 2026-09-29 (23:55): the panel's settings on the twin; the twin on the 2.7.6 release
 
