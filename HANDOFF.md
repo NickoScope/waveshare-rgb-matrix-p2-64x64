@@ -3160,3 +3160,45 @@ The other 10 scenes (kd_all, before the ball):
 - the gallery entry after approval.
 
 A research agent is running on the owner's question about new C helpers for Lua effects and practices for endless effects. Its report goes to scratchpad helpers_research.md and then to the KB.
+
+## 2026-09-29 (17:35): stage 1 of the Lua helpers — firmware 2.7.4 on the panel, merged to main
+
+**Done:**
+- Fork main at 4dad04c, fast-forward from feat/px-raster. The branch is deleted.
+- The panel runs 2.7.4 (OTA).
+- Research behind this work: docs/39.
+
+**New and changed calls, one shared header src/lua/px_raster.h for the firmware and luasim:**
+- `px.fade(a[,r,g,b[,x,y,w,h]])`
+- `px.blur(a[,x,y,w,h])` — FastLED blur2d, checked against their source at ec0a0f3.
+- `px.mode("add"|"set")` — each pixel of a shape is drawn once.
+- `px.blend` and `px.glow` now run in integers.
+
+**Gate audit (senior-code-audit):** APPROVED three times: the commit, the fixes, then the charge constants. It found and we fixed:
+- the add mode drew some pixels of a circle or a frame 2–5 times;
+- an old HIGH from 2.5.3: `px.line` with math.mininteger could hang the effect task, because abs(INT_MIN) skipped the clip;
+- a fused multiply-add in blur;
+- glow was not charged to the frame budget.
+
+**Parity:** fx_parity 116/116. Two new tests: tests/raster_edges.lua and tests/add_once.lua. In "set" mode all 23 scripts and all 21 gallery scripts render the same as before.
+
+**Panel, 30 s per bench:**
+
+| Call | 2.7.3 | 2.7.4 |
+|---|---|---|
+| blend | 14.9 µs | 7.2 µs, about the same as pixel |
+| glow r10 | 6.1 ms | 0.25 ms |
+| fade, whole canvas | — | 2.2 ms |
+| blur, whole canvas | — | 5.0 ms |
+
+- Budget charges are set from these numbers. My first guess under-charged them 2.5–6 times.
+- **CANNES** (gallery, px.fade through rawget with a fallback): 8.2 fps / 119 ms → 15.2 fps / 24 ms.
+- **A/B against 2.7.3 at the same hour:** OCEANARIUM 58.7 → 61.6 ms (evening scene, within noise); ROOM RADAR 71.1 → 67.7 ms; KINETIC unchanged. No regression.
+
+**Not done yet:**
+- Release v2.7.4 (tag, GitHub Release, flasher) waits for the owner's go.
+- Hardware QA against docs/FUNCTIONALITY.md before release. The auditor's note: the audit is static only.
+
+**Next:**
+- Stage 2 of docs/39: palettes, an 8-bit layer, scroll and mirror.
+- Move the KINETIC plasma and the dots rings onto the new calls.
