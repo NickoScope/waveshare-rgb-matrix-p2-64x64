@@ -3059,3 +3059,36 @@ base with `upstream/main` is still `74f964b`, so it is still a fork and a pull
 request upstream is still possible; no document referenced any of the old SHAs;
 and it still builds. A backup tag `backup/pre-email-rewrite` is kept locally.
 
+
+## 2026-09-29 (14:05): KINETIC DIGITS LED — the physics cube, the ball with lasers, all scenes measured
+
+**Done** (fork main, c70f52e and 372ce25; on the panel, index 7):
+- **Digit scenes:** continuous updates (digits_frame) under a budget, as the dot board has.
+- **Dots cube:** a wire cube in plasma colours with drifting spin, size and speed. It bounces off the walls with restitution 0.97 and friction at the contact point. These physics numbers are our choice, tuned by eye on the simulation the owner approved.
+- **Dots ball:**
+  - the same physics, a sphere of 5 meridians and 3 parallels;
+  - laser lights: 4 beams from emitters on a tetrahedron turning with the ball, a flare where they strike the wall, colours cycling;
+  - the owner asked for it at 13:51.
+- **SHOW** has 12 scenes, the cube and the ball 25 s each.
+
+**Panel, 30 s per scene:**
+
+| Scene | fps | draw avg |
+|---|---|---|
+| dots cube | 15.2 | 25 ms |
+| ball + lasers | 15.2 | 52 ms |
+
+The other 10 scenes (kd_all, before the ball):
+- 15.0–15.2 fps, except dots rings at 14.0 and 4x7 plasma at 14.3;
+- a backlog item for these two, not a blocker.
+
+**Lessons:**
+- An upload while the effect is running fails with "could not set the old script aside". Switch the panel to page 0 first.
+- `{"show": idx}` for the effect already on screen does not restart it. Show another effect first, or the click count lands on the wrong scene.
+
+**Next:**
+- the owner's verdict on the ball;
+- dots rings and 4x7 plasma to 15 fps;
+- the gallery entry after approval.
+
+A research agent is running on the owner's question about new C helpers for Lua effects and practices for endless effects. Its report goes to scratchpad helpers_research.md and then to the KB.
