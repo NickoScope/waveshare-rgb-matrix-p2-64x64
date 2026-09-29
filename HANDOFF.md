@@ -22,7 +22,7 @@ Rolling record of where the work stands. Newest first.
   - 612 engine tests pass (wasm-jit needs Node, known).
   - 32 min on a temporary instance: the clock stays within 0.1 s of the Mac, with no resyncs.
   - 24 min of heavy Lua effects on 2.7.6: no watchdog reset, all effects at 15.2 fps. Review verdict «годится».
-- **The live twin still runs the old engine** (started 21:06). It picks up the fixes at its next start. Per the owner's rule, stop it at the end of the session.
+- **The live twin was stopped at 01:41** (session end, owner's rule; 1 h 50 min without messages). Its flash file keeps 2.7.6 and all the settings. Next start: `tools/twin/twin.py run --lan --web 8790`. The run uses the fixed engine, and `twin.py` says «no symbols»: there is no ELF for the 23:06:44 build.
 - Dropped by the owner: RSSI, RNG seed, SHTC3 ID, the Wi-Fi-off verb.
 
 ## 2026-09-29 (23:55): the panel's settings on the twin; the twin on the 2.7.6 release
