@@ -3382,3 +3382,12 @@ Panel measurements:
 - Rewrite the creator's classic screens in Lua? Not all of them: CPU on core 0, the network data each page needs, and drift from upstream. Suggested instead: (a) a page crossfade in the firmware, (b) Lua versions of chosen clock styles as new gallery screens.
 
 **Next:** release 2.7.5 on the owner's go; stage 4, px.feedback.
+
+## 2026-09-29 (21:02): LASER CLOCK flows between screens (px.mix)
+
+- **What:** at each change of screen, the last text dissolves into the bricks over 1.5 s while the laser writes the next one.
+- **How:** each frame the wall and text are copied into a snapshot slot; on a change the two slots swap roles, so nothing is drawn twice.
+- **Panel:** 15.2 fps, 41 ms a frame.
+- **Where:** fork main and the gallery copy.
+- **Owner:** "обалденно красиво!"
+- **Next candidates for px.mix:** KINETIC scene changes, OCEANARIUM light.
