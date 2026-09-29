@@ -1,6 +1,6 @@
 # Issue on joakimeriksson/esp32sim: a virtual twin of an LED panel built on esp32sim (draft)
 
-Status: DRAFT, not posted. Post only on the owner's «отправляй».
+Status: POSTED 2026-09-29 20:09 on the owner's «отправляй»: https://github.com/joakimeriksson/esp32sim/issues/159
 
 **Where:** a new issue on https://github.com/joakimeriksson/esp32sim/issues. Discussions are off on that repository, and issues are the only public channel.
 

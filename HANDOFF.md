@@ -2,6 +2,14 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (20:10): the twin is in main; a Virtual twin section in the README; an issue to esp32sim's author
+
+- **`feat/virtual-twin` merged into the firmware's `main`** at the owner's word. Merge 59a9463: `tools/twin/` only, 20 files; the firmware is untouched, so no release.
+  - The merge was done in a temporary worktree, because `main` is checked out in the netbroker worktree of the integration session. That checkout is now 2 commits behind `origin/main` and needs a `git pull`.
+  - The merged side branches `feat/twin-lan` and `feat/twin-flasher` were deleted.
+- **README (65fa4eb):** a new section "Virtual twin" before "HTTP control API". It links the fork NickoScope/TWIN-NickoScopeMatrix-64x128, esp32sim upstream and `tools/twin/README.md`.
+- **Issue #159** on joakimeriksson/esp32sim: a thank-you, what the fork adds, and an offer of pull requests piece by piece. Posted on the owner's «отправляй». Draft with the Russian text: docs/drafts/esp32sim-issue-twin.md.
+
 ## 2026-09-29 (20:00): the engine is a public fork, NickoScope/TWIN-NickoScopeMatrix-64x128
 
 - **Owner (19:52):** «Делай форк… со всей историей». Public fork of joakimeriksson/esp32sim (MIT): https://github.com/NickoScope/TWIN-NickoScopeMatrix-64x128.
