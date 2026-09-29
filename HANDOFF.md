@@ -3302,6 +3302,7 @@ Panel measurements:
 - LASER CLOCK is added (18ed053). Its screens rotate every 5 s: time, weekday in Russian, date, temperature, КАННЫ. The owner asked to remove ГИЛФОРД.
 - CANNES runs on px.fade: 15 fps.
 - KALEIDOSCOPE and KINETIC DIGITS LED are on the panel but not in the gallery. Ask the owner.
+  - 19:15: added on the owner's "да, вноси оба в галерею" (645e814, 8d118d7). The KINETIC README credits Ksawery Kirklewski's V/H sampling.
 
 **Open (LOW):**
 - Wrapped functions report "bad argument to '?'" without the position.
