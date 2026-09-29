@@ -1,0 +1,49 @@
+diff --git a/xtensa-lx7/src/jit/mod.rs b/xtensa-lx7/src/jit/mod.rs
+index 1f848bf..b0ced6b 100644
+--- a/xtensa-lx7/src/jit/mod.rs
++++ b/xtensa-lx7/src/jit/mod.rs
+@@ -34,7 +34,43 @@ mod native {
+         fn mmap(addr: *mut c_void, len: usize, prot: c_int, flags: c_int, fd: c_int, off: i64) -> *mut c_void;
+         #[cfg(target_os = "macos")] fn pthread_jit_write_protect_np(enabled: c_int);
+         #[cfg(target_os = "macos")] fn sys_icache_invalidate(start: *mut c_void, len: usize);
+-        #[cfg(target_os = "linux")] fn __clear_cache(start: *mut c_void, end: *mut c_void);
++        #[cfg(all(target_os = "linux", not(target_env = "musl")))] fn __clear_cache(start: *mut c_void, end: *mut c_void);
++    }
++
++    /// musl links no libgcc, so `__clear_cache` is missing there. The same sequence as the
++    /// `__aarch64__` branch of compiler-rt's lib/builtins/clear_cache.c: clean the data cache to
++    /// the point of unification unless CTR_EL0.IDC, invalidate the instruction cache unless
++    /// CTR_EL0.DIC, then `isb`.
++    #[cfg(all(target_os = "linux", target_env = "musl"))]
++    unsafe fn __clear_cache(start: *mut c_void, end: *mut c_void) {
++        use std::arch::asm;
++        use std::sync::atomic::{AtomicU64, Ordering};
++        static CTR_EL0: AtomicU64 = AtomicU64::new(0);
++        let (xstart, xend) = (start as u64, end as u64);
++        let mut ctr = CTR_EL0.load(Ordering::Relaxed);
++        if ctr == 0 {
++            // SAFETY: CTR_EL0 is readable from EL0 on Linux (the kernel sets SCTLR_EL1.UCT or emulates the read).
++            unsafe { asm!("mrs {}, ctr_el0", out(reg) ctr, options(nomem, nostack, preserves_flags)); }
++            CTR_EL0.store(ctr, Ordering::Relaxed);
++        }
++        if (ctr >> 28) & 1 == 0 {
++            let line = 4u64 << ((ctr >> 16) & 15);
++            let mut a = xstart & !(line - 1);
++            // SAFETY: cache maintenance by VA on the caller's mapped code range; no memory contents change.
++            while a < xend { unsafe { asm!("dc cvau, {}", in(reg) a, options(nostack, preserves_flags)); } a += line; }
++        }
++        // SAFETY: a barrier only.
++        unsafe { asm!("dsb ish", options(nostack, preserves_flags)); }
++        if (ctr >> 29) & 1 == 0 {
++            let line = 4u64 << (ctr & 15);
++            let mut a = xstart & !(line - 1);
++            // SAFETY: as above, for the instruction cache.
++            while a < xend { unsafe { asm!("ic ivau, {}", in(reg) a, options(nostack, preserves_flags)); } a += line; }
++            // SAFETY: a barrier only.
++            unsafe { asm!("dsb ish", options(nostack, preserves_flags)); }
++        }
++        // SAFETY: a barrier only.
++        unsafe { asm!("isb sy", options(nostack, preserves_flags)); }
+     }
+ 
+     pub struct CodeCache { base: *mut u8, size: usize, used: usize }

@@ -1,0 +1,19 @@
+# Прогоны 2026-09-29: движок e01c301, образ v2.7.4-Full, --cpi 2.45; A — режим настройки без Wi-Fi, B — часы с тестовой Wi-Fi-парой (--net none), C — B + --realtime
+
+## rpi
+A1 | TIME real=20.423 user=20.054 sys=0.420  | VmHWM:	 83488 kB | stop: Halted — core0 97351838 + core1 125510782 insns in 20.2s wall = 11.0 Minsn/s; emulated 40.000s (9600000000 cycles); 732619 exceptions, 97139 interrupts
+A2 | TIME real=19.212 user=19.160 sys=0.248  | VmHWM:	 83424 kB | stop: Halted — core0 97351838 + core1 125510782 insns in 19.1s wall = 11.6 Minsn/s; emulated 40.000s (9600000000 cycles); 732619 exceptions, 97139 interrupts
+A3 | TIME real=19.214 user=19.085 sys=0.304  | VmHWM:	 83440 kB | stop: Halted — core0 97351838 + core1 125510782 insns in 19.1s wall = 11.7 Minsn/s; emulated 40.000s (9600000000 cycles); 732619 exceptions, 97139 interrupts
+A4 | TIME real=19.429 user=19.194 sys=0.343  | VmHWM:	 83472 kB | stop: Halted — core0 97351838 + core1 125510782 insns in 19.3s wall = 11.6 Minsn/s; emulated 40.000s (9600000000 cycles); 732619 exceptions, 97139 interrupts
+A5 | TIME real=20.225 user=19.751 sys=0.483  | VmHWM:	 83536 kB | stop: Halted — core0 97351838 + core1 125510782 insns in 20.0s wall = 11.1 Minsn/s; emulated 40.000s (9600000000 cycles); 732619 exceptions, 97139 interrupts
+B1 | TIME real=105.460 user=104.882 sys=1.558  | VmHWM:	 389024 kB | stop: Halted — core0 652989029 + core1 1865089635 insns in 105.3s wall = 23.9 Minsn/s; emulated 60.000s (14400000000 cycles); 6533207 exceptions, 439857 interrupts
+B2 | TIME real=102.984 user=102.931 sys=1.032  | VmHWM:	 388800 kB | stop: Halted — core0 650540149 + core1 1858915134 insns in 102.7s wall = 24.4 Minsn/s; emulated 60.000s (14400000000 cycles); 6476881 exceptions, 437568 interrupts
+B20_1 | TIME real=23.058 user=22.993 sys=0.206  | VmHWM:	 167424 kB | stop: Halted — core0 222249852 + core1 294408661 insns in 22.9s wall = 22.6 Minsn/s; emulated 20.000s (4800000000 cycles); 1376563 exceptions, 98226 interrupts
+B20_2 | TIME real=22.861 user=22.732 sys=0.282  | VmHWM:	 167456 kB | stop: Halted — core0 222221261 + core1 294109863 insns in 22.7s wall = 22.8 Minsn/s; emulated 20.000s (4800000000 cycles); 1376259 exceptions, 98271 interrupts
+B3 | TIME real=102.600 user=102.374 sys=1.251  | VmHWM:	 389488 kB | stop: Halted — core0 653809983 + core1 1858872390 insns in 102.4s wall = 24.5 Minsn/s; emulated 60.000s (14400000000 cycles); 6561975 exceptions, 440785 interrupts
+B4 | TIME real=101.606 user=101.713 sys=1.051  | VmHWM:	 390112 kB | stop: Halted — core0 655609515 + core1 1824917428 insns in 101.5s wall = 24.4 Minsn/s; emulated 60.000s (14400000000 cycles); 6636537 exceptions, 444006 interrupts
+B5 | TIME real=101.963 user=102.008 sys=0.958  | VmHWM:	 389392 kB | stop: Halted — core0 653692604 + core1 1856433731 insns in 101.7s wall = 24.7 Minsn/s; emulated 60.000s (14400000000 cycles); 6571133 exceptions, 441261 interrupts
+C1 | TIME real=106.820 user=102.472 sys=1.213  | VmHWM:	 389568 kB | stop: Halted — core0 653942854 + core1 1855765365 insns in 106.6s wall = 23.5 Minsn/s; emulated 60.000s (14400000000 cycles); 6573299 exceptions, 441118 interrupts
+C2 | TIME real=107.436 user=102.799 sys=1.233  | VmHWM:	 389264 kB | stop: Halted — core0 652951749 + core1 1861443698 insns in 107.3s wall = 23.4 Minsn/s; emulated 60.000s (14400000000 cycles); 6557341 exceptions, 440437 interrupts
+
+## mac
