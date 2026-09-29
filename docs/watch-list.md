@@ -62,6 +62,12 @@ not depend on this check.
 
 ## Log
 
+- 2026-09-29 22:03: item 4, Keralots. Upstream commit `781b393` (2026-09-29 18:57 UTC) fixes the brightness ramp test pattern: the CIE1931 table maps inputs below 5 to off, so the ramp now starts at 5. Only `src/display/panel_config.cpp`. Nothing sent.
+
+- 2026-09-29 22:03: item 4, Keralots. Upstream commit `fa75ad9` (2026-09-29 18:57 UTC) waits for the panel scan before reusing the back buffer on every frame (was guarded only for the starfield), removing dark flashes when refresh is near the frame rate. Only `src/main.cpp`. Nothing sent.
+
+- 2026-09-29 22:03: item 4, Keralots. Upstream commit `82679f5` (2026-09-28 19:05 UTC) makes the panel driver chip and timing configurable (own NVS namespace, applied at boot, Display panel card on the Maintenance page with live test patterns, included in config export/import). Touches `src/web/web.cpp`, `web.h`, `web_assets.h` (+1995/-1929), `web_pages.h`, `src/main.cpp`, `src/display/*`, README; no src/weather or platformio.ini. A rebase of the fork will meet it in src/web. Nothing sent.
+
 - 2026-09-28 08:02: MicroPixel, 78. Release `firmware-v0.9.5` (2026-09-28 02:08 UTC, source `c5e5d12`): SenseCAP Watcher preview, SZPI display buffer cut to 35 rows (-9.375 KiB SRAM), touch and Wi-Fi-settings fixes, Windows build tooling. SDK stays 0.20.1, no ABI change. The checker emitted no commit on `tools/manager/micropixel_manager.py` or `AGENTS.md`, so doc 33 is unaffected. Reddit and #3 quiet. Nothing sent.
 
 - 2026-09-27 18:54: item 4, Keralots. Upstream commit `a719492` (2026-09-27 14:43 UTC) "docs: link the MakerWorld enclosure": one README line adds an optional 3D-printable case (stands, hangs on a wall or a Multiboard), MakerWorld model 3363461. README only; no src/web, src/weather or platformio.ini. Nothing sent.
