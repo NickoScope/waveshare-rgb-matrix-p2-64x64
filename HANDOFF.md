@@ -2,6 +2,26 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (15:50): the virtual panel is a working copy — remote, knob, portal, Lua, OTA
+
+- **Verified with the real, unmodified v2.7.3 image in the twin:**
+  - **Remote:** the ten remote codes were learned by the firmware's own `ir learn` from the virtual TSOP (NEC, repeats while held, GPIO0 wired-AND with the knob's switch and BOOT). The ▶ key changed the clock style: /api/ir shows 1 frame, button 2 hit.
+  - **Knob:** it turns (EC11 on IO45/46, counted in /api/knob).
+  - **Portal and API:** on 127.0.0.1:8080 (`--hostfwd`, bound to localhost only).
+  - **Lua:** OCEANARIUM uploaded through /api/lua/upload runs at 15.2 fps.
+  - **OTA:** the release OTA image went through /update (tools/agent/update.py). The twin rebooted into app1, and the health check confirmed after 61 s and 200 frames.
+  - **Wi-Fi:** a chip reset keeps the virtual AP and network, so the Improv restart and the OTA reboot rejoin Wi-Fi.
+- **Helpers' work, merged into the engine:**
+  - the hub75 crate: decoder plus renderer, with 35 tests against the Python oracle of the library. It gives 106.1 refreshes/s at 10 MHz, as derived from the source and the TRM.
+  - the panel inputs, with 17 unit tests, 4 machine tests and a host oracle through the real IRremoteESP8266 and control.cpp.
+  - inbound forwarding: 23 NAT tests, and end to end with the firmware.
+- **The engine is reproducible:** `tools/twin/engine/esp32sim-twin.patch` is one diff against upstream 4ab7e90, checked to rebuild the branch exactly. The engine fork is not on GitHub: a public fork is the owner's call.
+- **Timing, the main difference left.** At 1 cycle per instruction the twin draws OCEANARIUM in 20.9 ms against about 40 ms on the panel. At `--cpi 2` it takes 43.0 ms. `tools/twin/calibrate.py` is running KINETIC's ten scenes against kd_all's panel numbers (13:47) in four configurations.
+- **Not modelled:**
+  - SHTC3/RTC/IMU on I2C, and the microphones (not used by v2.7.3, as far as the boot log shows);
+  - mDNS: pixelclock.local does not resolve on the Mac;
+  - MQTT: the twin has no broker. Joining HA would add a second panel there (it has its own MAC), so that is the owner's decision.
+
 ## 2026-09-29 (15:45): the virtual panel — the real firmware on the Mac, first picture and the clock
 
 - **Asked:** «полную симуляцию устройства … заливать в эту симуляцию реальную нашу прошивку … 100% виртуальную копию нашей панели» (the owner is away; work continues without him).
