@@ -1,0 +1,237 @@
+# Какие C-хелперы добавить в px.* для «бесконечных» эффектов — исследование
+
+Дата: 2026-09-29. Прошивка: форк AnimatedPixelClock (main) @ `c70f52e`. Только чтение, ничего не правилось.
+Обозначения: **[изм.]** — измерено на панели (источник указан); **[оценка]** — моя оценка, не измерено; **[не проверено]** — первоисточник лично не прочитан.
+
+---
+
+## 1. Что есть сейчас: Lua API для рисования
+
+Таблица регистрации: `src/lua/lua_px.cpp:353-360`. Её зеркало в симуляторе: `tools/luasim/luasim.c:278-283`.
+Внимание: `pixel/line/rect/circle/blend/glow/text` в luasim.c написаны **отдельной копией** кода. Общие заголовки есть только у трёх вызовов: `px_sprite.h`, `px_terrain.h` и `px_snapshot.h`.
+
+| Вызов | Сигнатура | Что делает | file:line |
+|---|---|---|---|
+| `px.size` | `() -> 128, 64` | размер холста | lua_px.cpp:60 |
+| `px.t` | `() -> [0,1)` | фаза настенных часов на отрезке `PERIOD` | lua_px.cpp:61 |
+| `px.now` | `() -> {hour,min,sec,yday,utc,year}` | местное время | lua_px.cpp:63 |
+| `px.clear` | `([r,g,b])` | заливка всего холста, без clamp | lua_px.cpp:79 |
+| `px.pixel` | `(x,y,r,g,b)` | один пиксель, clamp 0..255 | lua_px.cpp:89 |
+| `px.rect` | `(x,y,w,h,r,g,b[,fill])` | прямоугольник | lua_px.cpp:106 |
+| `px.line` | `(x0,y0,x1,y1,r,g,b)` | Брезенхем, целые координаты, без AA | lua_px.cpp:149 |
+| `px.circle` | `(cx,cy,rad,r,g,b[,fill])` | окружность по алгоритму средней точки | lua_px.cpp:175 |
+| `px.text` | `(x,y,s,r,g,b[,"small"/"pico"/"5x7"])` | текст UTF-8, латиница и кириллица | lua_px.cpp:215 |
+| `px.width` | `(s[,font]) -> px` | ширина строки | lua_px.cpp:241 |
+| `px.get` | `(x,y) -> r,g,b` | читает пиксель | lua_px.cpp:248 |
+| `px.blend` | `(x,y,r,g,b,a)` | альфа-смешение одного пикселя, **double** | lua_px.cpp:274 (blend_px :259) |
+| `px.glow` | `(cx,cy,rad,r,g,b[,amp])` | мягкое пятно (1-d/r)², **double sqrt на каждый пиксель** | lua_px.cpp:282 |
+| `px.terrain` | `{grid,cam,kinds,...}` | voxel-space ландшафт (как в Comanche), нативно | lua_px.cpp:311, px_terrain.h |
+| `px.save` / `px.restore` | `()` / `() -> bool` | один снимок холста на 24 КБ в куче Lua | lua_px.cpp:320/325, px_snapshot.h:37/43 |
+| `px.grab` | `(x,y,w,h) -> s,dx,dy` | вырезает спрайт (строку), чёрный = прозрачный | px_sprite.h:49 |
+| `px.blit` | `(s,x,y[,flip[,mul[,r,g,b,a]]])` | ставит спрайт: зеркало, яркость, тонирование; поворота и масштаба нет | px_sprite.h:89 |
+| `px.button` | `() -> count` | счётчик кликов | lua_px.cpp:348 |
+| `presence.*` | `scale,state,count,target,trail` | цели радара | src/presence/presence_lua.cpp:72 |
+
+Среда: Lua 5.4.8 со сборкой `LUA_32BITS` (int32/float32). Открыты только base, table, string и math; `pcall`, `load` и `collectgarbage` убраны (`src/lua/nslua_sandbox.cpp:85-119`). `sys` в эффектах **нет**. Лимиты (`src/lua/lua_fx.h:39-45`): кадр — 2 M инструкций и 500 мс; загрузка — 20 M и 3 с; куча — 4 МБ PSRAM. Стек задачи — **12 КБ внутренней RAM**.
+Нативный код обязан сам списывать свою работу с бюджета кадра через `LuaFx::charge` (`lua_fx.h:83-88`): так уже делают terrain, grab, blit, save и restore.
+
+**Цены вызовов, [изм.]** на панели 2026-09-23 (`AGENTS.md:835-851`):
+
+| операция | цена |
+|---|---|
+| пустой шаг `for` | 0.35 µs |
+| шаг с простой арифметикой | 1.6 µs |
+| `px.pixel` | 6.5 µs (полный проход 53 мс) |
+| `px.get` | 5.6 µs (46 мс) |
+| `px.blend` | 13.5 µs (**110 мс** на проход) |
+| `px.glow` r=10 | **5.6 мс** |
+| `px.line` на 128 px | 0.04 мс |
+| `px.clear` | 0.16 мс |
+
+**Вывод:** кадр съедает не работа внутри C, а переходы из Lua в C и Lua-арифметика на каждый пиксель. Хелпер должен делать **весь кадр или весь объект за один вызов**.
+
+В дереве уже есть готовые C-примитивы, пока не выставленные в Lua. `src/fx3d/fx3d_model.h`:
+- линия Ву со сглаживанием и дробными концами, `line()` :318-323;
+- `splat()` :260 и `disc()` :273;
+- треугольник с z-буфером, `triangle()` :378;
+- матрицы поворота `rotX/Y/Z` :138-152 и `clipNear` :212;
+- быстрый `rsqrtFast` :68.
+
+---
+
+## 2. Что эффекты пишут вручную на Lua и сколько это стоит
+
+| Что пишут вручную | Где | Цена / последствие |
+|---|---|---|
+| **Затухание всего неба к цвету** (трейлы салюта) | `cannes.lua:36-47`: 5 760 `px.blend` за кадр | **[изм.]** 119 мс, 8.2 fps. Из-за этого `starship.lua:9-12` отказался от затухания совсем: «Nothing here fades the screen» |
+| **Плазма и кольца на каждый LED**: таблицы sin по x, y, диагонали и расстоянию, квантование, палитра | `kinetic_digits_led.lua:666-695, 1075-1140` | Полный кадр не помещается в бюджет. Считается **1/8 LED за кадр**, и картинка идёт вдвое медленнее (`:1076-1079`). Цена сэмпла — 40 инструкций (`DCOST`, `:1152`) |
+| **Таблица оттенков HSL → RGB** (360 записей) и lookup | `kinetic_digits_led.lua:84-114` | при загрузке; затем lookup и распаковка `col>>16 &255` на каждый пиксель |
+| **Линия DDA попиксельно в Lua** с пометкой «горит в этом кадре» и afterglow | `wire`, `wire2`, `beam` — `kinetic_digits_led.lua:843-966` | каждый пиксель провода — 10-20 инструкций плюс `px.pixel` 6.5 µs |
+| **Afterglow списками** (прошлый кадр на 1/3, потом гасим) | `afterglow`, `kinetic_digits_led.lua:968-990` | фактически ручной `fadeToBlackBy` на списках пикселей |
+| **3D-поворот и проекция** куба и сферы | `kinetic_digits_led.lua:468-469, 747-781` | sin/cos, матрица, проекция на каждую вершину — всё в Lua |
+| **Фон радара попиксельно** (кольца, спицы, фаза sweep) | `room_radar.lua:78-100` | **[изм.]** 2.6 fps, 378 мс/кадр до переработки (`LED-MATRIX APOLLO/docs/14-lua.md:172, 181-183`) |
+| **Лучи и каустика** из `rect` и `line` | `oceanarium.lua:2388-2445` | сотни вызовов; вместо мягкого луча — ступенчатые прямоугольники |
+| **Искры и снег как частицы** в Lua-циклах | `cannes`, `oceanarium.lua:2447+`, `starship` | по вызову `pixel`/`blend` на частицу |
+| **Собственный xorshift** | все сцены | LCG в int32 переполняется (`cannes.lua:52-58`); `math.random` в luasim и прошивке засеян по-разному |
+| **Нарезка работы кусками по бюджету** | `oceanarium.lua:1622-1690`, `kinetic` `DIGIT_BUDGET` | сложность кода растёт из-за нехватки нативных примитивов |
+
+Отдельно **[изм.]**: у minecraft после отказа от glow и blend кадр упал с 33.6 до 18.0 мс (`docs/14-lua.md:189-194`). Причина — `blend_px` и `glow` считают в **double**, а FPU у S3 только одинарной точности, так что double эмулируется программно. Источник: https://developer.espressif.com/blog/2025/10/cores_with_fpu/ (прочитано).
+
+---
+
+## 3. Лучшая практика: что дают другие платформы
+
+**Распределение, а не один пример.** Я скачал WLED `wled00/FX.cpp` (HEAD `23778ed`) и посчитал, какие хелперы используют эффекты. Из 219 эффектов 37 — двумерные (2D):
+
+| хелпер | 2D-эффектов из 37 | всех эффектов из 219 |
+|---|---|---|
+| палитра (`color_from_palette` / `ColorFromPalette`) | **34** | 118 |
+| blur (`blur` / `blur2D`) | **21** | 29 |
+| затухание (`fadeToBlackBy` / `fade_out`) | **20** | 49 |
+| beatsin / beat (осцилляторы по BPM) | 14 | 33 |
+| шум (`perlin8/16`) | 9 | 30 |
+| сдвиг кадра (`move` / `shift`) | 4 | 22 |
+| AA-примитивы | 4 | — |
+
+Ещё в том же файле 31 эффект на системе частиц (`mode_particle*`). Метод: awk по телам функций `mode_*` (скрипт в scratchpad, `FX.cpp`). Этих примеров хватает, чтобы ранжировать; порогов для кода отсюда я не беру.
+
+- **WLED.** Сегмент умеет:
+  - `fadeToBlackBy`, `blur2D`, `box_blur`;
+  - `moveX` / `moveY` / `move` (`FX_2Dfcn.cpp:250, 297, 369-427`);
+  - `drawLine` / `drawCircle` / `fillCircle` с флагом `soft` (сглаживание по Ву; `:441-516`);
+  - `wu_pixel` — точка с дробными координатами (`:571`);
+  - `addPixelColor` — сложение цвета;
+  - частицы по 10 байт на штуку в fixed point (`FXparticleSystem.h:81-89`).
+
+  Источник: исходники github.com/wled/WLED, прочитано; сводка по DeepWiki. Список 2D-эффектов: https://kno.wled.ge/features/effects/ (прочитано).
+- **FastLED.**
+  - `fadeToBlackBy(leds,n,fadeBy)` и `blur2d(leds,w,h,fract8)`. У blur 172 — «максимально ровное размытие»; при повторных вызовах свет теряется «by design», так что blur заодно гасит кадр.
+    https://fastled.io/docs/d1/dfb/colorutils_8h_a399e4e094995b8e97420b89a2dd6548b.html, http://fastled.io/docs/colorutils_8h.html (по поисковой выдаче).
+  - `CRGBPalette16` + `ColorFromPalette(pal, idx8, bri, LINEARBLEND)`: 16 опорных цветов растянуты на индекс 0..255 с интерполяцией. https://fastled.io/docs/d4/d98/group___color_palettes.html (по выдаче).
+  - `inoise8(x,y,z)` и `fill_raw_2dnoise8(...)` — целочисленный Perlin с октавами, заполняет буфер. https://fastled.io/docs/d1/d31/noise_8h.html (по выдаче).
+  - `beatsin8(bpm,lo,hi)`. https://fastled.io/docs/d6/d6c/group___beat_generators.html (по выдаче).
+  - В новом `src/fl/fx/2d/` есть:
+    - `flowfield.h`: эмиттеры рисуют, шум переносит;
+    - `wave.h`: 2D-симуляция волн;
+    - `noisepalette.h`;
+    - **Animartrix**: заранее посчитанные таблицы полярных координат `polar_theta[x][y]`, `distance[x][y]` и Perlin по повёрнутым координатам (`animartrix_detail/engine_core.h`);
+    - `FxEngine` с **переходами между эффектами** (`fx_engine.h`, `detail/transition.h`).
+
+    Прочитано через `gh api`.
+- **Pixelblaze** — самый близкий аналог: шейдеры на каждый LED.
+  - `beforeRender(delta)` раз в кадр и `render2D(index,x,y)` на каждый пиксель.
+  - Числа — fixed point 16.16.
+  - Встроено:
+    - волны `time/wave/triangle/square`, `mix`, `smoothstep`;
+    - шум `perlin`, `perlinFbm`, `perlinRidge`, `perlinTurbulence`, `setPerlinWrap`;
+    - палитра `setPalette` + `paint(v)`;
+    - **трансформации координат** `translate/rotate/scale/rotateX..Z/transform`;
+    - `prng`/`prngSeed`;
+    - `sequencerNext`.
+
+  https://raw.githubusercontent.com/simap/pixelblaze/master/README.expressions.md (прочитано).
+- **TIC-80.** Есть `tri`, `trib`, `ttri` (текстурированный треугольник), `elli`, `clip`, `memcpy`/`memset`/`poke`, `vbank`. Колбэк `BDR(n)` вызывается перед каждой строкой развёртки: так делают растровые трюки и смену палитры по строкам. https://github.com/nesbox/TIC-80/wiki/API (прочитано).
+- **PICO-8.** Есть `sspr` (растянутый спрайт), `tline` (текстурированная линия, основа mode-7 и туннелей), `fillp` (узор заливки 4×4), `pal` (подмена палитры, на ней держится palette cycling), `camera`, `clip`, `memcpy` в экранную память. https://www.lexaloffle.com/dl/docs/pico-8_manual.html (прочитано).
+- **p5.js / Processing.** `noise()` в 1-3D плюс `noiseDetail` (октавы и затухание). `blendMode` с режимами ADD, SCREEN, MULTIPLY, DIFFERENCE, LIGHTEST и др.
+  https://p5js.org/reference/p5/noise/, https://p5js.org/reference/p5/blendMode/ (прочитано).
+- **Shadertoy.**
+  - Буфер читает сам себя из прошлого кадра через ping-pong — это обратная связь (feedback). https://inspirnathan.com/posts/62-shadertoy-tutorial-part-15/ (по выдаче).
+  - Хеш без sin от Hoskins. https://www.shadertoy.com/view/4djSRW (по выдаче, код не читал).
+  - Косинусная палитра `a + b·cos(2π(c·t+d))`. https://iquilezles.org/articles/palettes/ (прочитано).
+  - Domain warping `f(p+fbm(p+fbm(p)))`. https://iquilezles.org/articles/warp/ (прочитано).
+  - fBm, turbulence, ridge. https://thebookofshaders.com/13/ (прочитано).
+- **Классика демосцены (Lode Vandevenne).**
+  - Туннель: таблицы расстояния и угла считаются один раз, в кадре только lookup и сдвиг. https://lodev.org/cgtutor/tunnel.html
+  - Огонь: среднее соседей снизу с затуханием и случайная нижняя строка, потом палитра. https://lodev.org/cgtutor/fire.html
+  - Плазма: сумма синусов, анимация вращением палитры. https://lodev.org/cgtutor/plasma.html
+
+  Всё прочитано.
+- **MilkDrop.** Прошлый кадр деформируется `zoom/rot/dx/dy/warp/cx/cy` на грубой сетке с интерполяцией и гасится коэффициентом `decay` («0.98 = recommended»). https://www.geisswerks.com/milkdrop/milkdrop_preset_authoring.html (прочитано).
+
+---
+
+## 4. Предложение: новые C-хелперы, по рангу
+
+### Общие правила для любого нового хелпера (из конвенций репо)
+
+- Код — в **общем заголовке** `src/lua/px_*.h`, который включают и `lua_px.cpp`, и `luasim.c`, как `px_sprite.h`. Иначе нарушится побайтовое совпадение с симулятором.
+- Каждый цикл ограничен размером холста, работа списывается через `LuaFx::charge`.
+- Буферы — userdata в куче Lua (попадают в лимит 4 МБ, освобождаются вместе с эффектом), **ничего крупного на стеке** 12 КБ.
+- Аргументы-таблицы читать через `rawget`, как в terrain после аудита 2026-09-24.
+- **Целочисленная или fixed-point математика.** `fx_parity.py` сравнивает luasim с fxhost, но оба собраны на Mac. Расхождение `sinf`/`sqrtf` между libm macOS и newlib на панели этот тест **не поймает**. Поэтому sin через LUT, шум в целых числах — как в FastLED.
+
+### Ярус 1 — дёшево, огромный выигрыш, нужно почти всем
+
+| # | Хелпер | Что открывает | Ускорение vs Lua | Цена в C / память | Аналог |
+|---|---|---|---|---|---|
+| 1 | `px.fade(k [,r,g,b [,x,y,w,h]])`: весь холст (или область) на долю k к чёрному или к цвету | трейлы, салют (cannes), дым, afterglow без списков, послесвечение радара, «след кометы» | **[изм.]** 110-119 мс → **[оценка]** 0.3-1 мс, ~100× | ~30 строк; 0 байт | FastLED `fadeToBlackBy`; WLED `fadeToBlackBy`/`fade_out` (20/37 2D) |
+| 2 | `px.blur(amount [,ax,ay])`: сепарабельное 3×3, семантика `blur2d`: amount 0..255, при повторах гасит | свечение, bloom, мягкие частицы, туман, карта следов physarum | **[оценка]** 1-3 мс за кадр; в Lua ~200+ мс недоступно | ~60 строк; строковый буфер 384 Б (статический, не на стеке) | FastLED `blur2d`; WLED `blur2D`/`box_blur` (21/37) |
+| 3 | `px.palette(spec) -> pal`: строка 768 Б, 256 цветов. spec: опорные точки `{pos,r,g,b,...}` или косинус iq `{a,b,c,d}` | единые красивые гамма-переходы; основа для #4, #8-#11, #15 | конструктор при загрузке; экономит таблицы HUE_* в каждом скрипте | ~50 строк | FastLED `CRGBPalette16`/gradient; Pixelblaze `setPalette/paint`; iq cosine |
+| 4 | **8-битный слой** `px.layer() -> L` (W×H байт, userdata) и `px.show(L, pal [,offset, bri, mode])` с mode = replace / add / max / skip0 | palette cycling (Ferrari), классическая плазма (lodev), огонь, карты высот; вывод на холст за ~8192 lookup | **[оценка]** show ≈ 0.3-0.8 мс против 53 мс на `px.pixel`-проход | ~80 строк; 8 КБ на слой | PICO-8 `pal`, lodev plasma, WLED palette |
+| 5 | `px.scroll(dx,dy[,wrap])` и `px.mirror(mode)` (квадранты или калейдоскоп) | Matrix-дождь, водопад и спектрограмма, прокрутка Life, звёзды, калейдоскопы | **[оценка]** memmove 24 КБ < 0.5 мс | ~40 строк; 0 байт | WLED `move/shift` (22 эффекта), «Drift» — калейдоскоп |
+| 6 | **Починить `px.glow`/`px.blend`**: float или fixed вместо double; sqrt → LUT или `rsqrtFast` | всё, что уже рисует glow (radar, kinetic) | **[изм.]** glow r10 = 5.6 мс → **[оценка]** 0.2-0.5 мс | правка существующего; пиксели сдвинутся на ±1 → нужна синхронная правка luasim и новые превью | — |
+| 7 | Режим **add** (сложение со сжатием к 255): `px.add(x,y,r,g,b)` и флаг `add` у `line`/`circle`/`blit`/`glow` | свет складывается как свет: искры, частицы, лучи, пересечения | как у обычных вызовов, но без `get` + `pixel` в Lua (2×6 µs) | ~20 строк | WLED `addPixelColor` (30 строк в FX.cpp); p5 `blendMode(ADD)` |
+| 8 | `px.save(slot)` / `px.mix(slot, a)`: 2-4 именованных снимка и смешение с холстом | **переходы между сценами** (crossfade) для режиссёра «бесконечного» шоу | **[оценка]** ~0.5 мс; в Lua 110+ мс | расширить `px_snapshot.h`; 24 КБ на слот | FastLED `FxEngine` transitions; генетические кроссфейды Electric Sheep [не проверено] |
+
+### Ярус 2 — средняя сложность, открывает новые классы эффектов
+
+| # | Хелпер | Что открывает | Ускорение | Цена в C / память | Аналог |
+|---|---|---|---|---|---|
+| 9 | `px.field(L, {terms...})`: сумма фиксированного меню членов в слой — `sinx`, `siny`, `sinxy`, `radial(cx,cy)`, `angle(cx,cy,n)`, `noise`; частота, фаза и амплитуда каждого; int-LUT sin | плазма, кольца, спирали, «полярные волны», калейдоскоп — всё, что kinetic делает на 1/8 поля | kinetic: 8192 × 40 инстр ≈ 134 мс VM + пиксели → **[оценка]** 2-4 мс на полный кадр, ~50× | ~150 строк; LUT sin 512 Б, atan2-LUT или CORDIC | Pixelblaze `render2D` + waves; FastLED Animartrix; lodev plasma |
+| 10 | Шум: `px.noise(x,y[,z]) -> 0..1` скаляром и `px.noisefill(L, x0,y0,z, scale, oct[,lac,gain,mode])`, mode = fbm / ridge / turb | облака, дым, северное сияние, вода, огонь; скаляр — для полей потока, дрейфа параметров и траекторий | скаляр: Perlin на Lua ~100+ инстр (≈40+ µs) → вызов ~6-7 µs; заливка **[оценка]** 5-15 мс на октаву в полном разрешении, поэтому считать 64×32 и растягивать билинейно в `show` | ~150 строк; перм-таблица 256-512 Б | FastLED `inoise8`/`fill_raw_2dnoise8`; Pixelblaze `perlinFbm/Ridge/Turbulence`; WLED `perlin8` (9/37) |
+| 11 | `px.remap(dst, map, tex, du, dv)`: UV-карта (2×8 КБ, строится в Lua при загрузке) + текстура-спрайт или слой + сдвиг | **туннели**, шар-глобус, линза, рыбий глаз, полярное разворачивание, mode-7 | **[оценка]** ~1 мс; в Lua ~100+ мс | ~60 строк; 16 КБ на карту | lodev tunnel; PICO-8 `tline`; TIC-80 `ttri` |
+| 12 | `px.feedback{zoom,rot,dx,dy,cx,cy,decay}`: прошлый кадр поворачивается, масштабируется и сдвигается с билинейной выборкой | **бесконечные зумы, воронки, «MilkDrop»**, туннели из следов; самый сильный одиночный инструмент для бесконечных сцен | **[оценка]** 2-4 мс | ~100 строк; 24 КБ scratch (userdata) | MilkDrop warp+decay; Shadertoy feedback-буфер |
+| 13 | Сглаживание и субпиксель: `px.dot(x,y,r,g,b)` (float-координаты, 4 соседа) и `px.aline(x0,y0,x1,y1,r,g,b[,add])` | плавное **медленное** движение без ступенек — ключ к спокойным эффектам на 128×64; провода и сферы | как `px.line`, код готов | обёртка над `fx3d_model.h` `line()`/`splat()`; ~40 строк | WLED `wu_pixel`, `drawLine(soft)` |
+| 14 | `px.tri(x0,y0,x1,y1,x2,y2,r,g,b[,add])` и `px.poly(str)` | заливные low-poly, осколки, 3D-тела | **[оценка]** быстрее rect-лесенок в разы | обёртка над `fx3d` `triangle()` | TIC-80 `tri/trib/ttri` |
+| 15 | Система частиц `px.particles(n) -> P`; методы `P:emit{...}`, `P:step{g,drag,wind,noise,bounds}`, `P:draw(pal, mode, size)`. Fixed point, ~10-16 Б на частицу | салют, снег, искры, пыль, **поля потока (Hobbs)**, curl-noise, стаи; с чтением слоя — physarum | 500 частиц: в Lua **[оценка]** ~10+ мс плюс 500 × 6.5 µs на вызовы → **[оценка]** <1 мс | ~250 строк; 8-16 КБ на 1000 частиц | WLED ParticleSystem2D (31 эффект); FastLED `flowfield.h` |
+| 16 | `px.step(L, "fire"/"life"/"wave"/"rd", params)`: один шаг симуляции на слое (или паре слоёв) | огонь (lodev), Life с пересевом, круги на воде, **реакция-диффузия** Грея-Скотта | **[оценка]** fire/life/wave ≈ 0.5-1.5 мс; RD ≈ 3-5 мс за итерацию при 128×64 → считать 64×32 и 4-8 итераций за кадр | 50-80 строк на правило; RD — два int16-слоя, 32 КБ | lodev fire; FastLED `wave.h`; параметры RD у Karl Sims |
+| 17 | `px.mesh(verts, edges|faces, {ax,ay,az,scale,x,y,f}, pal/color, mode)`: поворот, проекция и отрисовка (сглаженные рёбра или треугольники с яркостью по глубине) за один вызов | куб, шар, тор, «глобус», вращающиеся тела | убирает 30-60 инстр на вершину и DDA рёбер в Lua | ~120 строк поверх `fx3d_model.h` (rot, clipNear, triangle) | Pixelblaze `rotateX..Z/transform`; `src/fx3d` |
+
+Оговорка к #17. Kinetic ведёт в Lua пометки «горит в этом кадре / в прошлом», и простой `px.mesh` их не заменит. Его afterglow при этом закрывается связкой #1 + #13.
+
+### Ярус 3 — дорого или рискованно, позже
+
+| # | Хелпер | Почему позже |
+|---|---|---|
+| 18 | Мини-VM выражений, «шейдер» на пиксель, как Pixelblaze | Второй интерпретатор надо изолировать, считать ему бюджет и держать в паритете. По моей оценке, #9 + #10 + #11 + #12 закрывают большую часть того же (**[оценка]**, не измерено). Сложность высокая |
+| 19 | `px.blitx(s, x,y, scale, angle)`: поворот и масштаб спрайта | Полезно для рыб и кораблей; средне по сложности; для бесконечных полей не критично |
+| 20 | Крупные и пропорциональные шрифты, обводка текста | Три шрифта уже есть; к генеративу отношения мало |
+
+**Мелкая инфраструктура.** `px.dt()` — секунды с прошлого кадра — и `px.hash(x,y,seed)` / `px.rng(seed)` — детерминированный целый хеш, одинаковый в luasim и на панели. Это дёшево и снимает нынешнее копирование xorshift по скриптам.
+
+**Рекомендуемый порядок:** #1, #2, #6, #7 → #3 + #4 + #5 → #8 → #12 → #10 + #9 → #15 → #16 → #13, #14, #17 → #11.
+Память: всё ярусов 1-2 разом — **[оценка]** +6-12 КБ flash. Буферы в PSRAM берутся только по требованию эффекта (userdata). Внутреннюю RAM не трогает, если держать буферы не на стеке.
+
+---
+
+## 5. Паттерны «бесконечных» эффектов у генеративщиков
+
+1. **Несоизмеримые циклы.** Параметры плывут медленными LFO, отношения частот иррациональны (φ, √2), поэтому сочетание не повторяется.
+   - Источник: плёночные петли разной длины Ино, «incommensurable» (https://reverbmachine.com/blog/deconstructing-brian-eno-music-for-airports/ — по выдаче [не проверено]).
+   - Выбор значений без «комков»: последовательность Робертса / R2 на золотом сечении (https://extremelearning.com.au/unreasonable-effectiveness-of-quasirandom-sequences/ — страница отдала 403, [не проверено]).
+   - Практика у нас: под `LUA_32BITS` время во float32 теряет точность. Держать **фазы-аккумуляторы по модулю 2π** на каждый осциллятор, не `sin(t*w)` от большого t.
+2. **Поля шума с временем как третьей координатой**, fBm / ridge / turbulence (https://thebookofshaders.com/13/; Pixelblaze `perlinFbm`).
+3. **Domain warping**: шум искажает координаты шума, получается органика без повторов (https://iquilezles.org/articles/warp/).
+4. **Палитры**:
+   - palette cycling с плавным BlendShift (Ferrari, http://www.effectgames.com/effect/article-Old_School_Color_Cycling_with_HTML5.html);
+   - косинусные палитры, у которых медленно плывут a/b/c/d (https://iquilezles.org/articles/palettes/);
+   - одна «форма» + дрейф палитры = новые сцены почти даром.
+5. **Обратная связь**: прошлый кадр чуть повёрнут, увеличен и затушен (`decay ~0.98`) — MilkDrop (https://www.geisswerks.com/milkdrop/milkdrop_preset_authoring.html), Shadertoy-буферы.
+6. **Реакция-диффузия** Грея-Скотта: DA=1.0, DB=0.5, f=0.055, k=0.062, Лапласиан 3×3 (-1 / .2 / .05). Медленный дрейф f/k по карте даёт смену «пятна ↔ лабиринты» (https://www.karlsims.com/rd.html).
+7. **Поля потока и частицы**: сетка углов из шума, частицы шагают по ней (https://www.tylerxhobbs.com/words/flow-fields). Curl-noise даёт «несжимаемый» поток без стоков (Bridson 2007, https://www.cs.ubc.ca/~rbridson/docs/bridson-siggraph2007-curlnoise.pdf — [не проверено], по выдаче).
+8. **Агенты со следом (physarum)**: агенты читают карту следов сенсорами, оставляют след, карту размывают и гасят (https://cargocollective.com/sagejenson/physarum). У нас это #15 + #2 + #1.
+9. **Клеточные автоматы**: Life (уже в kinetic) и огонь. Правило долговечности: хешировать состояние и **пересевать при застое или цикле**. Это моя инженерная рекомендация, не цитата.
+10. **L-системы и рост**: дерево или коралл растёт, «созревает», растворяется (Prusinkiewicz & Lindenmayer, The Algorithmic Beauty of Plants, http://algorithmicbotany.org/papers/#abop — [не проверено], по выдаче).
+11. **Туннели и remap**: таблицы считаются один раз, в кадре только смещение (https://lodev.org/cgtutor/tunnel.html).
+12. **Режиссёр сцен с сидами**: сцена = генератор + сид + диапазоны параметров. Переход — кроссфейд или интерполяция параметров. Сид берётся из часов и дня.
+    - Аналоги: FastLED `FxEngine` transitions (прочитан заголовок); Pixelblaze `sequencerNext` (прочитано); «генетические кроссфейды» Electric Sheep (https://en.wikipedia.org/wiki/Electric_Sheep — [не проверено], по выдаче).
+    - У нас каркас уже есть в `kinetic_digits_led.lua` (`SHOW`, `:56-69`). Не хватает #8 для плавных переходов.
+
+---
+
+## Честные ограничения
+
+- Все «мс в C» — **оценки** по порядку величины (циклы на пиксель при 240 МГц плюс вытеснение Wi-Fi на ядре 0). Надо мерить через upload-trial (`AGENTS.md:822-833`).
+- Измеренные цифры взяты только из `AGENTS.md:835-851` и `docs/14-lua.md`.
+- Ранжирование опирается на распределение по 37 2D-эффектам WLED. Порогов, «правильных» amount и других констант отсюда не выведено: такие значения помечать справочными, пока нет ≥5 наших примеров.
+- FastLED-страницы про `fadeToBlackBy`, `blur2d`, `ColorFromPalette`, `inoise8` и `beatsin8` я знаю по поисковой выдаче с fastled.io: прямые URL групп отдали 404, сами страницы целиком не читал.
