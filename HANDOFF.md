@@ -3365,3 +3365,20 @@ Panel measurements:
 - The platformio.ini stack note does not count newlib's printf in the parser figure.
 
 **Next:** stage 3 of docs/39: snapshots with crossfade, then px.feedback.
+
+## 2026-09-29 (20:40): stage 3 — four snapshots and px.mix, scenes flow into each other (2.7.5, on the panel, not released)
+
+**Done** (fork main fcf8c91, rebased on the twin session's commits; the panel runs it):
+- The `px_snapshot.h` calls:
+  - `px.save([n])` / `px.restore([n])` — 4 slots, the default is slot 1, so old scripts are unchanged;
+  - `px.mix(n, a[, box])` — Q8;
+  - `px.forget(n)`.
+- A whole-canvas `px.mix` takes 3.0 ms on the panel. It is charged 9/10 of an instruction a pixel.
+- KALEIDOSCOPE flows between scenes over 3 s. On firmware without mix it still dips through black. The gallery copy is updated: 15.2 fps, 7.4 ms.
+- Gate audits APPROVED (80f62a7, 240ed57). fx_parity 132/132.
+
+**The owner's questions, answered in chat. Research is offered after stage 3; not started:**
+- Does px.mix work for classic pages? No. Classic pages draw straight to the DMA panel. Crossfading pages would need rendering to memory first — an architectural change.
+- Rewrite the creator's classic screens in Lua? Not all of them: CPU on core 0, the network data each page needs, and drift from upstream. Suggested instead: (a) a page crossfade in the firmware, (b) Lua versions of chosen clock styles as new gallery screens.
+
+**Next:** release 2.7.5 on the owner's go; stage 4, px.feedback.
