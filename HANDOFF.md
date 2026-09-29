@@ -2,6 +2,29 @@
 
 Rolling record of where the work stands. Newest first.
 
+## 2026-09-29 (19:45): the twin mirrors the panel's settings and effects; stable on the LAN
+
+- **Settings as on the panel.** The panel's `/api/export` was read (read-only) and 58 settings went into the twin via `/api/import`. All 58 match afterwards.
+  - Left out: `weatherApiKey` (the owner's key, not copied without his word), `deviceName` (the twin stays TWIN-…), and `climateHa` (the twin keeps its HA sensor on).
+- **Effects as on the panel.** 20 of the panel's 27 Lua effects are on the twin, byte for byte, from the repo gallery and `private/` photos.
+  - Not found as exact copies: AUTUMN, KALEIDOSCOPE, LADY_DOG_LINES, LADY_RED_HAT, LADY_WITH_DOG, flip_wall_clock, sotd_0923_evening. Only other versions of these exist in the repo, and the firmware has no route to download a script.
+  - The uploads into the twin at 17:33–17:40 were the owner's own.
+- **Stability on the LAN.** 31 min up on the bridge with MQTT connected throughout. A climate change set from the page reached HA within a minute (22.8 °C / 45.8 % at 19:36:39).
+  - HA's `last_reported` does not move while the value stays the same (the MQTT sensor dedupes), so it cannot serve as a heartbeat.
+  - Not verified: an inbound connection from another LAN host after 20+ min idle (the MAC-NAT timeout), and sleep or Wi-Fi reconnect.
+- **Page.**
+  - The GOB glow is off by default: at 0.55 it read as a blur on every effect (owner, 19:07).
+  - The look is remembered in the browser.
+  - `/flasher/` opens the flasher.
+  - A tab opened during flashing sees «USB занят».
+- **Left:**
+  - the flash ID and eFuses from the panel (needs a USB cable to the Mac);
+  - photos for the optics;
+  - an MQTT user for the twin (offered);
+  - the weather key (owner's call);
+  - the low `release`-on-close ordering (backlog);
+  - iPad later (docs/40 §9).
+
 ## 2026-09-29 (19:10): the web flasher flashes the twin; the twin is on 2.7.4 like the panel
 
 - **Web flasher, end to end in the browser.** A blank twin was flashed from the project flasher page: Connect → «Двойник» → Install 2.7.4 with erase → Improv Wi-Fi → «Device connected to the network!». `twin.py verify` shows the flash equals the image outside NVS. Design and checks: docs/42.
