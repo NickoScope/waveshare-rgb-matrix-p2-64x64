@@ -4067,3 +4067,15 @@ Charges are set from these.
   - s_simBy is one slot for all /api/ir/do;
   - any LAN host can take both listener slots.
 - **The simulation session:** app 1.4 in progress. It excludes fbAskHa from the copy and keeps the twin on false; it tests the 2.7.13 fields on the live pair.
+
+## 2026-09-30 (23:15): v2.7.14 released (the night's lows)
+
+- **v2.7.14:** https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.14 (tag 179d803).
+  - The panel runs the release image (health PASS, keys stored). The flasher serves 2.7.14.
+  - /api/ir/press is marked as a request (checked on the panel via UDP: cw by sync, ccw by http).
+  - Refusals by Origin answer 403 everywhere: anim, lua, clips, IR clear.
+  - localhost is accepted as the panel's own host.
+  - hold is clamped to 10 s.
+- **Caught on the panel before release:** a commit put strncmp on the Lua upload's no-file branch, where the error pointer can be NULL, which could crash the panel. It was fixed within minutes and never released. Delta audit APPROVED.
+- **The owner (23:04) went to sleep:** «сами всё тестируйте без меня, утром представьте готовую работу».
+- **Waiting for:** the simulation session's app 1.3.1 (instant screen mirror over the UDP events), then 1.4. Firmware-side issues from them go into 2.7.15.
