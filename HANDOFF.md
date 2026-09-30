@@ -3773,3 +3773,19 @@ Charges are set from these.
   - whether 750 ms is right;
   - card notifications and night off: with a transition or without;
   - "делай".
+
+## 2026-09-30 (10:25): 2.7.8 (Aquarium and Burning room screensavers removed) integrated: on the panel and in main, not released
+
+- **Handed over by the simulation session** on the owner's word ("1, передай сессии интеграции").
+  - Branch feat/ambient-trim d6a7247, gate audit APPROVED there.
+  - It removes ambientStyle 4 and 5, normalizes 2/4/5 → 0, and bumps to 2.7.8 (flash −137 KB).
+- **Checked on the panel** (flashed ~10:20):
+  - ambientStyle set to 5 on 2.7.7 reads 0 after 2.7.8.
+  - Import: 4 → 0; 3 and 1 kept.
+  - The portal lists four screensavers (ETag 8e178e90ec39).
+  - Screensavers 0, 1, 3 and 6 were shown in forced ambient, 8 s each; no errors in the log.
+  - health.py PASS on 2.7.8.
+  - Restored: ambientStyle 0, mode auto, OCEANARIUM on screen.
+- **main fast-forwarded to d6a7247.** The peer's branch was left for the peer to delete.
+- **Not released:** the flasher still serves v2.7.7. A release waits for the owner's word.
+- **The peer is still working on:** FAMILY PORTRAIT and PICTURE DAY PHOTO leaving the public gallery (the owner is deciding). Don't touch gallery/ for them.
