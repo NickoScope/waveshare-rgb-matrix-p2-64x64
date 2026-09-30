@@ -1,6 +1,6 @@
 # Upstream issue draft: the web flasher wipes the settings even when told not to erase (Keralots/AnimatedPixelClock)
 
-Status: DRAFT, not posted. Posting waits for the owner's "отправляй" (he asked for the draft at 21:59 2026-09-30: «да, сделай черновик автору»).
+Status: POSTED 2026-09-30 ~22:24 on the owner's «да, отправляй, только аккуратно, по-человечески»: https://github.com/Keralots/AnimatedPixelClock/issues/12 (as NickoScope, no attribution line). The posted body adds a paragraph on the spare-board test (/tmp/issue_flasher.txt text).
 
 Facts checked 2026-09-30 against upstream main:
 - docs/flasher.js:54 sets `new_install_prompt_erase: true`.
