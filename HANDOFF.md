@@ -3902,3 +3902,8 @@ Charges are set from these.
   - health.py PASS.
 - **Asked the simulation session** to test a real write, clear and hot reload on the twin with a dummy AIS key, if the owner allows flashing the twin.
 - **Not released:** the flasher serves v2.7.8. A release waits for the owner's word.
+- **16:50, the Keys page on the twin** (the simulation session; the twin flashed with the same 2.7.9 build; dummy AIS key). All three checks PASS:
+  1. A write reads stored:true, and /api/yachtradar shows keyPresent:true with no reboot.
+  2. A clear reads stored:false and keyPresent:false.
+  3. The first key entered with the yacht page up opened the stream in 2 s; aisstream refused the dummy key 6 s later, as expected.
+  - The twin was left with no keys. Nothing on the panel was touched.
