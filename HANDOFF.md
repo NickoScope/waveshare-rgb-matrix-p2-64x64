@@ -3991,3 +3991,22 @@ Charges are set from these.
   - The page was reloaded right after, so Update now could not downgrade.
 - **The feature shows itself only from the next release.** v2.7.10 on Pages has no OTA_ONLY beside it, and 2.7.11 is not released yet: when it is, its OTA_ONLY lands on Pages.
 - **Next:** instant sync events (screen + input over UDP), on a branch off this main.
+
+## 2026-09-30 (21:50): v2.7.11 and v2.7.12 released; the portal offers the update for real
+
+- **v2.7.11** (abf7f35) on «выпускай 2.7.11».
+  - The panel runs its release image (health PASS).
+  - It is the first release with OTA_ONLY on the flasher's Pages (CORS *, 2,200,704 B).
+- **v2.7.12** (fc91fd3) on «пампани до 12 чтобы я посмотрел как она появляется»: version only; the panel was left on 2.7.11 on purpose.
+  - After Pages served v2.7.12, the real portal showed the "v2.7.12 available" badge, the "new" tag on Maintenance and the New firmware card, with no fakes.
+  - Update now is the owner's to press.
+- **The simulation session's input analysis** (to fold into the sync-events work):
+  - Lua sees only clicks: px.button counts them, and LONG counts as PRESS.
+  - A click before the effect opens is swallowed (the baseline is taken at open).
+  - For Lua pages, replay with /api/lua click (0.13–0.19 s), not /api/ir/do (0.54–0.67 s, which merges presses under ~300 ms).
+  - Proposed:
+    - now.fx {id, open, clicks, run}, with the click baseline set before a reopen;
+    - an input ring of 8 in PSRAM, read by GET /api/panel?input=N;
+    - carouselNote in /api/lua click;
+    - fx.clicks in the "screen" push, coalesced to one datagram per listener per 100 ms;
+    - by:"sync" from X-Twin-Sync.
