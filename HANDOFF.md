@@ -12,6 +12,14 @@ Rolling record of where the work stands. Newest first.
 - **Ksawery's INTERPHASE code** was pulled from collect.ksawerykomputery.com. It is copyrighted, so it stays local only, outside every repo (memory led-strip-wall-p004).
 - **What mattered for the panel work here:** nothing changes. The panel firmware still takes no DDP or Art-Net input. Adding a DDP receiver would be an architectural change, made only on the owner's word.
 
+## 2026-09-30 (07:45): the twin on 2.7.7 like the panel; its address is now 192.168.4.21
+
+- The owner started the twin himself at 07:28 from his terminal, on the fixed engine: PSRAM 16 772 979 bytes live. My second start at 07:29 stopped at once (port 8790 in use).
+- eero gave the twin a new lease: **192.168.4.21** instead of .68. A reservation in the eero app would fix it (owner's phone).
+- **2.7.7 (owner: «обнови»):** the release on the flasher (main) is build 23:50:12, 2 327 568 bytes, the same as the panel. Its SHA256SUMS entry matches. The netbroker `.pio` app is the same bytes, so the ELF is there too.
+  - Copied to `~/twin/fw/v2.7.7/`.
+  - OTA done, confirmed after 60 s; the settings survived.
+
 ## 2026-09-30 (01:40): engine fixes in the fork - PSRAM 16 MB, watchdogs, no clock drift
 
 - Fork `nickoscope/twin` @ 656cd2a, pushed. `~/twin/esp32sim` is rebuilt; firmware main 980c909 points at it.
