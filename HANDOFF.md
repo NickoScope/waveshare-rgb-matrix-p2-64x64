@@ -30,6 +30,20 @@ Rolling record of where the work stands. Newest first.
   - Copied to `~/twin/fw/v2.7.7/`.
   - OTA done, confirmed after 60 s; the settings survived.
 
+## 2026-09-30 (12:45): sync, round 3 running; firmware 2.7.9 (sync routes) handed to the integration session
+
+- **Pushed to main (9c7f094):** the gallery scripts' @name/@about/@control/@function headers; tools/twin/screens.json. The esp32sim page with the "This screen" block is ad23276 on nickoscope/twin.
+- **Firmware feat/sync-routes, e3f6445 (2.7.9)** on origin, not merged. Gate audit APPROVED; 50/50 checks in the emulator. Handed to the session «LED MATRIX by Waveshare».
+  - GET /api/lua/source (ACAO *).
+  - GET|HEAD /api/firmware/image (needs X-Twin-Sync: 1; not built with a hardcoded Wi-Fi password).
+  - Not measured on hardware: loop() stalls for the whole image transfer.
+- **The app's sync:**
+  - Round 1 (64f4627/ef3d2e1) worked on two temporary twins. Two reviews found 28 issues; round 2 (9a9bcd1) closed 26.
+  - The re-review found 10 more (races around firmware, Return defaults, blocking dialogs).
+  - Round 3 is running (workflow wf_ba6b7e0b-b3b): those 10, plus the owner's «SYNC с двумя подтверждениями» — two dialogs to enable, two to flash the panel, Return = Cancel everywhere. The panel's hardware settings (mic, knob, presence setup, climate calibration, irEnabled) go panel → twin only.
+  - Local on feat/virtual-twin, not pushed.
+- **The live twin** runs in the app (reopened 11:00 at the owner's word). The app is still 1.2, without sync.
+
 ## 2026-09-30 (10:35): private photo effects off the public gallery; 2.7.8 released; "This screen" ready (not pushed)
 
 - **FAMILY PORTRAIT and PICTURE DAY PHOTO** were removed from the public gallery with `gallery.py unpublish --any` (4aa01b5, 9479427 on origin/main) at the owner's word (09:53: private effects live outside the public repo).
