@@ -3702,3 +3702,22 @@ Charges are set from these.
   - On the panel: 15.2 fps, avg 16.9 ms, a click-driven change ran, no stops.
   - The heaviest frame is a scene's build: 205k instructions, 140 ms. The old version had 229k (fxhost with panel limits), so this is not new.
 - **Next:** OCEANARIUM light by time of day through px.mix; then the two researches.
+
+## 2026-09-30 (08:25): OCEANARIUM does not need px.mix; change reverted
+
+- **Owner: "сделай" (OCEANARIUM light by time of day through px.mix).**
+- **What I tried.** The still picture (water and reef, redrawn when the light moves a step) flowed into the next one through slot 2: 1.5 s, or 0.5 s in the demo day.
+- **What I measured.** OCEANARIUM 24H in luasim at a true 15 fps, 1800 frames from 18:30. I tracked the median brightness of the far sand rows.
+
+  | Measure | Old | New |
+  |---|---|---|
+  | largest jump in a frame | 2.3 of 255 | 2.0 of 255 |
+  | 99th percentile | 1.34 | 1.33 |
+  | frames with a jump over 1.5 | 17 | 16 |
+
+  The series match. The lamp turning on and off (25 → 49 → 67, and 66 → 21 at 23:00) already runs over seconds.
+- **Why it is already smooth.** light_update low-passes the day and the warm light (tau 8 s, 0.8 s in the demo) and the lamp (2.5 s). light_tables redraws the still on steps of 3 colour units or 5 % luminance, which are small.
+- **Decision.** Reverted; nothing committed in the fork. In docs/39, OCEANARIUM is taken off the candidate list, with the numbers.
+- **Next (the owner's end list):** the two researches.
+  - A crossfade between all pages at firmware level.
+  - Lua versions of the classic clock styles.
