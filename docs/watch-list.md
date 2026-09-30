@@ -62,6 +62,8 @@ not depend on this check.
 
 ## Log
 
+- 2026-09-30 10:04: MicroPixel, 78. Release `firmware-v0.9.6` (2026-09-30 07:09 UTC): SenseCAP Watcher gains local control (UART bridge, screenshots, volume, battery reporting), local-control transports no longer mix Host logs into responses, Snake/Blocks HUD fits narrow safe areas; companion SDK 0.20.2 (Flex intrinsic sizing), SDK 0.20.1 Bundles stay compatible, no ABI change. No commit on `tools/manager/micropixel_manager.py` or `AGENTS.md` emitted, so doc 33 is unaffected. Reddit and #3 quiet. Nothing sent.
+
 - 2026-09-29 22:03: item 4, Keralots. Upstream commit `781b393` (2026-09-29 18:57 UTC) fixes the brightness ramp test pattern: the CIE1931 table maps inputs below 5 to off, so the ramp now starts at 5. Only `src/display/panel_config.cpp`. Nothing sent.
 
 - 2026-09-29 22:03: item 4, Keralots. Upstream commit `fa75ad9` (2026-09-29 18:57 UTC) waits for the panel scan before reusing the back buffer on every frame (was guarded only for the starfield), removing dark flashes when refresh is near the frame rate. Only `src/main.cpp`. Nothing sent.
