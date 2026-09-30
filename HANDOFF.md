@@ -4010,3 +4010,20 @@ Charges are set from these.
     - carouselNote in /api/lua click;
     - fx.clicks in the "screen" push, coalesced to one datagram per listener per 100 ms;
     - by:"sync" from X-Twin-Sync.
+
+## 2026-09-30 (22:25): the web flasher keeps the settings on "don't erase" (tested on a spare board, published)
+
+- **The owner's question:** can the web flasher install without erasing?
+- **Found:** it wrote one merged Full.bin at 0x0, and the merge fills the gap 0x8C00–0xE000 with 0xFF, which covers the whole NVS (0x9000–0xE000). So "don't erase" still wiped the settings, the Wi-Fi and the keys; only LittleFS survived.
+  - This is from upstream: the flasher in 994de8b (2026-07-02), the merge in 304f32d (2026-09-06). Upstream main still has it.
+- **Fix (main 6ee70d6, 76c5ebd):**
+  - The manifest lists four parts: bootloader 0x0, partitions 0x8000, otadata 0xE000, the OTA_ONLY app 0x10000.
+  - release.py writes the part files and adds them to SHA256SUMS.
+  - The page text says when to erase.
+  - Gate audit APPROVED. It confirmed in the esp-web-tools 10.4.0 and esptool-js 0.6.1 sources that only the parts are written (the stub erases only each part's size).
+- **Tested on a spare board** (MAC 90:e5:b1:d2:0e:b0, IP .36), with the owner clicking in Chrome.
+  - Control, the old published flasher without erase: Wi-Fi and settings gone, and NVS no longer held "sparetest".
+  - Fix, from localhost without erase, on a board running from app1: back on the same IP, with "sparetest", 12h, style 8 and WARP; it booted the new firmware from app0.
+- **Published:** Pages serves the new flasher.js and the three part files.
+- **Upstream issue draft:** docs/drafts/upstream-flasher-keeps-settings.md (test facts added). The owner said to fix and test first; posting waits for his "отправляй".
+- **The spare board** is left on 2.7.12 with the test settings (name sparetest).

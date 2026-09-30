@@ -9,7 +9,10 @@ Facts checked 2026-09-30 against upstream main:
 - platformio.ini:105: the Waveshare env uses large_littlefs_32MB.csv, with nvs at 0x9000, size 0x5000.
 - So the gap from the end of the partition table to otadata at 0xE000 covers all of NVS. Our v2.7.12 Full.bin has only 0xFF there.
 - Our fix is fork branch feat/flasher-keep-settings (6ee70d6): four parts at 0x0, 0x8000, 0xE000 and 0x10000. The parts rebuild Full.bin byte for byte and do not touch 0x9000-0xE000.
-- Not yet tried over USB on a real board.
+- Tested over USB on a spare Waveshare board (MAC 90:e5:b1:d2:0e:b0), 2026-09-30 22:04-22:21, with the owner clicking in Chrome:
+  - Control (the old published flasher, one Full.bin, "don't erase"): the Wi-Fi and the settings were gone (the board booted into the setup AP). NVS read over USB no longer held the device name "sparetest".
+  - Fix (the new flasher from localhost, four parts, "don't erase"), on a board running from app1 after an OTA: back on the same IP, with the device name "sparetest", 12-hour clock, clock style 8 and the uploaded effect WARP. It booted the new firmware from app0.
+- Published to the web flasher (main 76c5ebd) after that test.
 
 ## Title
 
