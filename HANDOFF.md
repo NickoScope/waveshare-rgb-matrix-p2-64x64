@@ -3789,3 +3789,15 @@ Charges are set from these.
 - **main fast-forwarded to d6a7247.** The peer's branch was left for the peer to delete.
 - **Not released:** the flasher still serves v2.7.7. A release waits for the owner's word.
 - **The peer is still working on:** FAMILY PORTRAIT and PICTURE DAY PHOTO leaving the public gallery (the owner is deciding). Don't touch gallery/ for them.
+
+## 2026-09-30 (10:20): v2.7.8 released
+
+- **Released** on the owner's word ("да, выпускай 2.7.8"):
+  - GitHub Release: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.8 (tag at 9a2fe81).
+  - The flasher serves v2.7.8.
+  - The panel runs the release OTA image (e1004d46...); health.py PASS; ambientStyle 0.
+- **In it:** the Aquarium and Burning room screensavers removed (the simulation session's d6a7247).
+- **Draft:** docs/drafts/release-v2.7.8.md.
+- **The twin:** the simulation session updated it to 2.7.8 (192.168.4.21).
+- **Coming from the same session, as a branch after its gate audit:** feat/sync-routes, read-only GET /api/lua/source and GET|HEAD /api/firmware/image.
+- **Waiting for the owner:** the three questions on page transitions (docs/43).
