@@ -4035,3 +4035,35 @@ Charges are set from these.
   - health PASS; keys stored; CLOCK on screen.
   - The twin followed on its own via the sync (the owner saw it).
 - **Next:** instant sync events (screen + input over UDP, now.fx clicks), per the simulation session's analysis.
+
+## 2026-09-30 (23:10): night work: v2.7.13 released (instant sync events, fbAskHa, flasher by parts)
+
+- **The owner's words in this chat (22:48):** he went to sleep; flash, release, don't stop, no questions; commit, push, release, report, put the Mac to sleep.
+  - Split with the simulation session: I do the firmware and the panel; it does the twin app 1.4 and the Mac's sleep.
+- **v2.7.13:** https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.13 (tag 50d822b).
+  - The panel runs the release image (health PASS, keys stored, CLOCK). The flasher serves 2.7.13. The twin follows via the sync.
+  - Instant sync events (src/sync/sync_events.{h,cpp}):
+    - POST /api/sync/listen;
+    - UDP "screen" and "input" from port 4210;
+    - by knob / ir / http / sync / carousel / schedule / auto;
+    - seq without holes;
+    - /api/panel now.fx {id, open, run, clicks}, seq, inputSeq, ?input=N (a ring of 8 in PSRAM).
+  - The effect click baseline is now taken at selection, so a click right after a page change is no longer swallowed.
+  - /api/lua click holds the carousel.
+  - fbAskHa: off, the flight board never asks HA. Export and import only; default on.
+  - Gate audits APPROVED ×4; all findings fixed.
+  - **Two bugs found only on the panel and fixed:**
+    - every "by" was "auto": millis()|1 against unsigned arithmetic;
+    - coalesced changes used up seq numbers.
+  - **Measured:** min free heap 35,284 B; DMA min 27,500 B; no alloc fails; the datagram within ~0.1 s.
+- **Flasher by parts:**
+  - Twin runs by the simulation session: four FLASH_DEFL_BEGIN, no erase, 183/183 NVS keys kept. The old flasher went from 183 keys to 60.
+  - Docs fixed (c9acf5f); esp-web-tools pinned to 10.4.0.
+- **Backlog (low, not done tonight):**
+  - /api/ir/press has no sim window, so its "by" is "ir";
+  - refused uploads answer 400 rather than 403;
+  - hostIsPanels refuses localhost;
+  - Lua upload over localhost on the twin gives 403 (use 127.0.0.1);
+  - s_simBy is one slot for all /api/ir/do;
+  - any LAN host can take both listener slots.
+- **The simulation session:** app 1.4 in progress. It excludes fbAskHa from the copy and keeps the twin on false; it tests the 2.7.13 fields on the live pair.
