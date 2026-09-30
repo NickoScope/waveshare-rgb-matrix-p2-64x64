@@ -3828,3 +3828,23 @@ Charges are set from these.
 - **The twin:** the simulation session updated it to 2.7.8 (192.168.4.21).
 - **Coming from the same session, as a branch after its gate audit:** feat/sync-routes, read-only GET /api/lua/source and GET|HEAD /api/firmware/image.
 - **Waiting for the owner:** the three questions on page transitions (docs/43).
+
+## 2026-09-30 (12:45): feat/sync-routes (2.7.9) received from the simulation session; waiting for the owner to flash
+
+- **Branch e3f6445** on main 9c7f094. Read-only routes for the twin's sync:
+  - GET /api/lua/source (a script's bytes, CORS *);
+  - GET|HEAD /api/firmware/image (the running app from its OTA slot).
+    - It needs X-Twin-Sync: 1, else 403.
+    - It is not compiled when a Wi-Fi password is baked in.
+    - loop() stands still for the whole transfer: 5.1 s on the twin, not measured on the panel.
+- **Gate audit** there: APPROVED. Built here: SUCCESS, flash 2,194,141 B.
+- **My note to the peer (not a blocker):** AP_PASSWORD is also plain text in the image if set; the route guard should check it too.
+- **Not flashed.** The peer relays that the owner wants to confirm flashing the panel (and enabling SYNC) himself.
+- **Panel checks planned:**
+  - image transfer time;
+  - loopMaxMs and webRefused;
+  - 403 without the header;
+  - the image byte-for-byte against firmware.bin;
+  - lua/source by name and by index, ../ and 404;
+  - health.py.
+- **Audit side note:** env matrix-waveshare-rgb-luabench does not build on clean main (#error in src/ir/ir.h:29: build_unflags drops IR_ENABLED but keeps IR_RX_ENABLED).
