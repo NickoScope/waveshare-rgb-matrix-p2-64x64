@@ -4079,3 +4079,11 @@ Charges are set from these.
 - **Caught on the panel before release:** a commit put strncmp on the Lua upload's no-file branch, where the error pointer can be NULL, which could crash the panel. It was fixed within minutes and never released. Delta audit APPROVED.
 - **The owner (23:04) went to sleep:** «сами всё тестируйте без меня, утром представьте готовую работу».
 - **Waiting for:** the simulation session's app 1.3.1 (instant screen mirror over the UDP events), then 1.4. Firmware-side issues from them go into 2.7.15.
+
+## 2026-10-01 (00:20): pre-commit hook fixed; the gallery on wall-clock scenes (the simulation session)
+
+- **The pre-commit hook** (08bea1a) now runs pio without GIT_INDEX_FILE, GIT_DIR, GIT_WORK_TREE, GIT_PREFIX and GIT_OBJECT_DIRECTORY.
+  - Before this, in a fresh worktree PlatformIO's git clone of a library wrote into the commit's index ("Error building trees"). Found by the simulation session.
+  - Checked in a fresh worktree: a src commit passes and contains only its own files.
+- **The simulation session moved 12 gallery effects to wall-clock scenes** (dbb0d33…dd6dd0b), so the twin and the panel change scenes together. fx_parity 180/180. The effects on the panel will be updated after app 1.4.
+- **App 1.3.1** (instant screen mirror, 0.69 s median) is installed. Its consent window waits for the owner: first «Включить», then «С панели на двойника».
