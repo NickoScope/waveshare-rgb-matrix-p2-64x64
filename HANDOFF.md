@@ -3721,3 +3721,25 @@ Charges are set from these.
 - **Next (the owner's end list):** the two researches.
   - A crossfade between all pages at firmware level.
   - Lua versions of the classic clock styles.
+
+## 2026-09-30 (08:45): research — crossfade between pages at firmware level (docs/43)
+
+- **Owner: "начинай с перехода между страницами".** Research only; no code yet. It is written in docs/43-page-transitions.md.
+- **Findings:**
+  - Every page redraws the whole frame each tick (clear → page → overlays → flip).
+  - The DMA buffer can't be read back.
+  - Frame capture already exists in `Fx3dDisplay`, but it is built only in the fx3dbench env.
+  - Lua effect switches show black for 225–284 ms while the new effect loads (`lua_effects.cpp:742`).
+- **WLED, checked in its source (d911f15afe):** 18 transition styles, default 750 ms. It runs old and new effects together each frame; our pages can't, so the old page freezes on its last frame.
+- **Proposal:**
+  - A "shadow": capture as a tee — every draw goes to the panel and to a PSRAM copy.
+  - A page-identity key decides when a transition starts.
+  - Three kinds: wipe/dust (old frame only), crossfade and push (a full blit, 6–15 ms measured in docs/27).
+  - A Lua switch holds the old frame until the new effect's first frame.
+- **Not measured yet:** the shadow's cost per tick, the mix, `setBrightnessOE`.
+- **Side finding:** the Lua blit is per-pixel (14–15 ms). fx3d's run blit (6.3–9.7 ms) would save 5–8 ms a tick on every Lua page.
+- **Waiting for the owner:**
+  - the default kind of transition;
+  - whether 750 ms is right;
+  - card notifications and night off: with a transition or without;
+  - "делай".
