@@ -3861,3 +3861,21 @@ Charges are set from these.
   - lua/source by name and by index, ../ and 404;
   - health.py.
 - **Audit side note:** env matrix-waveshare-rgb-luabench does not build on clean main (#error in src/ir/ir.h:29: build_unflags drops IR_ENABLED but keeps IR_RX_ENABLED).
+
+## 2026-09-30 (16:45): the Keys page (feat/portal-keys, 2.7.9): audited, waiting for the owner to flash
+
+- **The owner:** "Нужно добавил на веб панели внесение секретов, на страницах экранов, где-то но нужны". He chose one Keys page (the station pages stay out of the portal) and no MQTT broker.
+- **Branch feat/portal-keys, 292c60d, on origin/main 4942673.**
+  - /api/keys, write-only: aero = NVS aero/key, rtt = rb/token + kind, ais = yr/ais.
+  - Hot reload between fetches: aero and rtt forget the old key's waits and the exchanged token. The AIS stream reconnects, and the first key entered while the page is up opens it.
+  - originIsForeign is stricter: Origin must be exactly http://Host, and Host an IPv4 literal or .local. This closes DNS rebinding for the Lua upload and delete too.
+  - Docs in README and AGENTS.md.
+- **Gate audit:** APPROVED, then its 2 medium and 7 low findings were fixed, and the delta audit was APPROVED.
+- **Backlog (LOW, not fixed, per the finish-gate-on-blockers rule):**
+  - hostIsPanels refuses "localhost": the twin opened as localhost:8080 would get 403 on Lua upload; 127.0.0.1 works.
+  - aero's dirty block leaves an unwiped temporary String copy of the key, the same pattern as loadNvs.
+  - IPv6 literals and a trailing-dot .local get 403.
+- **Owner's rule:** his keys on the panel are never re-saved or cleared, even for a test (memory panel-keys-untouched).
+  - Panel checks after flashing are read-only and refusal-only.
+  - A real write, clear and hot reload is to be tested on the twin (ask the simulation session).
+- **Not flashed:** waiting for the owner's word. It goes out with feat/sync-routes as one 2.7.9; whichever merges second rebases.
