@@ -3688,3 +3688,17 @@ Charges are set from these.
 - gallery.py took the stem's case as given; first published as WARP, redone as `warp` like the others (63812b0).
 
 **Next:** KINETIC DIGITS LED scene changes through px.mix.
+
+## 2026-09-30 (07:55): KINETIC DIGITS LED scene changes flow (px.mix)
+
+- **Owner: "начинай KINETIC".** Fork 19f5cc4 (script + gallery copy + README + index).
+- **How it flows:**
+  - The new board starts at once and flips in from dark while the old picture dissolves over it: 2 s, or 0.5 s when picked by hand, so the scene's name reads.
+  - The scene draws into its own canvas in slot 3, since a flip board redraws only what flips; the old picture waits in slot 2.
+  - Before 2.7.5 the wave out stays.
+- **Gotcha:** the main chunk is at Lua's 200-locals limit; new state lives in one table, `FL`.
+- **Checks:**
+  - fx_parity 180/180.
+  - On the panel: 15.2 fps, avg 16.9 ms, a click-driven change ran, no stops.
+  - The heaviest frame is a scene's build: 205k instructions, 140 ms. The old version had 229k (fxhost with panel limits), so this is not new.
+- **Next:** OCEANARIUM light by time of day through px.mix; then the two researches.
