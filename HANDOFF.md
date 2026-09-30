@@ -30,6 +30,26 @@ Rolling record of where the work stands. Newest first.
   - Copied to `~/twin/fw/v2.7.7/`.
   - OTA done, confirmed after 60 s; the settings survived.
 
+## 2026-09-30 (10:10): ambient Aquarium and Burning room removed (branch for 2.7.8), handed to the integration session
+
+- **What the owner did:**
+  - Looked at all the screensavers on the live panel (only `/api/import ambientStyle` and `/api/mode/ambient|auto` were used; the panel was put back to style 0, page OCEANARIUM).
+  - Then (09:58): «Aquarium и Burning Room убери, остальное оставь».
+- **Branch `feat/ambient-trim`, d6a7247** (on origin, not merged):
+  - both ambients are deleted; stored 4 and 5 normalize to 0;
+  - the portal list is trimmed and web_assets.h regenerated;
+  - FIRMWARE_VERSION is 2.7.8; flash 2 327 568 → 2 190 129 bytes.
+- **Checks:**
+  - Emulator run OK.
+  - Gate audit APPROVED after fixes: the stale web_assets.h and five comments.
+  - Not checked on hardware.
+- **Handed to the session «LED MATRIX by Waveshare» [523461]** on the owner's word («1, передай сессии интеграции»). The release and flashing are theirs, on the owner's word.
+- **Also this morning:**
+  - The owner's references: the world clock follows the clocks of iPhone StandBy (in CREDITS.md). FAMILY PORTRAIT, PICTURE DAY PHOTO and the Gioconda are the owner's private pictures.
+  - Private effects: they will live outside the public repo, with a «Private effects» section in the app and installs by PIN (agreed 09:53). Copies of both are in `~/Library/Application Support/TWIN-NickoScopeMatrix-64x128/private-effects/`.
+  - Their removal from gallery/ waits for the screen-help workflow, which is editing gallery/*.lua.
+  - Open questions to the owner: purging the history (force push), the golf players' portraits, a private GitHub repo.
+
 ## 2026-09-30 (01:40): engine fixes in the fork - PSRAM 16 MB, watchdogs, no clock drift
 
 - Fork `nickoscope/twin` @ 656cd2a, pushed. `~/twin/esp32sim` is rebuilt; firmware main 980c909 points at it.
