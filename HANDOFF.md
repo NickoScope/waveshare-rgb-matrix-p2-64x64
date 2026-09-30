@@ -30,6 +30,19 @@ Rolling record of where the work stands. Newest first.
   - Copied to `~/twin/fw/v2.7.7/`.
   - OTA done, confirmed after 60 s; the settings survived.
 
+## 2026-09-30 (10:35): private photo effects off the public gallery; 2.7.8 released; "This screen" ready (not pushed)
+
+- **FAMILY PORTRAIT and PICTURE DAY PHOTO** were removed from the public gallery with `gallery.py unpublish --any` (4aa01b5, 9479427 on origin/main) at the owner's word (09:53: private effects live outside the public repo).
+  - Their copies (with the new @about headers) are in `~/Library/Application Support/TWIN-NickoScopeMatrix-64x128/private-effects/`.
+  - They are still in the git history and in the fork dwn-bot/AnimatedPixelClock. Purging the history (force push) waits for the owner's word.
+- **2.7.8:** merged, flashed and released by the integration session (tag v2.7.8, 9a2fe81). The twin runs the same OTA image byte for byte (SHA-256 e1004d46…).
+- **"This screen" block (workflow wf_e64fa5a5-235), all local, not pushed:**
+  - Lua effects describe themselves in their header: `-- @name/@about/@control/@function .en/.ru`. All 30 gallery scripts are tagged (f2f6547, 4092499); the format is in gallery/README.md.
+  - Built-in screens: tools/twin/screens.json (424b9bc).
+  - Page: esp32sim branch nickoscope/screen-help (58cc7fa, ad23276).
+  - Needs a CORS header on GET /api/lua/source (feat/sync-routes, uncommitted in scratchpad/sync/fw).
+- **Rebase warning:** feat/virtual-twin (local) modifies the two removed gallery files (f2f6547). On the next rebase onto origin/main, resolve it by deleting them.
+
 ## 2026-09-30 (10:10): ambient Aquarium and Burning room removed (branch for 2.7.8), handed to the integration session
 
 - **What the owner did:**
