@@ -4027,3 +4027,11 @@ Charges are set from these.
 - **Published:** Pages serves the new flasher.js and the three part files.
 - **Upstream issue draft:** docs/drafts/upstream-flasher-keeps-settings.md (test facts added). The owner said to fix and test first; posting waits for his "отправляй".
 - **The spare board** is left on 2.7.12 with the test settings (name sparetest).
+
+## 2026-09-30 (22:30): the full update path tested: the portal's Update now → panel 2.7.12, the twin followed
+
+- **v2.7.12 is kept** (owner: «оставляем»). Deleting it would break the new part-based flasher, whose parts exist for 2.7.12.
+- **The owner pressed Update now** in the portal on 2.7.11. The panel came up on 2.7.12, app0, valid.
+  - health PASS; keys stored; CLOCK on screen.
+  - The twin followed on its own via the sync (the owner saw it).
+- **Next:** instant sync events (screen + input over UDP, now.fx clicks), per the simulation session's analysis.
