@@ -30,6 +30,19 @@ Rolling record of where the work stands. Newest first.
   - Copied to `~/twin/fw/v2.7.7/`.
   - OTA done, confirmed after 60 s; the settings survived.
 
+## 2026-09-30 (14:05): app 1.3 installed - Sync with panel (off by default, two confirmations) and the "This screen" block
+
+- **Firmware repo main 4942673** (tools only): the sync rounds ef3d2e1, 9a9bcd1, 2256503 and 4942673.
+  - The final review's findings are fixed: the focus on Cancel under Full Keyboard Access, the late effects alignment bounded, no panel offer while its firmware is pending, NTP not carried, hardware panel→twin at any alignment, and the resume buttons renamed. Unit tests 42/42.
+  - Owner's rules in the code:
+    - enabling takes two confirmations (which panel, then the direction), and so does flashing the panel;
+    - Return and the default focus are always Cancel / Not now;
+    - the panel's hardware settings (mic, knob, presence setup, climate calibration, irEnabled) go panel→twin only;
+    - turning SYNC off leaves both as they are.
+- **Installed** /Applications/TWIN-NickoScopeMatrix-64x128.app 1.3 (engine ad23276 with the page's block). The DMG is in ~/twin/dist/. The twin runs (2.7.8, PSRAM 16.77 MB). Sync is OFF until the owner turns it on.
+- **Firmware 2.7.9** (feat/sync-routes, e3f6445 plus a1cf48a: AP_PASSWORD in the route guard) is with the integration session. It waits for the owner's word to flash the panel.
+- **Next:** the first SYNC with the real panel, together with the owner. Watch the panel's /api/info loopMaxMs, webRefused and allocFails.
+
 ## 2026-09-30 (12:45): sync, round 3 running; firmware 2.7.9 (sync routes) handed to the integration session
 
 - **Pushed to main (9c7f094):** the gallery scripts' @name/@about/@control/@function headers; tools/twin/screens.json. The esp32sim page with the "This screen" block is ad23276 on nickoscope/twin.
