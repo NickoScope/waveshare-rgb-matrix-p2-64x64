@@ -3955,3 +3955,20 @@ Charges are set from these.
   - AUTUMN DAWN (only on the panel) exceeds its frame time → LUA ERROR.
   - The 400-vs-403 on refused uploads; localhost refused by hostIsPanels.
   - ~500 unknown HTTP requests 17:48–18:07 (a portal tab left open polls every 2 s — likely, not proven).
+
+## 2026-09-30 (21:18): v2.7.10 released (version only); instant sync events in progress
+
+- **v2.7.10** on the owner's word: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.10 (tag 1dbe9a0).
+  - 2.7.9 with the version raised, so the owner can try updating the panel from the portal.
+  - Portal → Maintenance → "Update over the air" with OTA_ONLY_firmware-v2.7.10-waveshare.bin. There is no update-from-GitHub button.
+  - The twin's sync should then follow on its own. Not flashed by me.
+- **In progress: instant sync events** (the owner's ask via the simulation session, 21:10).
+  - POST /api/sync/listen {"port"} (up to 2 listeners, TTL 60 s).
+  - UDP JSON from the existing socket (4210): "screen" {page, key, name, style, entered, off, bright, by} and "input" {kind, by, page, entered}, with a running seq.
+  - by = knob | ir | http | sync (X-Twin-Sync: 1) | carousel | schedule | auto.
+- **Design notes:**
+  - Screen changes are found by diffing a snapshot once per loop pass.
+  - The cause is noted by the entry points. For HTTP: the UriRecorder counts requests, and X-Twin-Sync is read after handleClient.
+  - The control queue gets a source per event (knob / ir / simulated IR from /api/ir/do).
+  - Input replay on the other side: /api/ir/do (irSimulateFn goes through the same queue). The simulation session is confirming this on the bench.
+- **Internal heap before:** free 53.8 KB, min 27 KB, dmaMin 19 KB. The cost is one pbuf per event.
