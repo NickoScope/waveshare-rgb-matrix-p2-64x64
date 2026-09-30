@@ -3972,3 +3972,22 @@ Charges are set from these.
   - The control queue gets a source per event (knob / ir / simulated IR from /api/ir/do).
   - Input replay on the other side: /api/ir/do (irSimulateFn goes through the same queue). The simulation session is confirming this on the bench.
 - **Internal heap before:** free 53.8 KB, min 27 KB, dmaMin 19 KB. The cost is one pbuf per event.
+
+## 2026-09-30 (21:45): 2.7.11 on the panel and in main: the portal offers new firmware; not released
+
+- **Owner (21:28):** «добавляй в портал указатель нового релиза прошивки и предложение обновиться»; «да, прошивай 2.7.11».
+- **main 81cbdb3.**
+  - On load the portal reads VERSION from the web flasher's Pages site (CORS *, no Referer). When it is newer and /api/portal says board "waveshare", it shows:
+    - a top-bar badge;
+    - a "new" tag on Maintenance;
+    - a New firmware card with Update now and What's new.
+  - Update now: confirm(), then download OTA_ONLY from Pages (CORS * checked on .bin), then the existing doUpload.
+  - Pre-releases are not offered.
+  - release.py now puts OTA_ONLY into docs/firmware/latest.
+  - Gate audit APPROVED; two lows applied.
+- **On the panel:** health PASS; LADY WITH DOG kept on screen.
+  - In the browser the card and badge appear with a faked older /api/portal ver ("v2.7.10 available").
+  - They stay hidden for real, since 2.7.11 is newer than the published v2.7.10.
+  - The page was reloaded right after, so Update now could not downgrade.
+- **The feature shows itself only from the next release.** v2.7.10 on Pages has no OTA_ONLY beside it, and 2.7.11 is not released yet: when it is, its OTA_ONLY lands on Pages.
+- **Next:** instant sync events (screen + input over UDP), on a branch off this main.
