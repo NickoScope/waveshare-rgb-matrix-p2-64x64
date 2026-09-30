@@ -3879,3 +3879,26 @@ Charges are set from these.
   - Panel checks after flashing are read-only and refusal-only.
   - A real write, clear and hot reload is to be tested on the twin (ask the simulation session).
 - **Not flashed:** waiting for the owner's word. It goes out with feat/sync-routes as one 2.7.9; whichever merges second rebases.
+
+## 2026-09-30 (16:55): 2.7.9 on the panel and in main (the Keys page + the twin's sync routes), not released
+
+- **Owner "да" (16:42) to flash 2.7.9.**
+  - main 4b7037c = feat/portal-keys (513c027, 292c60d) + the simulation session's sync routes, cherry-picked (b7c430e, 4b7037c).
+  - The only conflict was in AGENTS.md; both paragraphs kept. feat/portal-keys is deleted; feat/sync-routes is left for its owner.
+- **Keys page, checked on the panel without touching his keys:**
+  - GET: aero, rtt (kind refresh) and ais all stored.
+  - Refused: a bad id, a quote or a space in a key, value+clear together, kind on aero, text/plain (415).
+  - Refused with 403: a foreign Origin, the look-alike Origin http://1192.168.4.89, and DNS rebinding (Host and Origin evil.example).
+  - Its own Origin by IP and by .local reach validation (400, not 403).
+  - No NVS errors in the log after polls. No key fields in /api/export.
+  - Trains shown: OK, refresh-exchanged, HTTP 200.
+  - Yachts shown: stream connected.
+  - Flights not shown (AeroAPI is paid per call).
+  - The owner's page (FAMILY PORTRAIT) put back.
+- **Sync routes, on the panel:**
+  - /api/firmware/image: 403 without X-Twin-Sync. HEAD returns 2.7.9, ELF 5298a6d7…, 2,197,552 B. GET takes 6.5–6.7 s and matches firmware.bin byte for byte.
+  - **loop() stands for the whole transfer:** loopMaxMs 6.5–6.7 s against 16 ms at rest; webRefused unchanged.
+  - /api/lua/source: by name and by index gives the same bytes, with ACAO *. `../` → 404, unknown → 404, a bad index → 400.
+  - health.py PASS.
+- **Asked the simulation session** to test a real write, clear and hot reload on the twin with a dummy AIS key, if the owner allows flashing the twin.
+- **Not released:** the flasher serves v2.7.8. A release waits for the owner's word.
