@@ -3665,3 +3665,18 @@ Charges are set from these.
 - px.mix flows for KINETIC (scene changes) and OCEANARIUM (light by time of day);
 - research: a crossfade between pages at firmware level;
 - research: Lua versions of the classic clock styles.
+
+## 2026-09-30 (07:55): v2.7.7 released; WARP in the gallery
+
+**Released** on the owner's word ("да, вноси в галерею, делай релиз и начинай KINETIC"):
+- GitHub Release: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.7 (tag at 608f31c).
+- The flasher serves v2.7.7.
+- The panel runs the release OTA image (4bad9afe...); health.py PASS after it.
+- The body is in docs/drafts/release-v2.7.7.md.
+
+**In 2.7.7:** stage 9 (px.uvmap, px.remap).
+
+**Gallery now has:** WARP.
+- gallery.py took the stem's case as given; first published as WARP, redone as `warp` like the others (63812b0).
+
+**Next:** KINETIC DIGITS LED scene changes through px.mix.
