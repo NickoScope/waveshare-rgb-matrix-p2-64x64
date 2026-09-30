@@ -3930,3 +3930,28 @@ Charges are set from these.
   4. The Lua effect AUTUMN DAWN (only on the panel, not in the gallery): three frames over 500 ms at autumn_dawn:87 paint_scene → :22 dith, then "stopped … over the time budget", and LUA ERROR on screen. The script's own bug.
   5. No panel entities in HA: climateHa false, haPublishes 0. Maybe intended.
   6. lastCrash still from 24.09 (LoadProhibited in loopTask, old firmware).
+
+## 2026-09-30 (18:35): v2.7.9 released (web security, Keys page, twin sync routes); upstream issue #11
+
+- **Released** on the owner's word:
+  - GitHub Release: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.9 (tag at bbe5b88).
+  - The panel runs the release OTA image (f26b4748...); health.py PASS.
+  - Restored: LASER CLOCK, brightness 41 %.
+  - Body in docs/drafts/release-v2.7.9.md.
+- **Web security** (d84c61c..1be7fbc, all gate-audited). Checked on the panel before release:
+  - /reset: GET → 405; a foreign or null Origin → 403; text/plain → 415; no confirmation → 400.
+  - A foreign Origin is refused on /update (junk upload, no reboot), /save, /api/import, /api/rename and /api/notify (403), and on anim upload and IR clear (400).
+  - GET anim/delete and GET ir/clear → 404.
+  - From our own Origin, import {} works.
+  - /api/export and /api/market have no ACAO; a foreign Host → 403 on export, portal values and market; .local passes.
+  - The keys are untouched.
+- **Upstream issue posted** on "да, отпрвляй": https://github.com/Keralots/AnimatedPixelClock/issues/11. Plain text in the owner's voice, no attribution. On docs/watch-list.md as item 14.
+- **Gotcha:** `python3` on the Mac is now Homebrew 3.14, which macOS gives no local-network access ("No route to host"). Use /usr/bin/python3 (Xcode 3.9) for the panel tools.
+- **The simulation session's functional test:** 90 PASS, 4 FAIL, 16 not checked. Backlog, all present in main:
+  - POST /api/lua delete of an unknown name stops the effect and shows the clock before it answers 404 (web_panel.cpp:1162-1165).
+  - /api/mode/clock during the scheduled screensaver stays ambient (ambient.cpp:16-31), unlike what README promises.
+  - GET /api/lua takes ~500 ms (fsFree via LittleFS.usedBytes, not proven).
+  - /api/lua/source holds loop() for up to 3.8 s on big scripts.
+  - AUTUMN DAWN (only on the panel) exceeds its frame time → LUA ERROR.
+  - The 400-vs-403 on refused uploads; localhost refused by hostIsPanels.
+  - ~500 unknown HTTP requests 17:48–18:07 (a portal tab left open polls every 2 s — likely, not proven).

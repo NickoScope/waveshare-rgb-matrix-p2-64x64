@@ -1,6 +1,6 @@
 # GitHub Release v2.7.9 (NickoScope/AnimatedPixelClock)
 
-Status: DRAFT. The owner said to release (18:13 2026-09-30, «да, выпускай 2.7.9 как только получишь результтаты аудита»). It waits for the panel to be free after the simulation session's functional test, then the security fixes are checked on the panel.
+Status: PUBLISHED 2026-09-30 ~18:35 on the owner's «да, выпускай 2.7.9 как только получишь результтаты аудита»: https://github.com/NickoScope/AnimatedPixelClock/releases/tag/v2.7.9 (tag at bbe5b88). The panel runs the release OTA image (f26b4748...); health.py PASS (a first run right after boot lost 1 ping of 38, the rerun 32/32); LASER CLOCK and 41 % brightness as the owner left them.
 
 What goes in:
 - **The Keys page** (513c027, 292c60d): AeroAPI, Realtime Trains and AIS keys entered on the portal, write-only, taken without a restart.
