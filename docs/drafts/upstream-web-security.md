@@ -1,6 +1,6 @@
 # Upstream issue draft: the web server lets any page on the network reset, reflash or rewrite the clock (Keralots/AnimatedPixelClock)
 
-Status: DRAFT, not posted. Posting waits for the owner's "отправляй". He asked for it at 18:14 on 2026-09-30: «автору пиши про все его недочеты, напиши мне на русском для подтверждения».
+Status: POSTED 2026-09-30 18:21 on the owner's «да, отпрвляй»: https://github.com/Keralots/AnimatedPixelClock/issues/11 (as NickoScope, no attribution line).
 
 Facts checked 2026-09-30:
 - Every point below was checked against upstream main 781b3935d6 (2026-09-29), src/web/web.cpp.
