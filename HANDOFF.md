@@ -12,6 +12,16 @@ Rolling record of where the work stands. Newest first.
 - **Ksawery's INTERPHASE code** was pulled from collect.ksawerykomputery.com. It is copyrighted, so it stays local only, outside every repo (memory led-strip-wall-p004).
 - **What mattered for the panel work here:** nothing changes. The panel firmware still takes no DDP or Art-Net input. Adding a DDP receiver would be an architectural change, made only on the owner's word.
 
+## 2026-09-30 (08:50): the twin as a Mac app - «TWIN Panel.app»
+
+- **Owner (08:44): «давай сделаем это приложением MacOS».** `tools/twin/app/` (firmware main e808ee6): TwinApp.swift (AppKit and WKWebView) and build.sh (swiftc, ad-hoc signature). Installed as `~/Applications/TWIN Panel.app`.
+- Opening the app starts `twin.py run --lan --web 8790`. Closing it stops the twin it started. A twin started elsewhere is attached to and left running. The buttons: Панель, Портал ↗, Прошивальщик ↗, Перезапустить.
+- **Checked:**
+  - A temporary twin on :8792 with a temp TWIN_HOME: its page answered in 2 s, and quitting stopped its engine in 1 s.
+  - Attach to the owner's running twin: no second engine was started.
+  - The window was not inspected visually: there is no screen-recording permission.
+- Owner (08:47): the app must be the full device (network, effects, OTA, flasher). It is: the app runs the same engine and firmware; the window is only the screen.
+
 ## 2026-09-30 (07:45): the twin on 2.7.7 like the panel; its address is now 192.168.4.21
 
 - The owner started the twin himself at 07:28 from his terminal, on the fixed engine: PSRAM 16 772 979 bytes live. My second start at 07:29 stopped at once (port 8790 in use).
