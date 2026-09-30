@@ -3907,3 +3907,26 @@ Charges are set from these.
   2. A clear reads stored:false and keyPresent:false.
   3. The first key entered with the yacht page up opened the stream in 2 s; aisstream refused the dummy key 6 s later, as expected.
   - The twin was left with no keys. Nothing on the panel was touched.
+
+## 2026-09-30 (18:15): the functional test found an unprotected factory reset; fix/reset-csrf in audit
+
+- **The simulation session's functional test of 2.7.9** (the owner asked it to pass the finding to me). src/web/web.cpp registered `server.on("/reset", handleReset)` on every method.
+  - A GET wiped NVS pcmonitor and the Wi-Fi and restarted the board: a CSRF with one `<img>`.
+  - Checked in the code; never called on the panel.
+  - Upstream main 781b393 (2026-09-29) has the same code.
+- **Fix: branch fix/reset-csrf, d84c61c, on main 4b7037c (2.7.9).**
+  - POST only; GET gets 405.
+  - The request must be application/json with {"confirm":"factory-reset"}.
+  - webOriginForeign() is now in web.cpp and shared with the Panel group.
+  - The portal's button fetch-POSTs the confirmation.
+  - Built for waveshare and s3; assets --check 0.
+  - Gate audit running.
+- **/api/reboot left as a documented GET** (it loses no data), to be confirmed by the audit.
+- **Upstream:** a draft in docs/drafts/upstream-reset-csrf.md, in the owner's voice. Private vulnerability reporting is off on the upstream repo. Owner: "ему потом можно будет написать". Posting waits for "отправляй".
+- **Other findings of the test (backlog, not blockers):**
+  1. GET /api/lua/source holds loop() while it sends: 86 KB takes 3.8 s, 137 KB takes 0.6–0.8 s; loopMaxMs up to 2382.
+  2. POST /update takes a whole corrupt image (~83 s on the twin) before refusing it.
+  3. The POST /api/panel show answer carries the previous effect in now.lua.
+  4. The Lua effect AUTUMN DAWN (only on the panel, not in the gallery): three frames over 500 ms at autumn_dawn:87 paint_scene → :22 dith, then "stopped … over the time budget", and LUA ERROR on screen. The script's own bug.
+  5. No panel entities in HA: climateHa false, haPublishes 0. Maybe intended.
+  6. lastCrash still from 24.09 (LoadProhibited in loopTask, old firmware).
