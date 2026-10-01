@@ -4113,3 +4113,18 @@ Charges are set from these.
   - notarization needs the owner's Developer ID.
 - **Asked of the integration session:** merge `feat/virtual-twin` into main. It touches tools/twin only.
 - **Next:** the owner looks at FLOW on both screens by eye. The screens were dark overnight on schedule, so this is unchecked.
+
+## 2026-10-01 (09:05): night closed — firmware side done; the owner's report in docs/reports/2026-10-01-night-firmware.md
+
+- **Released overnight:** v2.7.13 (instant sync events, fbAskHa, flasher by parts) and v2.7.14 (lows).
+  - The panel runs the 2.7.14 release image.
+- **The simulation session's app 1.4.2** is on the owner's Mac (https://github.com/NickoScope/TWIN-NickoScopeMatrix-64x128/releases/tag/app-v1.4.2).
+  - Measured on the live pair: twin→panel median 0.06 s, panel→twin 0.03 s.
+  - The panel stays healthy: webRefused 0, allocFails 0, min free heap 25,960 B.
+- **feat/virtual-twin** (tools/twin only) fast-forwarded into fork main at 940aa8f; test_sync and test_twin OK.
+- **LA_GIOCONDA 404** was the app's name building (fixed in 1.4), not the firmware.
+- **Backlog (firmware):**
+  - one s_simBy for all simulated presses;
+  - any LAN host can take both listener slots;
+  - fx.clicks screen ~0.66 s after the input once, not reproduced.
+- **Gotcha:** `python3` on the Mac is now Homebrew 3.14 without local-network access; use /usr/bin/python3 for panel tools.
