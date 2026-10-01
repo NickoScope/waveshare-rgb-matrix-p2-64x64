@@ -4087,3 +4087,29 @@ Charges are set from these.
   - Checked in a fresh worktree: a src commit passes and contains only its own files.
 - **The simulation session moved 12 gallery effects to wall-clock scenes** (dbb0d33…dd6dd0b), so the twin and the panel change scenes together. fx_parity 180/180. The effects on the panel will be updated after app 1.4.
 - **App 1.3.1** (instant screen mirror, 0.69 s median) is installed. Its consent window waits for the owner: first «Включить», then «С панели на двойника».
+
+## 2026-10-01 (09:10): twin app 1.4.2 installed and released; sync instant both ways (the simulation session)
+
+- **Installed:** app 1.4.2 is on the owner's Mac, with sync on. Every reinstall overnight resumed without dialogs, because the consent is kept for the pair. Release: https://github.com/NickoScope/TWIN-NickoScopeMatrix-64x128/releases/tag/app-v1.4.2 (DMG plus SHA256SUMS; signed Apple Development, not notarized). Sources: AnimatedPixelClock `feat/virtual-twin` 940aa8f; engine fork `nickoscope/twin` 99bf691. KB `docs/40-virtual-twin.md` §12 has the whole picture.
+- **The night, in order:**
+  - **1.3.1:** instant screen events.
+  - **1.4:**
+    - one carousel for both;
+    - the twin's own Keys tab;
+    - `fbAskHa=false` on the twin, and ZZZZ on old firmware;
+    - clicks inside effects and the world clock;
+    - exact file names;
+    - refused effects skipped;
+    - X-Twin-Sync on every write;
+    - kept consent;
+    - the flasher in parts.
+  - **1.4.1:** script hashes one at a time, events served between long rounds' requests, `fbAskHa` off at each twin start.
+  - **1.4.2:** a request is never cut off. A cut-off response held the panel's loop() for about 2 s.
+- **Live pair, 1.4.2, 45 changes:** twin→panel median 0.06 s (max 0.41); panel→twin 0.03 s (max 0.22). No dips over 0.6 s. Panel healthy: webRefused 0, allocFails 0, no restarts.
+- **Effects:** the 13 wall-clock effects are uploaded to the panel under its own file names, and the twin took them by itself. AUTUMN DAWN was deleted from the panel on the owner's word on 30.09. It failed with LUA ERROR, and a copy is kept in `~/twin/removed-effects/`.
+- **Open (low):**
+  - a lost write in the reverse direction if the panel restarts within 2.5 s;
+  - a twin behind NAT keeps its events by priming its udpPort;
+  - notarization needs the owner's Developer ID.
+- **Asked of the integration session:** merge `feat/virtual-twin` into main. It touches tools/twin only.
+- **Next:** the owner looks at FLOW on both screens by eye. The screens were dark overnight on schedule, so this is unchecked.
